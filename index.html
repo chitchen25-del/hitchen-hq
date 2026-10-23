@@ -195,7 +195,9 @@ const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg})); } catch(e) {} };
-let sb = null, session = null, offline = false, authMode = 'signin';
+let sb = null, session = null, offline = false;
+const LOGIN_DOMAIN = 'hitchen.example.com'; // usernames map to <username>@this (never emailed)
+const userName = () => { const u = session && session.user; if (!u) return ''; return (u.user_metadata && u.user_metadata.username) || (u.email||'').split('@')[0]; };
 
 /* ---------- static definitions ---------- */
 const DEFAULT_RATES = { base:0, ot15:0, ot2:0, bh:0, oncallWD:0, oncallWE:0, secondWD:0, secondWE:0 };
@@ -545,17 +547,15 @@ function viewSave() {
   </div></section>`;
 }
 function viewLogin() {
-  const create = authMode === 'signup';
   return `<section class="panel login">
-    <h2>${create ? 'Create your account' : 'Sign in'}</h2>
-    <p class="note">${create ? 'Use the email address you gave for the family list, and choose a password.' : 'Sign in once on each phone and the app remembers you.'}</p>
+    <h2>Sign in</h2>
+    <p class="note">Sign in once on each phone and the app remembers you.</p>
     <form id="authForm" class="list" style="gap:10px" novalidate>
-      ${fld('aemail','Email', '', 'email', 'autocomplete="email" inputmode="email" autocapitalize="off"')}
-      ${fld('apass','Password', '', 'password', `autocomplete="${create?'new-password':'current-password'}" minlength="8"`)}
+      ${fld('auser','Username', '', 'text', 'autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"')}
+      ${fld('apass','Password', '', 'password', 'autocomplete="current-password"')}
       <p class="err" id="authErr" hidden></p>
-      <button class="btn" type="submit">${create ? 'Create account' : 'Sign in'}</button>
+      <button class="btn" type="submit">Sign in</button>
     </form>
-    <button class="btn ghost" data-act="authmode">${create ? 'I already have an account' : 'First time? Create an account'}</button>
   </section>`;
 }
 
@@ -716,32 +716,37 @@ function settingsForm() {
     <div class="fields2">${fld('rsWD','2nd on-call weekday (£/h)', r.secondWD, 'number','step="0.01"')}${fld('rsWE','2nd on-call weekend (£/h)', r.secondWE, 'number','step="0.01"')}</div>
     ${fld('rbh','Bank holiday uplift (£/h)', r.bh, 'number','step="0.01"')}
     <p class="note">Rates are taken from your budget spreadsheet. Change them here when pay rates go up.</p>
-    <p class="eyebrow">Account</p><p class="note">Signed in as ${esc(session && session.user ? session.user.email : '')}</p>
+    <p class="eyebrow">Account</p><p class="note">Signed in as <strong>${esc(userName())}</strong></p>
+    ${fld('newpass','New password (leave blank to keep)', '', 'password', 'autocomplete="new-password" minlength="8"')}
     <div class="btnrow"><button class="btn ghost small" type="button" data-act="signout">Sign out on this phone</button></div>`, async () => {
     const out = {...s}; const ca = num(v('cAllow')), va = num(v('vAllow'));
     if (ca!==null) out.chrisAllowance = ca; else delete out.chrisAllowance; if (va!==null) out.vikiAllowance = va; else delete out.vikiAllowance;
     out.leaveStart = Number(v('leaveStart'))||1;
     const map = {ot15:'rot15', ot2:'rot2', oncallWD:'roWD', oncallWE:'roWE', secondWD:'rsWD', secondWE:'rsWE', bh:'rbh'}; const nr = {...r};
     for (const [k,idf] of Object.entries(map)) { const n = num(v(idf)); if (n===null || n<0) throw new Error('Check the pay rates: each needs a number'); nr[k]=n; }
-    out.rates = nr; await put('settings/main', out);
+    out.rates = nr;
+    const np = v('newpass');
+    if (np) {
+      if (np.length < 8) throw new Error('New password needs at least 8 characters');
+      const { error } = await sb.auth.updateUser({ password: np });
+      if (error) throw new Error(/different from the old/i.test(error.message) ? 'That is already your password' : 'Couldn\'t change the password: ' + error.message);
+      toast('Password changed');
+    }
+    await put('settings/main', out);
   });
 }
 
 /* ---------- auth ---------- */
 async function handleAuth(form) {
   const err = $('#authErr'); const btn = form.querySelector('button[type="submit"]');
-  const email = v('aemail').trim().toLowerCase(), password = v('apass');
+  const user = v('auser').trim().toLowerCase(), password = v('apass');
   const show = m => { err.textContent = m; err.hidden = !m; };
-  if (!/^\S+@\S+\.\S+$/.test(email)) return show('Enter your email address');
-  if (password.length < 8) return show('Passwords need at least 8 characters');
+  if (!/^[a-z0-9._-]+$/.test(user)) return show('Enter your username');
+  if (!password) return show('Enter your password');
   btn.disabled = true; show('');
   try {
-    if (authMode === 'signup') {
-      const { error } = await sb.auth.signUp({ email, password });
-      if (error) throw new Error(/database error|not on the/i.test(error.message) ? 'That email isn\'t on the family list. Ask Chris to add it.' : error.message);
-    }
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(/invalid login/i.test(error.message) ? 'Email or password is wrong' : error.message);
+    const { error } = await sb.auth.signInWithPassword({ email: `${user}@${LOGIN_DOMAIN}`, password });
+    if (error) throw new Error(/invalid login/i.test(error.message) ? 'Username or password is wrong' : error.message);
   } catch (e) { show(e.message || 'Couldn\'t sign in'); btn.disabled = false; }
 }
 async function startSession(s) {
@@ -778,7 +783,6 @@ document.addEventListener('click', async e => {
   if (a==='service') return serviceForm(el.dataset.id);
   if (a==='fuel') return fuelForm(el.dataset.id);
   if (a==='mileage') return mileageForm();
-  if (a==='authmode') { authMode = authMode==='signin' ? 'signup' : 'signin'; return render(); }
   if (a==='signout') { closeSheet(); await sb.auth.signOut(); return; }
   if (a==='fillweek') {
     const ym = UI.cal; const first = parse(`${ym}-01`); const n = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate(); let c = 0;
