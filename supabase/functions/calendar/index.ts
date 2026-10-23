@@ -20,8 +20,16 @@ Deno.serve(async (req: Request) => {
   const rows = await r.json();
   const feeds: { name?: string; url?: string; who?: string }[] = (rows[0] && rows[0].data && rows[0].data.feeds) || [];
   const body = await req.json().catch(() => ({}));
-  const days = Math.min(90, Math.max(1, Number(body.days) || 14));
-  const from = Date.now() - 86400000, to = Date.now() + days * 86400000;
+  const isDay = (x: unknown) => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x);
+  let from: number, to: number;
+  if (isDay(body.from) && isDay(body.to)) {
+    from = Date.parse(body.from + 'T00:00:00Z') - 86400000;
+    to = Date.parse(body.to + 'T00:00:00Z') + 2 * 86400000;
+    if (to - from > 420 * 86400000) to = from + 420 * 86400000;
+  } else {
+    const days = Math.min(90, Math.max(1, Number(body.days) || 14));
+    from = Date.now() - 86400000; to = Date.now() + days * 86400000;
+  }
   const calendars = await Promise.all(feeds.map(async (f) => {
     const name = f.name || 'Calendar';
     try {

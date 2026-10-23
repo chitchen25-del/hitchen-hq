@@ -137,6 +137,46 @@ nav.tabs button[aria-current="page"]{color:var(--accent);font-weight:700}
 .check.done span{color:var(--muted);text-decoration:line-through}
 .ai{white-space:pre-wrap;font-size:.93rem;background:var(--surface-2);border-radius:12px;padding:12px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:12px;font-weight:700;z-index:50;font-size:.9rem}
+/* home */
+:root{--viki-on:#F7B6CF}
+.hhero{background:linear-gradient(140deg,#0E3A4B 0%,#1B6886 55%,#2F93A9 100%);color:#fff;border-radius:22px;padding:18px 16px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hhero::after{content:"";position:absolute;right:-40px;top:-50px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hhero .k{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;opacity:.85}
+.hhero .hbig{font-family:var(--font-d);font-weight:700;font-size:1.9rem;line-height:1.05;letter-spacing:-.015em}
+.hchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;position:relative;z-index:1}
+.hchip{display:inline-flex;align-items:center;gap:7px;background:rgba(0,0,0,.2);border-radius:999px;padding:5px 11px 5px 9px;font-size:.84rem;font-weight:700;font-variant-numeric:tabular-nums}
+.hchip i{width:9px;height:9px;border-radius:50%;flex:none}
+.wgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.wcol{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:7px 3px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-width:0}
+.wcol .wd{font-size:.64rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.wcol .wn{font-family:var(--font-d);font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.wcol .wbars{display:flex;flex-direction:column;gap:3px;width:100%;padding:2px 5px 0;min-height:34px}
+.wcol .wbars i{display:block;height:5px;border-radius:3px}
+.wcol .wbars em{font-style:normal;font-size:.6rem;color:var(--muted);font-weight:700;text-align:center;line-height:1}
+.wcol.sel{background:var(--ink);border-color:var(--ink)}
+.wcol.sel .wd,.wcol.sel .wn{color:var(--bg)}
+.wcol.sel .wbars em{color:var(--bg)}
+.agenda{display:flex;flex-direction:column;gap:6px;padding-top:4px}
+.evb{display:flex;align-items:center;gap:10px;border-radius:12px;padding:9px 11px;background:color-mix(in srgb,var(--c) 16%,var(--surface));border-left:5px solid var(--c)}
+.evbt{flex:none;width:52px;font-size:.8rem;font-weight:700;color:var(--muted)}
+.evb .t{font-weight:700;overflow-wrap:anywhere}.evb .m{font-size:.8rem;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:13px;display:flex;flex-direction:column;gap:3px;min-width:0;position:relative}
+.tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tile .tl{font-size:.78rem;color:var(--muted);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .tv{font-family:var(--font-d);font-size:1.7rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile .ts{font-size:.78rem;color:var(--muted)}
+.tile-ring{position:relative;width:56px;height:56px;margin-bottom:4px}
+.tile-ring .ring{width:56px;height:56px;display:block}
+.tile-ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:.78rem;font-variant-numeric:tabular-nums}
+.bdate{width:42px;flex:none;text-align:center;background:var(--surface-2);border-radius:10px;padding:4px 0;line-height:1.05}
+.bdate b{display:block;font-family:var(--font-d);font-size:1.05rem}.bdate span{font-size:.66rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.fromcal{border-style:dashed!important}
+.colrow{display:flex;align-items:center;gap:8px}
+.colrow input,.colrow select{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px;min-width:0}
+.colrow input{flex:1}
+.sw{width:18px;height:18px;border-radius:50%;flex:none}
+.rules{display:flex;flex-direction:column;gap:6px}
 /* family calendar */
 .calday{display:flex;flex-direction:column;gap:2px;padding-top:4px}
 .ev{display:flex;align-items:center;gap:10px;padding:6px 0}
@@ -375,7 +415,10 @@ function leaveYear() {
   const from = `${y}-${pad(startMM)}-01`; return { from, to: addDays(addMonths(from,12),-1) };
 }
 function daysFor(who, from, to) {
-  return Object.values(S.days).filter(d => d.who===who && d.date>=from && d.date<=to);
+  const m = {};
+  Object.values(CAL.days || {}).forEach(d => { if (d.who===who && d.date>=from && d.date<=to) m[d.date] = d; });
+  Object.values(S.days).forEach(d => { if (d.who===who && d.date>=from && d.date<=to) m[d.date] = d; });
+  return Object.values(m);
 }
 function checkStatus(c) {
   const rec = (S.checks.done||{})[c.id];
@@ -403,43 +446,185 @@ function render() {
   $('#app').innerHTML = banner + views[UI.tab]();
 }
 
+/* ----- family calendar (Google Calendar secret iCal links, read by the `calendar` Supabase function) ----- */
+const GCOL = { tomato:['Tomato','#D50000'], flamingo:['Flamingo','#E67C73'], tangerine:['Tangerine','#F4511E'], banana:['Banana','#F6BF26'], sage:['Sage','#33B679'], basil:['Basil','#0B8043'], peacock:['Peacock','#039BE5'], blueberry:['Blueberry','#3F51B5'], lavender:['Lavender','#7986CB'], grape:['Grape','#8E24AA'], graphite:['Graphite','#616161'] };
+const DEFAULT_RULES = [
+  { m:'V:', c:'flamingo' }, { m:'VH-', c:'flamingo' }, { m:'C:', c:'peacock' },
+  { m:'birthday', c:'banana' }, { m:'bday', c:'banana' }, { m:'anniversary', c:'banana' },
+  { m:'pay day', c:'tangerine' }, { m:'payday', c:'tangerine' },
+  { m:'bin', c:'graphite' }, { m:'recycling', c:'graphite' },
+];
+const calRules = () => Array.isArray(S.cal.rules) ? S.cal.rules : DEFAULT_RULES;
+function evColor(title, feedIdx) {
+  const t = String(title||'').trim().toLowerCase();
+  for (const r of calRules()) { const m = String(r.m||'').trim().toLowerCase(); if (!m) continue;
+    if (/[:\-]$/.test(m) ? t.startsWith(m) : t.includes(m)) return (GCOL[r.c] || GCOL.blueberry)[1]; }
+  const f = (S.cal.feeds||[])[feedIdx] || {}; return (GCOL[f.color] || GCOL.blueberry)[1];
+}
+const CAL = (() => { try { const c = JSON.parse(localStorage.getItem('hhq-cal') || 'null'); if (c && c.v===2) return c; } catch(e) {} return { v:2, calendars:[], at:0, days:{} }; })();
+let calBusy = false;
+async function fetchCal(force) {
+  if (!sb || !session || calBusy) return;
+  if (!(S.cal.feeds||[]).length) { CAL.calendars = []; CAL.days = {}; return; }
+  if (!force && Date.now() - (CAL.at||0) < 10*60*1000) return;
+  calBusy = true;
+  try {
+    const from = `${ymOf(addMonths(today(),-3))}-01`, to = addDays(today(), 200);
+    const { data, error } = await sb.functions.invoke('calendar', { body: { from, to } });
+    if (error) throw error;
+    CAL.calendars = data.calendars || []; CAL.at = Date.now(); CAL.error = '';
+    deriveDays();
+    try { localStorage.setItem('hhq-cal', JSON.stringify(CAL)); } catch(e) {}
+  } catch (e) { CAL.error = 'Couldn\'t load the calendar just now.'; }
+  calBusy = false; schedule();
+}
+const evDate = e => e.allDay ? e.start : ymd(new Date(e.start));
+const evTime = e => e.allDay ? '' : new Date(e.start).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+
+/* Rota entries in the calendar: "V: 8-6", "V: on call", "V: AL", "V: sick", "V: DO", "C: 8-5" */
+function parseRota(title) {
+  const m = /^\s*(VH|V|C)\s*[:\-]\s*/i.exec(String(title||'')); if (!m) return null;
+  const who = m[1].toUpperCase()==='C' ? 'chris' : 'viki', t = title.slice(m[0].length).trim();
+  if (/on\s*-?\s*call/i.test(t)) return { who, kind:'oncall' };
+  if (/\bAL\b|annual leave|holiday/i.test(t)) return { who, kind:'holiday' };
+  if (/sick/i.test(t)) return { who, kind:'sick' };
+  if (/\bR?DO\b|day off|pay\s*back|toil/i.test(t)) return { who, kind:'off', note:t };
+  const x = /(\d{1,2})(?:[:.](\d{2}))?\s*-\s*(\d{1,2})(?:[:.](\d{2}))?/.exec(t);
+  if (x) { const sh = +x[1], sm = +(x[2]||0); let eh = +x[3]; const em = +(x[4]||0);
+    if (eh*60+em <= sh*60+sm && eh < 12) eh += 12;
+    return { who, kind:'shift', start:`${pad(sh)}:${pad(sm)}`, end:`${pad(eh%24)}:${pad(em)}`, note: /\bOT\b/i.test(t) ? 'Overtime' : '' }; }
+  return null;
+}
+function deriveDays() {
+  const out = {};
+  (CAL.calendars||[]).forEach(c => (c.events||[]).forEach(e => {
+    const r = parseRota(e.title); if (!r) return;
+    const date = evDate(e), key = `${r.who}_${date}`;
+    const d = out[key] || (out[key] = { who:r.who, date, fromCal:true });
+    if (r.kind==='shift') { d.status = r.who==='chris' ? 'work' : 'shift'; d.start = r.start; d.end = r.end; d.lunch = 30; if (r.note) d.note = r.note; }
+    else if (r.kind==='oncall') d.oc = true;
+    else if (!d.status) { d.status = r.kind; if (r.note) d.note = r.note; }
+  }));
+  Object.values(out).forEach(d => {
+    if (d.oc && d.who==='viki') {
+      if (isWeekend(d.date) || isBH(d.date)) { if (!d.status) d.status = 'off'; d.oncall = { kind:'first', start:'08:00', end:'08:00' }; }
+      else { if (!d.status) { d.status = 'shift'; d.start = '08:00'; d.end = parse(d.date).getDay()===5 ? '18:00' : '18:30'; d.lunch = 30; }
+        d.oncall = { kind:'first', start: d.status==='shift' ? d.end : '18:30', end:'08:00' }; }
+    }
+    if (d.oc && d.who==='chris' && !d.status) d.status = 'callout';
+    if (!d.status) d.status = 'off'; delete d.oc;
+  });
+  CAL.days = out;
+}
+const dayRec = (who, date) => S.days[`${who}_${date}`] || (CAL.days||{})[`${who}_${date}`];
+
+/* everything happening on each day: calendar events (coloured) plus on call logged only in the app */
+function agenda(from, to) {
+  const byDay = {};
+  const add = (date, item) => { if (date < from || date > to) return; (byDay[date] = byDay[date] || []).push(item); };
+  const calOncall = new Set();
+  (CAL.calendars||[]).forEach((c, ci) => (c.events||[]).forEach(e => {
+    const color = evColor(e.title, ci); const r = parseRota(e.title); if (r && r.kind==='oncall') calOncall.add(`${r.who}_${evDate(e)}`);
+    if (e.allDay) { for (let d = e.start; d < (e.end || addDays(e.start,1)); d = addDays(d,1)) add(d, { sort:'', time:'', title:e.title, color }); }
+    else add(evDate(e), { sort:evTime(e), time:evTime(e), title:e.title, where:e.location, color });
+  }));
+  Object.values(S.days).forEach(d => { if (d.who==='viki' && d.oncall && !calOncall.has(`viki_${d.date}`)) add(d.date, { sort:d.oncall.start||'', time:hm(d.oncall.start), title: d.oncall.kind==='second' ? 'Viki 2nd on call' : 'Viki on call', color: evColor('V: on call', 0) }); });
+  Object.values(byDay).forEach(a => a.sort((x,y) => x.sort < y.sort ? -1 : x.sort > y.sort ? 1 : 0));
+  return byDay;
+}
+
+function niceTitle(title) {
+  const m = /^\s*(VH|V|C)\s*[:\-]\s*/i.exec(String(title||'')); if (!m) return title;
+  const rest = title.slice(m[0].length).trim();
+  return `${m[1].toUpperCase()==='C' ? 'Chris' : 'Viki'} · ${rest.replace(/^(\d{1,2}(?:[:.]\d{2})?)\s*-\s*/, '$1–')}`;
+}
+function ring(pct, color) {
+  const r = 22, c = 2*Math.PI*r, p = Math.max(0, Math.min(1, pct || 0));
+  return `<svg class="ring" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="7"/>${p > 0 ? `<circle cx="28" cy="28" r="${r}" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c*p} ${c}" transform="rotate(-90 28 28)"/>` : ''}</svg>`;
+}
 function viewHome() {
-  const t = today(), in7 = addDays(t,7), ym = ymOf(t);
-  const upcoming = S.bills.map(b => ({...b, nd: nextDue(b)})).filter(b => b.nd && b.nd <= in7).sort((a,b) => a.nd < b.nd ? -1 : 1);
-  const monthly = S.bills.reduce((s,b) => s + perMonth(b), 0);
-  const cats = S.budget.cats || [];
-  const limit = cats.reduce((s,c) => s + (Number(c.limit)||0), 0);
-  const spent = S.spend.filter(x => ymOf(x.date)===ym).reduce((s,x) => s + (Number(x.amount)||0), 0);
-  const ly = leaveYear();
-  const cDays = daysFor('chris', ly.from, ly.to);
-  const hol = cDays.filter(d => d.status==='holiday').length;
-  const allow = S.settings.chrisAllowance;
-  const vMonth = daysFor('viki', `${ym}-01`, `${ym}-31`);
-  const vExtra = vMonth.reduce((s,d) => s + vikiPay(d, d.date), 0);
-  const dueChecks = CHECKS.map(c => ({c, s: checkStatus(c)})).filter(x => x.s.cls !== 'ok');
-  const goals = S.goals.slice(0,3);
   fetchCal();
-  return `
-  ${calPanel()}
-  <section class="panel">
-    <h2>Bills in the next 7 days <span class="sub num">${money(monthly,0)} a month in total</span></h2>
-    ${upcoming.length ? `<div class="list">${upcoming.map(b => `<div class="row"><div class="grow"><div class="t">${esc(b.name)}</div><div class="m">${shortDate(b.nd)}</div></div><div class="amt">${money(b.amount)}</div></div>`).join('')}</div>
-      <p class="note num">Total due this week: <b>${money(upcoming.reduce((s,b)=>s+(Number(b.amount)||0),0))}</b></p>`
-      : `<p class="empty">Nothing due in the next week.</p>`}
-  </section>
-  <section class="stats">
-    <div class="stat"><span>Spent this month</span><b>${money(spent,0)}</b><span>${limit ? `of ${money(limit,0)} budget` : 'Set a budget in Money'}</span></div>
-    <div class="stat"><span>Viki's on call, ${MONTHS[parse(t).getMonth()]}</span><b style="color:var(--viki)">${money(vExtra,0)}</b><span>on call and call-outs, before tax</span></div>
-    <div class="stat"><span>Chris's holiday left</span><b style="color:var(--chris)">${allow ? allow - hol : '—'}</b><span>${allow ? `${hol} of ${allow} days used` : 'Set allowance in settings'}</span></div>
-  </section>
-  <section class="panel">
-    <h2>Savings goals <button class="btn small ghost" data-act="tab" data-v="money" data-seg="goals">Open</button></h2>
-    ${goals.length ? goals.map(goalBar).join('') : `<p class="empty">No goals yet. Add one, such as an emergency fund or Disneyland spending money.</p>`}
-  </section>
-  <section class="panel">
-    <h2>Car to-do <button class="btn small ghost" data-act="tab" data-v="car" data-seg="checks">Open</button></h2>
-    ${dueChecks.length ? `<div class="list">${dueChecks.slice(0,4).map(x => `<div class="row"><div class="grow"><div class="t">${esc(x.c.t)}</div><div class="m">${esc(x.c.g)}</div></div><span class="chip ${x.s.cls}">${esc(x.s.cls==='due'?'Due':'Soon')}</span></div>`).join('')}</div>${dueChecks.length>4?`<p class="note">${dueChecks.length-4} more in Car → Checks.</p>`:''}` : `<p class="empty">All car checks are up to date.</p>`}
+  const t = today(), td = parse(t), in7 = addDays(t,6), ym = ymOf(t);
+  const hour = new Date().getHours(), greet = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const bills = S.bills.map(b => ({...b, nd: nextDue(b)})).filter(b => b.nd && b.nd <= addDays(t,7)).sort((a,b) => a.nd < b.nd ? -1 : 1);
+  const billsTotal = bills.reduce((s,b)=>s+(Number(b.amount)||0),0);
+  const cats = S.budget.cats || [], limit = cats.reduce((s,c) => s + (Number(c.limit)||0), 0);
+  const spent = S.spend.filter(x => ymOf(x.date)===ym).reduce((s,x) => s + (Number(x.amount)||0), 0);
+  const ly = leaveYear(), hol = daysFor('chris', ly.from, ly.to).filter(d => d.status==='holiday').length, allow = S.settings.chrisAllowance;
+  const dueChecks = CHECKS.map(c => ({c, s: checkStatus(c)})).filter(x => x.s.cls !== 'ok');
+  const r = vk();
+  let pd = payday(ym); if (t > pd) pd = payday(ymOf(addMonths(`${ym}-01`,1)));
+  const extrasYM = r.arrears ? ymOf(addMonths(`${ymOf(pd)}-01`,-1)) : ymOf(pd);
+  const vm = vikiMonth(extrasYM), vp = payslip(vm.oc, vm.co), toPay = daysBetween(t, pd);
+
+  // hero chips: who is where today
+  const chip = (txt, color) => `<span class="hchip"><i style="background:${color}"></i>${txt}</span>`;
+  const chips = [];
+  const vt = dayRec('viki', t), ct = dayRec('chris', t), vtom = dayRec('viki', addDays(t,1));
+  if (vt) {
+    if (vt.status==='shift') chips.push(chip(`Viki ${hm(vt.start)}–${hm(vt.end)}`, 'var(--viki-on)'));
+    else if (vt.status==='holiday') chips.push(chip('Viki on leave', 'var(--viki-on)'));
+    else if (vt.status==='sick') chips.push(chip('Viki off sick', 'var(--viki-on)'));
+    if (vt.oncall) chips.push(chip(`☾ Viki on call ${vt.oncall.start==='08:00' ? 'all day' : 'from '+hm(vt.oncall.start)}`, 'var(--viki-on)'));
+  }
+  if (!(vt && vt.oncall) && vtom && vtom.oncall) chips.push(chip('☾ Viki on call tomorrow', 'var(--viki-on)'));
+  if (ct) { if (ct.status==='work' && ct.start) chips.push(chip(`Chris ${hm(ct.start)}–${hm(ct.end)}`, '#8FD3F0')); else if (ct.status==='holiday') chips.push(chip('Chris on leave', '#8FD3F0')); }
+  if (r.salary) chips.push(chip(toPay===0 ? 'Payday today' : `Payday in ${toPay} day${toPay===1?'':'s'}`, '#FFC861'));
+  if (bills.length) chips.push(chip(`${money(billsTotal,0)} of bills this week`, 'rgba(255,255,255,.85)'));
+
+  // week at a glance
+  const ag = agenda(t, in7); const sel = UI.hday && UI.hday >= t && UI.hday <= in7 ? UI.hday : t;
+  let cols = '';
+  for (let i=0;i<7;i++) {
+    const date = addDays(t,i), d = parse(date), items = ag[date] || [];
+    cols += `<button class="wcol${date===sel?' sel':''}" data-act="hday" data-date="${date}" aria-pressed="${date===sel}" aria-label="${esc(dayShort(date))}, ${items.length} events">
+      <span class="wd">${i===0?'Today':DOWS[d.getDay()].slice(0,3)}</span><span class="wn">${d.getDate()}</span>
+      <span class="wbars">${items.slice(0,4).map(x => `<i style="background:${x.color}"></i>`).join('')}${items.length>4?`<em>+${items.length-4}</em>`:''}</span></button>`;
+  }
+  const selItems = ag[sel] || [];
+  const selLabel = sel===t ? 'Today' : sel===addDays(t,1) ? 'Tomorrow' : `${DOWS[parse(sel).getDay()]} ${parse(sel).getDate()} ${MONTHS[parse(sel).getMonth()]}`;
+  const feeds = S.cal.feeds || [];
+  const errs = (CAL.calendars||[]).filter(c => c.error);
+  const week = feeds.length ? `<section class="panel">
+      <h2>This week <button class="btn small ghost" data-act="calset">Calendars</button></h2>
+      ${errs.map(c => `<div class="banner">${esc(c.name)}: ${esc(c.error)}</div>`).join('')}
+      <div class="wgrid">${cols}</div>
+      <div class="agenda"><div class="eyebrow">${esc(selLabel)}</div>
+        ${selItems.length ? selItems.map(x => `<div class="evb" style="--c:${x.color}"><span class="evbt num">${x.time ? esc(x.time) : 'All day'}</span><div class="grow"><div class="t">${esc(niceTitle(x.title))}</div>${x.where?`<div class="m">${esc(x.where)}</div>`:''}</div></div>`).join('')
+          : `<p class="empty">${CAL.at || calBusy ? 'Nothing on.' : 'Loading your calendar…'}</p>`}
+      </div></section>`
+    : `<section class="panel"><h2>Family calendar</h2><p class="note">Link your Google Calendar to see the week here, colour-coded, next to Viki's on call.</p><div class="btnrow"><button class="btn small" data-act="calset">Connect Google Calendar</button></div></section>`;
+
+  // tiles
+  const goal = S.goals[0];
+  const gp = goal && goal.target ? (Number(goal.saved)||0)/goal.target : 0;
+  const tiles = `<section class="tiles">
+    <button class="tile" data-act="tab" data-v="work" data-who="viki">
+      <span class="tl">Viki's payday</span><span class="tv" style="color:var(--viki)">${r.salary ? money(vp.net,0) : '—'}</span>
+      <span class="ts">${r.salary ? `${esc(dayShort(pd))} · estimate` : 'Add her rates in Work'}</span></button>
+    <button class="tile" data-act="tab" data-v="money" data-seg="budget">
+      <span class="tile-ring">${ring(limit ? spent/limit : 0, limit && spent > limit ? 'var(--bad)' : 'var(--accent)')}<b>${limit ? Math.round(spent/limit*100)+'%' : '—'}</b></span>
+      <span class="tl">Spent this month</span><span class="ts num">${money(spent,0)}${limit ? ` of ${money(limit,0)}` : ''}</span></button>
+    <button class="tile" data-act="tab" data-v="work" data-who="chris">
+      <span class="tl">Chris's holiday left</span><span class="tv" style="color:var(--chris)">${allow ? allow - hol : '—'}</span>
+      <span class="ts">${allow ? `${hol} of ${allow} days used` : 'Set allowance in settings'}</span></button>
+    <button class="tile" data-act="tab" data-v="money" data-seg="goals">
+      <span class="tile-ring">${ring(gp, 'var(--good)')}<b>${goal ? Math.round(gp*100)+'%' : '+'}</b></span>
+      <span class="tl">${goal ? esc(goal.name) : 'Savings goal'}</span><span class="ts num">${goal ? `${money(goal.saved||0,0)} of ${money(goal.target||0,0)}` : 'Add your first goal'}</span></button>
   </section>`;
+
+  const billsPanel = `<section class="panel"><h2>Bills this week <span class="sub num">${money(billsTotal,0)}</span></h2>
+    ${bills.length ? `<div class="list">${bills.slice(0,5).map(b => `<div class="row"><div class="bdate"><b>${parse(b.nd).getDate()}</b><span>${MONTHS[parse(b.nd).getMonth()].slice(0,3)}</span></div><div class="grow"><div class="t">${esc(b.name)}</div><div class="m">${esc(b.category||'')}</div></div><div class="amt">${money(b.amount)}</div></div>`).join('')}</div>${bills.length>5?`<p class="note">${bills.length-5} more in Money → Bills.</p>`:''}`
+      : `<p class="empty">Nothing due in the next week.</p>`}</section>`;
+  const carPanel = dueChecks.length ? `<section class="panel"><h2>Car to-do <button class="btn small ghost" data-act="tab" data-v="car" data-seg="checks">Open</button></h2>
+    <div class="list">${dueChecks.slice(0,3).map(x => `<div class="row"><div class="grow"><div class="t">${esc(x.c.t)}</div><div class="m">${esc(x.c.g)}</div></div><span class="chip ${x.s.cls}">${esc(x.s.cls==='due'?'Due':'Soon')}</span></div>`).join('')}</div>${dueChecks.length>3?`<p class="note">${dueChecks.length-3} more in Car → Checks.</p>`:''}</section>` : '';
+
+  return `<section class="hhero">
+      <div class="k">${greet}</div>
+      <div class="hbig">${DOWS[td.getDay()]} ${td.getDate()} ${MONTHS[td.getMonth()]}</div>
+      ${chips.length ? `<div class="hchips">${chips.join('')}</div>` : ''}
+    </section>
+    ${week}${tiles}${billsPanel}${carPanel}`;
 }
 function goalBar(g) {
   const pct = g.target ? Math.min(100, Math.round((Number(g.saved)||0)/g.target*100)) : 0;
@@ -447,62 +632,27 @@ function goalBar(g) {
   if (g.deadline && g.target) { const months = Math.max(1, Math.ceil(daysBetween(today(), g.deadline)/30.4)); const need = (g.target-(Number(g.saved)||0))/months; if (need>0) pace = ` · ${money(need,0)} a month to hit ${shortDate(g.deadline)}`; }
   return `<button class="rowbtn" data-act="goal" data-id="${esc(g.id)}"><div class="grow"><div class="t">${esc(g.name)}</div><div class="m num">${money(g.saved||0,0)} of ${money(g.target||0,0)}${pace}</div><div class="bar" style="margin-top:6px"><i class="${pct>=100?'good':''}" style="width:${pct}%"></i></div></div><div class="amt">${pct}%</div></button>`;
 }
-
-
-/* ----- family calendar (Google Calendar secret iCal links, read by the `calendar` Supabase function) ----- */
-const CAL = (() => { try { return JSON.parse(localStorage.getItem('hhq-cal') || 'null') || { calendars:[], at:0 }; } catch(e) { return { calendars:[], at:0 }; } })();
-let calBusy = false;
-const CAL_COLORS = ['var(--accent)','var(--viki)','var(--good)','var(--gold)'];
-async function fetchCal(force) {
-  if (!sb || !session || calBusy) return;
-  if (!(S.cal.feeds||[]).length) { CAL.calendars = []; return; }
-  if (!force && Date.now() - (CAL.at||0) < 10*60*1000) return;
-  calBusy = true;
-  try {
-    const { data, error } = await sb.functions.invoke('calendar', { body: { days: 14 } });
-    if (error) throw error;
-    CAL.calendars = data.calendars || []; CAL.at = Date.now();
-    try { localStorage.setItem('hhq-cal', JSON.stringify(CAL)); } catch(e) {}
-  } catch (e) { CAL.error = 'Couldn\'t load the calendar just now.'; }
-  calBusy = false; schedule();
-}
-function upcoming(days) {
-  const t = today(), end = addDays(t, days-1), byDay = {};
-  const add = (date, item) => { if (date < t || date > end) return; (byDay[date] = byDay[date] || []).push(item); };
-  (CAL.calendars||[]).forEach((c, ci) => (c.events||[]).forEach(e => {
-    const color = CAL_COLORS[ci % CAL_COLORS.length];
-    if (e.allDay) { for (let d = e.start; d < (e.end || addDays(e.start,1)); d = addDays(d,1)) add(d, { sort:'', time:'All day', title:e.title, cal:c.name, color }); }
-    else { const st = new Date(e.start); const time = st.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); add(ymd(st), { sort:time, time, title:e.title, where:e.location, cal:c.name, color }); }
-  }));
-  Object.values(S.days).forEach(d => { if (d.who==='viki' && d.oncall) add(d.date, { sort: d.oncall.start||'', time: hm(d.oncall.start), title: d.oncall.kind==='second' ? 'Viki 2nd on call' : 'Viki on call', cal:'Hitchen HQ', color:'var(--viki)' }); });
-  return Object.keys(byDay).sort().map(date => ({ date, items: byDay[date].sort((a,b) => a.sort < b.sort ? -1 : 1) }));
-}
-function calPanel() {
-  const feeds = S.cal.feeds || [];
-  if (!feeds.length) return `<section class="panel"><h2>Family calendar</h2>
-    <p class="note">Link your Google Calendars to see what's coming up here, next to Viki's on call.</p>
-    <div class="btnrow"><button class="btn small" data-act="calset">Connect Google Calendar</button></div></section>`;
-  const days = upcoming(7), t = today();
-  const label = d => d===t ? 'Today' : d===addDays(t,1) ? 'Tomorrow' : dayShort(d);
-  const errs = (CAL.calendars||[]).filter(c => c.error);
-  return `<section class="panel"><h2>Coming up <button class="btn small ghost" data-act="calset">Calendars</button></h2>
-    ${errs.map(c => `<div class="banner">${esc(c.name)}: ${esc(c.error)}</div>`).join('')}
-    ${days.length ? days.map(g => `<div class="calday"><div class="eyebrow">${esc(label(g.date))}</div>${g.items.map(i => `<div class="ev"><span class="evt num">${esc(i.time)}</span><span class="evbar" style="background:${i.color}"></span><div class="grow"><div class="t">${esc(i.title)}</div>${i.where?`<div class="m">${esc(i.where)}</div>`:''}</div></div>`).join('')}</div>`).join('')
-      : `<p class="empty">${CAL.at || calBusy ? 'Nothing in the next 7 days.' : 'Loading…'}</p>`}
-  </section>`;
-}
 function calForm() {
-  const feeds = [...(S.cal.feeds||[])]; while (feeds.length < 3) feeds.push({ name:'', url:'' });
-  openSheet('Google Calendar', `<p class="note">For each calendar, paste its <b>secret address in iCal format</b>. On a computer: open calendar.google.com → Settings (the gear) → click the calendar under “Settings for my calendars” → scroll to “Integrate calendar” → copy “Secret address in iCal format”.</p>
-    ${feeds.map((f,i) => `<div class="tsec">${fld(`cn${i}`,'Name', f.name||'', 'text', `placeholder="${['Chris','Viki','Family'][i]}"`)}${fld(`cu${i}`,'Secret iCal address', f.url||'', 'url','placeholder="https://calendar.google.com/calendar/ical/…/basic.ics" autocapitalize="off" autocorrect="off" spellcheck="false"')}</div>`).join('')}
-    <p class="note">The app can only read these calendars, not change them. The links are kept in your family's private database, which only Chris and Viki can see.</p>`, async () => {
+  const feeds = [...(S.cal.feeds||[])]; if (feeds.length < 3) feeds.push({ name:'', url:'' });
+  const rules = calRules().map(x => ({...x})); while (rules.length < 16) rules.push({ m:'', c:'blueberry' });
+  const colSel = (id, val) => `<select id="${id}" class="colsel" aria-label="Colour">${Object.entries(GCOL).map(([k,[n]]) => `<option value="${k}" ${k===val?'selected':''}>${n}</option>`).join('')}</select>`;
+  openSheet('Calendar', `<p class="eyebrow">Google Calendar links</p>
+    <p class="note">Paste each calendar's <b>secret address in iCal format</b> (Google Calendar website → Settings → the calendar → Integrate calendar).</p>
+    ${feeds.map((f,i) => `<div class="tsec">${fld(`cn${i}`,'Name', f.name||'', 'text', `placeholder="${['Family','Chris','Viki'][i]}"`)}${fld(`cu${i}`,'Secret iCal address', f.url||'', 'url','placeholder="https://calendar.google.com/calendar/ical/…/basic.ics" autocapitalize="off" autocorrect="off" spellcheck="false"')}
+      <div class="field"><label for="cc${i}">Colour for everything else</label><div class="colrow"><span class="sw" style="background:${(GCOL[f.color||'blueberry']||GCOL.blueberry)[1]}"></span>${colSel(`cc${i}`, f.color||'blueberry')}</div></div></div>`).join('')}
+    <p class="eyebrow">Colour coding</p>
+    <p class="note">Google doesn't share event colours in calendar links, so the app colours events by their name. Anything starting with “V:” is Viki's, “C:” is Chris's, and so on. Change these to suit.</p>
+    <div class="rules">${rules.map((x,i) => `<div class="colrow"><span class="sw" style="background:${(GCOL[x.c]||GCOL.blueberry)[1]}"></span><input id="rm${i}" value="${esc(x.m)}" placeholder="Word in the event name" autocapitalize="off">${colSel(`rc${i}`, x.c)}</div>`).join('')}</div>
+    <p class="note">The app can only read your calendars, not change them. Links and colours are kept in your family's private database.</p>`, async () => {
     const out = [];
-    for (let i=0;i<3;i++) { const url = v(`cu${i}`).trim(), name = v(`cn${i}`).trim(); if (!url) continue;
+    for (let i=0;i<feeds.length;i++) { const url = v(`cu${i}`).trim(), name = v(`cn${i}`).trim(); if (!url) continue;
       if (!/^(https|webcal):\/\//i.test(url)) throw new Error('Calendar links start with https://');
-      out.push({ name: name || ['Chris','Viki','Family'][i], url }); }
-    await put('private/calendar', { feeds: out });
+      out.push({ name: name || ['Family','Chris','Viki'][i], url, color: v(`cc${i}`) || 'blueberry' }); }
+    const rl = []; for (let i=0;i<16;i++) { const m = v(`rm${i}`).trim(); if (m) rl.push({ m, c: v(`rc${i}`) }); }
+    await put('private/calendar', { ...S.cal, feeds: out, rules: rl });
     CAL.at = 0; fetchCal(true);
   });
+  $('#sheetForm').addEventListener('change', e => { if (e.target.classList.contains('colsel')) { const sw = e.target.parentElement.querySelector('.sw'); if (sw) sw.style.background = (GCOL[e.target.value]||GCOL.blueberry)[1]; } });
 }
 
 /* ----- work ----- */
@@ -517,6 +667,7 @@ function viewWork() {
     <button data-act="who" data-who="chris" aria-pressed="${who==='chris'}">Chris</button>
     <button data-act="who" data-who="viki" aria-pressed="${who==='viki'}">Viki</button>
   </div>`;
+  fetchCal();
   if (who==='viki') return whoSeg + viewViki();
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
   const lead = (first.getDay()+6)%7;
@@ -524,12 +675,12 @@ function viewWork() {
   let cells = '';
   for (let i=0;i<lead;i++) cells += `<button class="pad" tabindex="-1" aria-hidden="true"></button>`;
   for (let d=1; d<=daysIn; d++) {
-    const date = `${ym}-${pad(d)}`; const rec = S.days[`${who}_${date}`];
+    const date = `${ym}-${pad(d)}`; const rec = dayRec(who, date);
     const cls = rec ? `st-${rec.status}` : ''; const tcls = date===today() ? ' today' : '';
     let label = rec ? SHORT[rec.status] || '' : '';
     let extra = '';
     if (rec && who==='chris' && rec.status==='callout' && rec.callouts) label = `Call ×${rec.callouts}`;
-    cells += `<button class="${cls}${tcls}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${rec?', '+esc(label):''}"><span class="d">${d}</span><span class="l">${esc(label)}</span>${extra||'<span></span>'}</button>`;
+    cells += `<button class="${cls}${tcls}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${rec?', '+esc(label):''}"><span class="d">${d}</span><span class="l">${esc(label)}</span>${extra||'<span></span>'}</button>`;
   }
   const ly = leaveYear(); const yearDays = daysFor(who, ly.from, ly.to);
   const count = (arr, st) => arr.filter(d => d.status===st).length;
@@ -626,11 +777,11 @@ function viewViki() {
   const t = today(), mon = addDays(t, -((parse(t).getDay()+6)%7));
   let wk = '', wkH = 0;
   for (let i=0;i<7;i++) {
-    const date = addDays(mon,i), rec = S.days[`viki_${date}`], d = parse(date);
+    const date = addDays(mon,i), rec = dayRec('viki', date), d = parse(date);
     let lab = '';
     if (rec) { if (rec.status==='shift') { const h = shiftHours(rec); wkH += h; lab = `${fh(h)}h`; } else if (rec.status==='holiday' || rec.status==='sick') { if (i<5) wkH += 7.5; lab = rec.status==='holiday' ? 'Hol' : 'Sick'; } }
     const cls = rec ? (rec.status==='shift' ? 'st-shift' : rec.status==='off' ? (rec.oncall ? 'st-oncall' : '') : `st-${rec.status}`) : '';
-    wk += `<button class="${cls}${date===t?' today':''}" data-act="day" data-date="${date}" aria-label="${esc(dayShort(date))}${lab?', '+lab:''}${rec&&rec.oncall?', on call':''}"><span class="wd">${DOWS[d.getDay()].slice(0,3)}</span><span class="wn">${d.getDate()}</span><span class="wh">${esc(lab)}</span><span class="moon">${rec && rec.oncall ? '☾' : '&nbsp;'}</span></button>`;
+    wk += `<button class="${cls}${date===t?' today':''}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="day" data-date="${date}" aria-label="${esc(dayShort(date))}${lab?', '+lab:''}${rec&&rec.oncall?', on call':''}"><span class="wd">${DOWS[d.getDay()].slice(0,3)}</span><span class="wn">${d.getDate()}</span><span class="wh">${esc(lab)}</span><span class="moon">${rec && rec.oncall ? '☾' : '&nbsp;'}</span></button>`;
   }
   const wpct = Math.min(100, wkH/37.5*100);
   const week = `<section class="panel"><h2>This week <span class="sub num">${fh(wkH)} of 37.5 hours</span></h2>
@@ -641,7 +792,7 @@ function viewViki() {
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate(); const lead = (first.getDay()+6)%7;
   let cells = ''; for (let i=0;i<lead;i++) cells += `<button class="pad" tabindex="-1" aria-hidden="true"></button>`;
   for (let d=1; d<=daysIn; d++) {
-    const date = `${ym}-${pad(d)}`, rec = S.days[`viki_${date}`];
+    const date = `${ym}-${pad(d)}`, rec = dayRec('viki', date);
     let lab = '', cls = '';
     if (rec) {
       if (rec.status==='shift') { lab = `${fh(shiftHours(rec))}h`; cls = 'st-shift'; }
@@ -649,13 +800,13 @@ function viewViki() {
       else { lab = SHORT[rec.status] || ''; cls = `st-${rec.status}`; }
     }
     const mark = rec && rec.oncall ? `<span class="moon">☾${(rec.callouts||[]).length ? '<span class="dot" style="margin-left:2px"></span>' : ''}</span>` : '<span></span>';
-    cells += `<button class="${cls}${date===t?' today':''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${lab?', '+esc(lab):''}"><span class="d">${d}</span><span class="l">${esc(lab)}</span>${mark}</button>`;
+    cells += `<button class="${cls}${date===t?' today':''}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${lab?', '+esc(lab):''}"><span class="d">${d}</span><span class="l">${esc(lab)}</span>${mark}</button>`;
   }
   const cal = `<section class="panel">
     <div class="calhead"><button class="iconbtn" data-act="cal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="cal" data-v="1" aria-label="Next month">›</button></div>
     <div class="cal">${['M','T','W','T','F','S','S'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div>
     <div class="legend"><span class="chip st-shift">Shift</span><span class="chip st-oncall">☾ On call</span><span class="chip cat"><span class="dot"></span> Call-out</span><span class="chip st-holiday">Holiday</span><span class="chip st-sick">Sick</span></div>
-    <p class="note">Tap a day to log her shift, on call and any call-outs.</p></section>`;
+    <p class="note">${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to add call-outs or change it.</p></section>`;
 
   const noRates = !r.salary ? `<div class="banner">Viki's pay rates aren't set yet. <button class="btn small ghost" data-act="vrates">Add them</button></div>` : '';
   return noRates + hero + week + cal + claimTable(ym, m) + ratesPanel();
@@ -713,7 +864,8 @@ function ratesPanel() {
 function vikiDayForm(date) {
   const key = `viki_${date}`, rec = S.days[key];
   const wkend = isWeekend(date), bh = isBH(date);
-  const draft = rec ? JSON.parse(JSON.stringify(rec)) : (wkend || bh ? { who:'viki', date, status:'off', bh } : { who:'viki', date, status:'shift', start:'08:00', end:'17:30', lunch:30, bh });
+  const calRec = (CAL.days||{})[key];
+  const draft = rec ? JSON.parse(JSON.stringify(rec)) : calRec ? (() => { const c = JSON.parse(JSON.stringify(calRec)); delete c.fromCal; if (bh) c.bh = true; return c; })() : (wkend || bh ? { who:'viki', date, status:'off', bh } : { who:'viki', date, status:'shift', start:'08:00', end:'17:30', lunch:30, bh });
   draft.callouts = draft.callouts || [];
   const ocDefault = () => (wkend || draft.bh) && draft.status!=='shift' ? { start:'08:00', end:'08:00' } : { start: (draft.status==='shift' && draft.end) ? draft.end : '18:30', end:'08:00' };
   const read = () => {
@@ -955,7 +1107,7 @@ const v = id => ($('#'+id)||{}).value ?? '';
 
 function dayForm(date) {
   if (UI.who==='viki') return vikiDayForm(date);
-  const who = UI.who, key = `${who}_${date}`, rec = S.days[key] || {};
+  const who = UI.who, key = `${who}_${date}`, rec = S.days[key] || (CAL.days||{})[key] || {};
   let status = rec.status || (who==='chris' ? 'work' : 'shift');
   const choice = `<div class="field"><label>Day type</label><div class="choice" id="stChoice">${STATUS[who].map(([k,l]) => `<button type="button" class="st-${k}" data-st="${k}" aria-pressed="${status===k}">${l}</button>`).join('')}</div></div>`;
   let extra = '';
@@ -966,7 +1118,7 @@ function dayForm(date) {
     const note = v('note').trim(); if (note) data.note = note;
     if (status==='off' && !note) { await remove(`days/${key}`); return; }
     await put(`days/${key}`, data);
-  }, rec.status ? { onDelete: () => remove(`days/${key}`) } : {});
+  }, S.days[key] ? { onDelete: () => remove(`days/${key}`) } : {});
   $('#stChoice').addEventListener('click', e => { const b = e.target.closest('button[data-st]'); if (!b) return; status = b.dataset.st;
     $('#stChoice').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x===b)); const box = $('#calloutBox'); if (box) box.hidden = status!=='callout'; });
 }
@@ -1080,7 +1232,7 @@ async function handleAuth(form) {
 async function startSession(s) {
   const was = session && session.user && session.user.id;
   session = s;
-  if (!session) { resetState(); CAL.calendars = []; CAL.at = 0; try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('hhq-cal'); } catch(e) {} render(); return; }
+  if (!session) { resetState(); CAL.calendars = []; CAL.at = 0; CAL.days = {}; try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('hhq-cal'); } catch(e) {} render(); return; }
   if (was === session.user.id && channel) return;
   if (loadCache()) render();
   try { await loadAll(); subscribe(); fetchCal(true); }
@@ -1097,8 +1249,9 @@ document.addEventListener('click', async e => {
   if (a==='close') { if (e.target === el || el.tagName==='BUTTON') closeSheet(); return; }
   if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; closeSheet(); if (fn) { await fn(); toast('Deleted'); } } else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
   if (a==='settings') return settingsForm();
-  if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='who') { UI.who = el.dataset.who; keepUI(); return render(); }
+  if (a==='hday') { UI.hday = el.dataset.date; return render(); }
   if (a==='cal') { UI.cal = ymOf(addMonths(`${UI.cal}-01`, Number(el.dataset.v))); return render(); }
   if (a==='bm') { UI.bmonth = ymOf(addMonths(`${UI.bmonth}-01`, Number(el.dataset.v))); return render(); }
   if (a==='mseg') { UI.money = el.dataset.v; keepUI(); return render(); }
@@ -1118,7 +1271,7 @@ document.addEventListener('click', async e => {
   if (a==='fillweek') {
     const ym = UI.cal; const first = parse(`${ym}-01`); const n = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate(); let c = 0;
     el.disabled = true;
-    for (let d=1; d<=n; d++) { const date = `${ym}-${pad(d)}`; if (isWeekend(date) || date > today() || S.days[`chris_${date}`]) continue; await put(`days/chris_${date}`, {who:'chris', date, status:'work'}); c++; }
+    for (let d=1; d<=n; d++) { const date = `${ym}-${pad(d)}`; if (isWeekend(date) || date > today() || dayRec('chris', date)) continue; await put(`days/chris_${date}`, {who:'chris', date, status:'work'}); c++; }
     toast(c ? `Marked ${c} weekdays as work` : 'No empty weekdays to fill'); return;
   }
   if (a==='checkdone') {
@@ -1145,6 +1298,7 @@ async function boot() {
   if (!window.supabase || !window.supabase.createClient) {
     $('#app').innerHTML = '<div class="panel"><p class="empty">Couldn\'t load the app. Check your connection and reopen it.</p></div>'; return;
   }
+  if (CAL.calendars && CAL.calendars.length) { try { deriveDays(); } catch(e) {} }
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
   const { data } = await sb.auth.getSession();
   await startSession(data.session);
