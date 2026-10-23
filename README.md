@@ -22,6 +22,18 @@ Her pay rates are stored only in the private database (never in this repository)
 
 Home shows the next 7 days from linked Google Calendars. Add links in Settings → Google Calendar links, using each calendar's "Secret address in iCal format". The links are stored in the private database. The Supabase Edge Function `calendar` (source in `supabase/functions/calendar/`) reads them; only signed-in family members can use it.
 
+## Notifications
+
+Each phone turns them on in Settings (on an iPhone the app must be added to the Home Screen first). The Supabase Edge Function `notify` (source in `supabase/functions/notify/`) is called every hour by a `pg_cron` job and sends at 7am, 7pm and Sunday 7pm Isle of Man time. Push keys and the cron secret live in the `app_secrets` table, which the app can't read.
+
+## Documents
+
+Car documents are stored in the private Supabase Storage bucket `family-files`, readable only by the family. Once opened they're kept on the phone for offline use.
+
+## Bank statements
+
+Money → Budget → Import statement reads a CSV file downloaded from online banking. Isle of Man bank accounts aren't covered by Open Banking, so live bank feeds aren't available.
+
 ## Usernames
 
 Sign-in uses a username and password. Behind the scenes each username is stored as `<username>@hitchen.example.com`; that address is never emailed. Current accounts: `chris`, `viki`.

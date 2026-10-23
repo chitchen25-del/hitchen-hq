@@ -1,6 +1,6 @@
 // Hitchen HQ service worker: keeps the app shell available offline.
 // Family data always comes from Supabase and is never cached here.
-const CACHE = 'hitchen-hq-v6';
+const CACHE = 'hitchen-hq-v7';
 const SHELL = [
   './',
   './index.html',
@@ -18,7 +18,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE && !k.startsWith('hhq-files')).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -48,4 +48,19 @@ self.addEventListener('fetch', event => {
       return res;
     }))
   );
+});
+
+// Notifications from the `notify` Supabase function
+self.addEventListener('push', event => {
+  let d = {}; try { d = event.data ? event.data.json() : {}; } catch (e) { d = { title: 'Hitchen HQ', body: event.data ? event.data.text() : '' }; }
+  event.waitUntil(self.registration.showNotification(d.title || 'Hitchen HQ', {
+    body: d.body || '', tag: d.tag, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', data: { url: d.url || './' }
+  }));
+});
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    for (const c of list) { if ('focus' in c) return c.focus(); }
+    return clients.openWindow(event.notification.data && event.notification.data.url || './');
+  }));
 });
