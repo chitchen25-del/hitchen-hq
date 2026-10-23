@@ -355,9 +355,11 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-1
 .cleg{display:flex;gap:14px;flex-wrap:wrap;font-size:.84rem;color:var(--ink-2)}
 .cleg span{display:inline-flex;align-items:center;gap:6px}
 .cleg i{width:10px;height:10px;border-radius:2px}
-:root{--c-oc:#3F51B5;--c-co:#C98A00}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c-oc:#6F7DE0;--c-co:#B5850C}}
-:root[data-theme="dark"]{--c-oc:#6F7DE0;--c-co:#B5850C}
+:root{--c-oc:#3F51B5;--c-co:#C98A00;--c-in:#0B8043;--c-out:#3F51B5;--g1:#3F51B5;--g2:#C98A00;--g3:#C62828;--g4:#0097A7}
+.hbar{height:6px;border-radius:3px;background:var(--sheet-2);margin-top:6px;overflow:hidden}.hbar i{display:block;height:100%;border-radius:3px}
+.catrow{padding:9px 0!important}.catdetail{background:var(--sheet-2);border-radius:8px;padding:4px 12px 10px;margin:2px 0 6px}.catdetail .row{padding:7px 0;font-size:.9rem}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c-oc:#6F7DE0;--c-co:#B5850C;--c-in:#2E9E62;--c-out:#6F7DE0;--g1:#6F7DE0;--g2:#B5850C;--g3:#D2386C;--g4:#1FA5B4}}
+:root[data-theme="dark"]{--c-oc:#6F7DE0;--c-co:#B5850C;--c-in:#2E9E62;--c-out:#6F7DE0;--g1:#6F7DE0;--g2:#B5850C;--g3:#D2386C;--g4:#1FA5B4}
 
 .linkbtn{all:unset;cursor:pointer;color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-2)}
 .linkbtn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
@@ -437,7 +439,7 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg})); } catch(e) {} };
@@ -495,6 +497,7 @@ function applyLocal(path, data) {
   else if (c === 'settings') S.settings = data || {};
   else if (c === 'budget') S.budget = data || {cats:[]};
   else if (c === 'car') S.car = data || {};
+  else if (c === 'stmt') { if (id==='meta') S.stmtMeta = data; else if (data) S.stmt[id] = data; else delete S.stmt[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; }
 }
@@ -502,11 +505,11 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[] });
+  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d]));
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
   return rows;
@@ -1317,7 +1320,8 @@ function vikiRatesForm() {
 
 /* ----- money ----- */
 /* ----- money in: Chris's pay, Viki's estimate, other income ----- */
-const ck = () => ({ net:0, standby:0, perCallout:0, extraTax:31, ...(S.settings.chris||{}) });
+function stmtIncomeAvg(cat) { try { const ms = fullMonths(); if (!ms.length) return 0; return ms.reduce((s,ym) => s + (monthSummary(ym).incomes[cat]||0), 0) / ms.length; } catch(e) { return 0; } }
+const ck = () => { const c = { net:0, standby:0, perCallout:0, extraTax:31, ...(S.settings.chris||{}) }; if (!c.net) { c.net = Math.round(stmtIncomeAvg('Chris salary')); c.fromStmt = !!c.net; } return c; };
 function chrisExtras(ym) {
   const r = ck(), days = daysFor('chris', `${ym}-01`, `${ym}-31`);
   const shifts = days.filter(d => d.status==='callout').length, calls = days.reduce((s,d) => s + (Number(d.callouts)||0), 0);
@@ -1331,11 +1335,13 @@ function moneyIn(ym) {
   const vNet = r.salary ? (vReal ? vReal.net : vSlip.net + slipAdjust().adj) : 0;
   const ce = chrisExtras(prev);
   const others = (S.settings.income || []).filter(x => x.amount);
+  const ebay = Math.round(stmtIncomeAvg('eBay sales') - (fullMonths().length ? fullMonths().reduce((s,m) => s + (monthSummary(m).cats['Post and eBay costs']||0), 0)/fullMonths().length : 0));
+  if (ebay > 0 && !others.some(x => /ebay/i.test(x.name))) others.push({ name:'eBay sales after postage', amount: ebay, auto:true });
   const items = [
-    { who:'chris', name:'Chris take-home', amount: c.net, note: c.net ? `${esc(dayShort(payday(ym)))}` : 'Add in Plan' },
+    { who:'chris', name:'Chris take-home', amount: c.net, note: c.net ? `${esc(dayShort(payday(ym)))}${c.fromStmt ? ', average from your statements' : ''}` : 'Add in Plan' },
     ...(ce.net ? [{ who:'chris', name:'Chris call-outs', amount: ce.net, note:`${ce.shifts} shift${ce.shifts===1?'':'s'}, ${ce.calls} call-out${ce.calls===1?'':'s'}, after tax (estimate)` }] : []),
     { who:'viki', name: vReal ? 'Viki take-home' : 'Viki take-home (estimate)', amount: vNet, note: r.salary ? esc(dayShort(payday(ym))) : 'Add her rates in Work' },
-    ...others.map(x => ({ who:'', name:x.name, amount:Number(x.amount)||0, note:'Every month' })),
+    ...others.map(x => ({ who:'', name:x.name, amount:Number(x.amount)||0, note: x.auto ? 'Average from your statements' : 'Every month' })),
   ];
   return { items, total: items.reduce((s,x) => s + (Number(x.amount)||0), 0) };
 }
@@ -1357,12 +1363,133 @@ function viewMoney() {
     cells: [ tbCell('Bills', money(P.bills,0), '#3F51B5'), tbCell('Budget', money(P.budget,0), '#0B8043'), tbCell(P.save ? 'Savings' : 'Owed', money(P.save || P.owed,0), P.save ? '#039BE5' : '#D50000') ],
     after: P.inc.total ? `<div style="padding:12px 0 2px">${flow}</div>` : '',
     foot: P.inc.total ? `<span>${(() => { const l = ['bills', 'the spending budget', ...(P.owed?['money owed']:[]), ...(P.save?['savings']:[]), ...(P.trips?['trip savings']:[])]; return `What's left once ${l.slice(0,-1).join(', ')} and ${l[l.length-1]} are covered.`; })()}</span>` : `<span><button class="linkbtn" data-act="mseg" data-v="plan">Add your pay to see what's spare each month</button></span>` });
-  const segs = [['plan','Plan'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
+  const segs = [['plan','Plan'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
   if (!segs.some(x => x[0]===UI.money)) UI.money = 'bills';
   const seg = `<div class="seg" role="group" aria-label="Money section">${segs.map(([k,l]) => `<button data-act="mseg" data-v="${k}" aria-pressed="${UI.money===k}">${l}</button>`).join('')}</div>`;
-  const body = {plan:viewPlan, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
+  const body = {plan:viewPlan, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
   return hero + seg + body;
 }
+/* ----- bank statements: transactions loaded from the Nationwide statements (stmt/<yyyy-mm> docs) ----- */
+const GROUP = {
+  essentials: { name:'Essentials', c:'var(--g1)', cats:['Rent','Phone and broadband','Utilities and heating','Insurance and breakdown','Groceries','Kids and school','Fuel','Car','Work costs','Health and pharmacy','Pets'] },
+  lifestyle: { name:'Lifestyle', c:'var(--g2)', cats:['Eating out and takeaways','Shopping','Travel and days out','Subscriptions','Home and DIY','Food at work','Leisure and fitness','Post and eBay costs','Cash','Betting','Other'] },
+  owed: { name:'Zilch', c:'var(--g3)', cats:['Zilch repayments','Zilch fees'] },
+  people: { name:'Family and people', c:'var(--g4)', cats:['Family support','Payments to people'] },
+};
+const catGroup = c => Object.entries(GROUP).find(([,g]) => g.cats.includes(c))?.[0] || 'lifestyle';
+const IN_CATS = ['Viki salary','Chris salary','eBay sales','Money from people','Refunds','Other income','Family support','Insurance and breakdown','Kids and school'];
+const stmtCache = {};
+function stmtRows(ym) {
+  const doc = S.stmt[ym], meta = S.stmtMeta; if (!doc || !meta) return [];
+  const key = ym + ':' + (doc.r||[]).length; if (stmtCache[ym] && stmtCache[ym].key === key) return stmtCache[ym].rows;
+  const rows = (doc.r||[]).map(r => ({ date:`${ym}-${pad(r[0])}`, m: doc.m[r[1]] || '', out:r[2], in:r[3], cat: meta.cats[r[4]], z: r[5]===1, to: meta.tos[r[6]||0] || '' }));
+  stmtCache[ym] = { key, rows }; return rows;
+}
+const stmtMonths = () => (S.stmtMeta && S.stmtMeta.months || []).filter(m => S.stmt[m]);
+const fullMonths = () => { const ms = stmtMonths(), meta = S.stmtMeta || {}; return ms.filter(m => !(meta.from && meta.from.slice(0,7)===m && meta.from.slice(8)!=='01') && !(meta.to && meta.to.slice(0,7)===m && Number(meta.to.slice(8)) < 28)); };
+const BRANDS = [[/^(tesco grocery|tesco subscription)/i,'Tesco online'],[/^tesco marketplace/i,'Tesco Marketplace'],[/^tesco/i,'Tesco'],[/^(amzn|amazon prime)/i,'Amazon'],[/^amazon/i,'Amazon'],[/^prime video/i,'Prime Video'],[/^apple\.com/i,'Apple'],[/^marks/i,'M&S'],[/^mcdonalds/i,"McDonald's"],[/^kfc/i,'KFC'],[/^spar/i,'Spar'],[/^co-?op/i,'Co-op'],[/^ebay/i,'eBay'],[/^(isle of man post|iom post)/i,'Post Office'],[/^union mills garage/i,'Union Mills Garage'],[/^corkills/i,'Corkills Garage'],[/^(department of health|nobles shop)/i,'Work canteen and shop'],[/^(google|google one)/i,'Google One'],[/^microsoft/i,'Microsoft 365'],[/^spotify/i,'Spotify'],[/^sky mkt disney/i,'Disney+'],[/^sky tv/i,'Sky TV'],[/^sky store/i,'Sky Store'],[/^manx ?telecom/i,'Manx Telecom'],[/^(west ?midland|www\.wmsp)/i,'West Midland Safari Park'],[/^holiday inn|^hi bromsgrove/i,'Holiday Inn'],[/^(the isle of man ste|isle of man steam)/i,'Steam Packet'],[/^b ?& ?q|^b q /i,'B&Q'],[/^sumup gelatory/i,'Gelatory'],[/^sp team rh fitness/i,'RH Fitness'],[/^sp retail ketoroma/i,'Ketoroma'],[/^zilch technology/i,'Zilch'],[/^the bee|^thie bee/i,'The Bee'],[/^omniplex/i,'Omniplex'],[/^titanic belfast/i,'Titanic Belfast'],[/^morans/i,'Morans'],[/^pets at home/i,'Pets at Home'],[/^ring multi/i,'Ring'],[/^nyx mannvend/i,'Vending machines'],[/^isle of man transport|^doi public transport/i,'Bus fares'],[/^parentpay/i,'ParentPay'],[/^ellan vannin( fuels)?$/i,'Ellan Vannin Fuels']];
+function brand(m) { const x = String(m||'').trim(); for (const [re, n] of BRANDS) if (re.test(x)) return n; return x.replace(/\s+(Douglas|Isle Of Man|IsleofMan|Ltd|Limited|Plc|Uk)\b.*$/i,'').trim() || x; }
+const payeeName = r => r.cat==='Between our accounts' ? (r.to || 'Other account') : (brand(r.m) || r.cat);
+function monthSummary(ym) {
+  const rows = stmtRows(ym), t = { in:0, out:0, movedOut:0, movedIn:0, cats:{}, incomes:{}, moved:{}, zBought:0, n:rows.length };
+  rows.forEach(r => {
+    if (r.cat==='Between our accounts') { t.movedOut += r.out; t.movedIn += r.in; if (r.out) t.moved[r.to||'Other account'] = (t.moved[r.to||'Other account']||0) + r.out; return; }
+    if (r.out) { t.out += r.out; t.cats[r.cat] = (t.cats[r.cat]||0) + r.out; if (r.z) t.zBought += r.out; }
+    if (r.in) { t.in += r.in; t.incomes[r.cat] = (t.incomes[r.cat]||0) + r.in; }
+  });
+  return t;
+}
+function averageSummary(months) {
+  const a = { in:0, out:0, movedOut:0, movedIn:0, cats:{}, incomes:{}, moved:{}, zBought:0, n:0 }, k = months.length || 1;
+  months.forEach(ym => { const s = monthSummary(ym); ['in','out','movedOut','movedIn','zBought','n'].forEach(x => a[x] += s[x]/k);
+    ['cats','incomes','moved'].forEach(f => Object.entries(s[f]).forEach(([c,v]) => a[f][c] = (a[f][c]||0) + v/k)); });
+  return a;
+}
+function pairChart(months) {
+  const W = 320, H = 160, padB = 22, padT = 16, n = months.length, gw = (W - 8) / n, bw = Math.min(13, gw/2 - 3);
+  const data = months.map(ym => { const s = monthSummary(ym); return { ym, in: s.in, out: s.out }; });
+  const max = Math.max(1, ...data.map(d => Math.max(d.in, d.out)));
+  const Y = v => (H - padB - padT) * v / max;
+  let g = `<line x1="0" y1="${H-padB}" x2="${W}" y2="${H-padB}" class="axis"/>`;
+  data.forEach((d,i) => { const cx = 4 + gw*i + gw/2, part = !fullMonths().includes(d.ym);
+    g += `<rect x="${cx-bw-1}" y="${H-padB-Y(d.in)}" width="${bw}" height="${Y(d.in)}" rx="3" fill="var(--c-in)" opacity="${part?0.45:1}"><title>${monthName(d.ym)}: in ${money(d.in,0)}</title></rect>`;
+    g += `<rect x="${cx+1}" y="${H-padB-Y(d.out)}" width="${bw}" height="${Y(d.out)}" rx="3" fill="var(--c-out)" opacity="${part?0.45:1}"><title>${monthName(d.ym)}: out ${money(d.out,0)}</title></rect>`;
+    g += `<text x="${cx}" y="${H-6}" class="lbl" text-anchor="middle">${MONTHS[parse(d.ym+'-01').getMonth()].slice(0,3)}${part?'*':''}</text>`; });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Money in and out by month">${g}</svg>`;
+}
+function zilchChart(months) {
+  const rows = months.map(ym => { const s = monthSummary(ym); return { label: MONTHS[parse(ym+'-01').getMonth()].slice(0,3) + (fullMonths().includes(ym) ? '' : '*'), parts:[{ v:s.zBought, c:'var(--g3)', name:'Bought on Zilch' }] }; });
+  return barChart(rows, { label:'Spending put on Zilch each month' });
+}
+function viewSpending() {
+  const months = stmtMonths();
+  if (!months.length) return `<section class="panel"><h2>Spending from your statements</h2><p class="empty">No statements loaded yet. Import a CSV from Budget, or send the PDFs and they'll be added here.</p></section>`;
+  const full = fullMonths(), sel = UI.smonth && months.includes(UI.smonth) ? UI.smonth : 'avg';
+  const S0 = sel==='avg' ? averageSummary(full) : monthSummary(sel), label = sel==='avg' ? `a month on average, ${MONTHS[parse(full[0]+'-01').getMonth()].slice(0,3)} to ${MONTHS[parse(full[full.length-1]+'-01').getMonth()].slice(0,3)}` : monthName(sel) + (full.includes(sel) ? '' : ' (part month)');
+  const chips = `<div class="seg" role="group" aria-label="Which month">${[['avg','Average'], ...months.map(m => [m, MONTHS[parse(m+'-01').getMonth()].slice(0,3) + (full.includes(m)?'':'*')])].map(([k,l]) => `<button data-act="smonth" data-v="${k}" aria-pressed="${sel===k}">${l}</button>`).join('')}</div>`;
+  const movedNet = S0.movedOut - S0.movedIn, left = S0.in - S0.out - movedNet;
+  const summary = tblock({ kicker: `Joint account, ${esc(label)}`, title: `${money(S0.out,0)} out`, side: `<span class="tb-kicker">In</span><span class="big" style="font-size:1.35rem;color:var(--good)">${money(S0.in,0)}</span>`,
+    cells: [ tbCell('Salaries', money((S0.incomes['Viki salary']||0)+(S0.incomes['Chris salary']||0),0), 'var(--c-in)'), tbCell('eBay', money(S0.incomes['eBay sales']||0,0), 'var(--good-bar)'), tbCell('Moved out', money(movedNet,0), 'var(--g4)') ],
+    foot: `<span>“Moved out” is money sent to Revolut and your own accounts, so what it's spent on isn't in these figures.</span>` });
+  // categories grouped
+  const cats = Object.entries(S0.cats).sort((a,b) => b[1]-a[1]), maxC = Math.max(1, ...cats.map(c => c[1]));
+  const gTot = {}; cats.forEach(([c,v]) => { const g = catGroup(c); gTot[g] = (gTot[g]||0) + v; });
+  const open = UI.scat;
+  const showAllCats = UI.sall, catList = showAllCats ? cats : cats.slice(0,10);
+  const catRows = catList.map(([c,v]) => { const g = GROUP[catGroup(c)];
+    let detail = '';
+    if (open===c) { const rows = (sel==='avg' ? full : [sel]).flatMap(stmtRows).filter(r => r.cat===c && r.out), by = {};
+      rows.forEach(r => { const p = payeeName(r); by[p] = (by[p]||0) + r.out; }); const k = sel==='avg' ? full.length : 1;
+      const perMonth = full.map(ym => monthSummary(ym).cats[c]||0);
+      detail = `<div class="catdetail">${Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([p,x]) => `<div class="row"><div class="grow">${esc(p)}</div><div class="amt">${money(x/k,0)}</div></div>`).join('')}
+        <p class="note">${sel==='avg' ? 'Average a month. ' : ''}By month: ${full.map((ym,i) => `${MONTHS[parse(ym+'-01').getMonth()].slice(0,3)} ${money(perMonth[i],0)}`).join(', ')}</p>
+        <div class="btnrow"><button class="btn small ghost" data-act="sfilter" data-v="${esc(c)}">See the payments</button></div></div>`; }
+    return `<button class="rowbtn catrow" data-act="scat" data-v="${esc(c)}" aria-expanded="${open===c}"><span class="sw" style="background:${g.c}"></span><div class="grow"><div style="display:flex;gap:8px;align-items:baseline"><span class="t" style="flex:1">${esc(c)}</span><span class="amt">${money(v,0)}</span></div><div class="hbar"><i style="width:${v/maxC*100}%;background:${g.c}"></i></div></div></button>${detail}`; }).join('');
+  const groupLeg = Object.entries(GROUP).filter(([k]) => gTot[k]).map(([k,g]) => `<span><i style="background:${g.c}"></i>${g.name} ${money(gTot[k],0)}</span>`).join('');
+  // insights over full months
+  const A = averageSummary(full), allFull = full.flatMap(stmtRows);
+  const zFees = allFull.filter(r => r.cat==='Zilch fees').reduce((s,r)=>s+r.out,0);
+  const zLast2 = months.slice(-2).map(ym => monthSummary(ym).zBought);
+  const days0 = full.reduce((n,ym) => n + ((S.stmt[ym].b||[]).filter(b => b[1] <= 1).length), 0), daysAll = full.reduce((n,ym) => n + (S.stmt[ym].b||[]).length, 0);
+  const subs = {}; allFull.filter(r => r.cat==='Subscriptions').forEach(r => { const k = brand(r.m); subs[k] = (subs[k]||0) + r.out; });
+  const subList = Object.entries(subs).map(([k,v]) => [k, v/full.length]).filter(x => x[1] >= 1).sort((a,b) => b[1]-a[1]);
+  const ebayNet = (A.incomes['eBay sales']||0) - (A.cats['Post and eBay costs']||0);
+  const reg = {}; allFull.filter(r => r.out && ['Rent','Family support','Payments to people','Phone and broadband','Utilities and heating','Insurance and breakdown'].includes(r.cat)).forEach(r => { const p = brand(r.m); (reg[p] = reg[p] || new Set()).add(r.date.slice(0,7)); });
+  const regular = Object.entries(reg).filter(([,s]) => s.size >= Math.min(4, full.length)).map(([p]) => [p, allFull.filter(r => r.out && brand(r.m)===p).reduce((s,r)=>s+r.out,0)/full.length]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const groupAvg = g => Object.entries(A.cats).filter(([c]) => catGroup(c)===g).reduce((t,[,v])=>t+v,0);
+  const insight = (color, title, body) => `<div class="insight"><i style="background:${color}"></i><div class="grow"><div class="t">${title}</div><div class="m" style="font-size:.88rem">${body}</div></div></div>`;
+  const insights = [
+    insight('var(--g3)', `${money(A.zBought,0)} a month went on Zilch`, `${money(A.cats['Zilch repayments']||0,0)} a month went back to Zilch in repayments${zFees ? `, plus ${money(zFees,2)} in snooze fees over ${full.length} months` : ''}. ${zLast2.length===2 && zLast2.every(x => x < A.zBought*0.6) ? `It's dropped to ${money(zLast2[0],0)} and ${money(zLast2[1],0)} in the last two months. Keep going.` : 'Groceries and fuel on Zilch mean next month starts already spent.'}`),
+    insight('var(--g4)', `${money(A.movedOut - A.movedIn,0)} a month moved out of this account`, `To Revolut ${money(A.moved['Revolut']||0,0)}, Chris ${money(A.moved['Chris']||0,0)}, Viki ${money(A.moved['Viki']||0,0)}, other Nationwide account ${money(A.moved['Other Nationwide account']||0,0)} (some comes back). The app can't see what that money is spent on.`),
+    insight('var(--g1)', `Essentials ${money(groupAvg('essentials'),0)} a month, lifestyle ${money(groupAvg('lifestyle'),0)}`, `Groceries average ${money((A.cats['Groceries']||0)/4.33,0)} a week and eating out ${money((A.cats['Eating out and takeaways']||0)/4.33,0)} a week.`),
+    ebayNet > 0 ? insight('var(--good-bar)', `eBay brings in ${money(ebayNet,0)} a month after postage`, `${money(A.incomes['eBay sales']||0,0)} of sales, ${money(A.cats['Post and eBay costs']||0,0)} at the post office.`) : '',
+    daysAll ? insight('var(--red)', `The account hit £0 on ${days0} of ${daysAll} days with payments`, 'It runs down in the week or two before payday, so anything unexpected then goes on Zilch.') : '',
+  ].join('');
+  // transactions list
+  const q = (UI.sq || '').toLowerCase(), cf = UI.sfilter || '';
+  const txRows = (sel==='avg' ? months : [sel]).flatMap(stmtRows).filter(r => (!cf || r.cat===cf) && (!q || (r.m + ' ' + r.cat).toLowerCase().includes(q))).sort((a,b) => a.date < b.date ? 1 : -1);
+  const shown = txRows.slice(0, UI.slimit || 40);
+  const txList = `<section class="panel" id="txPanel"><h2>Payments <span class="sub">${txRows.length}</span></h2>
+    <div class="listadd"><input id="sSearch" placeholder="Search, such as Tesco" value="${esc(UI.sq||'')}" aria-label="Search payments" enterkeyhint="search">${cf ? `<button class="btn small ghost" data-act="sfilter" data-v="">${esc(cf)} ✕</button>` : ''}</div>
+    <div class="list">${shown.map(r => `<div class="row"><div class="bdate"><b>${parse(r.date).getDate()}</b><span>${MONTHS[parse(r.date).getMonth()].slice(0,3)}</span></div><div class="grow"><div class="t">${esc(payeeName(r))}</div><div class="m">${esc(r.cat)}${r.z ? ', on Zilch' : ''}</div></div><div class="amt" style="color:${r.in?'var(--good)':'inherit'}">${r.in ? '+'+money(r.in) : money(r.out)}</div></div>`).join('')}</div>
+    ${txRows.length > shown.length ? `<div class="btnrow"><button class="btn small ghost" data-act="smore">Show more</button></div>` : ''}</section>`;
+  // budget vs actual
+  const budgetMap = [[/food|shop|grocer/i, ['Groceries','Food at work']], [/fuel/i, ['Fuel']], [/kid|school/i, ['Kids and school']], [/prescri|health|pharm/i, ['Health and pharmacy']], [/eat|takeaway/i, ['Eating out and takeaways']]];
+  const bcats = (S.budget.cats||[]).map(b => { const m = budgetMap.find(([re]) => re.test(b.name)); return { ...b, src: m ? m[1] : null }; });
+  const shared = {}; bcats.forEach(b => (b.src||[]).forEach(s => shared[s] = (shared[s]||0) + 1));
+  const bvs = bcats.filter(b => b.src).map(b => { const actual = b.src.reduce((s,c) => s + (A.cats[c]||0)/(shared[c]||1), 0); return { name:b.name, limit:Number(b.limit)||0, actual }; });
+  const budgetPanel = bvs.length ? `<section class="panel"><h2>Budget against real spending <span class="sub">monthly average</span></h2>
+    <div class="list">${bvs.map(b => `<div class="gauge"><div class="gh"><span class="t">${esc(b.name)}</span><span class="amt" style="color:${b.actual>b.limit?'var(--red)':'inherit'}">${money(b.actual,0)} <small>of ${money(b.limit,0)}</small></span></div>${gauge(b.limit ? b.actual/b.limit : 0)}</div>`).join('')}</div>
+    <p class="note">From the statements. Where two budget lines share a category, such as Food and Big monthly shop, the spending is split between them.</p></section>` : '';
+  return chips + summary + `<section class="panel"><h2>In and out by month</h2><div class="cleg"><span><i style="background:var(--c-in)"></i>Money in</span><span><i style="background:var(--c-out)"></i>Spent and paid out</span></div>${pairChart(months)}<p class="note">* Part months: the statements start on ${esc(shortDate(S.stmtMeta.from))} and end on ${esc(shortDate(S.stmtMeta.to))}. Money moved between your own accounts isn't counted.</p></section>
+    <section class="panel"><h2>Where it goes</h2><div class="cleg">${groupLeg}</div><div class="list">${catRows}</div>${cats.length > 10 ? `<div class="btnrow"><button class="btn small ghost" data-act="sall">${showAllCats ? 'Show the top 10' : `Show all ${cats.length}`}</button></div>` : ''}<p class="note">Tap a category to see who it was paid to.</p></section>
+    <section class="panel"><h2>What the statements show</h2><div class="list">${insights}</div></section>
+    <section class="panel"><h2>Zilch each month</h2>${zilchChart(months)}<p class="note">Purchases made with the Zilch card, by the month they were made.</p></section>
+    ${subList.length ? `<section class="panel"><h2>Subscriptions <span class="sub">${money(subList.reduce((s,x)=>s+x[1],0),0)} a month</span></h2><div class="list">${subList.slice(0,12).map(([k,v]) => `<div class="row"><div class="grow">${esc(k)}</div><div class="amt">${money(v,2)}</div></div>`).join('')}</div></section>` : ''}
+    ${regular.length ? `<section class="panel"><h2>Regular payments out</h2><div class="list">${regular.map(([p,v]) => `<div class="row"><div class="grow">${esc(p)}</div><div class="amt">${money(v,0)}</div></div>`).join('')}</div><p class="note">Average a month, paid in at least four of the six full months.</p></section>` : ''}
+    ${budgetPanel}${txList}`;
+}
+
 function viewPlan() {
   const ym = ymOf(today()), P = planFor(ym), c = ck();
   const row = (sw, name, note, amt, act) => `<${act?`button class="rowbtn" data-act="${act}"`:'div class="row"'}><span class="sw" style="background:${sw}"></span><div class="grow"><div class="t">${name}</div>${note?`<div class="m">${note}</div>`:''}</div><div class="amt">${money(amt,0)}</div></${act?'button':'div'}>`;
@@ -2000,6 +2127,11 @@ document.addEventListener('click', async e => {
   if (a==='vslip') return slipForm(el.dataset.ym);
   if (a==='vcopy') { const txt = claimText(UI.cal); try { await navigator.clipboard.writeText(txt); toast('Claim copied'); } catch(err) { toast('Couldn\'t copy on this phone'); } return; }
   if (a==='quick') return quickAdd();
+  if (a==='smonth') { UI.smonth = el.dataset.v; UI.scat = null; UI.slimit = 40; return render(); }
+  if (a==='scat') { UI.scat = UI.scat===el.dataset.v ? null : el.dataset.v; return render(); }
+  if (a==='sfilter') { UI.sfilter = el.dataset.v; UI.slimit = 40; render(); const tp = $('#txPanel'); if (tp && el.dataset.v) tp.scrollIntoView({ behavior:'smooth', block:'start' }); return; }
+  if (a==='sall') { UI.sall = !UI.sall; return render(); }
+  if (a==='smore') { UI.slimit = (UI.slimit||40) + 60; return render(); }
   if (a==='carrem') return carRemForm(el.dataset.id, el.dataset.name, el.dataset.note);
   if (a==='docopen') return openDoc(el.dataset.id);
   if (a==='docsave') { el.disabled = true; return saveDocsOffline(el.dataset.group); }
@@ -2048,6 +2180,8 @@ document.addEventListener('submit', async e => {
   const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true;
   try { await fn(); closeSheet(); toast('Saved'); } catch (err) { formErr(err.message || 'Couldn\'t save that'); btn.disabled = false; }
 });
+let sTimer;
+document.addEventListener('input', e => { if (e.target.id !== 'sSearch') return; clearTimeout(sTimer); const val = e.target.value; sTimer = setTimeout(() => { UI.sq = val; UI.slimit = 40; render(); const i = $('#sSearch'); if (i) { i.focus(); i.setSelectionRange(val.length, val.length); } }, 250); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#sheetRoot').innerHTML) closeSheet(); });
 
 /* ---------- boot ---------- */
