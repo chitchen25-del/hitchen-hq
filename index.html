@@ -1482,6 +1482,7 @@ const SPEND_RULES = [
   [/smyths|toys|school|clarks|uniform|nursery|kids|children/i, ['Kids']],
   [/pharmacy|boots|chemist|prescription|lloydspharmacy/i, ['Prescription']],
 ];
+const zilchDebt = () => S.debts.find(d => /zilch/i.test(d.name||''));
 function guessCat(desc, cats) { for (const [re, names] of SPEND_RULES) if (re.test(desc)) { const hit = names.find(n => cats.includes(n)); if (hit) return hit; } return cats.includes('Other') ? 'Other' : ''; }
 let importRows = [];
 function importForm() {
@@ -1492,27 +1493,33 @@ function importForm() {
     <div id="impPreview"></div>`, async () => {
     if (!importRows.length) throw new Error('Pick a statement file first');
     const known = new Set(S.spend.map(x => x.ext).filter(Boolean)); let n = 0;
+    const zd = zilchDebt(); if (zd) { const fresh = importRows.filter(r => r.zilch && !r.dup); if (fresh.length) { const paid = fresh.reduce((s,r)=>s+r.amount,0); const { id: zid, ...zrest } = zd;
+      await put(`debts/${zid}`, { ...zrest, balance: Math.max(0, Math.round(((Number(zd.balance)||0) - paid)*100)/100), applied: [...(zd.applied||[]), ...fresh.map(r => r.ext)].slice(-300) }); toast(`${money(paid,2)} taken off ${zd.name}`); } }
     for (let i=0;i<importRows.length;i++) { const r = importRows[i]; const cb = $(`#imp${i}`); if (!cb || !cb.checked || known.has(r.ext)) continue;
       const cat = v(`impc${i}`); if (!cat) continue;
       await put(`spend/${uid('s')}`, { amount: r.amount, date: r.date, cat, note: r.desc.slice(0,60), ext: r.ext }); n++; }
     toast(n ? `Imported ${n} entr${n===1?'y':'ies'}` : 'Nothing new to import');
   }, { saveLabel:'Import ticked' });
   $('#impFile').addEventListener('change', async e => {
-    const f = e.target.files[0]; if (!f) return; const rows = parseCSV(await f.text());
+    const f = e.target.files[0]; if (!f) return;
+    const buf = await f.arrayBuffer(); let text = new TextDecoder('utf-8').decode(buf); if (text.includes('\uFFFD')) text = new TextDecoder('windows-1252').decode(buf);
+    const rows = parseCSV(text);
     const hi = rows.findIndex(r => r.some(c => /date/i.test(c))); if (hi < 0) { $('#impPreview').innerHTML = '<p class="err">Couldn\'t find a Date column in that file.</p>'; return; }
     const h = rows[hi].map(c => c.trim().toLowerCase()), col = re => h.findIndex(c => re.test(c));
-    const cD = col(/date/), cDesc = col(/desc|detail|narrative|memo|payee|transaction|reference|name/), cAmt = col(/^amount|value|^£/), cOut = col(/debit|paid out|money out|withdraw/), cIn = col(/credit|paid in|money in|deposit/);
+    const cD = col(/date/), cDesc = [/desc/, /detail|narrative|memo|payee/, /reference|name/, /transaction/].map(col).find(i => i >= 0) ?? -1, cAmt = col(/^amount|value|^£/), cOut = col(/debit|paid out|money out|withdraw/), cIn = col(/credit|paid in|money in|deposit/);
     const billNames = S.bills.map(b => b.name.toLowerCase().split(/\s+/)[0]).filter(x => x.length > 2);
     const known = new Set(S.spend.map(x => x.ext).filter(Boolean));
     importRows = rows.slice(hi+1).map(r => {
       const date = parseDateLoose(r[cD]); const desc = (cDesc>=0 ? r[cDesc] : r.filter((_,i)=>i!==cD).join(' ')).trim();
-      let amt = null; const n = x => { const k = parseFloat(String(x||'').replace(/[£,\s]/g,'')); return isFinite(k) ? k : null; };
+      let amt = null; const n = x => { const raw = String(x||'').trim(); if (!raw) return null; const k = parseFloat(raw.replace(/[^0-9.\-]/g,'')); return isFinite(k) ? k : null; };
       if (cOut >= 0 && n(r[cOut])) amt = Math.abs(n(r[cOut])); else if (cAmt >= 0 && n(r[cAmt]) !== null && n(r[cAmt]) < 0) amt = Math.abs(n(r[cAmt]));
       if (!date || !amt) return null;
-      const ext = `${date}|${desc.toLowerCase().slice(0,40)}|${amt.toFixed(2)}`; const isBill = billNames.some(b => desc.toLowerCase().includes(b));
-      return { date, desc, amount: amt, ext, isBill, dup: known.has(ext) };
+      const ext = `${date}|${desc.toLowerCase().slice(0,40)}|${amt.toFixed(2)}`; const zilch = /zilch/i.test(desc); const isBill = !zilch && billNames.some(b => desc.toLowerCase().includes(b));
+      return { date, desc, amount: amt, ext, isBill, zilch, dup: known.has(ext) || zilchDebt()?.applied?.includes(ext) };
     }).filter(Boolean);
-    $('#impPreview').innerHTML = importRows.length ? `<p class="note">${importRows.length} payments found. Untick anything you don't want counted.</p><div class="list">${importRows.map((r,i) => `<div class="row"><input type="checkbox" id="imp${i}" ${r.isBill||r.dup?'':'checked'} ${r.dup?'disabled':''} style="width:20px;height:20px;accent-color:var(--ink)"><div class="grow"><div class="t">${esc(r.desc.slice(0,48))}</div><div class="m">${shortDate(r.date)}${r.dup?', already imported':r.isBill?', looks like a bill':''}</div><select id="impc${i}" class="impsel">${['', ...cats].map(c => `<option value="${esc(c)}" ${c===guessCat(r.desc,cats)?'selected':''}>${c||'Choose a category'}</option>`).join('')}</select></div><div class="amt">${money(r.amount)}</div></div>`).join('')}</div>` : '<p class="err">No outgoing payments found in that file.</p>';
+    const zd = zilchDebt(), zRows = importRows.filter(r => r.zilch && !r.dup), zTot = zRows.reduce((s,r)=>s+r.amount,0);
+    $('#impPreview').innerHTML = importRows.length ? `<p class="note">${importRows.length} payments found. Untick anything you don't want counted.</p>
+      ${zRows.length ? `<div class="banner">${zRows.length} Zilch repayment${zRows.length===1?'':'s'}, ${money(zTot,2)}. ${zd ? `These will come off what's owed on ${esc(zd.name)} rather than counting as spending.` : 'Add Zilch under Money → Owed and future imports will knock these off the balance.'}</div>` : ''}<div class="list">${importRows.map((r,i) => `<div class="row"><input type="checkbox" id="imp${i}" ${r.isBill||r.dup||r.zilch?'':'checked'} ${r.dup?'disabled':''} style="width:20px;height:20px;accent-color:var(--ink)"><div class="grow"><div class="t">${esc(r.desc.slice(0,48))}</div><div class="m">${shortDate(r.date)}${r.dup?', already imported':r.zilch?', Zilch repayment':r.isBill?', looks like a bill':''}</div><select id="impc${i}" class="impsel">${['', ...cats].map(c => `<option value="${esc(c)}" ${c===guessCat(r.desc,cats)?'selected':''}>${c||'Choose a category'}</option>`).join('')}</select></div><div class="amt">${money(r.amount)}</div></div>`).join('')}</div>` : '<p class="err">No outgoing payments found in that file.</p>';
   });
 }
 
