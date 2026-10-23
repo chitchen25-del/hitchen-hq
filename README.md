@@ -14,6 +14,14 @@ The Hitchen family app: work days and call-outs, Viki's shifts and overtime pay,
 2. iPhone: Share → Add to Home Screen. Android: menu → Install app.
 3. Open it from the home screen and sign in with your username and password. Change your password any time in Settings (the gear icon).
 
+## Viki's pay
+
+Her pay rates are stored only in the private database (never in this repository) and can be changed in the app: Work → Viki → Viki's rates → Edit. On call and call-outs are paid on the 25th of the following month. The on-call claim table follows the layout of her claim form.
+
+## Google Calendar
+
+Home shows the next 7 days from linked Google Calendars. Add links in Settings → Google Calendar links, using each calendar's "Secret address in iCal format". The links are stored in the private database. The Supabase Edge Function `calendar` (source in `supabase/functions/calendar/`) reads them; only signed-in family members can use it.
+
 ## Usernames
 
 Sign-in uses a username and password. Behind the scenes each username is stored as `<username>@hitchen.example.com`; that address is never emailed. Current accounts: `chris`, `viki`.

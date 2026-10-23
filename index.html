@@ -137,7 +137,66 @@ nav.tabs button[aria-current="page"]{color:var(--accent);font-weight:700}
 .check.done span{color:var(--muted);text-decoration:line-through}
 .ai{white-space:pre-wrap;font-size:.93rem;background:var(--surface-2);border-radius:12px;padding:12px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:12px;font-weight:700;z-index:50;font-size:.9rem}
-@media (max-width:380px){.fields2{grid-template-columns:1fr}}
+/* family calendar */
+.calday{display:flex;flex-direction:column;gap:2px;padding-top:4px}
+.ev{display:flex;align-items:center;gap:10px;padding:6px 0}
+.evt{width:52px;flex:none;font-size:.82rem;color:var(--muted);font-weight:700}
+.evbar{width:4px;align-self:stretch;border-radius:4px;flex:none}
+/* Viki: pay hero, week strip, timesheet */
+.vhero{background:linear-gradient(140deg,#6E2644 0%,#A4406A 58%,#C7647F 100%);color:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.vhero .k{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;opacity:.85}
+.vhero .big{font-family:var(--font-d);font-weight:700;font-size:2.5rem;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.vhero .sub{font-size:.88rem;opacity:.92}
+.stack{display:flex;height:12px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.18)}
+.stack i{display:block;height:100%}
+.vleg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem}
+.vleg span{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+.vleg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.vhero details{font-size:.85rem;background:rgba(0,0,0,.14);border-radius:12px;padding:8px 10px}
+.vhero summary{cursor:pointer;font-weight:700}
+.vhero dl{display:grid;grid-template-columns:1fr auto;gap:3px 12px;margin:8px 0 2px;font-variant-numeric:tabular-nums}
+.vhero dd{margin:0;text-align:right}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.week button{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 2px 7px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-width:0}
+.week .wd{font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.week .wn{font-size:.95rem;font-weight:700;font-variant-numeric:tabular-nums}
+.week .wh{font-size:.68rem;font-weight:700;min-height:1em}
+.week button.today{border:2px solid var(--viki)}
+.moon{color:var(--accent);font-size:.8rem;line-height:1}
+.st-oncall{background:var(--accent-soft)!important;color:var(--accent)}
+.tbl{overflow-x:auto;margin:0 -14px;padding:0 14px}
+.tbl table{border-collapse:collapse;font-size:.8rem;font-variant-numeric:tabular-nums;min-width:480px;width:100%}
+.tbl th{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:6px 6px;border-bottom:2px solid var(--line);white-space:nowrap}
+.tbl th.grp{text-align:center;border-bottom:1px solid var(--line)}
+.tbl td{padding:7px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td.r,.tbl th.r{text-align:right}
+.tbl tr.cont td{border-top:0}
+.tbl tfoot td{font-weight:700;border-bottom:0}
+.tbl .co-col{background:var(--gold-soft)}
+.tbl tr[data-act]{cursor:pointer}
+.tsec{border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.tsec-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tsec-h b{font-family:var(--font-d);font-size:1.02rem}
+.pill{border-radius:999px;padding:3px 10px;font-size:.82rem;font-weight:700;background:var(--surface-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill.v{background:var(--viki-soft);color:var(--viki)} .pill.a{background:var(--accent-soft);color:var(--accent)} .pill.g{background:var(--gold-soft);color:var(--gold)}
+.fields3{display:grid;grid-template-columns:1fr 1fr .8fr;gap:8px}
+.out{border:1px dashed var(--line);border-radius:10px;padding:10px 11px;font-weight:700;font-variant-numeric:tabular-nums;text-align:center}
+.co{background:var(--surface-2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.co .fields3 .field input{background:var(--surface)}
+.co-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.85rem;font-weight:700}
+.co-top .x{border:0;background:none;color:var(--muted);font-size:1.3rem;line-height:1;cursor:pointer;padding:0 4px}
+.multbtn{border:1px solid var(--gold);background:var(--gold-soft);color:var(--gold);border-radius:999px;padding:3px 10px;font-weight:700;font-size:.8rem;cursor:pointer}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.9rem;cursor:pointer}
+.toggle input{width:20px;height:20px;accent-color:var(--viki)}
+.vsum{display:flex;align-items:center;justify-content:space-between;background:var(--viki-soft);color:var(--viki);border-radius:12px;padding:10px 12px;font-weight:700}
+.vsum b{font-family:var(--font-d);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.rates{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.rate{background:var(--surface-2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.rate .rl{font-size:.75rem;color:var(--muted);font-weight:700}
+.rate .rv{font-family:var(--font-d);font-size:1.3rem;font-weight:700;font-variant-numeric:tabular-nums}
+.rate .rs{font-size:.78rem;color:var(--muted)}
+.choice button.on{background:var(--viki);color:#fff;border-color:var(--viki)}
+@media (max-width:380px){.fields2{grid-template-columns:1fr}.vhero .big{font-size:2.1rem}}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}}
 </style>
 </head>
@@ -191,7 +250,7 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg})); } catch(e) {} };
@@ -249,17 +308,18 @@ function applyLocal(path, data) {
   else if (c === 'settings') S.settings = data || {};
   else if (c === 'budget') S.budget = data || {cats:[]};
   else if (c === 'car') S.car = data || {};
+  else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; }
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}} });
+  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
   return rows;
@@ -314,13 +374,6 @@ function leaveYear() {
   let y = t.getFullYear(); if (t.getMonth()+1 < startMM) y--;
   const from = `${y}-${pad(startMM)}-01`; return { from, to: addDays(addMonths(from,12),-1) };
 }
-function vikiPay(d, date) {
-  const r = rates(); let p = 0;
-  p += (Number(d.ot15)||0)*r.ot15 + (Number(d.ot2)||0)*r.ot2 + (Number(d.bh)||0)*r.bh;
-  if (d.oncall==='weekday') p += r.oncallWD; if (d.oncall==='weekend') p += r.oncallWE;
-  p += (Number(d.second)||0) * (isWeekend(date) ? r.secondWE : r.secondWD);
-  return p;
-}
 function daysFor(who, from, to) {
   return Object.values(S.days).filter(d => d.who===who && d.date>=from && d.date<=to);
 }
@@ -365,7 +418,9 @@ function viewHome() {
   const vExtra = vMonth.reduce((s,d) => s + vikiPay(d, d.date), 0);
   const dueChecks = CHECKS.map(c => ({c, s: checkStatus(c)})).filter(x => x.s.cls !== 'ok');
   const goals = S.goals.slice(0,3);
+  fetchCal();
   return `
+  ${calPanel()}
   <section class="panel">
     <h2>Bills in the next 7 days <span class="sub num">${money(monthly,0)} a month in total</span></h2>
     ${upcoming.length ? `<div class="list">${upcoming.map(b => `<div class="row"><div class="grow"><div class="t">${esc(b.name)}</div><div class="m">${shortDate(b.nd)}</div></div><div class="amt">${money(b.amount)}</div></div>`).join('')}</div>
@@ -374,7 +429,7 @@ function viewHome() {
   </section>
   <section class="stats">
     <div class="stat"><span>Spent this month</span><b>${money(spent,0)}</b><span>${limit ? `of ${money(limit,0)} budget` : 'Set a budget in Money'}</span></div>
-    <div class="stat"><span>Viki's extras, ${MONTHS[parse(t).getMonth()]}</span><b style="color:var(--viki)">${money(vExtra,0)}</b><span>overtime and on-call, gross</span></div>
+    <div class="stat"><span>Viki's on call, ${MONTHS[parse(t).getMonth()]}</span><b style="color:var(--viki)">${money(vExtra,0)}</b><span>on call and call-outs, before tax</span></div>
     <div class="stat"><span>Chris's holiday left</span><b style="color:var(--chris)">${allow ? allow - hol : '—'}</b><span>${allow ? `${hol} of ${allow} days used` : 'Set allowance in settings'}</span></div>
   </section>
   <section class="panel">
@@ -393,6 +448,63 @@ function goalBar(g) {
   return `<button class="rowbtn" data-act="goal" data-id="${esc(g.id)}"><div class="grow"><div class="t">${esc(g.name)}</div><div class="m num">${money(g.saved||0,0)} of ${money(g.target||0,0)}${pace}</div><div class="bar" style="margin-top:6px"><i class="${pct>=100?'good':''}" style="width:${pct}%"></i></div></div><div class="amt">${pct}%</div></button>`;
 }
 
+
+/* ----- family calendar (Google Calendar secret iCal links, read by the `calendar` Supabase function) ----- */
+const CAL = (() => { try { return JSON.parse(localStorage.getItem('hhq-cal') || 'null') || { calendars:[], at:0 }; } catch(e) { return { calendars:[], at:0 }; } })();
+let calBusy = false;
+const CAL_COLORS = ['var(--accent)','var(--viki)','var(--good)','var(--gold)'];
+async function fetchCal(force) {
+  if (!sb || !session || calBusy) return;
+  if (!(S.cal.feeds||[]).length) { CAL.calendars = []; return; }
+  if (!force && Date.now() - (CAL.at||0) < 10*60*1000) return;
+  calBusy = true;
+  try {
+    const { data, error } = await sb.functions.invoke('calendar', { body: { days: 14 } });
+    if (error) throw error;
+    CAL.calendars = data.calendars || []; CAL.at = Date.now();
+    try { localStorage.setItem('hhq-cal', JSON.stringify(CAL)); } catch(e) {}
+  } catch (e) { CAL.error = 'Couldn\'t load the calendar just now.'; }
+  calBusy = false; schedule();
+}
+function upcoming(days) {
+  const t = today(), end = addDays(t, days-1), byDay = {};
+  const add = (date, item) => { if (date < t || date > end) return; (byDay[date] = byDay[date] || []).push(item); };
+  (CAL.calendars||[]).forEach((c, ci) => (c.events||[]).forEach(e => {
+    const color = CAL_COLORS[ci % CAL_COLORS.length];
+    if (e.allDay) { for (let d = e.start; d < (e.end || addDays(e.start,1)); d = addDays(d,1)) add(d, { sort:'', time:'All day', title:e.title, cal:c.name, color }); }
+    else { const st = new Date(e.start); const time = st.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); add(ymd(st), { sort:time, time, title:e.title, where:e.location, cal:c.name, color }); }
+  }));
+  Object.values(S.days).forEach(d => { if (d.who==='viki' && d.oncall) add(d.date, { sort: d.oncall.start||'', time: hm(d.oncall.start), title: d.oncall.kind==='second' ? 'Viki 2nd on call' : 'Viki on call', cal:'Hitchen HQ', color:'var(--viki)' }); });
+  return Object.keys(byDay).sort().map(date => ({ date, items: byDay[date].sort((a,b) => a.sort < b.sort ? -1 : 1) }));
+}
+function calPanel() {
+  const feeds = S.cal.feeds || [];
+  if (!feeds.length) return `<section class="panel"><h2>Family calendar</h2>
+    <p class="note">Link your Google Calendars to see what's coming up here, next to Viki's on call.</p>
+    <div class="btnrow"><button class="btn small" data-act="calset">Connect Google Calendar</button></div></section>`;
+  const days = upcoming(7), t = today();
+  const label = d => d===t ? 'Today' : d===addDays(t,1) ? 'Tomorrow' : dayShort(d);
+  const errs = (CAL.calendars||[]).filter(c => c.error);
+  return `<section class="panel"><h2>Coming up <button class="btn small ghost" data-act="calset">Calendars</button></h2>
+    ${errs.map(c => `<div class="banner">${esc(c.name)}: ${esc(c.error)}</div>`).join('')}
+    ${days.length ? days.map(g => `<div class="calday"><div class="eyebrow">${esc(label(g.date))}</div>${g.items.map(i => `<div class="ev"><span class="evt num">${esc(i.time)}</span><span class="evbar" style="background:${i.color}"></span><div class="grow"><div class="t">${esc(i.title)}</div>${i.where?`<div class="m">${esc(i.where)}</div>`:''}</div></div>`).join('')}</div>`).join('')
+      : `<p class="empty">${CAL.at || calBusy ? 'Nothing in the next 7 days.' : 'Loading…'}</p>`}
+  </section>`;
+}
+function calForm() {
+  const feeds = [...(S.cal.feeds||[])]; while (feeds.length < 3) feeds.push({ name:'', url:'' });
+  openSheet('Google Calendar', `<p class="note">For each calendar, paste its <b>secret address in iCal format</b>. On a computer: open calendar.google.com → Settings (the gear) → click the calendar under “Settings for my calendars” → scroll to “Integrate calendar” → copy “Secret address in iCal format”.</p>
+    ${feeds.map((f,i) => `<div class="tsec">${fld(`cn${i}`,'Name', f.name||'', 'text', `placeholder="${['Chris','Viki','Family'][i]}"`)}${fld(`cu${i}`,'Secret iCal address', f.url||'', 'url','placeholder="https://calendar.google.com/calendar/ical/…/basic.ics" autocapitalize="off" autocorrect="off" spellcheck="false"')}</div>`).join('')}
+    <p class="note">The app can only read these calendars, not change them. The links are kept in your family's private database, which only Chris and Viki can see.</p>`, async () => {
+    const out = [];
+    for (let i=0;i<3;i++) { const url = v(`cu${i}`).trim(), name = v(`cn${i}`).trim(); if (!url) continue;
+      if (!/^(https|webcal):\/\//i.test(url)) throw new Error('Calendar links start with https://');
+      out.push({ name: name || ['Chris','Viki','Family'][i], url }); }
+    await put('private/calendar', { feeds: out });
+    CAL.at = 0; fetchCal(true);
+  });
+}
+
 /* ----- work ----- */
 const STATUS = {
   chris: [['work','Work'],['callout','Call-out'],['holiday','Holiday'],['sick','Sick'],['off','Off']],
@@ -401,6 +513,11 @@ const STATUS = {
 const SHORT = {work:'Work', callout:'Call', holiday:'Hol', sick:'Sick', off:'Off', shift:'Shift'};
 function viewWork() {
   const who = UI.who, ym = UI.cal;
+  const whoSeg = `<div class="seg who" role="group" aria-label="Whose work">
+    <button data-act="who" data-who="chris" aria-pressed="${who==='chris'}">Chris</button>
+    <button data-act="who" data-who="viki" aria-pressed="${who==='viki'}">Viki</button>
+  </div>`;
+  if (who==='viki') return whoSeg + viewViki();
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
   const lead = (first.getDay()+6)%7;
   const monthDays = daysFor(who, `${ym}-01`, `${ym}-${pad(daysIn)}`);
@@ -411,7 +528,6 @@ function viewWork() {
     const cls = rec ? `st-${rec.status}` : ''; const tcls = date===today() ? ' today' : '';
     let label = rec ? SHORT[rec.status] || '' : '';
     let extra = '';
-    if (rec && who==='viki' && vikiPay(rec,date) > 0) extra = `<span class="dot" title="Overtime or on-call"></span>`;
     if (rec && who==='chris' && rec.status==='callout' && rec.callouts) label = `Call ×${rec.callouts}`;
     cells += `<button class="${cls}${tcls}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${rec?', '+esc(label):''}"><span class="d">${d}</span><span class="l">${esc(label)}</span>${extra||'<span></span>'}</button>`;
   }
@@ -427,44 +543,264 @@ function viewWork() {
       <div class="stat"><span>Sick days this leave year</span><b>${count(yearDays,'sick')}</b><span>since ${shortDate(ly.from)}</span></div>
       <div class="stat"><span>Call-out shifts this leave year</span><b>${count(yearDays,'callout')}</b><span>${callouts} call-outs attended</span></div>
     </div>`;
-  } else {
-    const m = monthDays.reduce((a,d)=>{a.ot15+=Number(d.ot15)||0; a.ot2+=Number(d.ot2)||0; a.oc+= d.oncall&&d.oncall!=='none'?1:0; a.pay+=vikiPay(d,d.date); return a;}, {ot15:0,ot2:0,oc:0,pay:0});
-    const ypay = yearDays.reduce((s,d)=>s+vikiPay(d,d.date),0);
-    const allow = S.settings.vikiAllowance; const hol = count(yearDays,'holiday');
-    stats = `<div class="stats">
-      <div class="stat"><span>Overtime and on-call, ${MONTHS[first.getMonth()]}</span><b style="color:var(--viki)">${money(m.pay,0)}</b><span>gross, before tax</span></div>
-      <div class="stat"><span>Overtime hours</span><b>${m.ot15+m.ot2}</b><span>${m.ot15}h at 1.5×, ${m.ot2}h at 2×</span></div>
-      <div class="stat"><span>Shifts, ${MONTHS[first.getMonth()]}</span><b>${count(monthDays,'shift')}</b><span>${m.oc} on-call days</span></div>
-      <div class="stat"><span>Extras this leave year</span><b>${money(ypay,0)}</b><span>${count(yearDays,'sick')} sick · ${hol}${allow?`/${allow}`:''} holiday</span></div>
-    </div>`;
   }
-  const legend = STATUS[who].map(([k,l]) => `<span class="chip st-${k}">${l}</span>`).join('') + (who==='viki' ? `<span class="chip cat"><span class="dot"></span> Overtime or on-call</span>` : '');
-  const vlist = who==='viki' ? vikiList(monthDays) : '';
+  const legend = STATUS[who].map(([k,l]) => `<span class="chip st-${k}">${l}</span>`).join('');
   return `
-  <div class="seg who" role="group" aria-label="Whose work">
-    <button data-act="who" data-who="chris" aria-pressed="${who==='chris'}">Chris</button>
-    <button data-act="who" data-who="viki" aria-pressed="${who==='viki'}">Viki</button>
-  </div>
+  ${whoSeg}
   ${stats}
   <section class="panel">
     <div class="calhead"><button class="iconbtn" data-act="cal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="cal" data-v="1" aria-label="Next month">›</button></div>
     <div class="cal">${['M','T','W','T','F','S','S'].map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div>
     <div class="legend">${legend}</div>
-    <p class="note">Tap a day to log it.${who==='chris' ? '' : ' Pay uses the rates in settings.'}</p>
-    ${who==='chris' ? `<div class="btnrow"><button class="btn small ghost" data-act="fillweek">Mark empty weekdays this month as work</button></div>` : ''}
-  </section>
-  ${vlist}`;
-}
-function vikiList(monthDays) {
-  const withPay = monthDays.filter(d => vikiPay(d,d.date) > 0).sort((a,b)=>a.date<b.date?-1:1);
-  return `<section class="panel"><h2>Overtime and on-call this month</h2>
-    ${withPay.length ? `<div class="list">${withPay.map(d => {
-      const parts = []; if (d.ot15) parts.push(`${d.ot15}h at 1.5×`); if (d.ot2) parts.push(`${d.ot2}h at 2×`);
-      if (d.oncall==='weekday') parts.push('on-call (weekday)'); if (d.oncall==='weekend') parts.push('on-call (weekend)');
-      if (d.second) parts.push(`${d.second}h 2nd on-call`); if (d.bh) parts.push(`${d.bh}h bank holiday`);
-      return `<button class="rowbtn" data-act="day" data-date="${d.date}"><div class="grow"><div class="t">${shortDate(d.date)}</div><div class="m">${esc(parts.join(' · '))}</div></div><div class="amt">${money(vikiPay(d,d.date))}</div></button>`; }).join('')}</div>`
-      : `<p class="empty">No overtime or on-call logged this month. Tap a day on the calendar to add it.</p>`}
+    <p class="note">Tap a day to log it.</p>
+    <div class="btnrow"><button class="btn small ghost" data-act="fillweek">Mark empty weekdays this month as work</button></div>
   </section>`;
+}
+
+/* ----- Viki: pay, rota and on-call claims -----
+   Her actual rates live in the private database (settings/main → viki), never in this public code.
+   Model: salary + on-call standing hours × rate + call-out hours × basic × 1.5 (Mon–Sat) or 2 (Sun and bank holidays).
+   Pension is a % of salary + on call; NI is a fixed monthly part + a % of gross; tax is a rate above the tax-code allowance. */
+const VIKI_DEFAULT = { salary:0, base:0, standby:0, secondWD:0, secondWE:0, pension:0, niFixed:0, niPct:0, taxCode:0, taxRate:20, arrears:true };
+const vk = () => ({...VIKI_DEFAULT, ...(S.settings.viki||{})});
+const BANK_HOLS = new Set(['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-06-05','2026-07-05','2026-07-06','2026-08-31','2026-12-25','2026-12-26','2026-12-28',
+  '2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-06-11','2027-07-05','2027-08-30','2027-12-25','2027-12-26','2027-12-27','2027-12-28']);
+const isBH = s => BANK_HOLS.has(s);
+const DOWS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const toMin = t => { const m = /^(\d{1,2}):(\d{2})/.exec(String(t||'')); return m ? Number(m[1])*60 + Number(m[2]) : null; };
+const span = (a,b) => { const x = toMin(a), y = toMin(b); if (x===null || y===null) return 0; let d = y - x; if (d <= 0) d += 1440; return d/60; };
+const hm = t => t ? String(t).replace(/^0(\d)/,'$1') : '';
+const fh = h => { const r = Math.round((Number(h)||0)*100)/100; return String(r); };
+const PRESETS = [['08:00','17:30'],['08:00','18:00'],['08:00','18:30']];
+function shiftHours(d) { if (d.status!=='shift' || !d.start || !d.end) return 0; return Math.max(0, span(d.start, d.end) - (Number(d.lunch ?? 30))/60); }
+function ocRate(d) { const r = vk(); if (!d.oncall) return 0; if (d.oncall.kind==='second') return (isWeekend(d.date) || d.bh) ? r.secondWE : r.secondWD; return r.standby; }
+const ocHours = d => d.oncall ? span(d.oncall.start, d.oncall.end) : 0;
+function coDate(d, c) { const s = toMin(c.from), os = toMin(d.oncall ? d.oncall.start : (d.end || '00:00')); return (s!==null && os!==null && s < os) ? addDays(d.date,1) : d.date; }
+function coMult(d, c) { if (c.mult) return Number(c.mult); const cd = coDate(d,c); return (parse(cd).getDay()===0 || isBH(cd) || (cd===d.date && d.bh)) ? 2 : 1.5; }
+const coHours = c => span(c.from, c.to);
+function vikiDay(d) {
+  const r = vk(); const o = { hrs: shiftHours(d), ocH: ocHours(d), oc:0, h15:0, h2:0, co:0 };
+  o.oc = o.ocH * ocRate(d);
+  (d.callouts||[]).forEach(c => { const h = coHours(c), m = coMult(d,c); if (m===2) o.h2 += h; else o.h15 += h; o.co += h * r.base * m; });
+  o.extra = o.oc + o.co; return o;
+}
+const vikiPay = d => (d && d.who==='viki') ? vikiDay(d).extra : 0;
+function vikiMonth(ym) {
+  const days = daysFor('viki', `${ym}-01`, `${ym}-31`).sort((a,b) => a.date < b.date ? -1 : 1);
+  const t = { oc:0, ocH:0, co:0, h15:0, h2:0, hrs:0, days };
+  days.forEach(d => { const x = vikiDay(d); t.oc += x.oc; t.ocH += x.ocH; t.co += x.co; t.h15 += x.h15; t.h2 += x.h2; t.hrs += x.hrs; });
+  return t;
+}
+function payslip(oc, co) {
+  const r = vk(); const gross = r.salary + oc + co;
+  const pension = (r.salary + oc) * r.pension/100;
+  const ni = r.niFixed + gross * r.niPct/100;
+  const tax = Math.max(0, (gross - pension - r.taxCode*10/12) * r.taxRate/100);
+  return { gross, pension, ni, tax, net: gross - pension - ni - tax };
+}
+function payday(ym) { let d = `${ym}-25`; const w = parse(d).getDay(); if (w===6) d = addDays(d,-1); if (w===0) d = addDays(d,-2); return d; }
+const dayShort = s => { const d = parse(s); return `${DOWS[d.getDay()].slice(0,3)} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`; };
+
+function viewViki() {
+  const ym = UI.cal, r = vk(), m = vikiMonth(ym);
+  const payYM = r.arrears ? ymOf(addMonths(`${ym}-01`,1)) : ym;
+  const pd = payday(payYM), p = payslip(m.oc, m.co), tot = p.gross || 1;
+  const mName = MONTHS[parse(`${ym}-01`).getMonth()];
+  const C = { basic:'rgba(255,255,255,.92)', oc:'#8FD3F0', co:'#FFC861' };
+  const hero = `<section class="vhero">
+    <div class="k">Payday · ${esc(dayShort(pd))}</div>
+    <div><div class="big">${money(p.net,0)}</div><div class="sub">estimated take-home${ym >= ymOf(today()) ? ' so far' : ''} · ${money(p.gross,0)} before deductions</div></div>
+    <div class="stack" aria-hidden="true"><i style="width:${r.salary/tot*100}%;background:${C.basic}"></i><i style="width:${m.oc/tot*100}%;background:${C.oc}"></i><i style="width:${m.co/tot*100}%;background:${C.co}"></i></div>
+    <div class="vleg"><span><i style="background:${C.basic}"></i>Salary ${money(r.salary,0)}</span><span><i style="background:${C.oc}"></i>On call ${money(m.oc,0)}</span><span><i style="background:${C.co}"></i>Call-outs ${money(m.co,0)}</span></div>
+    <details><summary>How it's worked out</summary><dl>
+      <dt>Salary</dt><dd>${money(r.salary,2)}</dd>
+      <dt>On call, ${fh(m.ocH)}h in ${esc(mName)}</dt><dd>${money(m.oc,2)}</dd>
+      <dt>Call-outs, ${fh(m.h15)}h at 1.5× + ${fh(m.h2)}h at 2×</dt><dd>${money(m.co,2)}</dd>
+      <dt>Pension ${r.pension}%</dt><dd>−${money(p.pension,2)}</dd>
+      <dt>NI</dt><dd>−${money(p.ni,2)}</dd>
+      <dt>Tax (code ${esc(r.taxCode)})</dt><dd>−${money(p.tax,2)}</dd>
+    </dl><p style="margin:6px 0 0;opacity:.9">${r.arrears ? `On call and call-outs worked in ${esc(mName)} are paid on ${esc(dayShort(pd))}. ` : ''}Checked against her real payslips: within about £10.</p></details>
+  </section>`;
+
+  // this week
+  const t = today(), mon = addDays(t, -((parse(t).getDay()+6)%7));
+  let wk = '', wkH = 0;
+  for (let i=0;i<7;i++) {
+    const date = addDays(mon,i), rec = S.days[`viki_${date}`], d = parse(date);
+    let lab = '';
+    if (rec) { if (rec.status==='shift') { const h = shiftHours(rec); wkH += h; lab = `${fh(h)}h`; } else if (rec.status==='holiday' || rec.status==='sick') { if (i<5) wkH += 7.5; lab = rec.status==='holiday' ? 'Hol' : 'Sick'; } }
+    const cls = rec ? (rec.status==='shift' ? 'st-shift' : rec.status==='off' ? (rec.oncall ? 'st-oncall' : '') : `st-${rec.status}`) : '';
+    wk += `<button class="${cls}${date===t?' today':''}" data-act="day" data-date="${date}" aria-label="${esc(dayShort(date))}${lab?', '+lab:''}${rec&&rec.oncall?', on call':''}"><span class="wd">${DOWS[d.getDay()].slice(0,3)}</span><span class="wn">${d.getDate()}</span><span class="wh">${esc(lab)}</span><span class="moon">${rec && rec.oncall ? '☾' : '&nbsp;'}</span></button>`;
+  }
+  const wpct = Math.min(100, wkH/37.5*100);
+  const week = `<section class="panel"><h2>This week <span class="sub num">${fh(wkH)} of 37.5 hours</span></h2>
+    <div class="bar"><i style="width:${wpct}%;background:var(--viki)"></i></div>
+    <div class="week">${wk}</div></section>`;
+
+  // month calendar
+  const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate(); const lead = (first.getDay()+6)%7;
+  let cells = ''; for (let i=0;i<lead;i++) cells += `<button class="pad" tabindex="-1" aria-hidden="true"></button>`;
+  for (let d=1; d<=daysIn; d++) {
+    const date = `${ym}-${pad(d)}`, rec = S.days[`viki_${date}`];
+    let lab = '', cls = '';
+    if (rec) {
+      if (rec.status==='shift') { lab = `${fh(shiftHours(rec))}h`; cls = 'st-shift'; }
+      else if (rec.status==='off') { lab = rec.oncall ? 'On call' : 'Off'; cls = rec.oncall ? 'st-oncall' : 'st-off'; }
+      else { lab = SHORT[rec.status] || ''; cls = `st-${rec.status}`; }
+    }
+    const mark = rec && rec.oncall ? `<span class="moon">☾${(rec.callouts||[]).length ? '<span class="dot" style="margin-left:2px"></span>' : ''}</span>` : '<span></span>';
+    cells += `<button class="${cls}${date===t?' today':''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${lab?', '+esc(lab):''}"><span class="d">${d}</span><span class="l">${esc(lab)}</span>${mark}</button>`;
+  }
+  const cal = `<section class="panel">
+    <div class="calhead"><button class="iconbtn" data-act="cal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="cal" data-v="1" aria-label="Next month">›</button></div>
+    <div class="cal">${['M','T','W','T','F','S','S'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div>
+    <div class="legend"><span class="chip st-shift">Shift</span><span class="chip st-oncall">☾ On call</span><span class="chip cat"><span class="dot"></span> Call-out</span><span class="chip st-holiday">Holiday</span><span class="chip st-sick">Sick</span></div>
+    <p class="note">Tap a day to log her shift, on call and any call-outs.</p></section>`;
+
+  const noRates = !r.salary ? `<div class="banner">Viki's pay rates aren't set yet. <button class="btn small ghost" data-act="vrates">Add them</button></div>` : '';
+  return noRates + hero + week + cal + claimTable(ym, m) + ratesPanel();
+}
+
+function claimRows(m) {
+  const rows = [];
+  m.days.filter(d => d.oncall || (d.callouts||[]).length).forEach(d => {
+    const x = vikiDay(d), cos = d.callouts||[];
+    const base = { date:d.date, day:DOWS[parse(d.date).getDay()].slice(0,3), start:d.oncall?hm(d.oncall.start):'', end:d.oncall?hm(d.oncall.end):'', hrs:d.oncall?fh(x.ocH):'', amt:d.oncall?x.oc:null, second:d.oncall&&d.oncall.kind==='second' };
+    if (!cos.length) rows.push({...base, cont:false});
+    cos.forEach((c,i) => rows.push({...(i ? {date:d.date, day:'', start:'', end:'', hrs:'', amt:null} : base), cont: i>0, from:hm(c.from), to:hm(c.to), ch:fh(coHours(c)), mult:coMult(d,c), note:c.note||''}));
+  });
+  return rows;
+}
+function claimTable(ym, m) {
+  const rows = claimRows(m);
+  const ds = s => { const d = parse(s); return `${d.getDate()}/${d.getMonth()+1}/${String(d.getFullYear()).slice(2)}`; };
+  const body = rows.map(r => `<tr class="${r.cont?'cont':''}" data-act="day" data-date="${r.date}">
+    <td>${esc(r.day)}${r.second?' <span class="chip cat">2nd</span>':''}</td><td>${r.cont?'':ds(r.date)}</td><td>${esc(r.start)}</td><td>${esc(r.end)}</td><td class="r">${esc(r.hrs)}</td><td class="r">${r.amt!=null?money(r.amt,2):''}</td>
+    <td class="co-col">${esc(r.from||'')}</td><td class="co-col">${esc(r.to||'')}</td><td class="co-col r">${r.ch?esc(r.ch)+(r.mult===2?' <small>(2×)</small>':''):''}</td></tr>`).join('');
+  return `<section class="panel"><h2>On-call claim · ${esc(monthName(ym))} ${rows.length?'<button class="btn small ghost" data-act="vcopy">Copy</button>':''}</h2>
+    ${rows.length ? `<div class="tbl"><table>
+      <thead><tr><th class="grp" colspan="6">Period of on call</th><th class="grp co-col" colspan="3">Duration of call-out</th></tr>
+      <tr><th>Day</th><th>Date</th><th>Start</th><th>Finish</th><th class="r">Hours</th><th class="r">Amount £</th><th class="co-col">From</th><th class="co-col">To</th><th class="co-col r">Hours</th></tr></thead>
+      <tbody>${body}</tbody>
+      <tfoot><tr><td colspan="4">Total</td><td class="r">${fh(m.ocH)}</td><td class="r">${money(m.oc,2)}</td><td class="co-col" colspan="2">${fh(m.h15)}h 1.5× · ${fh(m.h2)}h 2×</td><td class="co-col r">${fh(m.h15+m.h2)}</td></tr></tfoot>
+    </table></div><p class="note">Laid out like her MPTC claim form so it can be copied straight across. Tap a row to change it.</p>`
+    : `<p class="empty">No on call logged in ${esc(MONTHS[parse(`${ym}-01`).getMonth()])} yet. Tap a day on the calendar to add one.</p>`}
+  </section>`;
+}
+function claimText(ym) {
+  const m = vikiMonth(ym), rows = claimRows(m);
+  const lines = [`On-call claim, ${monthName(ym)}`, ['Day','Date','Start','Finish','Hours','Amount £','From','To','Hours claimed','Notes'].join('\t')];
+  rows.forEach(r => lines.push([r.day, r.cont?'':shortDate(r.date), r.start, r.end, r.hrs, r.amt!=null?r.amt.toFixed(2):'', r.from||'', r.to||'', r.ch||'', r.note||''].join('\t')));
+  lines.push(`Total on call ${fh(m.ocH)}h = £${m.oc.toFixed(2)} · call-outs ${fh(m.h15)}h at 1.5x, ${fh(m.h2)}h at 2x`);
+  return lines.join('\n');
+}
+function ratesPanel() {
+  const r = vk();
+  const tile = (l,v,sub) => `<div class="rate"><span class="rl">${l}</span><span class="rv">${v}</span><span class="rs">${sub}</span></div>`;
+  return `<section class="panel"><h2>Viki's rates <button class="btn small ghost" data-act="vrates">Edit</button></h2>
+    <div class="rates">
+      ${tile('Salary', money(r.salary,2), `a month · ${money(r.base,2)}/h · 37.5h week`)}
+      ${tile('On call', money(r.standby,2)+'/h', `weekday 13.5h = ${money(r.standby*13.5,2)}<br>weekend or bank hol 24h = ${money(r.standby*24,2)}`)}
+      ${tile('Call-out, Mon–Sat', money(r.base*1.5,2)+'/h', 'time and a half, hours actually worked')}
+      ${tile('Call-out, Sun & bank hol', money(r.base*2,2)+'/h', 'double time')}
+      ${tile('2nd on call', money(r.secondWD,2)+'/h', `weekend ${money(r.secondWE,2)}/h`)}
+      ${tile('Pension', r.pension+'%', 'of salary and on call; call-outs aren\'t pensionable')}
+    </div>
+    <p class="note">Usual week: two days 8:00–17:30, one 8:00–18:00, one 8:00–18:30 then on call. Each minus 30 minutes for lunch = 37.5 hours.</p>
+  </section>`;
+}
+
+function vikiDayForm(date) {
+  const key = `viki_${date}`, rec = S.days[key];
+  const wkend = isWeekend(date), bh = isBH(date);
+  const draft = rec ? JSON.parse(JSON.stringify(rec)) : (wkend || bh ? { who:'viki', date, status:'off', bh } : { who:'viki', date, status:'shift', start:'08:00', end:'17:30', lunch:30, bh });
+  draft.callouts = draft.callouts || [];
+  const ocDefault = () => (wkend || draft.bh) && draft.status!=='shift' ? { start:'08:00', end:'08:00' } : { start: (draft.status==='shift' && draft.end) ? draft.end : '18:30', end:'08:00' };
+  const read = () => {
+    if (draft.status==='shift') { draft.start = v('vStart') || draft.start; draft.end = v('vEnd') || draft.end; const l = num(v('vLunch')); draft.lunch = l===null ? 0 : l; }
+    if (draft.oncall) { draft.oncall.start = v('vOcS') || draft.oncall.start; draft.oncall.end = v('vOcE') || draft.oncall.end; }
+    draft.bh = !!($('#vBh') && $('#vBh').checked);
+    draft.callouts.forEach((c,i) => { c.from = v(`vCf${i}`); c.to = v(`vCt${i}`); c.note = v(`vCn${i}`).trim(); });
+    draft.note = v('vNote').trim();
+  };
+  const presetIdx = () => draft.status==='shift' && !draft.custom ? PRESETS.findIndex(([a,b]) => a===draft.start && b===draft.end) : -1;
+  const body = () => {
+    const x = vikiDay(draft), pi = presetIdx();
+    const types = [['off','Off'],['p0','8–17:30'],['p1','8–18'],['p2','8–18:30 + on call'],['custom','Other times'],['holiday','Holiday'],['sick','Sick']];
+    const active = k => k==='off'||k==='holiday'||k==='sick' ? draft.status===k : k==='custom' ? (draft.status==='shift' && pi<0) : (draft.status==='shift' && `p${pi}`===k);
+    return `
+    <div class="tsec"><div class="tsec-h"><b>Shift</b><span class="pill v" id="vShiftH">${draft.status==='shift' ? fh(x.hrs)+' hours' : draft.status==='off' ? 'Not working' : esc(draft.status==='holiday'?'Holiday':'Sick')}</span></div>
+      <div class="choice">${types.map(([k,l]) => `<button type="button" data-vt="${k}" class="${active(k)?'on':''}" aria-pressed="${active(k)}">${l}</button>`).join('')}</div>
+      ${draft.status==='shift' ? `<div class="fields3">${fld('vStart','Start', draft.start||'', 'time')}${fld('vEnd','Finish', draft.end||'', 'time')}${fld('vLunch','Lunch (mins)', draft.lunch ?? 30, 'number','min="0" step="5" inputmode="numeric"')}</div>` : ''}
+    </div>
+    <div class="tsec"><div class="tsec-h"><b>On call</b><span class="pill a" id="vOcAmt">${draft.oncall ? `${fh(x.ocH)}h · ${money(x.oc,2)}` : 'None'}</span></div>
+      <div class="seg" role="group" aria-label="On call">${[['none','None'],['first','On call'],['second','2nd on call']].map(([k,l]) => `<button type="button" data-vo="${k}" aria-pressed="${(draft.oncall ? draft.oncall.kind : 'none')===k}">${l}</button>`).join('')}</div>
+      ${draft.oncall ? `<div class="fields2">${fld('vOcS','Start', draft.oncall.start||'', 'time')}${fld('vOcE','Finish', draft.oncall.end||'', 'time')}</div>` : ''}
+      <label class="toggle"><input type="checkbox" id="vBh" ${draft.bh?'checked':''}> Bank holiday${bh?' (it is one)':''}</label>
+    </div>
+    <div class="tsec"><div class="tsec-h"><b>Call-outs</b><span class="pill g" id="vCoAmt">${fh(x.h15+x.h2)}h · ${money(x.co,2)}</span></div>
+      ${draft.callouts.map((c,i) => `<div class="co"><div class="co-top"><span>Call-out ${i+1}</span><span><button type="button" class="multbtn" data-vm="${i}" title="Tap to switch rate">${coMult(draft,c)===2?'2×':'1.5×'}</button><button type="button" class="x" data-vx="${i}" aria-label="Remove call-out ${i+1}">×</button></span></div>
+        <div class="fields3">${fld(`vCf${i}`,'From', c.from||'', 'time')}${fld(`vCt${i}`,'To', c.to||'', 'time')}<div class="field"><label>Hours</label><div class="out" id="vCh${i}">${fh(coHours(c))}</div></div></div>
+        ${fld(`vCn${i}`,'Note (optional)', c.note||'', 'text','placeholder="e.g. emergency theatre"')}</div>`).join('')}
+      <button type="button" class="btn ghost small" data-vadd="1">+ Add call-out</button>
+    </div>
+    ${fld('vNote','Note', draft.note||'')}
+    <div class="vsum"><span>Extra pay for this day</span><b id="vTotal">${money(x.extra,2)}</b></div>`;
+  };
+  openSheet(`Viki · ${dayShort(date)}`, `<div id="vBody" style="display:flex;flex-direction:column;gap:12px">${body()}</div>`, async () => {
+    read();
+    if (draft.status==='shift' && (!draft.start || !draft.end)) throw new Error('Add a start and finish time for the shift');
+    if (draft.oncall && (!draft.oncall.start || !draft.oncall.end)) throw new Error('Add a start and finish time for the on call');
+    const cos = draft.callouts.filter(c => c.from || c.to);
+    if (cos.some(c => !c.from || !c.to)) throw new Error('Each call-out needs a from and to time');
+    const data = { who:'viki', date, status: draft.status };
+    if (draft.status==='shift') Object.assign(data, { start:draft.start, end:draft.end, lunch:draft.lunch });
+    if (draft.oncall) data.oncall = { kind:draft.oncall.kind, start:draft.oncall.start, end:draft.oncall.end };
+    if (draft.bh) data.bh = true;
+    if (cos.length) data.callouts = cos.map(c => { const o = { from:c.from, to:c.to }; if (c.mult) o.mult = c.mult; if (c.note) o.note = c.note; return o; });
+    if (draft.note) data.note = draft.note;
+    if (data.status==='off' && !data.oncall && !data.callouts && !data.note) { if (rec) await remove(`days/${key}`); return; }
+    await put(`days/${key}`, data);
+  }, rec ? { onDelete: () => remove(`days/${key}`) } : {});
+  const box = $('#vBody');
+  const paint = () => { box.innerHTML = body(); };
+  const refresh = () => { read(); const x = vikiDay(draft);
+    const sh = $('#vShiftH'); if (sh && draft.status==='shift') sh.textContent = `${fh(x.hrs)} hours`;
+    $('#vOcAmt').textContent = draft.oncall ? `${fh(x.ocH)}h · ${money(x.oc,2)}` : 'None';
+    $('#vCoAmt').textContent = `${fh(x.h15+x.h2)}h · ${money(x.co,2)}`;
+    draft.callouts.forEach((c,i) => { const o = $(`#vCh${i}`); if (o) o.textContent = fh(coHours(c)); const mb = box.querySelector(`[data-vm="${i}"]`); if (mb) mb.textContent = coMult(draft,c)===2 ? '2×' : '1.5×'; });
+    $('#vTotal').textContent = money(x.extra,2); };
+  box.addEventListener('input', refresh);
+  box.addEventListener('change', refresh);
+  box.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return; read();
+    if (b.dataset.vt) { const k = b.dataset.vt;
+      if (k==='off'||k==='holiday'||k==='sick') draft.status = k;
+      else if (k==='custom') { draft.status = 'shift'; draft.custom = true; draft.start = draft.start || '08:00'; draft.end = draft.end || '17:30'; if (draft.lunch==null) draft.lunch = 30; }
+      else { const [a,z] = PRESETS[Number(k.slice(1))]; const hadEnd = draft.end; draft.status = 'shift'; draft.custom = false; draft.start = a; draft.end = z; if (draft.lunch==null) draft.lunch = 30;
+        if (k==='p2' && !draft.oncall) draft.oncall = { kind:'first', start:'18:30', end:'08:00' };
+        else if (draft.oncall && draft.oncall.start===hadEnd) draft.oncall.start = z; }
+      return paint(); }
+    if (b.dataset.vo) { const k = b.dataset.vo; if (k==='none') draft.oncall = null; else draft.oncall = { ...(draft.oncall || ocDefault()), kind:k }; return paint(); }
+    if (b.dataset.vadd) { draft.callouts.push({ from:'', to:'' }); paint(); const f = $(`#vCf${draft.callouts.length-1}`); if (f) f.focus(); return; }
+    if (b.dataset.vx) { draft.callouts.splice(Number(b.dataset.vx),1); return paint(); }
+    if (b.dataset.vm) { const c = draft.callouts[Number(b.dataset.vm)]; c.mult = coMult(draft,c)===2 ? 1.5 : 2; return refresh(); }
+  });
+}
+function vikiRatesForm() {
+  const r = vk();
+  openSheet("Viki's pay", `<p class="note">Taken from her payslips. Change these when her pay goes up.</p>
+    <div class="fields2">${fld('rSal','Salary per month (£)', r.salary, 'number','step="0.01" inputmode="decimal"')}${fld('rBase','Basic hourly rate (£)', r.base, 'number','step="0.0001" inputmode="decimal"')}</div>
+    <div class="fields2">${fld('rSb','On call per hour (£)', r.standby, 'number','step="0.01" inputmode="decimal"')}${fld('rPen','Pension (%)', r.pension, 'number','step="0.1" inputmode="decimal"')}</div>
+    <div class="fields2">${fld('rS2','2nd on call, weekday (£/h)', r.secondWD, 'number','step="0.001" inputmode="decimal"')}${fld('rS2w','2nd on call, weekend (£/h)', r.secondWE, 'number','step="0.01" inputmode="decimal"')}</div>
+    <div class="fields2">${fld('rTax','Tax code number', r.taxCode, 'number','step="1" inputmode="numeric"')}${sel('rArr','On call is paid', r.arrears?'1':'0', [['1','The month after'],['0','The same month']])}</div>
+    <p class="note">Call-outs are worked out from the basic rate: ${money(r.base*1.5,2)}/h Monday to Saturday and ${money(r.base*2,2)}/h on Sundays and bank holidays.</p>`, async () => {
+    const out = {...(S.settings.viki||{})};
+    const map = { salary:'rSal', base:'rBase', standby:'rSb', pension:'rPen', secondWD:'rS2', secondWE:'rS2w', taxCode:'rTax' };
+    for (const [k,id] of Object.entries(map)) { const n = num(v(id)); if (n===null || n<0) throw new Error('Each rate needs a number'); out[k] = n; }
+    out.arrears = v('rArr')==='1';
+    await put('settings/main', {...S.settings, viki: out});
+  });
 }
 
 /* ----- money ----- */
@@ -618,20 +954,17 @@ const formErr = msg => { const e = $('#formErr'); e.textContent = msg; e.hidden 
 const v = id => ($('#'+id)||{}).value ?? '';
 
 function dayForm(date) {
+  if (UI.who==='viki') return vikiDayForm(date);
   const who = UI.who, key = `${who}_${date}`, rec = S.days[key] || {};
   let status = rec.status || (who==='chris' ? 'work' : 'shift');
   const choice = `<div class="field"><label>Day type</label><div class="choice" id="stChoice">${STATUS[who].map(([k,l]) => `<button type="button" class="st-${k}" data-st="${k}" aria-pressed="${status===k}">${l}</button>`).join('')}</div></div>`;
   let extra = '';
   if (who==='chris') extra = `<div id="calloutBox" ${status==='callout'?'':'hidden'}>${fld('callouts','Call-outs attended', rec.callouts||'', 'number', 'min="0" step="1" inputmode="numeric"')}</div>`;
-  else { const r = rates(); extra = `<div class="fields2">${fld('ot15',`Overtime at 1.5× (hours, ${money(r.ot15,2)}/h)`, rec.ot15||'', 'number','min="0" step="0.25" inputmode="decimal"')}${fld('ot2',`Overtime at 2× (hours, ${money(r.ot2,2)}/h)`, rec.ot2||'', 'number','min="0" step="0.25" inputmode="decimal"')}</div>
-    ${sel('oncall','On-call', rec.oncall||'none', [['none','None'],['weekday',`Weekday on-call (${money(r.oncallWD,2)})`],['weekend',`Weekend on-call (${money(r.oncallWE,2)})`]])}
-    <div class="fields2">${fld('second','2nd on-call (hours)', rec.second||'', 'number','min="0" step="0.5" inputmode="decimal"')}${fld('bh',`Bank holiday hours (+${money(r.bh,2)}/h)`, rec.bh||'', 'number','min="0" step="0.25" inputmode="decimal"')}</div>`; }
   openSheet(`${who==='chris'?'Chris':'Viki'} · ${shortDate(date)}`, choice + extra + fld('note','Note', rec.note||''), async () => {
     const data = { who, date, status };
     if (who==='chris' && status==='callout') { const c = num(v('callouts')); if (c!==null) data.callouts = Math.max(0,Math.round(c)); }
-    if (who==='viki') { ['ot15','ot2','second','bh'].forEach(k => { const n = num(v(k)); if (n) { if (n<0) throw new Error('Hours can\'t be negative'); data[k]=n; } }); const oc=v('oncall'); if (oc!=='none') data.oncall = oc; }
     const note = v('note').trim(); if (note) data.note = note;
-    if (status==='off' && !note && !(who==='viki' && vikiPay(data,date)>0)) { await remove(`days/${key}`); return; }
+    if (status==='off' && !note) { await remove(`days/${key}`); return; }
     await put(`days/${key}`, data);
   }, rec.status ? { onDelete: () => remove(`days/${key}`) } : {});
   $('#stChoice').addEventListener('click', e => { const b = e.target.closest('button[data-st]'); if (!b) return; status = b.dataset.st;
@@ -708,23 +1041,18 @@ function mileageForm() {
   });
 }
 function settingsForm() {
-  const s = S.settings, r = rates();
+  const s = S.settings;
   openSheet('Settings', `<p class="eyebrow">Chris</p><div class="fields2">${fld('cAllow','Holiday allowance (days)', s.chrisAllowance??'', 'number','min="0" step="0.5"')}${sel('leaveStart','Leave year starts', s.leaveStart||1, MONTHS.map((m,i)=>[i+1,m]))}</div>
     <p class="eyebrow">Viki</p>${fld('vAllow','Holiday allowance (days)', s.vikiAllowance??'', 'number','min="0" step="0.5"')}
-    <div class="fields2">${fld('rot15','Overtime 1.5× (£/h)', r.ot15, 'number','step="0.01"')}${fld('rot2','Overtime 2× (£/h)', r.ot2, 'number','step="0.01"')}</div>
-    <div class="fields2">${fld('roWD','On-call weekday (£)', r.oncallWD, 'number','step="0.01"')}${fld('roWE','On-call weekend (£)', r.oncallWE, 'number','step="0.01"')}</div>
-    <div class="fields2">${fld('rsWD','2nd on-call weekday (£/h)', r.secondWD, 'number','step="0.01"')}${fld('rsWE','2nd on-call weekend (£/h)', r.secondWE, 'number','step="0.01"')}</div>
-    ${fld('rbh','Bank holiday uplift (£/h)', r.bh, 'number','step="0.01"')}
-    <p class="note">Rates are taken from your budget spreadsheet. Change them here when pay rates go up.</p>
+    <div class="btnrow"><button class="btn ghost small" type="button" data-act="vrates">Viki's pay rates</button></div>
+    <p class="eyebrow">Family calendar</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="calset">Google Calendar links</button></div>
     <p class="eyebrow">Account</p><p class="note">Signed in as <strong>${esc(userName())}</strong></p>
     ${fld('newpass','New password (leave blank to keep)', '', 'password', 'autocomplete="new-password" minlength="8"')}
     <div class="btnrow"><button class="btn ghost small" type="button" data-act="signout">Sign out on this phone</button></div>`, async () => {
     const out = {...s}; const ca = num(v('cAllow')), va = num(v('vAllow'));
     if (ca!==null) out.chrisAllowance = ca; else delete out.chrisAllowance; if (va!==null) out.vikiAllowance = va; else delete out.vikiAllowance;
     out.leaveStart = Number(v('leaveStart'))||1;
-    const map = {ot15:'rot15', ot2:'rot2', oncallWD:'roWD', oncallWE:'roWE', secondWD:'rsWD', secondWE:'rsWE', bh:'rbh'}; const nr = {...r};
-    for (const [k,idf] of Object.entries(map)) { const n = num(v(idf)); if (n===null || n<0) throw new Error('Check the pay rates: each needs a number'); nr[k]=n; }
-    out.rates = nr;
+
     const np = v('newpass');
     if (np) {
       if (np.length < 8) throw new Error('New password needs at least 8 characters');
@@ -752,10 +1080,10 @@ async function handleAuth(form) {
 async function startSession(s) {
   const was = session && session.user && session.user.id;
   session = s;
-  if (!session) { resetState(); try { localStorage.removeItem(CACHE_KEY); } catch(e) {} render(); return; }
+  if (!session) { resetState(); CAL.calendars = []; CAL.at = 0; try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('hhq-cal'); } catch(e) {} render(); return; }
   if (was === session.user.id && channel) return;
   if (loadCache()) render();
-  try { await loadAll(); subscribe(); }
+  try { await loadAll(); subscribe(); fetchCal(true); }
   catch (e) { offline = true; render(); }
 }
 
@@ -783,6 +1111,9 @@ document.addEventListener('click', async e => {
   if (a==='service') return serviceForm(el.dataset.id);
   if (a==='fuel') return fuelForm(el.dataset.id);
   if (a==='mileage') return mileageForm();
+  if (a==='calset') { closeSheet(); return calForm(); }
+  if (a==='vrates') { closeSheet(); return vikiRatesForm(); }
+  if (a==='vcopy') { const txt = claimText(UI.cal); try { await navigator.clipboard.writeText(txt); toast('Claim copied'); } catch(err) { toast('Couldn\'t copy on this phone'); } return; }
   if (a==='signout') { closeSheet(); await sb.auth.signOut(); return; }
   if (a==='fillweek') {
     const ym = UI.cal; const first = parse(`${ym}-01`); const n = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate(); let c = 0;
