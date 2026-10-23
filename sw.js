@@ -1,6 +1,6 @@
 // Hitchen HQ service worker: keeps the app shell available offline.
 // Family data always comes from Supabase and is never cached here.
-const CACHE = 'hitchen-hq-v2';
+const CACHE = 'hitchen-hq-v3';
 const SHELL = [
   './',
   './index.html',
@@ -32,7 +32,7 @@ self.addEventListener('fetch', event => {
   // Pages: network first so updates arrive, cached copy when offline.
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-store' })
         .then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put('./index.html', copy)); return res; })
         .catch(() => caches.match('./index.html'))
     );

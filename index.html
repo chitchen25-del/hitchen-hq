@@ -741,11 +741,11 @@ async function handleAuth(form) {
   const err = $('#authErr'); const btn = form.querySelector('button[type="submit"]');
   const user = v('auser').trim().toLowerCase(), password = v('apass');
   const show = m => { err.textContent = m; err.hidden = !m; };
-  if (!/^[a-z0-9._-]+$/.test(user)) return show('Enter your username');
+  if (!/^[a-z0-9._@-]+$/.test(user)) return show('Enter your username');
   if (!password) return show('Enter your password');
   btn.disabled = true; show('');
   try {
-    const { error } = await sb.auth.signInWithPassword({ email: `${user}@${LOGIN_DOMAIN}`, password });
+    const { error } = await sb.auth.signInWithPassword({ email: user.includes('@') ? user : `${user}@${LOGIN_DOMAIN}`, password });
     if (error) throw new Error(/invalid login/i.test(error.message) ? 'Username or password is wrong' : error.message);
   } catch (e) { show(e.message || 'Couldn\'t sign in'); btn.disabled = false; }
 }
