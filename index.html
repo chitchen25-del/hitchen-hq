@@ -1433,18 +1433,18 @@ function applyLocal(path, data) {
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; }
+  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.meals) rows.push(['meals/main', S.meals]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.hours) rows.push(['state/hours', S.hours]); if (S.meals) rows.push(['meals/main', S.meals]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.entries(S.media || {}).forEach(([id,d]) => rows.push([`media/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
@@ -1992,6 +1992,8 @@ function viewWork() {
   if (who==='viki') { const sub = ['contract','co'].includes(UI.vsub) ? UI.vsub : 'pay';
     return whoSeg + personHero('viki') + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Rota &amp; claims</button><button role="tab" data-act="vsub" data-v="co" aria-selected="${sub==='co'}">Call-outs</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Pay &amp; contract</button></div>` + (sub==='contract' ? viewVikiContract() : sub==='co' ? `<div class="co-wrap">${viewCallouts()}</div>` : viewViki()); }
   if (who==='leave') return whoSeg + viewLeave();
+  const chTabs = who==='chris' ? `<div class="subtabs" role="tablist" aria-label="Chris"><button role="tab" data-act="csub" data-v="cal" aria-selected="${UI.csub!=='hours'}">Work calendar</button><button role="tab" data-act="csub" data-v="hours" aria-selected="${UI.csub==='hours'}">Hours &amp; leave</button></div>` : '';
+  if (who==='chris' && UI.csub==='hours') return whoSeg + personHero('chris') + chTabs + viewChrisHours();
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
   const lead = (first.getDay()+6)%7;
   const monthDays = daysFor(who, `${ym}-01`, `${ym}-${pad(daysIn)}`);
@@ -2021,7 +2023,7 @@ function viewWork() {
   const legend = STATUS[who].map(([k,l]) => `<span class="chip st-${k}">${l}</span>`).join('');
   return `
   ${whoSeg}
-  ${who==='chris' ? personHero('chris') : ''}
+  ${who==='chris' ? personHero('chris') + chTabs : ''}
   ${stats}
   <section class="panel">
     <div class="calhead"><button class="iconbtn" data-act="cal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="cal" data-v="1" aria-label="Next month">›</button></div>
@@ -2030,6 +2032,52 @@ function viewWork() {
     <p class="note">Tap a day to log it.</p>
     <div class="btnrow"><button class="btn small ghost" data-act="fillweek">Mark empty weekdays this month as work</button></div>
   </section>`;
+}
+
+/* ----- Chris's hours balance -----
+   state/hours = { asOf, rate, pattern, since:[{id, d, what, m}], pre:[{d, what, m}], pay:[{l, net, note}], report }
+   m is minutes: + extra time worked, − time short. "since" runs from the March pay that reset the balance to zero.
+   Built from the car's trip log and wage payments; the figures live in the private database, never in this code. */
+const hmin = (m, sign = true) => { const a = Math.round(Math.abs(Number(m)||0)), h = Math.floor(a/60), mm = a % 60, s = !sign ? '' : m > 0 ? '+' : m < 0 ? '−' : '';
+  return `${s}${h ? `${h}h${mm ? ` ${String(mm).padStart(2,'0')}m` : ''}` : `${mm}m`}`; };
+function chrisHolLeft() {
+  const ly = chrisLeaveYear(0), allow = Number(S.settings.chrisAllowance) || (S.leave && S.leave.chris && S.leave.chris.allowance) || 0;
+  const days = daysFor('chris', ly.from, ly.to).filter(d => d.status==='holiday' && !isWeekend(d.date) && !isBH(d.date));
+  return { allow, used: days.length, taken: days.filter(d => d.date <= today()).length, left: allow - days.length, label: ly.label };
+}
+function viewChrisHours() {
+  const H = S.hours;
+  if (!H || !Array.isArray(H.since)) return `<section class="panel"><p class="empty">No hours worked out yet.</p><div class="btnrow"><button class="btn small" data-act="hrsadd">Log time</button></div></section>`;
+  const rate = Number(H.rate) || 14, since = [...H.since].sort((a,b) => a.d < b.d ? -1 : 1);
+  const plus = since.filter(x => x.m > 0).reduce((a,x) => a + x.m, 0), minus = since.filter(x => x.m < 0).reduce((a,x) => a + x.m, 0), bal = plus + minus;
+  const hol = chrisHolLeft();
+  const hero = tblock({ cls:'lv-chris', kicker: `Hours balance · since the March reset`, title: Math.abs(bal) < 1 ? 'All square' : bal > 0 ? `${hmin(bal, false)} owed to you` : `You owe ${hmin(bal, false)}`,
+    side: `<span class="tb-kicker">Worth</span><span class="big">${money(Math.abs(bal)/60*rate, 0)}</span>`,
+    cells: [ tbCell('Extra worked', hmin(plus), 'var(--good-bar)'), tbCell('Time short', hmin(minus), 'var(--bad)'), tbCell('Holiday left', hol.allow ? `${hol.left} <small>of ${hol.allow}</small>` : '–', 'var(--chris-bar)') ],
+    foot: `<span>40 hours a week · £${rate} an hour</span>${H.asOf ? `<span>Checked to ${esc(shortDate(H.asOf))}</span>` : ''}` });
+  const row = (x, act) => `<${act ? `button class="rowbtn" data-act="${act}" data-id="${esc(x.id)}"` : 'div class="row"'}><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.d))}</span><span class="m" style="display:block">${esc(x.what)}</span></span><span class="amt" style="color:${x.m > 0 ? 'var(--good)' : x.m < 0 ? 'var(--bad)' : 'var(--muted)'}">${x.m ? hmin(x.m) : 'None'}</span></${act ? 'button' : 'div'}>`;
+  const pre = H.pre || [], preTot = pre.reduce((a,x) => a + x.m, 0);
+  return `${hero}
+    ${H.report ? `<a class="btn" style="display:flex;justify-content:center;margin:0 0 14px" href="${esc(H.report)}" target="_blank" rel="noopener">Open the report for your boss</a>` : ''}
+    <section class="panel"><h2>Since the reset <span class="sub">${hmin(bal)}</span></h2><p class="note" style="margin-top:0">Saturdays in and time short on weekdays, against ${esc(H.pattern || 'your normal hours')}. Tap a line to change it.</p>
+      <div class="list">${since.map(x => row(x, 'hrsedit')).join('')}</div>
+      <div class="btnrow"><button class="btn small" data-act="hrsadd">Log time</button></div></section>
+    ${pre.length ? `<section class="panel"><h2>Before the reset <span class="sub">settled</span></h2><div class="list">${pre.map(x => row(x)).join('')}</div>
+      <p class="note">${Math.abs(preTot) <= 120 ? `The March pay cut cleared what was owed, to within ${hmin(Math.abs(preTot), false)}.` : `Left over: ${hmin(preTot)}.`}</p></section>` : ''}
+    ${(H.pay||[]).length ? `<section class="panel"><h2>What the wages show</h2><div class="list">${H.pay.map(p => `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(p.l)}</span><span class="m" style="display:block">${esc(p.note)}</span></span><span class="amt">${money(p.net, 2)}</span></div>`).join('')}</div></section>` : ''}`;
+}
+function hrsForm(id) {
+  const H = S.hours || { since: [] }, x = (H.since||[]).find(e => e.id === id) || {};
+  const kind = !id ? 'extra' : x.m < 0 ? 'short' : 'extra', h = Math.floor(Math.abs(x.m||0)/60), mm = Math.abs(x.m||0) % 60;
+  openSheet(id ? 'Change time' : 'Log time', `${fld('hrD','Day', x.d || today(), 'date')}${sel('hrK','What happened', kind, [['extra','Worked extra (I am owed)'],['short','Time short (I owe)']])}
+    <div class="fields2">${fld('hrH','Hours', id ? h : '', 'number', 'min="0" step="1" inputmode="numeric"')}${fld('hrM','Minutes', id ? mm : '', 'number', 'min="0" max="59" step="1" inputmode="numeric"')}</div>${fld('hrW','Note', x.what || '')}`, async () => {
+    const d = v('hrD'), m = (Number(v('hrH'))||0)*60 + (Number(v('hrM'))||0);
+    if (!d) throw new Error('Pick a day'); if (!m && !v('hrW').trim()) throw new Error('Add some time or a note');
+    const doc = JSON.parse(JSON.stringify(S.hours || { since: [] })); doc.since = doc.since || [];
+    const e = { id: id || `h${Date.now().toString(36)}`, d, what: v('hrW').trim() || (v('hrK')==='extra' ? 'Extra time' : 'Time short'), m: v('hrK')==='extra' ? m : -m };
+    const i = doc.since.findIndex(z => z.id === e.id); if (i >= 0) doc.since[i] = e; else doc.since.push(e);
+    await put('state/hours', doc);
+  }, id ? { onDelete: async () => { const doc = JSON.parse(JSON.stringify(S.hours)); doc.since = doc.since.filter(z => z.id !== id); await put('state/hours', doc); } } : {});
 }
 
 /* ----- The girls on Work: school terms, pocket money, achievements, height and weight -----
@@ -5434,6 +5482,9 @@ document.addEventListener('click', async e => {
   if (a==='year') { closeSheet(); return openYear(el.dataset.y); }
   if (a==='yrclose') { const y = document.querySelector('.yr'); if (y) y.remove(); return; }
   if (a==='mgrp') { const g = MONEY_GROUPS.find(x => x.k === el.dataset.v) || MONEY_GROUPS[0]; UI.mlast = UI.mlast || {}; UI.mlast[moneyGroupOf(UI.money).k] = UI.money; UI.money = (UI.mlast[g.k] && g.pages.some(([k]) => k === UI.mlast[g.k])) ? UI.mlast[g.k] : g.pages[0][0]; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='csub') { UI.csub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='hrsadd') return hrsForm();
+  if (a==='hrsedit') return hrsForm(el.dataset.id);
   if (a==='vsub') { UI.vsub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='vcmode' || a==='vcyr') { if (a==='vcmode') UI.vcmode = el.dataset.v; else UI.vcyr = el.dataset.v; keepUI(); const y = window.scrollY; render(); window.scrollTo(0,y); return; }
   if (a==='hday') { UI.hday = el.dataset.date; return render(); }

@@ -26,6 +26,10 @@ Money → This month → Dinners plans the week's tea, saves meals with their in
 
 Settings → Year in review, and on Home from mid-December to January: swipe through the family's year.
 
+## Chris's hours
+
+Family → Chris → Hours & leave shows Chris's hours balance (Saturdays in, minus time short), holiday left and a link to the report for his manager. Tap Log time to add a Saturday or a short day. The figures are stored in the private database as `state/hours`, never in this code.
+
 ## Viki's pay
 
 Her pay rates are stored only in the private database (never in this repository) and can be changed in the app: Work → Viki → Viki's rates → Edit. On call and call-outs are paid on the 25th of the following month. The on-call claim table follows the layout of her claim form.
