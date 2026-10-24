@@ -1795,7 +1795,7 @@ function viewWork() {
   </div>`;
   fetchCal();
   if (who==='viki') { const sub = UI.vsub === 'contract' ? 'contract' : 'pay';
-    return whoSeg + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Pay and rota</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Contract and rises</button></div>` + (sub==='contract' ? viewVikiContract() : viewViki()); }
+    return whoSeg + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Rota and claims</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Pay and contract</button></div>` + (sub==='contract' ? viewVikiContract() : viewViki()); }
   if (who==='leave') return whoSeg + viewLeave();
   if (who==='co') return whoSeg + viewCallouts();
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
@@ -1998,7 +1998,7 @@ function viewViki() {
     <p class="note">${Number(r.cutoff) ? `Each claim runs from the ${r.cutoff}th to the ${r.cutoff-1}th, so on call from the ${r.cutoff}th goes on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to add call-outs or change it.</p></section>`;
 
   const noRates = !r.salary ? `<div class="banner">Viki's pay rates aren't set yet. <button class="btn small ghost" data-act="vrates">Add them</button></div>` : '';
-  return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel() + ratesPanel();
+  return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel();
 }
 
 function claimRows(m) {
@@ -2113,12 +2113,12 @@ function viewVikiContract() {
     <div class="vc-terms">${terms.map(([k,val]) => `<div><span>${k}</span><p>${esc(val)}</p></div>`).join('')}</div></section>` : '';
   const checks = (c.checks||[]).length ? `<section class="panel"><h2>Worth checking <span class="sub">${c.checks.length}</span></h2>
     <ol class="vc-checks">${c.checks.map(x => { const [h, ...rest] = String(x).split(': '); return `<li>${rest.length ? `<b>${esc(h)}</b> ${esc(rest.join(': '))}` : esc(x)}</li>`; }).join('')}</ol></section>` : '';
-  return hero + ladderPanel + compare + termsPanel + checks;
+  return hero + ladderPanel + compare + ratesPanel() + termsPanel + checks;
 }
 function ratesPanel() {
   const r = vk();
   const tile = (l,v,sub) => `<div class="rate"><span class="rl">${l}</span><span class="rv">${v}</span><span class="rs">${sub}</span></div>`;
-  return `<section class="panel"><h2>Viki's rates <button class="btn small ghost" data-act="vrates">Edit</button></h2>
+  return `<section class="panel"><h2>Her rates <button class="btn small ghost" data-act="vrates">Edit</button></h2>
     <div class="rates">
       ${tile('Salary', money(r.salary,2), `a month · ${money(r.base,2)}/h · 37.5h week`)}
       ${tile('On call', money(r.standby,2)+'/h', `weekday 13.5h = ${money(r.standby*13.5,2)}<br>weekend or bank hol 24h = ${money(r.standby*24,2)}`)}
