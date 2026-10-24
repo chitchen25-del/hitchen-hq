@@ -548,7 +548,7 @@ nav.tabs button[aria-current="page"] svg{color:var(--brass)}
 .trip-hero .th-shade{background:linear-gradient(180deg,rgba(10,8,30,.35) 0%,rgba(10,8,30,0) 30%,rgba(10,8,30,.15) 55%,rgba(10,8,30,.78) 100%)}
 .th-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 14px 0}
 .th-kind{font-size:.78rem;font-weight:700;letter-spacing:.02em;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:5px 10px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.th-btn{border:0;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-weight:700;font-size:.85rem;padding:6px 12px;border-radius:999px;cursor:pointer}
+.th-btn{white-space:nowrap;flex:none;border:0;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-weight:700;font-size:.85rem;padding:6px 12px;border-radius:999px;cursor:pointer}
 .th-body{padding:52px 16px 6px}
 .trip-hero.mini .th-body{padding:22px 14px 4px}
 .th-name{font-size:1.65rem;font-weight:850;line-height:1.08;letter-spacing:-.01em;text-shadow:0 2px 12px rgba(0,0,0,.35)}
@@ -640,8 +640,66 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .st-mini:first-of-type{border-top:0}
 .st-mini .step{border-top:0}
 .st-when{font-size:.74rem;font-weight:800;color:var(--muted);text-transform:uppercase}
+.panel.nopad{padding:0;overflow:hidden}
+.panel.nopad>.hcard{border-radius:0}
+.hcard{padding:16px 16px 14px;color:#fff;background:linear-gradient(135deg,#2A1E6B,#6A2E8E 60%,#C2457F)}
+.hcard.t-sea{background:linear-gradient(135deg,#0D4E6E,#127E86 55%,#2BA59A)}
+.hcard.t-zilch{background:linear-gradient(135deg,#8A2B0E,#D2591E 55%,#F2A33A)}
+.hcard.t-night{background:linear-gradient(135deg,#141B3D,#2C2F7A 60%,#5B48B5)}
+.hcard.t-good{background:linear-gradient(135deg,#0A5A31,#0B7A3E 50%,#33B679)}
+.hcard .st-nt{font-size:1.6rem}
+.hc-act{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.hc-btn{border:0;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-weight:800;font-size:.9rem;padding:9px 14px;border-radius:999px;cursor:pointer}
+.hc-btn:first-child{background:#fff;color:#14263A}
+.hc-chart{width:100%;height:auto;display:block;margin-top:10px}
+.hc-note{font-size:.84rem;opacity:.9;margin-top:6px}
+.hc-prog{height:8px;border-radius:99px;background:rgba(255,255,255,.25);overflow:hidden;margin-top:12px}
+.hc-prog i{display:block;height:100%;background:linear-gradient(90deg,#7EE0E6,#FFD36B);border-radius:99px}
+.hc-bars{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;align-items:end;height:96px;margin-top:12px}
+.hb{display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+.hb-col{flex:1;width:70%;display:flex;flex-direction:column-reverse;gap:2px;justify-content:flex-start}
+.hb-col i{display:block;width:100%;border-radius:4px;min-height:3px}
+.hb span{font-size:.68rem;font-weight:700;opacity:.85}
+.zm-list{display:grid;gap:5px;margin-top:8px}
+.zm{display:grid;grid-template-columns:34px minmax(0,1fr) 64px;align-items:center;gap:8px}
+.zm b{font-size:.85rem;color:var(--ink-2)}
+.zm-bar{display:flex;height:14px;border-radius:5px;overflow:hidden;background:var(--sheet-2)}
+.zm-bar i{display:block;height:100%}
+.zm em{font-style:normal;font-weight:800;text-align:right;font-variant-numeric:tabular-nums;font-size:.88rem}
+.zl-box{margin-top:14px;border:1px solid var(--rule);border-radius:14px;padding:12px}
+.zl-h{font-weight:800;font-size:.92rem;margin-bottom:8px}
+.zl-bar{height:12px;border-radius:99px;background:var(--sheet-2);overflow:hidden}
+.zl-bar i{display:block;height:100%;border-radius:99px}
+.zl-leg{display:flex;justify-content:space-between;font-size:.82rem;margin:6px 0 4px;color:var(--ink-2)}
+.zline{border-top:1px solid var(--rule);padding:10px 0}
+.zline .t{font-weight:750}
+.zline .t .m{font-weight:500;margin-left:6px}
+.fc-row{border-top:1px solid var(--rule);padding:10px 0}
+.fc-row:first-of-type{border-top:0}
+.fc-top{display:flex;justify-content:space-between;align-items:baseline}
+.fc-top b{font-size:1rem}
+.fc-amt{font-weight:850;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.fc-bar{position:relative;height:10px;border-radius:99px;background:var(--sheet-2);margin:8px 0 6px}
+.fc-bar i{display:block;height:100%;border-radius:99px;background:color-mix(in srgb,#9B5BD3 45%,transparent)}
+.fc-bar em{position:absolute;top:-4px;bottom:-4px;width:3px;border-radius:2px;background:#9B5BD3;transform:translateX(-1.5px)}
+.days{display:grid;gap:8px}
+.dayc{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--rule);border-radius:16px;padding:10px 12px}
+.dayc.today{border-color:var(--good);box-shadow:0 0 0 2px color-mix(in srgb,var(--good) 25%,transparent)}
+.dc-date{width:46px;flex:none;text-align:center;border-radius:12px;background:linear-gradient(160deg,#2A1E6B,#6A2E8E);color:#fff;padding:6px 0}
+.dc-date b{display:block;font-size:1.25rem;line-height:1}
+.dc-date span{font-size:.7rem;font-weight:700;opacity:.85;text-transform:uppercase}
+.dc-title{all:unset;cursor:pointer;font-weight:800;font-size:.98rem;line-height:1.25}
+.dc-places{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.dc-map{display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:#3F7BEA;background:color-mix(in srgb,#3F7BEA 12%,transparent);padding:5px 10px;border-radius:999px;font-weight:700;font-size:.82rem}
+.dc-map svg{width:14px;height:14px}
+.yr-line{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:12px}
+.yr-m{background:rgba(255,255,255,.12);border-radius:10px;padding:6px 5px;min-height:48px;display:flex;flex-direction:column;gap:4px}
+.yr-m span{font-size:.7rem;font-weight:800;opacity:.85}
+.yr-m span small{opacity:.7;font-weight:700}
+.yr-m.has{background:rgba(255,255,255,.26)}
+.yr-dot{border:0;background:#fff;color:#0B7A3E;font-weight:800;font-size:.68rem;border-radius:6px;padding:3px 4px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .zchips{display:flex;gap:6px;flex-wrap:wrap}
-.seg.pltabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg.pltabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
 .seg.pltabs button{white-space:normal;text-align:center;line-height:1.2;padding:8px 6px}
 .plmonths{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
 .plmonths span{background:var(--sheet-2);border-radius:12px;padding:7px 8px;display:flex;flex-direction:column;gap:1px}
@@ -849,7 +907,7 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg})); } catch(e) {} };
@@ -909,6 +967,7 @@ function applyLocal(path, data) {
   else if (c === 'car') S.car = data || {};
   else if (c === 'stmt') { if (id==='meta') S.stmtMeta = data; else if (data) S.stmt[id] = data; else delete S.stmt[id]; }
   else if (c === 'leave') S.leave = data || null;
+  else if (c === 'pot') S.pot = data || {entries:[]};
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; }
@@ -917,11 +976,11 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[] });
+  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
   return rows;
@@ -1989,10 +2048,10 @@ function viewMoney() {
     cells: [ tbCell('Bills', money(P.bills,0), '#3F51B5'), tbCell('Budget', money(P.budget,0), '#0B8043'), tbCell(P.save ? 'Savings' : 'Owed', money(P.save || P.owed,0), P.save ? '#039BE5' : '#D50000') ],
     after: P.inc.total ? `<div style="padding:12px 0 2px">${flow}</div>` : '',
     foot: P.inc.total ? `<span>${(() => { const l = ['bills', 'the spending budget', ...(P.owed?['money owed']:[]), ...(P.save?['savings']:[]), ...(P.trips?['trip savings']:[])]; return `What's left once ${l.slice(0,-1).join(', ')} and ${l[l.length-1]} are covered.`; })()}</span>` : `<span><button class="linkbtn" data-act="mseg" data-v="plan">Add your pay to see what's spare each month</button></span>` });
-  const segs = [['overview','Overview'],['plan','Plan'],['sheet','Sheet'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
+  const segs = [['overview','Overview'],['plan','Plan'],['sheet','Sheet'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Zilch'],['year','Year ahead'],['save','Tips']];
   if (!segs.some(x => x[0]===UI.money)) UI.money = 'overview';
   const seg = `<div class="seg" role="group" aria-label="Money section">${segs.map(([k,l]) => `<button data-act="mseg" data-v="${k}" aria-pressed="${UI.money===k}">${l}</button>`).join('')}</div>`;
-  const body = {overview:viewMoneyOverview, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
+  const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
   return (S.bsheet[ym] ? sheetHero(ym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -2283,8 +2342,8 @@ function bsSection(s, si, t) {
 }
 function bsPlannerSection(ym) {
   const pm = plannerMonth(ym); if (!pm.total) return '';
-  return `<section class="xsec extra"><div class="xh static"><span class="xt">Holiday planner</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
-    <div class="xrows">${pm.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.p.name)}</span><small>${esc((PL_KINDS.find(k => k[0]===(r.p.kind||'summer'))||[])[1]||'')}</small></div><span class="xd"></span><output class="xc xa">${money(r.amount,2)}</output><span class="xm"></span></div>`).join('')}</div>
+  return `<section class="xsec extra"><div class="xh static"><span class="xt">From Trips and Year ahead</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
+    <div class="xrows">${pm.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.p.name)}</span><small>${esc(r.p.kind === 'year' ? 'Year ahead' : (PL_KINDS.find(k => k[0]===(r.p.kind||'summer'))||[])[1]||'')}</small></div><span class="xd"></span><output class="xc xa">${money(r.amount,2)}</output><span class="xm"></span></div>`).join('')}</div>
     <div class="xadd"><button type="button" class="linkbtn" data-act="tab" data-v="trips">Change in Trips</button></div></section>`;
 }
 function bsVikiBlock(doc, t) {
@@ -2437,7 +2496,7 @@ function viewOwed() {
   const list = S.debts.slice().sort((a,b) => (Number(b.balance)||0) - (Number(a.balance)||0));
   const total = list.reduce((s,d)=>s+(Number(d.balance)||0),0), monthly = list.reduce((s,d)=>s+(Number(d.monthly)||0),0);
   const lastPay = list.reduce((m,d) => { const n = d.monthly ? Math.ceil((Number(d.balance)||0)/d.monthly) : 0; return Math.max(m,n); }, 0);
-  return zilchCalcPanel() + `<section class="panel"><h2>Money owed <button class="btn small" data-act="debt">Add</button></h2>
+  return zilchPage() + zilchCalcPanel() + `<section class="panel"><h2>Money owed <button class="btn small" data-act="debt">Add</button></h2>
     ${list.length ? `<div class="gauge" style="padding-top:0"><div class="gh"><span class="t" style="font-stretch:125%;font-weight:800;font-size:1.6rem">${money(total,0)}</span><span class="amt">${money(monthly,0)} a month</span></div><div class="m">${lastPay ? `All cleared by about ${MONTHS[parse(addMonths(today(), lastPay)).getMonth()]} ${parse(addMonths(today(), lastPay)).getFullYear()} at these payments` : ''}</div></div>
       <div class="list">${list.map(d => { const orig = Number(d.original)||Number(d.balance)||0, paid = orig ? 1 - (Number(d.balance)||0)/orig : 0, n = d.monthly ? Math.ceil((Number(d.balance)||0)/d.monthly) : null;
         return `<button class="rowbtn" data-act="debt" data-id="${esc(d.id)}" style="flex-direction:column;align-items:stretch;gap:6px"><div style="display:flex;align-items:baseline;gap:8px"><span class="t" style="flex:1">${esc(d.name)} <span class="chip cat">${esc({bnpl:'Pay later',loan:'Loan',card:'Card',finance:'Finance'}[d.kind]||'Other')}</span></span><span class="amt">${money(d.balance||0,0)}</span></div>${gauge(paid)}<div class="m">${d.monthly ? `${money(d.monthly,2)} a month${n ? `, ${n} payment${n===1?'':'s'} left` : ''}` : 'No monthly payment set'}${d.next ? `, next ${shortDate(d.next)}` : ''}</div></button>`; }).join('')}</div>`
@@ -2475,12 +2534,14 @@ function tripForm(id) {
 }
 
 /* ----- holiday planner: plans/<id> = { kind, name, from, to, note, saveFrom, items:[{id,n,a,how,ym,from,paid,note}] } ----- */
-const PL_KINDS = [['summer','Summer holiday'],['family','Family visits'],['city','City breaks']];
-const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5' };
+const PL_KINDS = [['summer','Summer holiday'],['family','Family visits'],['city','City breaks'],['christmas','Christmas']];
+const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5', christmas:'#C62828', year:'#2E9E62' };
 const PL_IDEAS = {
   summer: ['Flights','Hotel or villa','Car hire','Airport parking','Transfers','Travel insurance','Excursions','Spending money'],
   family: ['Steam Packet','Fuel','Premier Inn','Gifts','Days out','Food and drink'],
   city: ['Flights or ferry','Hotel','Attractions','Local transport','Food and drink','Spending money'],
+  christmas: ['Presents for Aalish','Presents for Grayse','Stocking fillers','Christmas food','Wrapping and cards','Christmas day out'],
+  year: [],
 };
 const PL_HOW = [['save','Save up each month until then'],['once','Pay in one go'],['zilch','Zilch, 4 parts from then']];
 const ymAdd = (ym, n) => ymOf(addMonths(`${ym}-01`, n));
@@ -2564,7 +2625,7 @@ function planItemForm(planId, itemId, name) {
     const n = v('pliN').trim(), a = num(v('pliA')); if (!n) throw new Error('Say what it is'); if (a === null || a < 0) throw new Error('Enter what it costs, roughly is fine');
     const ym = v('pliM'); if (!/^\d{4}-\d\d$/.test(ym)) throw new Error('Pick the month it needs paying by');
     const x = { id: it.id || uid('pi'), n, a, how: v('pliH'), ym }; if (x.how === 'save' && v('pliF') && v('pliF') !== (p.saveFrom || '')) x.from = v('pliF');
-    if (v('pliNote').trim()) x.note = v('pliNote').trim(); if ($('#pliP').checked) x.paid = true;
+    if (v('pliNote').trim()) x.note = v('pliNote').trim(); if ($('#pliP').checked) x.paid = true; if (it.zdate) x.zdate = it.zdate; else if (x.paid && x.how === 'zilch') x.zdate = today();
     x.cat = v('pliC'); if (x.how !== 'zilch') x.via = v('pliV'); const ph = getPh(); if (ph) x.img = await uploadPhoto(ph); else if (it.img && !($('#pliPhDel') && $('#pliPhDel').checked)) x.img = it.img;
     const items = [...(p.items||[])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
     const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items });
@@ -2607,6 +2668,14 @@ function photoWatch(id) { let file = null; const inp = $('#'+id); if (!inp) retu
 /* ----- trip artwork when there's no photo: original illustrations, one per kind ----- */
 function tripArt(kind, seed = 1) {
   const rnd = (n => () => (n = (n * 9301 + 49297) % 233280) / 233280)(seed * 977 + 13);
+  if (kind === 'christmas') { const flakes = Array.from({ length: 40 }, () => `<circle cx="${(rnd()*400).toFixed(0)}" cy="${(rnd()*220).toFixed(0)}" r="${(rnd()*1.8+.6).toFixed(1)}" fill="#fff" opacity="${(rnd()*.5+.35).toFixed(2)}"/>`).join('');
+    const tree = (x, s, c) => `<g transform="translate(${x} ${220 - 150*s}) scale(${s})"><path d="M60 0 L100 60 H80 L115 105 H90 L125 150 H-5 L30 105 H5 L40 60 H20Z" fill="${c}"/><rect x="50" y="150" width="20" height="18" fill="#5B3A1E"/></g>`;
+    return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="xm1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E2E25"/><stop offset=".65" stop-color="#174A39"/><stop offset="1" stop-color="#8E1B24"/></linearGradient></defs>
+      <rect width="400" height="220" fill="url(#xm1)"/>${flakes}<path d="M0 196 Q100 180 200 192 T400 186 V220 H0Z" fill="#F4F7F6"/>
+      ${tree(250, .95, '#1F6B4C')}${tree(325, .62, '#2A7F5B')}${tree(196, .5, '#2A7F5B')}
+      <path d="M307 64 l4 9 10 1 -8 6 3 10 -9 -5 -9 5 3 -10 -8 -6 10 -1z" fill="#FFD36B"/>
+      <g>${[[262,112,'#FF8FB6'],[296,140,'#FFD36B'],[276,168,'#7EE0E6'],[318,170,'#FF8FB6'],[250,150,'#FFD36B']].map(([x,y,c]) => `<circle cx="${x}" cy="${y}" r="4.5" fill="${c}"/>`).join('')}</g>
+      <g transform="translate(150 168)"><rect width="44" height="34" rx="3" fill="#D84343"/><rect x="18" width="8" height="34" fill="#FFD36B"/><rect x="58" y="10" width="34" height="24" rx="3" fill="#2A7F5B"/><rect x="71" y="10" width="7" height="24" fill="#FFD36B"/></g></svg>`; }
   if (kind === 'summer') return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="su1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A5A"/><stop offset=".55" stop-color="#FFC27A"/><stop offset="1" stop-color="#FFE3A6"/></linearGradient><linearGradient id="su2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA8C9"/><stop offset="1" stop-color="#136E9A"/></linearGradient></defs>
     <rect width="400" height="220" fill="url(#su1)"/><circle cx="300" cy="96" r="44" fill="#FFF2C4"/><circle cx="300" cy="96" r="62" fill="#FFF2C4" opacity=".25"/>
     <path d="M0 140 Q50 128 100 140 T200 140 T300 140 T400 140 V220 H0Z" fill="url(#su2)"/><path d="M0 158 Q50 148 100 158 T200 158 T300 158 T400 158 V220 H0Z" fill="#0F5F86" opacity=".55"/>
@@ -2630,10 +2699,11 @@ function tripArt(kind, seed = 1) {
 }
 
 /* ----- trip categories ----- */
-const TCAT = [['travel','Travel','#3F7BEA'],['stay','Stays','#8E5BD8'],['fun','Days out','#F2A33A'],['food','Food and treats','#E5577A'],['prep','Getting ready','#2BA59A'],['other','Other','#7C8796']];
+const TCAT = [['travel','Travel','#3F7BEA'],['stay','Stays','#8E5BD8'],['fun','Days out','#F2A33A'],['gift','Presents','#D84343'],['food','Food and treats','#E5577A'],['prep','Getting ready','#2BA59A'],['other','Other','#7C8796']];
 const TCATI = Object.fromEntries(TCAT.map(c => [c[0], c]));
 function itemCat(it) {
   if (it.cat && TCATI[it.cat]) return it.cat; const n = String(it.n||'').toLowerCase();
+  if (/present|gift|stocking|wrapping|cards\b/.test(n)) return 'gift';
   if (/passport|insurance|kit|breakdown|visa|etias|esta|sticker|vaccin|luggage|suitcase/.test(n)) return 'prep';
   if (/hotel|inn\b|villa|apartment|airbnb|lodge|campsite|caravan|room|cabin(?! ferry)/.test(n) && !/steam|ferry|packet/.test(n)) return 'stay';
   if (/ticket|disney|attraction|excursion|\bpark\b|show|days? out|zoo|museum|tour/.test(n)) return 'fun';
@@ -2641,7 +2711,7 @@ function itemCat(it) {
   if (/ferry|steam|packet|flight|fuel|toll|car hire|transfer|parking|train|shuttle|taxi|transport|boat/.test(n)) return 'travel';
   return 'other';
 }
-const TCAT_ICON = { travel:'<path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/>', stay:'<path d="M3 20V8l9-5 9 5v12"/><path d="M8 20v-6h8v6"/>', fun:'<path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.8z"/>', food:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 3c-2 0-3 3-3 6s1 4 3 4v8"/>', prep:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>', other:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/>' };
+const TCAT_ICON = { gift:'<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12"/><path d="M12 9c-2-4-6-4-6-1.5S10 9 12 9c2 0 6 1 6-1.5S14 5 12 9z"/>', travel:'<path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/>', stay:'<path d="M3 20V8l9-5 9 5v12"/><path d="M8 20v-6h8v6"/>', fun:'<path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.8z"/>', food:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 3c-2 0-3 3-3 6s1 4 3 4v8"/>', prep:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>', other:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/>' };
 const tcatIcon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${TCAT_ICON[k]||TCAT_ICON.other}</svg>`;
 
 /* ----- small charts ----- */
@@ -2663,7 +2733,7 @@ function sleepsTo(p) {
 }
 function tripHero(p, st, opts = {}) {
   const k = p.kind || 'summer', lbl = (PL_KINDS.find(x => x[0]===k)||[])[1] || '', sl = sleepsTo(p);
-  const dates = p.from ? `${shortDate(p.from).replace(/ \d{4}$/,'')}${p.to ? ` – ${shortDate(p.to).replace(/ \d{4}$/,'')}` : ''}` : '';
+  const dates = p.from ? `${shortDate(p.from).replace(/ \d{4}$/,'')}${p.to && k !== 'christmas' ? ` – ${shortDate(p.to).replace(/ \d{4}$/,'')}` : ''}` : '';
   const sorted = st.cost ? st.paid / st.cost : 0, seed = [...String(p.id||p.name)].reduce((s, ch) => s + ch.charCodeAt(0), 0);
   return `<${opts.tag||'section'} class="trip-hero k-${k}${opts.mini ? ' mini' : ''}" ${opts.attrs||''}><div class="th-art">${tripArt(k, seed)}</div><div class="th-photo" ${p.cover ? `data-photo="${esc(p.cover)}"` : ''}></div><div class="th-shade"></div>
     <div class="th-top"><span class="th-kind">${esc(lbl)}${dates ? ` · ${esc(dates)}` : ''}</span>${opts.mini ? '' : `<button type="button" class="th-btn" data-act="plan" data-id="${esc(p.id)}" aria-label="Edit trip and photo">${p.cover ? 'Edit' : 'Add photo'}</button>`}</div>
@@ -2692,13 +2762,14 @@ function plPanel(p) {
   return `${tripHero(p, st)}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
     ${stepsPanel(p)}
-    ${parts.length ? `<section class="panel"><h2>Where the trip money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
+    ${p.kind === 'christmas' ? '' : tripMoney(p) + tripDays(p)}
+    ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
     ${st.future.length ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
     <section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
     ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
     <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
     ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
-  </section>`;
+  </section>${p.kind === 'christmas' ? '' : tripDocs(p)}`;
 }
 
 /* ----- money: where it goes ----- */
@@ -2755,7 +2826,7 @@ function potChart(start, n = 6) {
     <text x="${X(pts.length-1)}" y="${Y(end.v) - 10}" class="val" text-anchor="end">${money(end.v,0)}</text>${minP !== end && minP.v < 0 ? `<text x="${X(pts.indexOf(minP)) + 8}" y="${Y(minP.v) - 8}" class="val">${money(minP.v,0)}</text>` : ''}</svg>`;
 }
 function upcomingTrips() {
-  const list = (S.plans||[]).filter(p => !p.to || p.to >= today()).sort((a, b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
+  const list = (S.plans||[]).filter(p => p.kind !== 'year' && (!p.to || p.to >= today())).sort((a, b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
   if (!list.length) return '';
   return `<section class="panel"><h2>Treats on the way <button class="btn small ghost" data-act="tab" data-v="trips">All trips</button></h2><div class="tripcards">${list.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="opentrip" data-kind="${esc(p.kind||'summer')}"` })).join('')}</div></section>`;
 }
@@ -2765,10 +2836,9 @@ function viewMoneyOverview() {
   const sel = months.includes(UI.ovm) ? UI.ovm : (months.includes(cur) ? cur : months[0]), f = sheetFlow(sel);
   const chips = `<div class="seg mchips" role="group" aria-label="Which month">${months.map(m => `<button data-act="ovm" data-v="${m}" aria-pressed="${m===sel}">${mon3(m)}</button>`).join('')}</div>`;
   const spare = f.t.left, msg = spare >= 0 ? `${money(spare,0)} to spare` : `${money(-spare,0)} to find`;
-  return nextJobs() + `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
+  return nextJobs() + potPanel() + forecastPanel() + `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
       <p class="note">Pay comes in on the left and goes out to the right, from the ${esc(monthName(sel))} Budget Sheet${f.t.plan ? ', including trips from Trips' : ''}. ${spare >= 0 ? 'Whatever is spare can go to the holiday pot or savings.' : 'The yellow band is the gap to cover this month.'}</p></section>
     <section class="panel"><h2>The months ahead</h2>${monthStrip(cur)}</section>
-    ${potChart(cur) ? `<section class="panel"><h2>Spare money, added up</h2>${potChart(cur)}<p class="note">Spare money from each month added up, with any short months taken off. It shows how the months help each other.</p></section>` : ''}
     ${upcomingTrips()}`;
 }
 
@@ -2795,12 +2865,12 @@ function tripSteps(p) {
       z.pays.slice(1).forEach(x => mergeAdd(`zauto:${ymOf(x.date)}`, { key: `zauto:${ymOf(x.date)}`, ym: ymOf(x.date), how: 'auto', kind: 'auto', title: 'Zilch takes a payment', order: 5 }, x.amount, it.n));
     } else if (it.how === 'save') {
       const pays = plItemPays({ ...it, paid: false }, p);
-      pays.forEach(x => mergeAdd(`pot:${x.ym}`, { key: `pot:${x.ym}`, ym: x.ym, how: 'pot', kind: 'do', title: 'Move money into the holiday pot', order: 1 }, x.amount, it.n));
+      pays.forEach(x => mergeAdd(`pot:${x.ym}`, { key: `pot:${x.ym}`, ym: x.ym, how: 'pot', kind: 'do', title: p.kind === 'year' ? 'Put money aside for the year ahead' : 'Move money into the holiday pot', order: 1 }, x.amount, it.n));
       add({ key: `spay:${it.id}`, ym, how: itemVia(it), kind: 'do', item: it.id, title: `Pay for ${it.n} from the pot`, amount: cost, sub: VIA[itemVia(it)], done: !!it.paid, order: 3 });
     } else {
       const v = itemVia(it);
       if (v === 'revolut') mergeAdd(`rev:${ym}`, { key: `rev:${ym}`, ym, how: 'revolut', kind: 'do', title: 'Top up Revolut for the trip', order: 4 }, cost, it.n);
-      else add({ key: `pay:${it.id}`, ym, how: v, kind: 'do', item: it.id, title: `Pay for ${it.n}`, amount: cost, sub: VIA[v], done: !!it.paid, order: 3 });
+      else add({ key: `pay:${it.id}`, ym, how: v, kind: 'do', item: it.id, title: itemCat(it) === 'gift' ? `Buy ${it.n.charAt(0).toLowerCase() + it.n.slice(1)}` : `Pay for ${it.n}`, amount: cost, sub: VIA[v], done: !!it.paid, order: 3 });
     }
   });
   Object.values(merge).forEach(m => { const what = m.whats.length > 3 ? `${m.whats.slice(0,3).join(', ')} and ${m.whats.length-3} more` : m.whats.join(', ').replace(/, ([^,]*)$/, ' and $1');
@@ -2837,17 +2907,201 @@ function stepsPanel(p) {
     </details></section>`;
 }
 async function toggleStep(planId, key, itemId) {
+  if (planId === '__pot') return togglePotJob(key.slice(7));
   const p = (S.plans||[]).find(x => x.id === planId); if (!p) return; const { id, ...rest } = p;
-  if (itemId) { const items = (p.items||[]).map(it => it.id === itemId ? (it.paid ? (({ paid, ...r }) => r)(it) : { ...it, paid: true }) : it); await put(`plans/${planId}`, { ...rest, items }); }
+  if (itemId) { const items = (p.items||[]).map(it => it.id === itemId ? (it.paid ? (({ paid, ...r }) => r)(it) : { ...it, paid: true, ...(it.how === 'zilch' && !it.zdate ? { zdate: today() } : {}) }) : it); await put(`plans/${planId}`, { ...rest, items }); }
   else { const done = { ...(p.done||{}) }; if (done[key]) delete done[key]; else done[key] = true; await put(`plans/${planId}`, { ...rest, done }); }
 }
 function nextJobs() {
   const cur = plCur(), jobs = [];
   (S.plans||[]).forEach(p => tripSteps(p).forEach(g => g.steps.forEach(s => { if (s.kind === 'do' && !s.done && g.ym <= ymAdd(cur, 1)) jobs.push({ p, s, ym: g.ym }); })));
+  [cur, ymAdd(cur, 1)].forEach(ym => { const j = potJob(ym); if (j && !j.done) jobs.push({ p: { id: '__pot' }, s: j, ym }); });
   jobs.sort((a, b) => a.ym < b.ym ? -1 : a.ym > b.ym ? 1 : a.s.order - b.s.order);
   if (!jobs.length) return '';
   return `<section class="panel steps"><h2>Money jobs coming up <span class="sub">this month and next</span></h2>${jobs.slice(0, 6).map(j => `<div class="st-mini"><span class="st-when">${j.ym === cur ? 'Now' : MONTHS[Number(j.ym.slice(5,7))-1].slice(0,3)}</span>${stepRow(j.p, j.s)}</div>`).join('')}
     <div class="btnrow"><button class="btn small ghost" data-act="tab" data-v="trips">See every step in Trips</button></div></section>`;
+}
+
+/* ===== headed cards: the bold gradient card style ===== */
+const headCard = ({ kicker, title, meta = '', tone = 'magic', body = '', actions = '', cls = '' }) => `<div class="hcard t-${tone} ${cls}"><div class="st-nk">${kicker}</div><div class="st-nt">${title}</div>${meta ? `<div class="st-nm">${meta}</div>` : ''}${body}${actions ? `<div class="hc-act">${actions}</div>` : ''}</div>`;
+const hcBtn = (label, act, extra = '') => `<button type="button" class="hc-btn" data-act="${act}" ${extra}>${label}</button>`;
+const monShort = ym => MONTHS[Number(ym.slice(5,7))-1];
+
+/* ===== holiday pot: pot/main = { entries:[{id,d,a,n,ym,plan}] } ===== */
+const potEntries = () => (S.pot && S.pot.entries) || [];
+const potBal = () => Math.round(potEntries().reduce((s, e) => s + (Number(e.a)||0), 0) * 100) / 100;
+const sheetLeft = ym => S.bsheet[ym] ? Math.round(bsTotals(S.bsheet[ym], ym).left * 100) / 100 : null;
+const potPlanDone = ym => potEntries().some(e => e.plan && e.ym === ym);
+function potJob(ym) {
+  const left = sheetLeft(ym); if (left === null || Math.abs(left) < 1) return null;
+  const k = `potjob:${ym}`;
+  return left > 0 ? { key: k, ym, how: 'pot', kind: 'do', order: 8, title: `Put ${money(left,0)} in the holiday pot`, amount: Math.round(left), sub: `What's spare from the ${monShort(ym)} pay. Move it on payday so it doesn't get spent`, done: potPlanDone(ym) }
+    : { key: k, ym, how: 'pot', kind: 'do', order: 8, title: `Take ${money(-left,0)} from the holiday pot`, amount: Math.round(-left), sub: `${monShort(ym)} needs a bit more than comes in. The pot covers it`, done: potPlanDone(ym) };
+}
+async function savePot(entries) { await put('pot/main', { entries }); }
+async function togglePotJob(ym) {
+  const es = potEntries(); if (potPlanDone(ym)) return savePot(es.filter(e => !(e.plan && e.ym === ym)));
+  const left = sheetLeft(ym); if (left === null) return; await savePot([...es, { id: uid('pe'), d: today(), a: left, n: left > 0 ? `Spare from the ${monShort(ym)} pay` : `Covering ${monShort(ym)}`, ym, plan: true }]);
+  toast(left > 0 ? 'Added to the pot' : 'Taken from the pot');
+}
+function potForm(sign = 1) {
+  openSheet(sign > 0 ? 'Add to the holiday pot' : 'Take from the holiday pot', `<div class="zchips" style="margin-bottom:8px">${[25,50,100,200].map(x => `<button type="button" onclick="document.getElementById('poA').value=${x}">£${x}</button>`).join('')}</div>` + fld('poA', 'How much (£)', '', 'number', 'step="0.01" min="0" inputmode="decimal"') + fld('poN', 'What for', '', 'text', `placeholder="${sign > 0 ? 'e.g. eBay sales' : 'e.g. Disney tickets'}"`) + fld('poD', 'Date', today(), 'date'), async () => {
+    const a = num(v('poA')); if (!a || a <= 0) throw new Error('Enter an amount'); const n = v('poN').trim();
+    await savePot([...potEntries(), { id: uid('pe'), d: v('poD') || today(), a: sign * a, n: n || (sign > 0 ? 'Added' : 'Taken out') }]);
+  });
+}
+function potEntryForm(id) {
+  const e = potEntries().find(x => x.id === id); if (!e) return;
+  openSheet(e.n || 'Pot entry', fld('peA', 'Amount (£, minus for money taken out)', e.a, 'number', 'step="0.01" inputmode="decimal"') + fld('peN', 'Note', e.n || '') + fld('peD', 'Date', e.d || today(), 'date'), async () => {
+    const a = num(v('peA')); if (a === null) throw new Error('Enter an amount'); await savePot(potEntries().map(x => x.id === id ? { ...x, a, n: v('peN').trim(), d: v('peD') } : x));
+  }, { onDelete: () => savePot(potEntries().filter(x => x.id !== id)) });
+}
+function potPanel() {
+  const cur = plCur(), bal = potBal(), months = Array.from({ length: 6 }, (_, i) => ymAdd(cur, i)).filter(ym => S.bsheet[ym]);
+  let run = bal; const pts = months.map(ym => { if (!potPlanDone(ym)) run += sheetLeft(ym) || 0; return { ym, v: Math.round(run) }; });
+  const job = potJob(cur), low = pts.reduce((m, p) => p.v < m.v ? p : m, pts[0] || { v: bal }), end = pts.at(-1);
+  const meta = job && !job.done ? `<span class="st-pill" style="background:#2BA59A">This month</span>${job.amount && job.title.startsWith('Put') ? `Add ${money(job.amount,0)} from the ${monShort(cur)} pay` : job.title}` : job && job.done ? `<span class="st-pill" style="background:#33B679">Done</span>${monShort(cur)}'s move is sorted` : 'Add what you put aside each payday';
+  const W = 320, H = 110, pl = 16, pr = 16, pt = 22, pb = 20, lo = Math.min(0, ...pts.map(p => p.v)), hi = Math.max(1, ...pts.map(p => p.v));
+  const X = i => pl + (W - pl - pr) * (pts.length > 1 ? i / (pts.length - 1) : .5), Y = val => pt + (H - pt - pb) * (1 - (val - lo) / ((hi - lo) || 1));
+  const chart = pts.length > 1 ? `<svg class="hc-chart" viewBox="0 0 ${W} ${H}" aria-hidden="true"><line x1="${pl}" x2="${W-pr}" y1="${Y(0)}" y2="${Y(0)}" stroke="rgba(255,255,255,.35)" stroke-dasharray="3 4"/><path d="${pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ')}" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>${pts.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p.v)}" r="3.5" fill="${p.v < 0 ? '#FFD36B' : '#fff'}"/><text x="${X(i)}" y="${H - 5}" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.85)" font-weight="700">${mon3(p.ym)}</text>`).join('')}<text x="${X(pts.length-1)}" y="${Y(end.v) - 9}" text-anchor="end" font-size="11" font-weight="800" fill="#fff">${money(end.v,0)}</text></svg>` : '';
+  const recent = potEntries().slice().sort((a, b) => (a.d < b.d ? 1 : -1)).slice(0, 4);
+  return `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Holiday pot', title: `${money(bal,0)} saved`, meta, body: chart + `<div class="hc-note">${end ? (low.v < 0 ? `On this plan the pot dips to ${money(low.v,0)} in ${monShort(low.ym)}, so anything extra you add now helps` : `On this plan it reaches ${money(end.v,0)} by ${monShort(end.ym)}`) : ''}</div>`, actions: hcBtn('Add money', 'potadd') + hcBtn('Take out', 'pottake') })}
+    ${recent.length ? `<div class="list" style="padding:4px 14px 10px">${recent.map(e => `<button class="rowbtn" data-act="potedit" data-id="${esc(e.id)}"><span class="ti-ico" style="background:color-mix(in srgb,${e.a >= 0 ? '#2BA59A' : '#E8902A'} 16%,transparent);color:${e.a >= 0 ? '#2BA59A' : '#E8902A'}">${stepIcon('pot')}</span><div class="grow"><div class="t">${esc(e.n || (e.a >= 0 ? 'Added' : 'Taken out'))}</div><div class="m">${shortDate(e.d)}</div></div><div class="amt" style="color:${e.a >= 0 ? 'var(--good)' : 'var(--gold)'}">${e.a >= 0 ? '+' : '−'}${money(Math.abs(e.a),0).replace('−','')}</div></button>`).join('')}</div>` : ''}</section>`;
+}
+
+/* ===== Viki's pay forecast from the rota and her logged call-outs ===== */
+function coHistory() {
+  const cur = claimYM(today()), t = today(); let n = 0, h = 0, h2 = 0, ocPay = 0; const months = new Set();
+  for (let i = 1; i <= 6; i++) { const ym = ymAdd(cur, -i), m = vikiMonth(ym); m.days.forEach(d => { if (!d.oncall || d.oncall.kind === 'second' || d.date >= t) return; const x = vikiDay(d); n++; h += x.h15 + x.h2; h2 += x.h2; ocPay += x.oc; months.add(ym); }); }
+  return { perOc: n ? h / n : 6, r2: h ? h2 / h : .5, ocPay: n ? ocPay / n : 250, perMonth: months.size ? n / months.size : 3.3, n };
+}
+function rotaEnd() { let e = ''; Object.values(CAL.days || {}).forEach(d => { if (d.who === 'viki' && d.date > e) e = d.date; }); Object.values(S.days).forEach(d => { if (d.who === 'viki' && d.date > e) e = d.date; }); return e; }
+function vikiForecast(payYM) {
+  const r = vk(), doc = S.bsheet[payYM]; if (!doc || !doc.viki) return null;
+  const claim = r.arrears ? ymAdd(payYM, -1) : payYM, cr = claimRange(claim), t = today();
+  const real = S.payslips.find(x => x.id === payYM); if (real && real.net) return { net: real.net, real: true, claim };
+  const m = vikiMonth(claim), hist = coHistory(), end = rotaEnd(), isWE = d => isWeekend(d.date) || d.bh || isBH(d.date);
+  let wd = 0, we = 0, h15 = m.h15, h2 = m.h2, known = 0, future = 0, addH = 0;
+  m.days.forEach(d => { if (!d.oncall || d.oncall.kind === 'second') return; known++; if (isWE(d)) we++; else wd++; if (d.date >= t) future++;
+    if (d.date >= t && !(d.callouts||[]).length) { addH += hist.perOc; h15 += hist.perOc * (1 - hist.r2); h2 += hist.perOc * hist.r2; } });
+  const gapFrom = end && end > cr.from ? end : (cr.from > t ? cr.from : t), gapDays = Math.max(0, daysBetween(gapFrom, cr.to)), span = Math.max(1, daysBetween(cr.from, cr.to) + 1);
+  const guessOc = cr.to > end ? Math.round(hist.perMonth * Math.min(1, gapDays / span)) : 0;
+  if (guessOc) { const gwe = Math.round(guessOc * .4); we += gwe; wd += guessOc - gwe; addH += guessOc * hist.perOc; h15 += guessOc * hist.perOc * (1 - hist.r2); h2 += guessOc * hist.perOc * hist.r2; }
+  const q = { wd, we, h15: Math.round(h15 * 2) / 2, h2: Math.round(h2 * 2) / 2 };
+  const map = [[/weekday/i, q.wd], [/weekend/i, q.we], [/^1\.5/i, q.h15], [/double/i, q.h2]];
+  const items = (doc.viki.items||[]).map(i => { const hit = map.find(([re]) => re.test(i.n) && !/2nd/i.test(i.n)); return hit ? { ...i, q: hit[1] } : { ...i, q: /2nd|bh/i.test(i.n) ? 0 : i.q }; });
+  const vdoc = { ...doc, viki: { ...doc.viki, mode: 'calc', items } };
+  return { net: bsViki(vdoc), items, known, future, guessOc, addH: Math.round(addH), loggedH: Math.round(m.h15 + m.h2), claim, end, real: false };
+}
+function forecastPanel() {
+  const cur = plCur(), rows = [1, 2, 3].map(i => ymAdd(cur, i)).map(ym => { const f = vikiForecast(ym), sh = S.bsheet[ym]; if (!f || !sh || !sh.viki) return null; const sheetV = bsTotals(sh, ym).viki; return { ym, f, sheetV, diff: f.net - sheetV }; }).filter(Boolean);
+  if (!rows.length) return '';
+  const big = rows.find(r => Math.abs(r.diff) >= 50);
+  return `<section class="panel"><h2>Viki's pay, looking ahead <span class="sub">from her rota</span></h2>
+    ${rows.map(r => { const up = r.diff >= 0, f = r.f;
+      const oc = f.known ? `${f.known} on call${f.known === 1 ? '' : 's'} on the rota${f.future ? ` (${f.future} still to come)` : ''}${f.guessOc ? `, and about ${f.guessOc} more once the rest of the rota is out` : ''}` : f.guessOc ? `Rota not out yet, so about ${f.guessOc} on calls expected, as usual` : 'No on call on the rota';
+      const co = f.loggedH && f.addH ? `${f.loggedH} hours of call-outs logged, about ${f.addH} more expected` : f.loggedH ? `${f.loggedH} hours of call-outs logged` : f.addH ? `about ${f.addH} hours of call-outs expected` : '';
+      const why = f.real ? 'From her real payslip' : `${oc}${co ? `. ${co.charAt(0).toUpperCase() + co.slice(1)}` : ''}`;
+      return `<div class="fc-row"><div class="fc-top"><b>${monShort(r.ym)} pay</b><span class="fc-amt">${money(f.net,0)}</span></div>
+        <div class="fc-bar"><i style="width:${Math.min(100, r.sheetV / Math.max(r.sheetV, f.net) * 100)}%"></i><em style="left:${Math.min(100, f.net / Math.max(r.sheetV, f.net) * 100)}%"></em></div>
+        <div class="m">${esc(why)}. The sheet has ${money(r.sheetV,0)}, so this looks <b style="color:${up ? 'var(--good)' : 'var(--gold)'}">${money(Math.abs(r.diff),0)} ${up ? 'better' : 'lower'}</b>.</div>
+        ${Math.abs(r.diff) >= 50 ? `<div class="btnrow" style="margin-top:6px"><button class="btn small ghost" data-act="vfcast" data-v="${r.ym}">Use ${money(f.net,0)} in the ${monShort(r.ym)} sheet</button></div>` : ''}</div>`; }).join('')}
+    <p class="note">Worked out the same way as her spreadsheet, from on call on her rota${rows[0].f.end ? ` (known up to ${shortDate(rows[0].f.end).replace(/ \d{4}$/,'')})` : ''} and her average call-out hours. Updating a sheet fills in its on call counts, so you can see the workings. ${big ? '' : 'The sheets are close enough, nothing to change.'}</p></section>`;
+}
+
+/* ===== Zilch: everything owed, by month ===== */
+const ZCOL = { car: '#C2457F', viki: '#9B5BD3', chris: '#E8902A', trips: '#3F7BEA' };
+const ZNAME = { car: 'Car work', viki: "Viki's Zilch", chris: "Chris's other Zilch", trips: 'Trip bookings' };
+function zilchMonths(n = 9) {
+  const cur = plCur();
+  return Array.from({ length: n }, (_, i) => ymAdd(cur, i)).map(ym => {
+    const parts = { car: 0, viki: 0, chris: 0, trips: 0 }, doc = S.bsheet[ym];
+    if (doc) doc.secs.filter(s => s.kind === 'base' || s.kind === 'extra').forEach(s => s.rows.filter(bsOn).forEach(r => { const nm = String(r.n||''); if (!/zilch/i.test(nm) || /membership/i.test(nm)) return; const a = bsAmt(r), rest = nm.replace(/zilch/ig, '');
+      if (/car/i.test(nm)) parts.car += a; else if (/\bv\b|viki/i.test(rest)) parts.viki += a; else parts.chris += a; }));
+    (S.plans||[]).forEach(p => (p.items||[]).filter(it => it.how === 'zilch').forEach(it => plItemPays(it, p).forEach(x => { if (x.ym === ym) parts.trips += x.amount; })));
+    return { ym, parts, total: Object.values(parts).reduce((s, x) => s + x, 0) };
+  });
+}
+function zilchPage() {
+  const ms = zilchMonths(), lastIdx = ms.map(m => m.total > 0.5).lastIndexOf(true), free = lastIdx < 0 ? null : lastIdx === ms.length - 1 ? 'beyond' : ms[lastIdx + 1].ym;
+  const toPay = ms.reduce((s, m) => s + m.total, 0), thisM = ms[0];
+  const keys = Object.keys(ZCOL).filter(k => ms.some(m => m.parts[k] > 0.5));
+  const peak = Math.max(...ms.map(m => m.total));
+  const clear = (S.plans||[]).flatMap(p => (p.steps||[]).filter(s => s.how === 'clear').map(s => ({ p, s })))[0];
+  let limitTxt = '';
+  if (clear) { const used = (S.plans||[]).flatMap(p => (p.items||[]).filter(it => it.how === 'zilch' && it.ym === clear.s.ym)).reduce((s, it) => s + (Number(it.a)||0), 0), lim = zs().limit;
+    limitTxt = `<div class="zl-box"><div class="zl-h">Chris's Zilch limit in ${monShort(clear.s.ym)}</div><div class="zl-bar"><i style="width:${Math.min(100, used / lim * 100)}%;background:${ZCOL.trips}"></i></div><div class="zl-leg"><span><b>${money(used,0)}</b> trip bookings</span><span><b>${money(Math.max(0, lim - used),0)}</b> still free</span></div><div class="m">After clearing the car on payday, the full ${money(lim,0)} is free again. The trip uses ${money(used,0)}, which leaves ${money(Math.max(0, lim - used),0)} for emergencies.</div></div>`; }
+  const lines = [];
+  (S.plans||[]).forEach(p => (p.items||[]).filter(it => it.how === 'zilch').forEach(it => { const z = zilchPlan(Number(it.a)||0, { avail: zs().limit, start: `${it.ym}-01` }); if (z) lines.push({ name: it.n, sub: `${p.name} · ${it.paid ? 'booked' : 'to book'} in ${monShort(it.ym)}`, pays: z.pays.map(x => ({ ym: ymOf(x.date), a: x.amount })), total: z.total, col: ZCOL.trips }); }));
+  return `<section class="panel nopad">${headCard({ tone: 'zilch', kicker: 'Zilch', title: free === null ? 'Nothing owed on Zilch' : free === 'beyond' ? 'Still paying beyond the plan' : `Zilch-free by ${monthName(free)}`, meta: free === null ? '' : `<span class="st-pill" style="background:rgba(0,0,0,.25)">${money(toPay,0)} to go</span>${money(thisM.total,0)} this month`,
+      body: `<div class="hc-bars">${ms.slice(0, 8).map(m => `<div class="hb"><div class="hb-col">${keys.map(k => m.parts[k] > 0.5 ? `<i style="height:${m.parts[k] / (peak || 1) * 100}%;background:${k === 'trips' ? '#fff' : `rgba(255,255,255,${k === 'car' ? .55 : k === 'viki' ? .8 : .35})`}"></i>` : '').join('')}</div><span>${mon3(m.ym)}</span></div>`).join('')}</div>` })}
+    <div style="padding:6px 14px 14px"><div class="cleg">${keys.map(k => `<span><i style="background:${ZCOL[k]}"></i>${ZNAME[k]}</span>`).join('')}</div>
+    <div class="zm-list">${ms.filter(m => m.total > 0.5).map(m => `<div class="zm"><b>${mon3(m.ym)}</b><span class="zm-bar">${keys.map(k => m.parts[k] > 0.5 ? `<i style="width:${m.parts[k] / peak * 100}%;background:${ZCOL[k]}" title="${ZNAME[k]} ${money(m.parts[k],0)}"></i>` : '').join('')}</span><em>${money(m.total,0)}</em></div>`).join('')}</div>
+    ${limitTxt}
+    ${lines.length ? `<h3 class="eyebrow" style="margin-top:14px">Trip bookings on Zilch</h3>${lines.map(l => `<div class="zline"><div class="t">${esc(l.name)} <span class="m">${money(l.total,2)} with fees</span></div><div class="m">${esc(l.sub)}</div><div class="plmonths">${l.pays.map(x => `<span><small>${mon3(x.ym)}</small><b>${money(x.a, x.a % 1 ? 2 : 0)}</b></span>`).join('')}</div></div>`).join('')}` : ''}
+    <p class="note">Car and other Zilch payments come from the Budget Sheet rows with Zilch in the name. Trip bookings come from Trips. Zilch takes each payment on the same date as the purchase.</p></div></section>`;
+}
+
+/* ===== trip wallet: documents, day by day, holiday money ===== */
+const mapsLink = q => `https://maps.apple.com/?q=${encodeURIComponent(q)}`;
+function tripDays(p) {
+  const days = (p.days||[]).slice().sort((a, b) => a.d < b.d ? -1 : 1);
+  if (!days.length && !p.from) return '';
+  const t = today();
+  return `<section class="panel"><h2>Day by day <button class="btn small ghost" data-act="tday" data-plan="${esc(p.id)}">Add a day</button></h2>
+    ${days.length ? `<div class="days">${days.map(d => { const dt = parse(d.d), isToday = d.d === t;
+      return `<div class="dayc ${isToday ? 'today' : ''}"><div class="dc-date"><b>${dt.getDate()}</b><span>${DOWS[dt.getDay()].slice(0,3)}</span></div><div class="grow"><button type="button" class="dc-title" data-act="tday" data-plan="${esc(p.id)}" data-id="${esc(d.id)}">${esc(d.t)}${isToday ? ' <span class="chip ok">Today</span>' : ''}</button>${d.n ? `<div class="m">${esc(d.n)}</div>` : ''}${(d.places||[]).length ? `<div class="dc-places">${d.places.map(pl => `<a class="dc-map" href="${mapsLink(pl)}" target="_blank" rel="noopener">${tcatIcon('travel')}<span>${esc(pl.split(',')[0])}</span></a>`).join('')}</div>` : ''}</div></div>`; }).join('')}</div>`
+      : `<p class="empty">Plan each day, where you're staying and where you're driving. Each place gets a button that opens Maps.</p>`}</section>`;
+}
+function tripDayForm(planId, dayId) {
+  const p = (S.plans||[]).find(x => x.id === planId); if (!p) return; const d = (p.days||[]).find(x => x.id === dayId) || { d: p.from || today(), places: [] };
+  openSheet(dayId ? d.t : 'Add a day', fld('tdD', 'Date', d.d, 'date') + fld('tdT', 'What happens', d.t || '', 'text', 'placeholder="e.g. Disney, day 1"') + fld('tdN', 'Note', d.n || '', 'text', 'placeholder="e.g. Shuttle from the hotel every 30 minutes"') +
+    `<div class="field"><label for="tdP">Places, one per line (for Maps)</label><textarea id="tdP" rows="3" placeholder="Crowne Plaza Paris Marne-la-Vallée">${esc((d.places||[]).join('\n'))}</textarea></div>`, async () => {
+    const t = v('tdT').trim(); if (!t) throw new Error('Say what happens that day');
+    const x = { id: d.id || uid('td'), d: v('tdD') || today(), t, places: v('tdP').split('\n').map(s => s.trim()).filter(Boolean) }; if (v('tdN').trim()) x.n = v('tdN').trim();
+    const days = [...(p.days||[])], i = days.findIndex(y => y.id === x.id); if (i >= 0) days[i] = x; else days.push(x);
+    const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, days });
+  }, dayId ? { onDelete: async () => { const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, days: (p.days||[]).filter(y => y.id !== dayId) }); } } : {});
+}
+function tripMoney(p) {
+  const gbp = (p.items||[]).filter(it => it.how !== 'zilch' && itemVia(it) === 'revolut').reduce((s, it) => s + (Number(it.a)||0), 0); if (!gbp && !(p.spend||[]).length) return '';
+  const rate = Number(p.rate) || 1.19, eur = Math.round(gbp * rate), spent = (p.spend||[]).reduce((s, x) => s + (Number(x.a)||0), 0), left = eur - spent;
+  const from = (p.days||[]).find(d => /calais|france|disney/i.test(d.t + ' ' + (d.places||[]).join(' ')))?.d || p.from, to = (p.days||[]).filter(d => /calais|france|disney|dover/i.test(d.t + ' ' + (d.places||[]).join(' '))).map(d => d.d).sort().pop() || p.to || from;
+  const days = from && to ? Math.max(1, daysBetween(from, to) + 1) : 5, perDay = eur / days, t = today();
+  let meta; if (from && t >= from && t <= to) { const dayN = daysBetween(from, t) + 1, todayLeft = perDay * dayN - spent; meta = `<span class="st-pill" style="background:${todayLeft >= 0 ? '#33B679' : '#E8902A'}">Today</span>${todayLeft >= 0 ? `€${Math.round(todayLeft)} left to spend today` : `€${Math.round(-todayLeft)} over so far, easy tomorrow`}`; }
+  else meta = `<span class="st-pill" style="background:rgba(0,0,0,.25)">€${Math.round(perDay)} a day</span>for ${days} days in France`;
+  const recent = (p.spend||[]).slice().sort((a, b) => a.d < b.d ? 1 : -1).slice(0, 5);
+  return `<section class="panel nopad">${headCard({ tone: 'night', kicker: 'Holiday money', title: `€${Math.max(0, Math.round(left)).toLocaleString('en-GB')} to spend`, meta, body: `<div class="hc-prog"><i style="width:${eur ? Math.min(100, spent / eur * 100) : 0}%"></i></div><div class="hc-note">€${Math.round(spent)} spent of €${eur} (about ${money(gbp,0)} on Revolut at €${rate.toFixed(2)} to the £)</div>`, actions: hcBtn('Log spending', 'tspend', `data-plan="${esc(p.id)}"`) })}
+    ${recent.length ? `<div class="list" style="padding:4px 14px 10px">${recent.map(x => `<button class="rowbtn" data-act="tspend" data-plan="${esc(p.id)}" data-id="${esc(x.id)}"><span class="ti-ico" style="background:color-mix(in srgb,#E5577A 16%,transparent);color:#E5577A">${tcatIcon('food')}</span><div class="grow"><div class="t">${esc(x.n || 'Spending')}</div><div class="m">${shortDate(x.d)}</div></div><div class="amt">€${(Number(x.a)||0).toLocaleString('en-GB', { maximumFractionDigits: 2 })}</div></button>`).join('')}</div>` : ''}</section>`;
+}
+function tripSpendForm(planId, id) {
+  const p = (S.plans||[]).find(x => x.id === planId); if (!p) return; const x = (p.spend||[]).find(s => s.id === id) || {};
+  openSheet(id ? 'Spending' : 'Log spending', fld('tsA', 'How much (€)', x.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"') + fld('tsN', 'What on', x.n || '', 'text', 'placeholder="e.g. Lunch in the park"') + fld('tsD', 'Date', x.d || today(), 'date'), async () => {
+    const a = num(v('tsA')); if (!a || a <= 0) throw new Error('Enter how much, in euros');
+    const e = { id: x.id || uid('ts'), a, n: v('tsN').trim(), d: v('tsD') || today() }, spend = [...(p.spend||[])], i = spend.findIndex(s => s.id === e.id); if (i >= 0) spend[i] = e; else spend.push(e);
+    const { id: _, ...rest } = p; await put(`plans/${p.id}`, { ...rest, spend });
+  }, id ? { onDelete: async () => { const { id: _, ...rest } = p; await put(`plans/${p.id}`, { ...rest, spend: (p.spend||[]).filter(s => s.id !== id) }); } } : {});
+}
+const tripDocs = p => docsPanel(`trip_${p.id}`, 'Keep the hotel confirmation, ferry tickets, park tickets and insurance here. Once opened they stay on the phone, so they work in France without signal.', 'Tickets and bookings');
+
+/* ===== year ahead: plans/pl_year, kind year ===== */
+const YEAR_IDEAS = ['Christmas 2027', 'Car insurance', 'Car service and MOT', 'Birthdays', 'TT week', 'Summer holiday 2027', 'School uniforms', 'Vet and pet insurance'];
+async function ensureYearPlan() { let p = (S.plans||[]).find(x => x.kind === 'year'); if (p) return p; p = { kind: 'year', name: 'Year ahead', saveFrom: plCur(), items: [] }; await put('plans/pl_year', p); return { ...p, id: 'pl_year' }; }
+function viewYear() {
+  const p = (S.plans||[]).find(x => x.kind === 'year'), cur = plCur(), items = p ? (p.items||[]) : [];
+  const thisM = p ? (plPays(p)[cur] || 0) : 0, total = items.reduce((s, it) => s + (Number(it.a)||0), 0);
+  const lastDue = items.reduce((m, it) => it.ym > m ? it.ym : m, cur), span = Math.min(24, Math.max(12, Math.ceil((ymDiff(cur, lastDue) + 1) / 6) * 6)), months = Array.from({ length: span }, (_, i) => ymAdd(cur, i));
+  const firstSave = p ? Object.keys(plPays(p)).filter(m => m >= cur).sort()[0] : null, perM = firstSave ? plPays(p)[firstSave] : 0;
+  const timeline = `<div class="yr-line">${months.map(ym => { const due = items.filter(it => it.ym === ym); return `<div class="yr-m ${due.length ? 'has' : ''}"><span>${mon3(ym)}${ym.slice(5) === '01' || ym === cur ? ` <small>${ym.slice(2,4)}</small>` : ''}</span>${due.map(it => `<button type="button" class="yr-dot" data-act="plitem" data-plan="pl_year" data-id="${esc(it.id)}" title="${esc(it.n)}">${esc(it.n.split(' ')[0])}</button>`).join('')}</div>`; }).join('')}</div>`;
+  return `<section class="panel nopad">${headCard({ tone: 'good', kicker: 'The year ahead', title: items.length ? (thisM ? `${money(thisM,0)} a month covers it` : perM ? `${money(perM,0)} a month from ${monShort(firstSave)}` : 'All covered') : 'No big surprises', meta: items.length ? `<span class="st-pill" style="background:rgba(0,0,0,.2)">${items.length} thing${items.length === 1 ? '' : 's'}</span>${money(total,0)} of yearly costs planned` : 'Add the costs that come round every year', body: items.length ? timeline : '' })}</section>
+    ${p ? plPanelYear(p) : ''}
+    <section class="panel"><h2>Add a yearly cost</h2><div class="zchips">${YEAR_IDEAS.filter(n => !items.some(i => i.n === n)).map(n => `<button type="button" data-act="yearadd" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="yearadd">+ Something else</button></div>
+    <p class="note">Each one is saved for a little each month until it's due, and counted in that month's Budget Sheet, so it never lands as a shock. Moving money aside each month shows up in the money jobs.</p></section>`;
+}
+function plPanelYear(p) {
+  const items = (p.items||[]).slice().sort((a, b) => (a.ym||'') < (b.ym||'') ? -1 : 1); if (!items.length) return '';
+  return `<section class="panel"><h2>What's coming <span class="sub">${items.length}</span></h2><div class="list">${items.map(it => { const pays = plItemPays({ ...it, paid: false }, p), each = pays.length ? pays[0].amount : 0;
+    return `<button class="rowbtn tripitem" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}"><span class="ti-ico" style="background:color-mix(in srgb,#33B679 16%,transparent);color:#2E9E62">${stepIcon('pot')}</span><div class="grow"><div class="t">${esc(it.n)}</div><div class="m">Due ${monthName(it.ym)} · ${it.how === 'save' ? `${money(each,0)} a month from ${mon3(pays[0]?.ym || it.ym)}` : esc(plWhen(it, p))}</div></div><div class="amt">${money(it.a||0,0)}</div></button>`; }).join('')}</div></section>`;
 }
 
 /* ----- renewals ----- */
@@ -3069,13 +3323,13 @@ async function fileBlob(f) {
   return data;
 }
 async function cachedPaths() { try { const c = await caches.open(FILE_CACHE); return new Set((await c.keys()).map(r => decodeURIComponent(new URL(r.url).pathname.replace('/hhq-file/','')))); } catch(e) { return new Set(); } }
-function docsPanel(group) {
+function docsPanel(group, emptyText, title) {
   const list = S.files.filter(f => (f.group||'car')===group).sort((a,b) => (a.name||'').localeCompare(b.name||''));
   setTimeout(async () => { const have = await cachedPaths(); list.forEach(f => { const el = document.querySelector(`[data-doc="${CSS.escape(f.id)}"] .m`); if (el && have.has(f.path)) el.textContent = `${el.textContent.split('.')[0]}. Saved on this phone`; }); }, 0);
-  return `<section class="panel"><h2>Documents <label class="btn small" style="display:inline-flex;align-items:center;gap:4px">${icon('plus')}Add<input type="file" id="docUpload" data-group="${group}" accept="image/*,application/pdf" hidden></label></h2>
+  return `<section class="panel"><h2>${esc(title || 'Documents')} <label class="btn small" style="display:inline-flex;align-items:center;gap:4px">${icon('plus')}Add<input type="file" id="docUpload" data-group="${group}" accept="image/*,application/pdf" hidden></label></h2>
     ${list.length ? `<div class="list">${list.map(f => `<button class="rowbtn" data-act="docopen" data-id="${esc(f.id)}" data-doc="${esc(f.id)}"><span class="qi">${icon('doc')}</span><div class="grow"><div class="t">${esc(f.name)}</div><div class="m">${esc((f.type||'').includes('pdf') ? 'PDF' : 'Photo')}, ${Math.max(1, Math.round((f.size||0)/1024))} KB</div></div></button>`).join('')}</div>
       <div class="btnrow"><button class="btn small ghost" data-act="docsave" data-group="${group}">Save all to this phone for offline</button></div>`
-      : `<p class="empty">Keep the insurance certificate, logbook and breakdown cover details here. Once opened, they're saved on the phone, so they work abroad without signal.</p>`}
+      : `<p class="empty">${esc(emptyText || 'Keep the insurance certificate, logbook and breakdown cover details here. Once opened, they\'re saved on the phone, so they work abroad without signal.')}</p>`}
   </section>`;
 }
 async function uploadDoc(file, group) {
@@ -3320,7 +3574,8 @@ async function pushPanel() {
   box.innerHTML = `<div class="list">
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="morning" ${prefs.morning!==false?'checked':''}><span class="grow">7am: today's bills, on call and payday</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="evening" ${prefs.evening!==false?'checked':''}><span class="grow">7pm: tomorrow's bills, bins, on call, renewals and car jobs</span></label>
-      <label class="check"><input type="checkbox" data-act="pushpref" data-k="weekly" ${prefs.weekly!==false?'checked':''}><span class="grow">Sunday 7pm: the week ahead</span></label></div>
+      <label class="check"><input type="checkbox" data-act="pushpref" data-k="weekly" ${prefs.weekly!==false?'checked':''}><span class="grow">Sunday 7pm: the week ahead</span></label>
+      <label class="check"><input type="checkbox" data-act="pushpref" data-k="money" ${prefs.money!==false?'checked':''}><span class="grow">Payday money jobs, and a heads-up the evening before Zilch takes a payment</span></label></div>
     <div class="btnrow"><button class="btn small ghost" type="button" data-act="pushtest">Send a test</button><button class="btn small ghost" type="button" data-act="pushoff">Turn off on this phone</button></div>`;
 }
 async function pushOn() {
@@ -3443,6 +3698,13 @@ document.addEventListener('click', async e => {
   if (a==='trip') return tripForm(el.dataset.id);
   if (a==='pltab') { UI.pltab = el.dataset.v; return render(); }
   if (a==='ovm') { UI.ovm = el.dataset.v; return render(); }
+  if (a==='potadd') return potForm(1);
+  if (a==='pottake') return potForm(-1);
+  if (a==='potedit') return potEntryForm(el.dataset.id);
+  if (a==='vfcast') { const ym = el.dataset.v, f = vikiForecast(ym), d = bsClone(S.bsheet[ym]); if (!f || f.real || !d || !d.viki) return; d.viki = { ...d.viki, mode: 'calc', items: f.items }; el.disabled = true; await put(`bsheet/${ym}`, d); UI.bs = null; toast(`${monShort(ym)} sheet now expects Viki at ${money(f.net,0)}`); return; }
+  if (a==='tday') return tripDayForm(el.dataset.plan, el.dataset.id);
+  if (a==='tspend') return tripSpendForm(el.dataset.plan, el.dataset.id);
+  if (a==='yearadd') { const p = await ensureYearPlan(); return planItemForm(p.id, null, el.dataset.name); }
   if (a==='plstep') { el.disabled = true; return toggleStep(el.dataset.plan, el.dataset.key, el.dataset.item); }
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);

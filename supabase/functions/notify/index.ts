@@ -48,10 +48,10 @@ function parseRota(title: string) {
 
 async function loadData(today: string) {
   const rows: { path: string; data: any }[] = await (await rest('docs?select=path,data')).json();
-  const D: any = { days: {}, bills: [], carrem: [], settings: {}, cal: { feeds: [] }, checks: { done: {} } };
+  const D: any = { days: {}, bills: [], carrem: [], settings: {}, cal: { feeds: [] }, checks: { done: {} }, plans: [] };
   for (const r of rows) {
     const [c, id] = r.path.split('/');
-    if (c === 'days') D.days[id] = r.data; else if (c === 'bills') D.bills.push({ ...r.data, id }); else if (c === 'carrem') D.carrem.push({ ...r.data, id });
+    if (c === 'days') D.days[id] = r.data; else if (c === 'plans') D.plans.push({ ...r.data, id }); else if (c === 'bills') D.bills.push({ ...r.data, id }); else if (c === 'carrem') D.carrem.push({ ...r.data, id });
     else if (c === 'settings') D.settings = r.data; else if (r.path === 'private/calendar') D.cal = r.data; else if (r.path === 'state/checks') D.checks = r.data;
   }
   // calendar events for the next 9 days
@@ -72,8 +72,38 @@ async function loadData(today: string) {
   return D;
 }
 
+// ---- money jobs from Trips: what to pay this pay month, and Zilch payments coming out ----
+const lc = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
+function moneyJobs(D: any, ym: string) {
+  const jobs: string[] = [];
+  for (const p of D.plans) { const done = p.done || {};
+    for (const s of (p.steps || [])) if (s.kind === 'do' && s.ym === ym && !done[s.key]) jobs.push(lc(s.title));
+    for (const it of (p.items || [])) { const a = Number(it.a) || 0; if (it.paid || it.ym !== ym || !a) continue;
+      if (it.how === 'zilch') jobs.push(`book ${it.n} on Zilch`);
+      else if (it.how === 'save') jobs.push(`pay for ${it.n} from the pot`);
+      else jobs.push(`${it.via === 'revolut' ? 'top up Revolut for' : (/present/i.test(it.n) ? 'buy' : 'pay for')} ${/present/i.test(it.n) ? lc(it.n) : it.n} (${money(a)})`); }
+  }
+  return jobs;
+}
+function zilchTomorrow(D: any, tm: string) {
+  let total = 0; const what: string[] = [];
+  for (const p of D.plans) {
+    for (const s of (p.steps || [])) if (s.date === tm && (s.kind === 'auto' || s.kind === 'also') && s.amount) { total += Number(s.amount); what.push(/car/i.test(s.title + s.sub) ? 'the car' : s.title); }
+    for (const it of (p.items || [])) { if (it.how !== 'zilch' || !it.zdate) continue; const a = Number(it.a) || 0, q = Math.round(a * 25) / 100, fee = a >= 75 ? Math.round(a * 1.8) / 100 : 0;
+      for (let i = 1; i <= 3; i++) if (addMonths(it.zdate, i) === tm) { total += (i === 3 ? a - q * 3 : q) + fee; what.push(it.n); } }
+  }
+  return { total: Math.round(total * 100) / 100, what };
+}
 function messages(D: any, today: string, mode: string) {
   const out: { title: string; body: string; tag: string }[] = [];
+  if (mode === 'moneyam' && payday(today.slice(0, 7)) === today) {
+    const jobs = moneyJobs(D, today.slice(0, 7));
+    if (jobs.length) out.push({ title: 'Payday money jobs', body: `${jobs.length} thing${jobs.length === 1 ? '' : 's'} to do from this pay: ${jobs.slice(0, 3).join(', ')}${jobs.length > 3 ? ` and ${jobs.length - 3} more` : ''}. Tick them off in Trips.`, tag: `money-${today}` });
+  }
+  if (mode === 'moneypm') {
+    const tm = addDays(today, 1), z = zilchTomorrow(D, tm);
+    if (z.total > 0) out.push({ title: `Zilch takes ${money(z.total)} tomorrow`, body: `For ${[...new Set(z.what)].join(', ')}. Make sure it's in the account tonight.`, tag: `zilch-${tm}` });
+  }
   const bills = (from: string, to: string) => D.bills.map((b: any) => ({ ...b, nd: nextDue(b, from) })).filter((b: any) => b.nd && b.nd >= from && b.nd <= to);
   const list = (bs: any[]) => bs.sort((a, b) => b.amount - a.amount).slice(0, 3).map(b => b.name).join(', ') + (bs.length > 3 ? ` and ${bs.length - 3} more` : '');
   const sum = (bs: any[]) => bs.reduce((s, b) => s + (Number(b.amount) || 0), 0);
@@ -128,7 +158,7 @@ Deno.serve(async (req: Request) => {
   const lp = localParts();
   // scheduled run
   if (req.headers.get('x-hhq-cron') && req.headers.get('x-hhq-cron') === sec.notify_secret) {
-    const modes: string[] = body.mode ? [body.mode] : lp.hour === 7 ? ['morning'] : lp.hour === 19 ? (lp.weekday === 'Sun' ? ['evening', 'weekly'] : ['evening']) : [];
+    const modes: string[] = body.mode ? [body.mode] : lp.hour === 7 ? ['morning', 'moneyam'] : lp.hour === 19 ? (lp.weekday === 'Sun' ? ['evening', 'moneypm', 'weekly'] : ['evening', 'moneypm']) : [];
     if (!modes.length) return json({ skipped: true, hour: lp.hour });
     const D = await loadData(lp.date);
     const subs = await (await rest('push_subs?select=endpoint,sub,who,prefs')).json();
@@ -136,7 +166,7 @@ Deno.serve(async (req: Request) => {
     for (const mode of modes) {
       const msgs = messages(D, lp.date, mode); out[mode] = msgs;
       if (body.dry) continue;
-      const pref = mode === 'weekly' ? 'weekly' : mode;
+      const pref = mode === 'weekly' ? 'weekly' : mode.startsWith('money') ? 'money' : mode;
       out.sent.push(...await send(subs.filter((s: any) => s.prefs?.[pref] !== false), msgs, sec));
     }
     return json(out);

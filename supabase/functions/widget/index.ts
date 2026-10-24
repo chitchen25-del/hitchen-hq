@@ -36,11 +36,12 @@ function parseRota(title: string) {
 }
 
 async function loadData(today: string) {
-  const rows: { path: string; data: any }[] = await (await rest('docs?select=path,data&or=(path.like.days/*,path.eq.settings/main,path.eq.private/calendar,path.eq.leave/main)')).json();
-  const D: any = { days: {}, settings: {}, cal: { feeds: [] }, leave: null };
+  const rows: { path: string; data: any }[] = await (await rest('docs?select=path,data&or=(path.like.days/*,path.like.plans/*,path.eq.settings/main,path.eq.private/calendar,path.eq.leave/main)')).json();
+  const D: any = { days: {}, settings: {}, cal: { feeds: [] }, leave: null, plans: [] };
   for (const r of rows) {
     const [c, id] = r.path.split('/');
     if (c === 'days') D.days[id] = r.data;
+    else if (c === 'plans') D.plans.push(r.data);
     else if (c === 'settings') D.settings = r.data; else if (r.path === 'private/calendar') D.cal = r.data; else if (r.path === 'leave/main') D.leave = r.data;
   }
   // calendar events for the next fortnight
@@ -118,6 +119,8 @@ function summary(D: any, today: string) {
     viki: { text: vText, sub: vt?.oncall && vt.status === 'shift' ? `on call from ${hm(vt.oncall.start)}` : vNext },
     chris: { text: cText, sub: cNext },
     days,
+    trips: D.plans.filter((p: any) => p.kind !== 'year' && p.from && (p.to || p.from) >= today).sort((a: any, b: any) => a.from < b.from ? -1 : 1).slice(0, 3)
+      .map((p: any) => { const n = Math.round((parse(p.from).getTime() - parse(today).getTime()) / 86400000); return { name: String(p.name || '').replace(/\s+20\d\d$/, ''), kind: p.kind || '', sleeps: n, on: n <= 0 }; }),
   };
 }
 
