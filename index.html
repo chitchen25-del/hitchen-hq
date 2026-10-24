@@ -3521,6 +3521,7 @@ function countRibbon(title = '') {
 /* ===== Budget at a glance: food shops, purchases and how each one is covered =====
    buys/<id>  = { d, a, n, ym, cover: 'food'|'spread'|'spare'|'pot'|'planned', cuts:[{ym, slot, a}], extra }
    shops/<ym> = { done: { <slot>: { at, actual } } } */
+const liveBuys = () => (S.buys || []).filter(b => !b.void); // void = removed (e.g. turned out to be before payday)
 const SHOP_FLOOR = 0.3; // a shop is never cut below 30% of its usual amount
 const BUY_COVER = {
   food: ['🛒', 'Take it off the next food shop'],
@@ -3539,7 +3540,7 @@ function shopSlots(ym) {
   return out.filter(x => x.base > 0).map((x, i) => ({ ...x, ym, slot: i, d: addDays(pd, i * 7), n: x.big ? 'Big monthly shop' : `Week ${i + 1} shop` }));
 }
 const shopDone = (ym, slot) => ((S.shops[ym] || {}).done || {})[slot];
-const shopCuts = (ym, slot, skip) => (S.buys || []).filter(b => b.id !== skip).flatMap(b => (b.cuts || []).filter(c => c.ym === ym && c.slot === slot).map(c => ({ ...c, b })));
+const shopCuts = (ym, slot, skip) => liveBuys().filter(b => b.id !== skip).flatMap(b => (b.cuts || []).filter(c => c.ym === ym && c.slot === slot).map(c => ({ ...c, b })));
 const shopTarget = (s, skip) => Math.round((s.base - shopCuts(s.ym, s.slot, skip).reduce((t, c) => t + c.a, 0)) * 100) / 100;
 function openSlots(fromToday = true) {
   const cur = plCur(), t = today();
@@ -3558,11 +3559,11 @@ function planCuts(amount, cover, skip) {
 // what the purchases do to a month's Budget Sheet: the spend goes in, food-shop cuts come off, and shops that came in over or under count too
 function buysNet(ym) {
   let net = 0;
-  (S.buys || []).forEach(b => { if (b.ym === ym && b.cover !== 'pot' && b.cover !== 'planned') net += Number(b.a) || 0; (b.cuts || []).forEach(c => { if (c.ym === ym) net -= c.a; }); });
+  liveBuys().forEach(b => { if (b.ym === ym && b.cover !== 'pot' && b.cover !== 'planned') net += Number(b.a) || 0; (b.cuts || []).forEach(c => { if (c.ym === ym) net -= c.a; }); });
   shopSlots(ym).forEach(s => { const d = shopDone(ym, s.slot); if (d && d.actual != null) net += Number(d.actual) - shopTarget(s); });
   return Math.round(net * 100) / 100;
 }
-const buysIn = ym => (S.buys || []).filter(b => b.ym === ym).sort((a, b) => a.d < b.d ? 1 : -1);
+const buysIn = ym => liveBuys().filter(b => b.ym === ym).sort((a, b) => a.d < b.d ? 1 : -1);
 const daysToPay = () => { const t = today(); let pd = payday(plCur()); if (pd <= t) pd = payday(ymAdd(plCur(), 1)); return daysBetween(t, pd); };
 function coverLine(b) {
   if ((b.cover === 'food' || b.cover === 'spread') && (b.cuts || []).length > 1 && b.cuts.every(c => Math.abs(c.a - b.cuts[0].a) < .02)) return `${m2(b.cuts[0].a)} off each of the next ${b.cuts.length} food shops${b.extra ? `, ${m2(b.extra)} from spare` : ''}`;
@@ -3597,7 +3598,7 @@ function foodPanel() {
     ${buys.length || Math.abs(net) > .5 ? `<p class="note">${net > .5 ? `This month's Budget Sheet has ${m2(net)} more going out because of these.` : net < -.5 ? `The month is ${m2(-net)} better off, because shops came in under.` : 'All covered by the food shops, so the month still adds up the same.'}</p>` : ''}</section>`;
 }
 function buyForm(id) {
-  const b = (S.buys || []).find(x => x.id === id) || { d: today(), cover: 'food' };
+  const b = liveBuys().find(x => x.id === id) || { d: today(), cover: 'food' };
   const opts = () => { const a = num(v('byA')) || 0, cur = plCur(), doc = S.bsheet[cur], left = doc ? bsTotals(doc, cur).left + (b.id && b.cover !== 'pot' && b.cover !== 'planned' ? (Number(b.a) || 0) - (b.cuts || []).filter(c => c.ym === cur).reduce((s, c) => s + c.a, 0) : 0) : 0;
     const desc = k => { if (!a) return { food: 'Like you normally do', spread: 'A little off each shop', spare: `${money(left, 0)} spare this month`, pot: `${money(potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0), 0)} in the pot`, planned: 'Nothing changes' }[k];
       if (k === 'food' || k === 'spread') { const pc = planCuts(a, k, b.id); if (!pc.cuts.length) return 'No shops left to take it from'; const first = pc.cuts.map(c => { const s = shopSlots(c.ym)[c.slot]; return s ? `${s.n} ${m2(shopTarget(s, b.id))} → ${m2(shopTarget(s, b.id) - c.a)}` : ''; }).slice(0, 3).join(' · '); return first + (pc.extra ? ` · ${m2(pc.extra)} too big for the shops, so from spare` : ''); }
