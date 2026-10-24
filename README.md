@@ -34,6 +34,18 @@ Car documents are stored in the private Supabase Storage bucket `family-files`, 
 
 Money → Budget → Import statement reads a CSV file downloaded from online banking. Isle of Man bank accounts aren't covered by Open Banking, so live bank feeds aren't available.
 
+## Backups
+
+Settings → Download a backup saves everything in the app as one file (on a phone it opens the share sheet, so it can go to iCloud Drive or Google Drive). Do it every so often and before big changes.
+
+## Yearly update
+
+Each March, after the Manx budget, the app needs that tax year's income tax and NI figures (`IOM_YEARS` in `index.html`), the next year's official bank holidays including TT race day (`BANK_HOLS`), and Viki's confirmed pay award (in the private database). Home shows a notice when any of these are missing. Years without official bank holidays use the fixed rules, without TT day.
+
+## Checks
+
+`node tests/pay.test.mjs` checks the take-home, pension, NI and tax engine, pay rises, paydays and bank holidays against the Isle of Man rules, using made-up figures. GitHub runs it on every push (Actions → Pay rules check).
+
 ## Usernames
 
 Sign-in uses a username and password. Behind the scenes each username is stored as `<username>@hitchen.example.com`; that address is never emailed. Current accounts: `chris`, `viki`.

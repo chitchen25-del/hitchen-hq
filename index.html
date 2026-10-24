@@ -1102,8 +1102,11 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 
 /* Viki sub-tabs and Contract and rises */
 .subtabs{display:flex;gap:4px;padding:4px;margin:-4px 0 0;background:var(--sheet-2);border-radius:14px}
-.subtabs button{flex:1;border:0;background:none;padding:9px 6px;border-radius:10px;font:inherit;font-weight:600;font-size:.9rem;color:var(--muted);cursor:pointer;transition:background .15s ease,color .15s ease}
+.subtabs{overflow-x:auto;scrollbar-width:none}
+.subtabs::-webkit-scrollbar{display:none}
+.subtabs button{flex:1 0 auto;border:0;background:none;padding:9px 10px;white-space:nowrap;border-radius:10px;font:inherit;font-weight:600;font-size:.9rem;color:var(--muted);cursor:pointer;transition:background .15s ease,color .15s ease}
 .subtabs button[aria-selected="true"]{background:var(--sheet);color:var(--viki);box-shadow:0 1px 3px rgba(8,16,26,.14)}
+.subtabs.money button[aria-selected="true"]{color:var(--good)}
 .vc-toggle{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 4px}
 .vc-toggle button{border:1px solid var(--rule-2);background:none;color:var(--ink-2);border-radius:999px;padding:6px 12px;font:inherit;font-size:.84rem;font-weight:600;cursor:pointer}
 .vc-toggle button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--sheet)}
@@ -1659,20 +1662,22 @@ function viewHome() {
   // tiles
   const goal = S.goals[0];
   const gp = goal && goal.target ? (Number(goal.saved)||0)/goal.target : 0;
-  const tiles = `<section class="tiles">
-    <button class="tile" data-act="tab" data-v="work" data-who="viki">
+  /* tiles only for things that are set up; budget lives in the glance card when there's a Budget Sheet */
+  const tileList = [
+    r.salary ? `<button class="tile" data-act="tab" data-v="work" data-who="viki">
       <span class="tl">${badge('viki')} On call this claim</span><span class="tv" data-count="${Math.round(vNow.oc+vNow.co)}">${money(vNow.oc+vNow.co,0)}</span>
-      <span class="ts">${fh(vNow.ocH)}h on call, ${fh(vNow.h15+vNow.h2)}h call-outs, ${esc(rangeLabel(cym))}, paid ${esc(dayShort(payday(ymOf(addMonths(`${cym}-01`,1)))))}</span></button>
-    <button class="tile" data-act="tab" data-v="money" data-seg="budget">
+      <span class="ts">${fh(vNow.ocH)}h on call, ${fh(vNow.h15+vNow.h2)}h call-outs, ${esc(rangeLabel(cym))}, paid ${esc(dayShort(payday(ymOf(addMonths(`${cym}-01`,1)))))}</span></button>` : '',
+    limit && !S.bsheet[ym] ? `<button class="tile" data-act="tab" data-v="money" data-seg="budget">
       <span class="tl">Spent this month</span><span class="tv" data-count="${Math.round(spent)}">${money(spent,0)}</span>
-      ${gauge(limit ? spent/limit : 0)}<span class="ts">${limit ? `of ${money(limit,0)} budget` : 'Set a budget in Money'}</span></button>
-    <button class="tile" data-act="tab" data-v="work" data-who="chris">
+      ${gauge(limit ? spent/limit : 0)}<span class="ts">${limit ? `of ${money(limit,0)} budget` : 'Set a budget in Money'}</span></button>` : '',
+    allow ? `<button class="tile" data-act="tab" data-v="work" data-who="chris">
       <span class="tl">${badge('chris')} Holiday left</span><span class="tv" style="color:var(--chris)">${allow ? allow - hol : '—'}</span>
-      ${allow ? gauge(hol/allow) : ''}<span class="ts">${allow ? `${hol} of ${allow} days used` : 'Set allowance in Settings'}</span></button>
-    <button class="tile" data-act="tab" data-v="money" data-seg="goals">
+      ${allow ? gauge(hol/allow) : ''}<span class="ts">${allow ? `${hol} of ${allow} days used` : 'Set allowance in Settings'}</span></button>` : '',
+    goal ? `<button class="tile" data-act="tab" data-v="money" data-seg="goals">
       <span class="tl">${goal ? esc(goal.name) : 'Savings goal'}</span><span class="tv" style="color:var(--good)">${goal ? Math.round(gp*100)+'%' : '—'}</span>
-      ${goal ? gauge(gp, '') : ''}<span class="ts">${goal ? `${money(goal.saved||0,0)} of ${money(goal.target||0,0)}` : 'Add your first goal'}</span></button>
-  </section>`;
+      ${goal ? gauge(gp, '') : ''}<span class="ts">${goal ? `${money(goal.saved||0,0)} of ${money(goal.target||0,0)}` : 'Add your first goal'}</span></button>` : '',
+  ].filter(Boolean);
+  const tiles = tileList.length ? `<section class="tiles">${tileList.join('')}</section>` : '';
 
   const billsPanel = `<section class="panel"><h2>Bills this week <span class="sub num">${money(billsTotal,0)}</span></h2>
     ${bills.length ? `<div class="list">${bills.slice(0,5).map(b => `<div class="row"><div class="bdate${b.nd===t?' today':''}"><b>${parse(b.nd).getDate()}</b><span>${DOWS[parse(b.nd).getDay()].slice(0,3)}</span></div><div class="grow"><div class="t">${esc(b.name)}</div><div class="m">${esc(b.category||'')}</div></div><div class="amt">${money(b.amount)}</div></div>`).join('')}</div>${bills.length>5?`<p class="note">${bills.length-5} more in Money → Bills.</p>`:''}`
@@ -1691,7 +1696,8 @@ function viewHome() {
     cells: [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), payCell ],
     foot });
   setTimeout(runCountUp, 30); updateBadge();
-  return hero + glanceCard(true) + countRibbon('Treats on the way') + week + listPanel() + tiles + billsPanel + carPanel;
+  /* calm by default: today, payday and the week first; other panels only when there's something in them */
+  return hero + yearlyUpdateNudge() + checkinCard() + pushNudge() + glanceCard(true) + countRibbon('Treats on the way') + week + listPanel() + tiles + (bills.length ? billsPanel : '') + carPanel;
 }
 function goalBar(g) {
   const pct = g.target ? Math.min(100, Math.round((Number(g.saved)||0)/g.target*100)) : 0;
@@ -1845,7 +1851,21 @@ const VIKI_DEFAULT = { salary:0, base:0, standby:0, secondWD:0, secondWE:0, pens
 const vk = () => ({...VIKI_DEFAULT, ...(S.settings.viki||{})});
 const BANK_HOLS = new Set(['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-06-05','2026-07-05','2026-07-06','2026-08-31','2026-12-25','2026-12-26','2026-12-28',
   '2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-06-11','2027-07-05','2027-08-30','2027-12-25','2027-12-26','2027-12-27','2027-12-28']);
-const isBH = s => BANK_HOLS.has(s);
+/* years without official dates yet: the fixed-rule holidays (TT race day is left out until it's announced; add the year's list above each March) */
+const BH_KNOWN = new Set([...BANK_HOLS].map(d => d.slice(0,4)));
+const BH_RULE = {};
+function ruleBankHols(y) {
+  if (BH_RULE[y]) return BH_RULE[y];
+  const p2 = n => String(n).padStart(2,'0'), iso = d => `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`, D = (m, d) => new Date(y, m-1, d);
+  const a = y % 19, b = Math.floor(y/100), c = y % 100, d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25), g = Math.floor((b-f+1)/3), h = (19*a+b-d-g+15) % 30, i = Math.floor(c/4), k = c % 4, l = (32+2*e+2*i-h-k) % 7, m = Math.floor((a+11*h+22*l)/451);
+  const easter = new Date(y, Math.floor((h+l-7*m+114)/31) - 1, ((h+l-7*m+114) % 31) + 1), add = (x, n) => { const z = new Date(x); z.setDate(z.getDate()+n); return z; };
+  const firstMon = mo => { const x = D(mo,1); return add(x, (8 - x.getDay()) % 7); }, lastMon = mo => { const x = new Date(y, mo, 0); return add(x, -((x.getDay()+6) % 7)); };
+  const sub = x => x.getDay() === 6 ? add(x, 2) : x.getDay() === 0 ? add(x, 1) : x;
+  const xmas = D(12,25), box = D(12,26), out = [sub(D(1,1)), add(easter,-2), add(easter,1), firstMon(5), lastMon(5), D(7,5), sub(D(7,5)), lastMon(8), xmas, box];
+  if (xmas.getDay() === 6) out.push(D(12,27), D(12,28)); else if (xmas.getDay() === 0) out.push(D(12,27)); else if (box.getDay() === 6 || box.getDay() === 0) out.push(D(12,28));
+  return BH_RULE[y] = new Set(out.map(iso));
+}
+const isBH = s => { const y = String(s).slice(0,4); return BH_KNOWN.has(y) ? BANK_HOLS.has(s) : ruleBankHols(Number(y)).has(s); };
 const DOWS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const toMin = t => { const m = /^(\d{1,2}):(\d{2})/.exec(String(t||'')); return m ? Number(m[1])*60 + Number(m[2]) : null; };
 const span = (a,b) => { const x = toMin(a), y = toMin(b); if (x===null || y===null) return 0; let d = y - x; if (d <= 0) d += 1440; return d/60; };
@@ -2286,6 +2306,7 @@ function slipForm(ym) {
     const net = num(v('psNet')); if (!net || net < 0) throw new Error('Enter the take-home figure, such as 6233.92');
     const data = { net }; const g = num(v('psGross')); if (g) data.gross = g;
     await put(`payslips/${ym}`, data);
+    const sh = S.bsheet[ym]; if (sh && sh.viki && !sh.viki.off) await put(`bsheet/${ym}`, { ...sh, viki: { ...sh.viki, actual: net } }); /* one entry updates both */
   }, x.net ? { onDelete: () => remove(`payslips/${ym}`) } : {});
 }
 function printClaim(ym) {
@@ -2454,6 +2475,13 @@ function planFor(ym) {
   return { inc, bills, budget, owed, save, trips, left };
 }
 
+const MONEY_GROUPS = [
+  { k:'overview', l:'Overview', pages:[['overview','Overview']] },
+  { k:'month', l:'This month', pages:[['sheet','Sheet'],['plan','Plan'],['spending','Spending'],['budget','Budget']] },
+  { k:'debts', l:'Bills', pages:[['bills','Direct debits'],['owed','Zilch']] },
+  { k:'goals', l:'Goals', pages:[['goals','Goals'],['year','Year ahead'],['save','Tips']] },
+];
+const moneyGroupOf = page => MONEY_GROUPS.find(g => g.pages.some(([k]) => k === page)) || MONEY_GROUPS[0];
 function viewMoney() {
   const ym = ymOf(today()), P = planFor(ym), t = today();
   const parts = [['Bills', P.bills, '#3F51B5'], ['Spending budget', P.budget, '#0B8043'], ['Owed', P.owed, '#D50000'], ['Savings', P.save, '#039BE5'], ['Treats', P.trips, '#8E24AA'], ['Left over', Math.max(0,P.left), 'var(--rule-2)']].filter(x => x[1] > 0);
@@ -2464,9 +2492,11 @@ function viewMoney() {
     cells: [ tbCell('Bills', money(P.bills,0), '#3F51B5'), tbCell('Budget', money(P.budget,0), '#0B8043'), tbCell(P.save ? 'Savings' : 'Owed', money(P.save || P.owed,0), P.save ? '#039BE5' : '#D50000') ],
     after: P.inc.total ? `<div style="padding:12px 0 2px">${flow}</div>` : '',
     foot: P.inc.total ? `<span>${(() => { const l = ['bills', 'the spending budget', ...(P.owed?['money owed']:[]), ...(P.save?['savings']:[]), ...(P.trips?['trip savings']:[])]; return `What's left once ${l.slice(0,-1).join(', ')} and ${l[l.length-1]} are covered.`; })()}</span>` : `<span><button class="linkbtn" data-act="mseg" data-v="plan">Add your pay to see what's spare each month</button></span>` });
-  const segs = [['overview','Overview'],['plan','Plan'],['sheet','Sheet'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Zilch'],['year','Year ahead'],['save','Tips']];
-  if (!segs.some(x => x[0]===UI.money)) UI.money = 'overview';
-  const seg = `<div class="seg" role="group" aria-label="Money section">${segs.map(([k,l]) => `<button data-act="mseg" data-v="${k}" aria-pressed="${UI.money===k}">${l}</button>`).join('')}</div>`;
+  /* four groups, each with its own sub-tabs; UI.money is still the page inside the group */
+  if (!MONEY_GROUPS.some(g => g.pages.some(([k]) => k === UI.money))) UI.money = 'overview';
+  const grp = moneyGroupOf(UI.money);
+  const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
+    + (grp.pages.length > 1 ? `<div class="subtabs money" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
   const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
   return (S.bsheet[ym] ? sheetHero(ym) : hero) + seg + body;
 }
@@ -2600,8 +2630,29 @@ function viewSpending() {
     ${budgetPanel}${txList}`;
 }
 
+/* the payday plan comes from the month's Budget Sheet when there is one, so the app only ever has one "left over" */
+function viewPlanSheet(ym, f) {
+  const t = f.t, bonus = moneyIn(ym).items.filter(x => x.bonus);
+  const row = (sw, name, note, amt, act) => `<${act?`button class="rowbtn" data-act="${act}"`:'div class="row"'}><span class="sw" style="background:${sw}"></span><div class="grow"><div class="t">${esc(name)}</div>${note?`<div class="m">${note}</div>`:''}</div><div class="amt">${money(amt,0)}</div></${act?'button':'div'}>`;
+  const secNote = k => { const sec = (S.bsheet[ym].secs||[]).find(s => s.k === k); if (!sec) return ''; const n = sec.rows.filter(bsOn).length; return `${n} item${n === 1 ? '' : 's'}`; };
+  const pd = payday(ym);
+  return `
+  <section class="panel"><h2>Coming in <button class="btn small ghost" data-act="mseg" data-v="sheet">Edit</button></h2>
+    <div class="list">${f.inc.map(x => `<div class="row"><span class="sw" style="background:${x.c}"></span><div class="grow"><div class="t">${esc(x.name)}</div><div class="m">${esc(dayShort(pd))}</div></div><div class="amt">${money(x.v,0)}</div></div>`).join('')}
+    ${bonus.map(x => `<div class="row"><span class="sw" style="background:var(--rule-2)"></span><div class="grow"><div class="t">${esc(x.name)}</div><div class="m">${x.note}</div></div><div class="amt" style="color:var(--muted);font-weight:500">+${money(x.amount,0)}</div></div>`).join('')}</div>
+    <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow t">Total</div><div class="amt">${money(t.inc,0)}</div></div>
+  </section>
+  <section class="panel"><h2>Payday plan <span class="sub">${esc(monthName(ym))}</span></h2>
+    <p class="note">When pay lands, this is where it goes. It's the same as this month's Budget Sheet, so change anything there.</p>
+    <div class="list">
+      ${f.outs.map(o => row(o.c, o.name, o.k === 'trips' ? 'From Treats and Year ahead' : o.k === 'buys' ? 'Purchases this month' : secNote(o.k), o.v, o.k === 'trips' ? 'tab" data-v="trips' : 'mseg" data-v="sheet')).join('')}
+      <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow"><div class="t">${t.left >= 0 ? 'Left over' : 'Short by'}</div><div class="m">${t.left >= 0 ? `${t.split}% to savings (${money(t.save,0)}), ${100 - t.split}% to the holiday pot (${money(t.hol,0)})` : 'The holiday pot can cover it'}</div></div><div class="amt" style="color:${t.left<0?'var(--red)':'var(--good)'}">${money(Math.abs(t.left),0)}</div></div>
+    </div>
+  </section>`;
+}
 function viewPlan() {
-  const ym = ymOf(today()), P = planFor(ym), c = ck();
+  const ym = ymOf(today()), sf = sheetFlow(ym); if (sf) return viewPlanSheet(ym, sf);
+  const P = planFor(ym), c = ck();
   const row = (sw, name, note, amt, act) => `<${act?`button class="rowbtn" data-act="${act}"`:'div class="row"'}><span class="sw" style="background:${sw}"></span><div class="grow"><div class="t">${name}</div>${note?`<div class="m">${note}</div>`:''}</div><div class="amt">${money(amt,0)}</div></${act?'button':'div'}>`;
   const mixParts = [['Bills', P.bills, '#3F51B5'], ['Spending budget', P.budget, '#0B8043'], ['Owed', P.owed, '#D50000'], ['Savings', P.save, '#039BE5'], ['Treats', P.trips, '#8E24AA']];
   return `
@@ -3635,10 +3686,11 @@ async function ciSet(k) {
 }
 function ciIncForm() {
   const cur = plCur(), doc = S.bsheet[cur]; if (!doc) return; const tot = bsTotals(doc, cur), incs = (doc.inc || []).map((x, i) => [x, i]).filter(([x]) => bsOn(x));
-  openSheet('What actually came in', incs.map(([x, i]) => fld(`ci${i}`, esc(x.n), Number(x.a) || 0, 'number', 'step="0.01" inputmode="decimal"')).join('') + (doc.viki && !doc.viki.off ? fld('ciV', 'Viki\'s wages', Math.round(tot.viki * 100) / 100, 'number', 'step="0.01" inputmode="decimal"') : '') + '<p class="note">This updates the month\'s Budget Sheet so the rest of the month adds up.</p>', async () => {
+  openSheet('What actually came in', incs.map(([x, i]) => fld(`ci${i}`, esc(x.n), Number(x.a) || 0, 'number', 'step="0.01" inputmode="decimal"')).join('') + (doc.viki && !doc.viki.off ? fld('ciV', 'Viki\'s take-home, from her payslip', Math.round(tot.viki * 100) / 100, 'number', 'step="0.01" inputmode="decimal"') : '') + '<p class="note">This updates the month\'s Budget Sheet so the rest of the month adds up, and Viki\'s figure teaches her pay estimate.</p>', async () => {
     const d = JSON.parse(JSON.stringify(doc)); incs.forEach(([, i]) => { const a = num(v(`ci${i}`)); if (a !== null) d.inc[i].a = a; });
-    if ($('#ciV')) { const a = num(v('ciV')); if (a !== null && Math.abs(a - tot.viki) > .5) d.viki.actual = a; }
+    let vNet = null; if ($('#ciV')) { const a = num(v('ciV')); if (a !== null && Math.abs(a - tot.viki) > .5) d.viki.actual = a; if (a !== null && a > 0) vNet = a; }
     d.ci = { ...(d.ci || {}), inc: today() }; await put(`bsheet/${cur}`, d);
+    if (vNet !== null) { const { id, ...old } = S.payslips.find(x => x.id === cur) || {}; await put(`payslips/${cur}`, { ...old, net: vNet }); }
   });
 }
 
@@ -4410,6 +4462,7 @@ function settingsForm() {
     <p class="eyebrow">Viki</p>${fld('vAllow','Holiday allowance (days)', s.vikiAllowance??'', 'number','min="0" step="0.5"')}
     <div class="btnrow"><button class="btn ghost small" type="button" data-act="vrates">Viki's pay rates</button></div>
     <p class="eyebrow">Family calendar</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="calset">Google Calendar links</button></div>
+    <p class="eyebrow">Backup</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="backup">Download a backup</button></div><p class="note">Everything in the app as one file. Save it somewhere safe, like iCloud Drive or Google Drive.</p>
     <p class="eyebrow">Notifications on this phone</p><div id="pushBox"><div class="skel" style="height:40px"></div></div>
     <p class="eyebrow">Account</p><p class="note">Signed in as <strong>${esc(userName())}</strong></p>
     ${fld('newpass','New password (leave blank to keep)', '', 'password', 'autocomplete="new-password" minlength="8"')}
@@ -4437,6 +4490,38 @@ const b64u = s => { const b = atob((s + '='.repeat((4 - s.length % 4) % 4)).repl
 const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 const swReady = () => Promise.race([navigator.serviceWorker.ready, new Promise((_, rej) => setTimeout(() => rej(new Error('sw')), 4000))]);
 async function pushSub() { if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null; const reg = await swReady(); return reg.pushManager.getSubscription(); }
+/* backup: every document, fresh from the database, as one JSON file (shared on phones, downloaded elsewhere) */
+async function downloadBackup() {
+  const rows = []; for (let from = 0; ; from += 1000) { const { data, error } = await sb.from('docs').select('path,data,updated_at,updated_by').order('path').range(from, from + 999); if (error) throw error; rows.push(...data); if (data.length < 1000) break; }
+  const name = `hitchen-hq-backup-${today()}.json`, blob = new Blob([JSON.stringify({ app: 'Hitchen HQ', taken: new Date().toISOString(), count: rows.length, docs: rows }, null, 1)], { type: 'application/json' });
+  const file = new File([blob], name, { type: 'application/json' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: name }); toast(`Backup ready: ${rows.length} items`); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  const url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = name; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+  toast(`Backup saved: ${rows.length} items`);
+}
+/* the app's yearly rules: shows on Home once this tax year's rates or this year's official bank holidays are missing */
+function yearlyUpdateNudge() {
+  const t = today(), ty = iomYear(t), y = t.slice(0,4), miss = [];
+  if (ty.guessed) miss.push(`${ty.start}/${String(ty.start+1).slice(2)} tax and NI rates`);
+  if (!BH_KNOWN.has(y)) miss.push(`${y}'s official bank holidays, including TT day`);
+  if (!miss.length) return '';
+  return `<div class="banner">Hitchen HQ needs its yearly update: ${esc(miss.join(' and '))}. Until then pay estimates use last year's figures. Ask Claude to do the Hitchen HQ yearly update.</div>`;
+}
+/* Home nudge until this phone has reminders on: state is 'on', 'off', 'blocked' or 'na' (can't do push here) */
+let PUSH_STATE = null;
+async function checkPush() {
+  let st = 'na';
+  try { if ('PushManager' in window && 'Notification' in window) { const sub = await pushSub(); st = sub ? 'on' : Notification.permission === 'denied' ? 'blocked' : 'off'; } } catch (e) { st = 'na'; }
+  if (st !== PUSH_STATE) { PUSH_STATE = st; if (UI.tab === 'home') render(); }
+}
+function pushNudge() {
+  if (PUSH_STATE === null) { checkPush(); return ''; }
+  let later = 0; try { later = Number(localStorage.getItem('hhq-pushlater')) || 0; } catch (e) {}
+  if (Date.now() < later) return '';
+  if (PUSH_STATE === 'off') return `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Reminders are off on this phone', title: 'Never miss a bill or payday', meta: '<span>7am and 7pm nudges for bills, bins, Viki\'s on call and payday money jobs. Turn them on once on each phone.</span>', actions: hcBtn('Turn on reminders', 'pushon') + hcBtn('Not now', 'pushlater') })}</section>`;
+  if (PUSH_STATE === 'na' && /iphone|ipad/i.test(navigator.userAgent) && !isStandalone()) return `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Get reminders', title: 'Add Hitchen HQ to your Home Screen', meta: '<span>In Safari tap Share, then Add to Home Screen, and open it from there. Then reminders can be turned on.</span>', actions: hcBtn('Not now', 'pushlater') })}</section>`;
+  return '';
+}
 async function pushPanel() {
   const box = $('#pushBox'); if (!box) return;
   if (!('PushManager' in window) || !('Notification' in window)) { box.innerHTML = `<p class="note">${/iphone|ipad/i.test(navigator.userAgent) && !isStandalone() ? 'To get notifications on an iPhone, add Hitchen HQ to your Home Screen (Share, then Add to Home Screen) and open it from there.' : 'This browser can\'t show notifications.'}</p>`; return; }
@@ -4459,9 +4544,9 @@ async function pushOn() {
   const j = sub.toJSON();
   const { error } = await sb.from('push_subs').upsert({ endpoint: j.endpoint, sub: j, who: me(), prefs: { morning:true, evening:true, weekly:true } });
   if (error) toast('Couldn\'t save. Try again'); else toast('Notifications on');
-  pushPanel();
+  pushPanel(); PUSH_STATE = null; checkPush();
 }
-async function pushOff() { const sub = await pushSub(); if (sub) { await sb.from('push_subs').delete().eq('endpoint', sub.endpoint); await sub.unsubscribe(); } toast('Notifications off on this phone'); pushPanel(); }
+async function pushOff() { const sub = await pushSub(); if (sub) { await sb.from('push_subs').delete().eq('endpoint', sub.endpoint); await sub.unsubscribe(); } toast('Notifications off on this phone'); pushPanel(); PUSH_STATE = null; checkPush(); }
 async function pushPref(k, on) { const sub = await pushSub(); if (!sub) return; const { data } = await sb.from('push_subs').select('prefs').eq('endpoint', sub.endpoint).maybeSingle(); const prefs = {...((data && data.prefs) || {}), [k]: on}; await sb.from('push_subs').update({ prefs }).eq('endpoint', sub.endpoint); }
 async function pushTest() { const sub = await pushSub(); if (!sub) return; const { data, error } = await sb.functions.invoke('notify', { body: { endpoint: sub.endpoint } }); const ok = !error && data && (data.results||[]).some(r => r.status===201 || r.status===200); toast(ok ? 'Test sent' : 'The test didn\'t go through. Turn notifications off and on again'); }
 function updateBadge() {
@@ -4515,6 +4600,7 @@ document.addEventListener('click', async e => {
   if (a==='lvedit') return lvEditForm();
   if (a==='lvchris') return lvChrisForm();
   if (a==='who') { UI.who = el.dataset.who; keepUI(); return render(); }
+  if (a==='mgrp') { const g = MONEY_GROUPS.find(x => x.k === el.dataset.v) || MONEY_GROUPS[0]; UI.mlast = UI.mlast || {}; UI.mlast[moneyGroupOf(UI.money).k] = UI.money; UI.money = (UI.mlast[g.k] && g.pages.some(([k]) => k === UI.mlast[g.k])) ? UI.mlast[g.k] : g.pages[0][0]; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='vsub') { UI.vsub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='vcmode' || a==='vcyr') { if (a==='vcmode') UI.vcmode = el.dataset.v; else UI.vcyr = el.dataset.v; keepUI(); const y = window.scrollY; render(); window.scrollTo(0,y); return; }
   if (a==='hday') { UI.hday = el.dataset.date; return render(); }
@@ -4602,6 +4688,8 @@ document.addEventListener('click', async e => {
   if (a==='plspread') { if (!el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again: this turns Zilch and one-off payments into monthly saving'; return; } return planSpread(el.dataset.id); }
   if (a==='plsheet') { if (bsDirty()) { toast('Save or undo your sheet changes first'); return; } UI.bym = el.dataset.v; UI.bs = null; UI.tab = 'money'; UI.money = 'sheet'; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='import') return importForm();
+  if (a==='backup') { el.disabled = true; try { await downloadBackup(); } catch (err) { toast('Couldn\'t make the backup. Check you\'re online'); } el.disabled = false; return; }
+  if (a==='pushlater') { try { localStorage.setItem('hhq-pushlater', String(Date.now() + 14*86400000)); } catch (e) {} render(); return; }
   if (a==='pushon') { el.disabled = true; try { await pushOn(); } catch(err) { toast('Couldn\'t turn on notifications'); pushPanel(); } return; }
   if (a==='pushoff') { el.disabled = true; return pushOff(); }
   if (a==='pushtest') { el.disabled = true; await pushTest(); el.disabled = false; return; }
