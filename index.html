@@ -1099,6 +1099,12 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .cele-card span{color:var(--ink-2)}
 .cele-card .btn{margin-top:10px;background:linear-gradient(135deg,#FF4F6D,#A23BEC);color:#fff}
 @media (prefers-reduced-motion:no-preference){.cele-card{animation:celepop .45s cubic-bezier(.2,1.5,.4,1)}@keyframes celepop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}}
+dl.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0 0;font-size:.92rem}
+dl.kv dt{color:var(--muted,#888);font-weight:600}
+dl.kv dd{margin:0}
+ul.checks{margin:6px 0 0;padding-left:1.1em;font-size:.92rem;line-height:1.45}
+ul.checks li{margin:0 0 6px}
+td small.up{color:var(--good);font-weight:700}
 </style>
 </head>
 <body>
@@ -1866,9 +1872,17 @@ function takeHome(pensionable, other, payDate) {
   const tax = r2(Math.min(taxable, band) * t.lo/100 + Math.max(0, taxable - band) * t.hi/100);
   return { gross, pensionable: r2(pensionable), pension, ni, tax, net: r2(gross - pension - ni - tax), taxYear: t };
 }
+/* pay awards: her rates in settings are valid from ratesFrom; any award starting after that and by the given month scales pay up.
+   Salary rises from the award month; on call and call-outs paid in arrears rise a month later. */
+function awardFactor(ym) {
+  const r = vk(), from = r.ratesFrom || '0000-00';
+  return (r.awards||[]).filter(a => a.from > from && a.from <= ym).reduce((f,a) => f * (1 + (Number(a.pct)||0)/100), 1);
+}
+const extrasYMOf = payYM => vk().arrears ? ymAdd(payYM, -1) : payYM;
 function payslip(oc, co, bh=0, ot=0, payYM) {
-  const r = vk(), enh = Number(r.enh)||0;
-  return takeHome(r.salary + oc + bh + enh, co + ot, payday(payYM || ymOf(today())));
+  const r = vk(), enh = Number(r.enh)||0, ym = payYM || ymOf(today());
+  const fs = awardFactor(ym), fx = awardFactor(extrasYMOf(ym));
+  return takeHome((r.salary + enh)*fs + (oc + bh)*fx, (co + ot)*fx, payday(ym));
 }
 const slipFor = (m, payYM) => payslip(m.oc, m.co, m.bh, m.ot, payYM);
 /* learn from real payslips: average difference between her actual take-home and the estimate, last three */
@@ -1877,7 +1891,7 @@ function slipAdjust() {
     const extrasYM = r.arrears ? ymOf(addMonths(`${x.id}-01`,-1)) : x.id; return x.net - slipFor(vikiMonth(extrasYM), x.id).net; });
   return diffs.length ? { adj: diffs.reduce((a,b)=>a+b,0)/diffs.length, n: diffs.length } : { adj:0, n:0 };
 }
-function payday(ym) { let d = `${ym}-25`; const w = parse(d).getDay(); if (w===6) d = addDays(d,-1); if (w===0) d = addDays(d,-2); return d; }
+function payday(ym) { let d = `${ym}-25`; while (isWeekend(d) || isBH(d)) d = addDays(d,-1); return d; } /* 25th, or the working day before if it's a weekend or public holiday */
 const dayShort = s => { const d = parse(s); return `${DOWS[d.getDay()].slice(0,3)} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`; };
 
 function viewViki() {
@@ -1943,7 +1957,7 @@ function viewViki() {
     <p class="note">${Number(r.cutoff) ? `Each claim runs from the ${r.cutoff}th to the ${r.cutoff-1}th, so on call from the ${r.cutoff}th goes on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to add call-outs or change it.</p></section>`;
 
   const noRates = !r.salary ? `<div class="banner">Viki's pay rates aren't set yet. <button class="btn small ghost" data-act="vrates">Add them</button></div>` : '';
-  return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel() + ratesPanel();
+  return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel() + contractPanel() + ratesPanel();
 }
 
 function claimRows(m) {
@@ -1978,6 +1992,28 @@ function claimText(ym) {
   rows.forEach(r => lines.push([r.day, r.cont?'':shortDate(r.date), r.start, r.end, r.hrs, r.amt!=null?r.amt.toFixed(2):'', r.from||'', r.to||'', r.ch||'', r.note||''].join('\t')));
   lines.push(`Total on call ${fh(m.ocH)}h = £${m.oc.toFixed(2)} · call-outs ${fh(m.h15)}h at 1.5x, ${fh(m.h2)}h at 2x`);
   return lines.join('\n');
+}
+/* contract and pay rises: terms from her written particulars (settings/main → viki.contract), rises from viki.awards */
+function contractPanel() {
+  const r = vk(), c = r.contract; if (!c) return '';
+  const cur = claimYM(today()), recent = [1,2,3].map(i => vikiMonth(ymAdd(cur, -i))).filter(m => m.oc || m.co);
+  const avg = k => recent.length ? recent.reduce((s,m) => s + k(m), 0) / recent.length : 0;
+  const ocA = avg(m => m.oc + m.bh), coA = avg(m => m.co + m.ot), enh = Number(r.enh)||0;
+  const baseYM = r.ratesFrom || ymOf(today());
+  const rows = [{ label:`Now, ${esc(c.payYear || '2026/27')}`, f:1, a:null }]
+    .concat((r.awards||[]).filter(a => a.from > baseYM).map(a => ({ a, label:`From ${monShort(a.from)} ${a.from.slice(0,4)}`, f: awardFactor(a.from) })));
+  const calc = x => { const sal = r.salary*x.f, d = `${ymOf(today())}-25`;
+    return { annual: Math.round(sal*12), month: sal, basic: takeHome(sal + enh, 0, d).net, typ: takeHome((sal + enh) + ocA*x.f, coA*x.f, d).net }; };
+  const base = calc(rows[0]);
+  const tr = rows.map((x,i) => { const v = calc(x), up = i ? ` <small class="up">+${money(v.basic - base.basic,0)}</small>` : '', upT = i ? ` <small class="up">+${money(v.typ - base.typ,0)}</small>` : '';
+    return `<tr><td>${x.label}${x.a ? `<br><small>${esc(x.a.label)}${x.a.est ? ' · estimate' : ''}</small>` : ''}</td><td class="r">${x.a ? `+${x.a.pct}%` : ''}</td><td class="r">${money(v.annual,0)}<br><small>${money(v.month,2)}/mo</small></td><td class="r">${money(v.basic,0)}${up}</td>${recent.length ? `<td class="r">${money(v.typ,0)}${upT}</td>` : ''}</tr>`; }).join('');
+  const terms = [['Role', c.role], ['Band', `Band ${c.band}, point ${c.point}${c.topOfBand ? ' (top of the band)' : ''}`], ['Hours', `${c.hours} a week, not counting breaks`], ['Paid', c.payday], ['Leave', c.leave], ['Sick pay', c.sick], ['Notice', `${c.noticeWeeks} weeks, both ways`], ['Pension', c.pension]].filter(t => t[1]);
+  return `<section class="panel"><h2>Contract and pay rises <span class="sub">${esc(c.employer || 'Manx Care')}</span></h2>
+    <div class="tbl"><table><thead><tr><th>Pay year</th><th class="r">Rise</th><th class="r">Salary</th><th class="r">Take-home, salary only</th>${recent.length ? '<th class="r">With her usual on call</th>' : ''}</tr></thead><tbody>${tr}</tbody></table></div>
+    <p class="note">Take-home a month, after pension, NI and tax at this year's rates. ${recent.length ? `“Usual on call” is her average over the last ${recent.length} claim month${recent.length>1?'s':''}: ${money(ocA,0)} on call and ${money(coA,0)} call-outs. ` : ''}Rises are already built into the estimates and the Budget Sheet from the month they start.</p>
+    <dl class="kv">${terms.map(([k,val]) => `<dt>${k}</dt><dd>${esc(val)}</dd>`).join('')}</dl>
+    ${(c.checks||[]).length ? `<h3 class="eyebrow" style="margin-top:12px">Worth checking</h3><ul class="checks">${c.checks.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+  </section>`;
 }
 function ratesPanel() {
   const r = vk();
@@ -2277,6 +2313,7 @@ function vikiRatesForm() {
     const map = { salary:'rSal', base:'rBase', standby:'rSb', pension:'rPen', secondWD:'rS2', secondWE:'rS2w', taxCode:'rTax' };
     const enh = num(v('rEnh')); out.enh = enh && enh > 0 ? enh : 0; delete out.niFixed; delete out.niPct; delete out.taxRate;
     for (const [k,id] of Object.entries(map)) { const n = num(v(id)); if (n===null || n<0) throw new Error('Each rate needs a number'); out[k] = n; }
+    if (Math.abs((num(v('rSal'))||0) - (Number(S.settings.viki?.salary)||0)) >= 1) out.ratesFrom = ymOf(today()); /* new rates already include any rise up to now */
     out.arrears = v('rArr')==='1'; const cut = num(v('rCut')); out.cutoff = (cut!==null && cut>=0 && cut<=28) ? Math.round(cut) : 25;
     const bhu = num(v('rBh')); if (bhu!==null) out.bhUplift = bhu; const lh = num(v('rLh')); if (lh) out.leaveHours = lh; else delete out.leaveHours; out.leaveStart = Number(v('rLs')) || 4;
     await put('settings/main', {...S.settings, viki: out});
@@ -2580,9 +2617,12 @@ const bsOn = x => !x.off;
 /* call-outs, overtime and cover are not pensionable; on call is. Rows carry pen:true/false, and older rows are guessed from the name */
 const bsPen = i => i.pen != null ? !!i.pen : !/hour|call.?out|1\.5|double|\bbh\b|bh-|overtime|cover/i.test(String(i.n||''));
 function bsVikiSlip(doc, ym) {
-  const sv = doc.viki; let pen = Number(sv.base)||0, other = 0;
-  (sv.items||[]).forEach(i => { const a = (Number(i.r)||0)*(Number(i.q)||0); if (bsPen(i)) pen += a; else other += a; });
-  return takeHome(pen + (Number(vk().enh)||0), other, payday(ym || ymOf(today())));
+  const sv = doc.viki, m = ym || ymOf(today()), r = vk(), base = Number(sv.base)||0;
+  /* a sheet still on today's salary gets future pay rises applied; one typed with a new salary is taken as it is */
+  const cur = Math.abs(base - r.salary) < 1, fs = cur ? awardFactor(m) : 1, fx = cur ? awardFactor(extrasYMOf(m)) : 1;
+  let pen = base*fs, other = 0;
+  (sv.items||[]).forEach(i => { const a = (Number(i.r)||0)*(Number(i.q)||0)*fx; if (bsPen(i)) pen += a; else other += a; });
+  return takeHome(pen + (Number(r.enh)||0)*fs, other, payday(m));
 }
 function bsViki(doc, ym) {
   const vk = doc.viki; if (!vk) return 0;
