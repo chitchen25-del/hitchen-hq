@@ -669,6 +669,11 @@ body:has(.xbar:not([hidden])) .fab{display:none}
 .lvd.vk::before{content:"";position:absolute;left:20%;right:20%;bottom:2px;height:2px;border-radius:2px;background:var(--lv-al)}
 .lvd.k-ch.vk::before{background:#fff}
 .lvsw.vksw{background:var(--lv-al);height:3px;width:12px;border-radius:2px}
+
+.cohrs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.84rem;color:var(--ink-2);margin-top:-2px}
+.cohrs span{flex:1 1 100%;font-weight:550}
+.cohrs button{border:0;background:var(--sheet);border-radius:999px;padding:6px 12px;font:inherit;font-weight:650;cursor:pointer;color:var(--ink)}
+.cohrs button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
 </style>
 </head>
 <body>
@@ -1315,6 +1320,8 @@ const ocHours = d => d.oncall ? span(d.oncall.start, d.oncall.end) : 0;
 function coDate(d, c) { const s = toMin(c.from), os = toMin(d.oncall ? d.oncall.start : (d.end || '00:00')); return (s!==null && os!==null && s < os) ? addDays(d.date,1) : d.date; }
 function coMult(d, c) { if (c.mult) return Number(c.mult); const cd = coDate(d,c); return (parse(cd).getDay()===0 || isBH(cd) || (cd===d.date && d.bh)) ? 2 : 1.5; }
 const coHours = c => span(c.from, c.to);
+const CO_BASE = 2; /* her standard call-out is 2 hours */
+const addTime = (t, h) => { const m = toMin(t); if (m===null) return ''; const x = ((m + Math.round(Number(h)*60)) % 1440 + 1440) % 1440; return `${pad(Math.floor(x/60))}:${pad(x%60)}`; };
 const otMult = d => d.otMult ? Number(d.otMult) : (parse(d.date).getDay()===0 || isBH(d.date) || d.bh) ? 2 : 1.5;
 const bhRate = () => { const r = vk(); return r.bhUplift != null ? Number(r.bhUplift) : r.base * 0.5; };
 function vikiDay(d) {
@@ -1676,7 +1683,8 @@ function vikiDayForm(date) {
     </div>
     <div class="tsec"><div class="tsec-h"><b>Call-outs</b><span class="pill g" id="vCoAmt">${fh(x.h15+x.h2)}h · ${money(x.co,2)}</span></div>
       ${draft.callouts.map((c,i) => `<div class="co"><div class="co-top"><span>Call-out ${i+1}</span><span><button type="button" class="multbtn" data-vm="${i}" title="Tap to switch rate">${coMult(draft,c)===2?'2×':'1.5×'}</button><button type="button" class="x" data-vx="${i}" aria-label="Remove call-out ${i+1}">×</button></span></div>
-        <div class="fields3">${fld(`vCf${i}`,'From', c.from||'', 'time')}${fld(`vCt${i}`,'To', c.to||'', 'time')}<div class="field"><label>Hours</label><div class="out" id="vCh${i}">${fh(coHours(c))}</div></div></div>
+        <div class="fields3">${fld(`vCf${i}`,'From', c.from||'', 'time')}${fld(`vCt${i}`,'To', c.to||'', 'time')}${fld(`vCh${i}`,'Hours', c.from && c.to ? fh(coHours(c)) : CO_BASE, 'number','min="0.25" step="0.25" inputmode="decimal"')}</div>
+        <div class="cohrs"><span>${c.isNew ? `Set to her usual ${CO_BASE} hours. Different?` : 'Quick pick'}</span>${[1,2,3,4].map(h => `<button type="button" data-vh="${i}" data-v="${h}" aria-pressed="${c.from && c.to && coHours(c)===h}">${h}h</button>`).join('')}</div>
         ${fld(`vCn${i}`,'Note (optional)', c.note||'', 'text','placeholder="e.g. emergency theatre"')}</div>`).join('')}
       <button type="button" class="btn ghost small" data-vadd="1">+ Add call-out</button>
     </div>
@@ -1706,9 +1714,15 @@ function vikiDayForm(date) {
     const sh = $('#vShiftH'); if (sh && draft.status==='shift') sh.textContent = `${fh(x.hrs)} hours`;
     $('#vOcAmt').textContent = draft.oncall ? `${fh(x.ocH)}h · ${money(x.oc,2)}` : 'None';
     $('#vCoAmt').textContent = `${fh(x.h15+x.h2)}h · ${money(x.co,2)}`;
-    draft.callouts.forEach((c,i) => { const o = $(`#vCh${i}`); if (o) o.textContent = fh(coHours(c)); const mb = box.querySelector(`[data-vm="${i}"]`); if (mb) mb.textContent = coMult(draft,c)===2 ? '2×' : '1.5×'; });
+    draft.callouts.forEach((c,i) => { const mb = box.querySelector(`[data-vm="${i}"]`); if (mb) mb.textContent = coMult(draft,c)===2 ? '2×' : '1.5×'; });
     $('#vTotal').textContent = money(x.extra,2); };
-  box.addEventListener('input', refresh);
+  box.addEventListener('input', e => {
+    const m = /^vC([fth])(\d+)$/.exec(e.target.id || '');
+    if (m) { const i = m[2], f = $(`#vCf${i}`), t = $(`#vCt${i}`), h = $(`#vCh${i}`);
+      if ((m[1]==='f' || m[1]==='h') && f.value) { const hrs = num(h.value); if (hrs && hrs > 0) t.value = addTime(f.value, hrs); }
+      else if (m[1]==='t' && f.value && t.value) h.value = fh(span(f.value, t.value));
+      box.querySelectorAll(`[data-vh="${i}"]`).forEach(x => x.setAttribute('aria-pressed', String(num(h.value) === Number(x.dataset.v)))); }
+    refresh(); });
   box.addEventListener('change', refresh);
   box.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return; read();
@@ -1720,7 +1734,9 @@ function vikiDayForm(date) {
         else if (draft.oncall && draft.oncall.start===hadEnd) draft.oncall.start = z; }
       return paint(); }
     if (b.dataset.vo) { const k = b.dataset.vo; if (k==='none') draft.oncall = null; else draft.oncall = { ...(draft.oncall || ocDefault()), kind:k }; return paint(); }
-    if (b.dataset.vadd) { draft.callouts.push({ from:'', to:'' }); paint(); const f = $(`#vCf${draft.callouts.length-1}`); if (f) f.focus(); return; }
+    if (b.dataset.vadd) { const last = draft.callouts[draft.callouts.length-1], from = (last && last.to) || (draft.oncall && draft.oncall.start) || (draft.status==='shift' && draft.end) || '18:30';
+      draft.callouts.forEach(c => delete c.isNew); draft.callouts.push({ from, to: addTime(from, CO_BASE), isNew:true }); paint(); return; }
+    if (b.dataset.vh) { const i = Number(b.dataset.vh), c = draft.callouts[i], h = Number(b.dataset.v); c.to = addTime(c.from || '18:30', h); c.from = c.from || '18:30'; delete c.isNew; paint(); return; }
     if (b.dataset.vx) { draft.callouts.splice(Number(b.dataset.vx),1); return paint(); }
     if (b.dataset.vm) { const c = draft.callouts[Number(b.dataset.vm)]; c.mult = coMult(draft,c)===2 ? 1.5 : 2; return refresh(); }
   });
