@@ -2435,14 +2435,12 @@ function moneyIn(ym) {
   const r = vk(), c = ck(), prev = ymOf(addMonths(`${ym}-01`,-1));
   const vm = vikiMonth(r.arrears ? prev : ym), vSlip = slipFor(vm, ym), vReal = S.payslips.find(x => x.id===ym);
   const vNet = r.salary ? (vReal ? vReal.net : vSlip.net + slipAdjust().adj) : 0;
-  const ce = chrisExtras(prev);
   const others = (S.settings.income || []).filter(x => x.amount);
   const ebay = Math.round(stmtIncomeAvg('eBay sales') - (fullMonths().length ? fullMonths().reduce((s,m) => s + (monthSummary(m).cats['Post and eBay costs']||0), 0)/fullMonths().length : 0));
   /* eBay is never guaranteed, so its average is shown as a possible extra but not counted in the plan */
   if (ebay > 0 && !others.some(x => /ebay/i.test(x.name))) others.push({ name:'eBay sales after postage', amount: ebay, auto:true, bonus:true });
   const items = [
     { who:'chris', name:'Chris take-home', amount: c.net, note: c.net ? `${esc(dayShort(payday(ym)))}${c.fromStmt ? ', average from your statements' : ''}` : 'Add in Plan' },
-    ...(ce.net ? [{ who:'chris', name:'Chris call-outs', amount: ce.net, note:`${ce.shifts} shift${ce.shifts===1?'':'s'}, ${ce.calls} call-out${ce.calls===1?'':'s'}, after tax (estimate)` }] : []),
     { who:'viki', name: vReal ? 'Viki take-home' : 'Viki take-home (estimate)', amount: vNet, note: r.salary ? esc(dayShort(payday(ym))) : 'Add her rates in Work' },
     ...others.map(x => ({ who:'', name:x.name, amount:Number(x.amount)||0, bonus: !!x.bonus, note: x.bonus ? 'Not counted. Your average after postage, a bonus if things sell' : x.auto ? 'Average from your statements' : 'Every month' })),
   ];
@@ -2621,9 +2619,6 @@ function viewPlan() {
       ${P.trips ? row('#8E24AA','Treats', [...S.trips.map(t => esc(t.name)), ...plannerMonth(ym).rows.map(r => esc(r.p.name))].join(', '), P.trips, 'tab" data-v="trips') : ''}
       <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow"><div class="t">${P.left >= 0 ? 'Left over' : 'Short by'}</div><div class="m">${P.left >= 0 ? 'Room for the unexpected, or more savings' : 'Plans add up to more than comes in'}</div></div><div class="amt" style="color:${P.left<0?'var(--red)':'var(--good)'}">${money(Math.abs(P.left),0)}</div></div>
     </div>
-  </section>
-  <section class="panel"><h2>Chris's call-out pay <button class="btn small ghost" data-act="chrisrates">Edit</button></h2>
-    ${c.standby || c.perCallout ? `<p class="note">${money(c.standby,2)} for each 24-hour call-out shift and ${money(c.perCallout,2)} for each call-out attended, about ${c.extraTax}% tax and NI. Paid the month after, from the days marked “Call-out” on his Work calendar.</p>` : `<p class="note">Add what you're paid for a call-out shift and for each call-out, and your extras will show here and in the plan.</p>`}
   </section>`;
 }
 function incomeForm() {
@@ -4412,7 +4407,6 @@ function mileageForm() {
 function settingsForm() {
   const s = S.settings;
   openSheet('Settings', `<p class="eyebrow">Chris</p><div class="fields2">${fld('cAllow','Holiday allowance (days)', s.chrisAllowance??'', 'number','min="0" step="0.5"')}${sel('leaveStart','Leave year starts', s.leaveStart||1, MONTHS.map((m,i)=>[i+1,m]))}</div>
-    <div class="btnrow"><button class="btn ghost small" type="button" data-act="chrisrates">Chris's call-out pay</button></div>
     <p class="eyebrow">Viki</p>${fld('vAllow','Holiday allowance (days)', s.vikiAllowance??'', 'number','min="0" step="0.5"')}
     <div class="btnrow"><button class="btn ghost small" type="button" data-act="vrates">Viki's pay rates</button></div>
     <p class="eyebrow">Family calendar</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="calset">Google Calendar links</button></div>
