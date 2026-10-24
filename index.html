@@ -552,6 +552,78 @@ nav.tabs button[aria-current="page"] svg{color:var(--brass)}
 .zstep:not(:last-child)::after{content:"";position:absolute;left:4.5px;top:24px;bottom:-9px;width:1px;background:var(--rule-2)}
 .zfoot{display:flex;flex-direction:column;gap:2px;font-size:.86rem;color:var(--ink-2)}
 .zfoot .alert{color:var(--red);font-weight:600}
+
+/* ===== Budget sheet (spreadsheet mirror) ===== */
+.xnav{margin-bottom:4px}
+.xsum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.xk{background:var(--sheet-2);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.xk span{font-size:.76rem;color:var(--muted);font-weight:550}
+.xk b{font-size:1.02rem;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xk.big{grid-column:1/-1;background:var(--midnight);color:#F3F5F9;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:4px 12px;padding:14px 16px}
+.xk.big span{color:#93A0B4;font-size:.86rem;flex-basis:100%}
+.xk.big b{font-size:2rem;color:var(--brass-2);letter-spacing:-.03em}
+.xk.big.neg b{color:#FF8A9A}
+.xk.big em{font-style:normal;font-size:.86rem;font-weight:600;color:#93A0B4}
+.xk.big em.up{color:#6FD39E}.xk.big em.down{color:#FF8A9A}
+.xmix{grid-column:1/-1;display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--sheet-2);gap:2px}
+.xmix i{display:block;height:100%;transition:width .25s ease}
+.xsplit{grid-column:1/-1;display:flex;flex-direction:column;gap:6px;padding-top:4px}
+.xsplit label{font-size:.82rem;color:var(--muted);font-weight:550}
+.xsplit input[type=range]{width:100%;accent-color:var(--brass)}
+.xsp{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+.xsp b{font-variant-numeric:tabular-nums}.xsp small{color:var(--muted)}
+.xsheet{background:var(--sheet);border-radius:var(--r-panel);box-shadow:var(--shadow);overflow:hidden}
+.xhead,.xr{display:grid;grid-template-columns:30px minmax(0,1fr) 54px 88px 26px;align-items:stretch}
+.xhead{position:sticky;top:0;z-index:2;background:var(--sheet-2);font-size:.72rem;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.xhead span{padding:8px 6px;border-right:1px solid var(--rule)}
+.xhead span:nth-child(4){text-align:right}
+.xhead.vi{grid-template-columns:minmax(0,1fr) 70px 62px 92px;background:transparent;position:static}
+.xsec{border-top:1px solid var(--rule-2)}
+.xh{display:flex;align-items:center;gap:8px;width:100%;border:0;background:var(--sheet);padding:12px 12px;text-align:left;color:var(--ink);cursor:pointer;font:inherit}
+.xh.static{cursor:default}
+.xh .xt{font-weight:650;font-size:.94rem;line-height:1.25;letter-spacing:-.01em;flex:1;min-width:0}
+.xh .xtag{font-size:.7rem;font-weight:600;color:var(--muted);background:var(--sheet-2);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.xsec.extra .xh .xtag{color:var(--brass);background:var(--brass-soft)}
+.xh b{font-variant-numeric:tabular-nums;font-weight:650;min-width:84px;text-align:right}
+.xh .chev{color:var(--muted);width:12px}
+.xr{border-top:1px solid var(--rule);min-height:42px}
+.xr>*{border-right:1px solid var(--rule)}
+.xr>*:last-child{border-right:0}
+.xr.off{opacity:.45}
+.xr.off .xa{text-decoration:line-through}
+.xon{display:flex;align-items:center;justify-content:center}
+.xon input{width:17px;height:17px;accent-color:var(--brass)}
+.xname{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.xname small{font-size:.72rem;color:var(--muted);padding:0 8px 4px}
+.xc{border:0;background:transparent;font:inherit;color:var(--ink);padding:10px 8px;min-width:0;width:100%;outline:none;border-radius:0}
+.xc:focus{box-shadow:inset 0 0 0 2px var(--brass);background:var(--brass-soft)}
+.xn{font-size:.92rem}
+.xd{font-size:.82rem;color:var(--ink-2);text-align:center}
+.xq{font-weight:600}
+.xa{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;font-size:.92rem;display:flex;align-items:center;justify-content:flex-end}
+input.xa{display:block}
+.xm{border:0;background:transparent;color:var(--muted);font-size:1.05rem;cursor:pointer;padding:0}
+.xbtn{border:0;background:transparent;text-align:left;font-weight:600;cursor:pointer;padding:10px 8px 2px;color:var(--ink)}
+.xr.viki{background:color-mix(in srgb,var(--viki) 6%,transparent)}
+.vcalc{padding:10px 12px 14px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--rule);background:var(--sheet-2)}
+.vcalc .xr.vi{grid-template-columns:minmax(0,1fr) 70px 62px 92px;background:var(--sheet);border:1px solid var(--rule);border-radius:10px;overflow:hidden;min-height:38px}
+.vcalc .xr.vi .xn{display:flex;align-items:center;padding:0 10px;font-size:.86rem}
+.xadd{display:flex;gap:14px;flex-wrap:wrap;padding:8px 12px 12px;border-top:1px solid var(--rule);font-size:.86rem}
+.xlh{margin:0;padding:16px 12px 4px;font-size:.8rem;font-weight:600;color:var(--muted);border-top:1px solid var(--rule-2)}
+.xsec.list .xh b{color:var(--muted)}
+.xbar{position:fixed;left:max(14px,env(safe-area-inset-left,0px));right:max(14px,env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;z-index:40;display:flex;align-items:center;gap:8px;padding:10px 10px 10px 16px;border-radius:20px;background:var(--midnight);color:#F3F5F9;box-shadow:var(--shadow-lg)}
+.xbar span{flex:1;font-weight:600;font-size:.9rem}
+.xbar .btn{background:var(--brass-2);color:#1B1306}
+.xbar .btn.ghost{background:rgba(255,255,255,.12);color:#F3F5F9}
+body:has(.xbar:not([hidden])) .fab{display:none}
+.xbar[hidden]{display:none}
+
+/* Viki's theme: when she's signed in, the main cards are plum instead of midnight */
+:root[data-user="viki"]{ --midnight:#2B1340; --midnight-2:#4A2470; --brass:#8E5BB8; --brass-2:#D7B8F2; --brass-soft:#F2E9FA; }
+@media (prefers-color-scheme: dark){:root[data-user="viki"]:not([data-theme="light"]){ --midnight:#26103A; --midnight-2:#43205F; --brass:#C49BE8; --brass-2:#E2C9F7; --brass-soft:#2A1A38; }}
+:root[data-user="viki"][data-theme="dark"]{ --midnight:#26103A; --midnight-2:#43205F; --brass:#C49BE8; --brass-2:#E2C9F7; --brass-soft:#2A1A38; }
+:root[data-user="viki"] .tblock{--brass:#E7CCFA;--gold:#F0CF86}
+:root[data-user="viki"] .fab{color:#fff}
 </style>
 </head>
 <body>
@@ -607,7 +679,7 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg})); } catch(e) {} };
@@ -666,6 +738,7 @@ function applyLocal(path, data) {
   else if (c === 'budget') S.budget = data || {cats:[]};
   else if (c === 'car') S.car = data || {};
   else if (c === 'stmt') { if (id==='meta') S.stmtMeta = data; else if (data) S.stmt[id] = data; else delete S.stmt[id]; }
+  else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; }
 }
@@ -673,11 +746,11 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null });
+  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d]));
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d]));
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
   return rows;
@@ -753,6 +826,7 @@ function checkStatus(c) {
 let pending = false;
 function schedule() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; render(); }); }
 function render() {
+  document.documentElement.dataset.user = session ? me() : '';
   document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab===UI.tab ? 'page' : 'false'));
   $('nav.tabs').hidden = !session;
   $('[data-act="settings"]').hidden = !session;
@@ -1542,10 +1616,10 @@ function viewMoney() {
     cells: [ tbCell('Bills', money(P.bills,0), '#3F51B5'), tbCell('Budget', money(P.budget,0), '#0B8043'), tbCell(P.save ? 'Savings' : 'Owed', money(P.save || P.owed,0), P.save ? '#039BE5' : '#D50000') ],
     after: P.inc.total ? `<div style="padding:12px 0 2px">${flow}</div>` : '',
     foot: P.inc.total ? `<span>${(() => { const l = ['bills', 'the spending budget', ...(P.owed?['money owed']:[]), ...(P.save?['savings']:[]), ...(P.trips?['trip savings']:[])]; return `What's left once ${l.slice(0,-1).join(', ')} and ${l[l.length-1]} are covered.`; })()}</span>` : `<span><button class="linkbtn" data-act="mseg" data-v="plan">Add your pay to see what's spare each month</button></span>` });
-  const segs = [['plan','Plan'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
+  const segs = [['plan','Plan'],['sheet','Sheet'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
   if (!segs.some(x => x[0]===UI.money)) UI.money = 'bills';
   const seg = `<div class="seg" role="group" aria-label="Money section">${segs.map(([k,l]) => `<button data-act="mseg" data-v="${k}" aria-pressed="${UI.money===k}">${l}</button>`).join('')}</div>`;
-  const body = {plan:viewPlan, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
+  const body = {plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
   return hero + seg + body;
 }
 /* ----- bank statements: transactions loaded from the Nationwide statements (stmt/<yyyy-mm> docs) ----- */
@@ -1775,6 +1849,199 @@ async function zilchAddOwed() {
   if (zd) { const { id, ...rest } = zd; await put(`debts/${id}`, { ...rest, balance: Math.round(((Number(zd.balance)||0) + owedAdd)*100)/100, original: Math.max(Number(zd.original)||0, (Number(zd.balance)||0) + owedAdd), monthly: Math.max(Number(zd.monthly)||0, p.pays[1].amount) }); }
   else await put(`debts/${uid('d')}`, { name:'Zilch', kind:'bnpl', balance: owedAdd, original: owedAdd, monthly: p.pays[1].amount, next: p.pays[1].date });
   UI.zamt = ''; toast(`${money(owedAdd,2)} added to Zilch`);
+}
+
+/* ----- budget sheet: a month-by-month mirror of the family's budget spreadsheet (bsheet/<yyyy-mm> docs) -----
+   Edits go into a draft first, so money can be moved around and the effect seen before saving. */
+const bsClone = o => JSON.parse(JSON.stringify(o));
+const bsAmt = x => x.u != null ? (Number(x.q)||0) * (Number(x.u)||0) : (Number(x.a)||0);
+const bsOn = x => !x.off;
+function bsViki(doc) {
+  const vk = doc.viki; if (!vk) return 0;
+  if (vk.mode !== 'calc') return Number(vk.fixed)||0;
+  const extra = (vk.items||[]).reduce((s,i) => s + (Number(i.r)||0)*(Number(i.q)||0), 0);
+  return (extra + (Number(vk.base)||0)) * (Number(vk.keep)||100)/100 * (Number(vk.net)||1);
+}
+function bsTotals(doc) {
+  const viki = doc.viki && !doc.viki.off ? bsViki(doc) : 0;
+  const inc = viki + (doc.inc||[]).filter(bsOn).reduce((s,x) => s + (Number(x.a)||0), 0);
+  const sec = {}; let base = 0, extra = 0;
+  (doc.secs||[]).forEach(s => { const t = s.rows.filter(bsOn).reduce((a,x) => a + bsAmt(x), 0); sec[s.k] = t; if (s.kind==='base') base += t; else if (s.kind==='extra') extra += t; });
+  const left = inc - base - extra, split = Number(doc.split ?? 50);
+  return { viki, inc, base, extra, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
+}
+function bsState() {
+  const ym = UI.bym || (UI.bym = ymOf(today()));
+  if (!UI.bs || UI.bs.ym !== ym) { const saved = S.bsheet[ym]; UI.bs = { ym, doc: saved ? bsClone(saved) : null, saved: saved ? JSON.stringify(saved) : null }; }
+  else if (!UI.bs.dirty) { const saved = S.bsheet[ym]; const j = saved ? JSON.stringify(saved) : null; if (j !== UI.bs.saved) UI.bs = { ym, doc: saved ? bsClone(saved) : null, saved: j }; }
+  return UI.bs;
+}
+const bsDirty = () => !!(UI.bs && UI.bs.doc && JSON.stringify(UI.bs.doc) !== UI.bs.saved);
+const bsCell = (k, val, cls='', extra='') => `<input class="xc ${cls}" data-bs="${k}" value="${esc(val ?? '')}" ${extra}>`;
+const bsMoneyIn = (k, val, extra='') => bsCell(k, val === '' || val == null ? '' : Number(val).toFixed(2), 'xa', `inputmode="decimal" ${extra}`);
+function bsRow(si, ri, x, kind) {
+  const off = x.off ? ' off' : '';
+  const qty = x.u != null;
+  return `<div class="xr${off}" data-s="${si}" data-r="${ri}">
+    <label class="xon" aria-label="Include ${esc(x.n)}"><input type="checkbox" data-bs="on" ${x.off?'':'checked'}></label>
+    <div class="xname">${bsCell('n', x.n, 'xn', 'aria-label="Item"')}${qty ? `<small>× ${money(x.u,2)} each</small>` : ''}</div>
+    ${qty ? bsCell('q', x.q, 'xd xq', 'inputmode="decimal" aria-label="How many"') : bsCell('d', x.d, 'xd', 'aria-label="Date or note" placeholder="–"')}
+    ${qty ? `<output class="xc xa" data-bsamt="${si}.${ri}">${money(bsAmt(x),2)}</output>` : bsMoneyIn('a', x.a, `aria-label="Amount for ${esc(x.n)}"`)}
+    <button type="button" class="xm" data-act="bsrow" aria-label="More for ${esc(x.n)}">⋯</button></div>`;
+}
+function bsSection(s, si, t) {
+  const open = !(UI.bsClosed||{})[s.k] && !(s.kind==='list' && !(UI.bsOpen||{})[s.k]);
+  const tag = s.kind==='extra' ? 'Extras' : s.kind==='list' ? 'Not counted' : '';
+  return `<section class="xsec ${s.kind}" data-s="${si}">
+    <button type="button" class="xh" data-act="bstog" data-k="${esc(s.k)}" aria-expanded="${open}"><span class="xt">${esc(s.t)}</span>${tag ? `<span class="xtag">${tag}</span>` : ''}<b data-bssec="${esc(s.k)}">${money(t.sec[s.k]||0,2)}</b><span class="chev">${open?'▾':'▸'}</span></button>
+    ${open ? `<div class="xrows">${s.rows.map((x,ri) => bsRow(si, ri, x, s.kind)).join('')}</div>
+    <div class="xadd"><button type="button" class="linkbtn" data-act="bsadd" data-s="${si}">+ Add a row</button><button type="button" class="linkbtn" data-act="bsadd" data-s="${si}" data-qty="1">+ Add quantity × price</button><button type="button" class="linkbtn" data-act="bssec" data-s="${si}">Section settings</button></div>` : ''}
+  </section>`;
+}
+function bsVikiBlock(doc, t) {
+  const vk = doc.viki; if (!vk) return '';
+  const open = !!UI.bsViki;
+  const items = (vk.items||[]).map((i,ii) => `<div class="xr vi" data-vi="${ii}"><span class="xn">${esc(i.n)}</span>${bsCell('vr', i.r, 'xd', 'inputmode="decimal" aria-label="Rate"')}${bsCell('vq', i.q, 'xd xq', 'inputmode="decimal" aria-label="How many"')}<output class="xc xa" data-bsvi="${ii}">${money((Number(i.r)||0)*(Number(i.q)||0),2)}</output></div>`).join('');
+  return `<div class="xr viki${vk.off?' off':''}" data-viki="1">
+      <label class="xon" aria-label="Include Viki's wages"><input type="checkbox" data-bs="vikion" ${vk.off?'':'checked'}></label>
+      <div class="xname"><button type="button" class="xn xbtn" data-act="bsviki">Viki's wages <span class="chev">${open?'▾':'▸'}</span></button><small>${vk.mode==='calc' ? 'worked out from on call' : 'typed in'}</small></div>
+      <span class="xd"></span>
+      ${vk.mode==='calc' ? `<output class="xc xa" data-bsvnet="1">${money(t.viki,2)}</output>` : bsMoneyIn('vfixed', vk.fixed, 'aria-label="Viki\'s wages"')}
+      <span class="xm"></span></div>
+    ${open ? `<div class="vcalc">
+      <div class="seg" role="group" aria-label="How Viki's wages are set"><button type="button" data-act="bsvmode" data-v="calc" aria-pressed="${vk.mode==='calc'}">Work it out</button><button type="button" data-act="bsvmode" data-v="fixed" aria-pressed="${vk.mode!=='calc'}">Type it in</button></div>
+      ${vk.mode==='calc' ? `<div class="xhead vi"><span>On call worked</span><span>Rate</span><span>How many</span><span>£</span></div>${items}
+      <div class="xr vi"><span class="xn">Salary</span><span class="xd"></span><span class="xd"></span>${bsMoneyIn('vbase', vk.base, 'aria-label="Salary"')}</div>
+      <p class="note">Take-home = (on call + salary) × ${esc(vk.keep)}% × ${esc(vk.net)}, the same sum as the spreadsheet. On call worked in the claim month before is paid this month.</p>
+      <div class="btnrow"><button type="button" class="btn small ghost" data-act="bsvfill">Fill in from her logged on call</button></div>` : ''}
+    </div>` : ''}`;
+}
+function bsSummary(t, doc) {
+  const d = UI.bs.saved ? bsTotals(JSON.parse(UI.bs.saved)) : null, dl = d && bsDirty() ? t.left - d.left : 0;
+  const tot = Math.max(t.inc, t.base + t.extra, 1);
+  return `<div class="xsum" id="bsSum">
+    <div class="xk"><span>Coming in</span><b data-bst="inc">${money(t.inc,0)}</b></div>
+    <div class="xk"><span>Baseline</span><b data-bst="base">${money(t.base,0)}</b></div>
+    <div class="xk"><span>Monthly extras</span><b data-bst="extra">${money(t.extra,0)}</b></div>
+    <div class="xk big ${t.left<0?'neg':''}"><span>Left over</span><b data-bst="left">${money(t.left,2)}</b><em data-bst="delta" class="${dl>0?'up':dl<0?'down':''}">${dl ? `${dl>0?'+':'−'}${money(Math.abs(dl),2).replace('−','')} vs saved` : ''}</em></div>
+    <div class="xmix" aria-hidden="true"><i data-bsw="base" style="width:${t.base/tot*100}%;background:var(--g1)"></i><i data-bsw="extra" style="width:${t.extra/tot*100}%;background:var(--g3)"></i><i data-bsw="left" style="width:${Math.max(0,t.left)/tot*100}%;background:var(--good)"></i></div>
+    <div class="xsplit"><label for="bsSplit">Split what's left</label><input type="range" id="bsSplit" min="0" max="100" step="5" value="${t.split}" data-bs="split">
+      <div class="xsp"><span>Savings <b data-bst="save">${money(t.save,2)}</b> <small data-bst="splitA">${t.split}%</small></span><span>Holiday <b data-bst="hol">${money(t.hol,2)}</b> <small data-bst="splitB">${100-t.split}%</small></span></div></div>
+  </div>`;
+}
+function viewSheet() {
+  const st = bsState(), ym = st.ym, doc = st.doc;
+  const nav = `<div class="calhead xnav"><button class="iconbtn" data-act="bsym" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="bsym" data-v="1" aria-label="Next month">›</button></div>`;
+  if (!doc) {
+    const prev = Object.keys(S.bsheet).filter(k => k < ym).sort().pop(), next = Object.keys(S.bsheet).filter(k => k > ym).sort()[0];
+    return `<section class="panel">${nav}<p class="empty">There's no budget sheet for ${monthName(ym)} yet.</p>
+      <div class="btnrow">${prev ? `<button class="btn small" data-act="bsnew" data-from="${prev}">Start from ${monthName(prev)}</button>` : ''}${next && !prev ? `<button class="btn small" data-act="bsnew" data-from="${next}">Start from ${monthName(next)}</button>` : ''}<button class="btn small ghost" data-act="bsnew">Start blank</button></div></section>`;
+  }
+  const t = bsTotals(doc);
+  const lists = doc.secs.map((s,si) => [s,si]).filter(([s]) => s.kind==='list'), main = doc.secs.map((s,si) => [s,si]).filter(([s]) => s.kind!=='list');
+  const income = `<section class="xsec inc"><div class="xh static"><span class="xt">Monthly income</span><span class="xtag">In</span><b data-bst="inc2">${money(t.inc,2)}</b></div>
+    <div class="xrows">${bsVikiBlock(doc, t)}${(doc.inc||[]).map((x,ri) => bsRow('i', ri, x, 'inc')).join('')}</div>
+    <div class="xadd"><button type="button" class="linkbtn" data-act="bsadd" data-s="i">+ Add income</button></div></section>`;
+  const bar = `<div class="xbar" role="region" aria-label="Unsaved changes" ${bsDirty() ? '' : 'hidden'}><span>Trying out changes</span><button class="btn small ghost" data-act="bsundo">Undo all</button><button class="btn small" data-act="bssave">Save ${esc(MONTHS[parse(`${ym}-01`).getMonth()])}</button></div>`;
+  return `<section class="panel xpanel">${nav}${bsSummary(t, doc)}</section>
+    <div class="xsheet" id="bsSheet">
+      <div class="xhead"><span></span><span>Item</span><span>Date</span><span>£</span><span></span></div>
+      ${income}${main.map(([s,si]) => bsSection(s, si, t)).join('')}
+      ${lists.length ? `<h3 class="xlh">Lists</h3>${lists.map(([s,si]) => bsSection(s, si, t)).join('')}` : ''}
+      <div class="xadd" style="padding:10px 2px"><button type="button" class="linkbtn" data-act="bsnewsec">+ Add a section</button></div>
+    </div>
+    <p class="note">Mirrors the budget spreadsheet, one sheet a month. Untick a row to see the month without it, change any amount, and the totals update as you type. Nothing is saved until you tap Save.</p>${bar}`;
+}
+/* live recalculation while typing, without re-rendering (keeps the keyboard up) */
+function bsRefresh() {
+  const doc = UI.bs && UI.bs.doc; if (!doc) return; const t = bsTotals(doc);
+  const set = (sel, txt) => { const e = document.querySelector(sel); if (e) e.textContent = txt; };
+  ['inc','base','extra'].forEach(k => set(`[data-bst="${k}"]`, money(t[k],0))); ['left','save','hol'].forEach(k => set(`[data-bst="${k}"]`, money(t[k],2))); set('[data-bst="inc2"]', money(t.inc,2));
+  set('[data-bst="splitA"]', `${t.split}%`); set('[data-bst="splitB"]', `${100-t.split}%`);
+  const sv = UI.bs.saved ? bsTotals(JSON.parse(UI.bs.saved)) : null, dl = sv && bsDirty() ? t.left - sv.left : 0, de = document.querySelector('[data-bst="delta"]');
+  if (de) { de.textContent = dl ? `${dl>0?'+':'−'}${money(Math.abs(dl),2).replace('−','')} vs saved` : ''; de.className = dl>0?'up':dl<0?'down':''; }
+  const lk = document.querySelector('.xk.big'); if (lk) lk.classList.toggle('neg', t.left < 0);
+  const tot = Math.max(t.inc, t.base + t.extra, 1); [['base',t.base],['extra',t.extra],['left',Math.max(0,t.left)]].forEach(([k,v]) => { const e = document.querySelector(`[data-bsw="${k}"]`); if (e) e.style.width = `${v/tot*100}%`; });
+  Object.entries(t.sec).forEach(([k,v]) => set(`[data-bssec="${k}"]`, money(v,2)));
+  doc.secs.forEach((s,si) => s.rows.forEach((x,ri) => { if (x.u != null) set(`[data-bsamt="${si}.${ri}"]`, money(bsAmt(x),2)); }));
+  if (doc.viki) { (doc.viki.items||[]).forEach((i,ii) => set(`[data-bsvi="${ii}"]`, money((Number(i.r)||0)*(Number(i.q)||0),2))); set('[data-bsvnet]', money(t.viki,2)); }
+  const bar = document.querySelector('.xbar'); if (bar) bar.hidden = !bsDirty();
+}
+function bsTarget(el) {
+  const doc = UI.bs.doc, rowEl = el.closest('[data-r]'); if (!rowEl) return null;
+  const s = rowEl.dataset.s, r = Number(rowEl.dataset.r);
+  return s === 'i' ? { list: doc.inc, r, x: doc.inc[r] } : { list: doc.secs[Number(s)].rows, r, x: doc.secs[Number(s)].rows[r], si: Number(s) };
+}
+function bsInput(el) {
+  const doc = UI.bs && UI.bs.doc; if (!doc) return; const k = el.dataset.bs, val = el.value;
+  if (k === 'split') { doc.split = Number(val); return bsRefresh(); }
+  if (k === 'vfixed') { doc.viki.fixed = num(val) || 0; return bsRefresh(); }
+  if (k === 'vbase') { doc.viki.base = num(val) || 0; return bsRefresh(); }
+  if (k === 'vr' || k === 'vq') { const i = doc.viki.items[Number(el.closest('[data-vi]').dataset.vi)]; i[k==='vr'?'r':'q'] = num(val) || 0; return bsRefresh(); }
+  const tg = bsTarget(el); if (!tg) return;
+  if (k === 'n') tg.x.n = val; else if (k === 'd') { if (val.trim()) tg.x.d = val; else delete tg.x.d; }
+  else if (k === 'a') tg.x.a = num(val) || 0; else if (k === 'q') tg.x.q = num(val) || 0;
+  bsRefresh();
+}
+function bsChange(el) {
+  const doc = UI.bs && UI.bs.doc; if (!doc) return false; const k = el.dataset.bs;
+  if (k === 'vikion') { if (el.checked) delete doc.viki.off; else doc.viki.off = true; render(); return true; }
+  if (k === 'on') { const tg = bsTarget(el); if (!tg) return false; if (el.checked) delete tg.x.off; else tg.x.off = true; const y = window.scrollY; render(); window.scrollTo(0,y); return true; }
+  return false;
+}
+function bsRowMenu(el) {
+  const tg = bsTarget(el); if (!tg) return; const doc = UI.bs.doc;
+  const secs = doc.secs.map((s,i) => [i, s.t]);
+  const isInc = tg.si == null;
+  openSheet(tg.x.n || 'Row', `${fld('bsrN','Item', tg.x.n)}
+    ${tg.x.u != null ? `<div class="fields2">${fld('bsrQ','How many', tg.x.q, 'number','step="any" inputmode="decimal"')}${fld('bsrU','Price each (£)', tg.x.u, 'number','step="0.01" inputmode="decimal"')}</div>`
+      : `<div class="fields2">${fld('bsrA','Amount (£)', tg.x.a, 'number','step="0.01" inputmode="decimal"')}${isInc ? '' : fld('bsrD','Date or note', tg.x.d||'')}</div>`}
+    ${isInc ? '' : sel('bsrS','Section', tg.si, secs)}
+    ${isInc ? '' : `<label class="toggle"><input type="checkbox" id="bsrQty" ${tg.x.u != null ? 'checked' : ''}> Work out as how many × price each</label>`}
+    <label class="toggle"><input type="checkbox" id="bsrLater"> Also change this in later months' sheets</label>
+    <div class="btnrow"><button type="button" class="btn small ghost" data-act="bsdup">Duplicate</button><button type="button" class="btn small ghost" data-act="bsup">Move up</button><button type="button" class="btn small ghost" data-act="bsdown">Move down</button></div>
+    <p class="note">Changes here go into the sheet you're trying out. Tap Save on the sheet to keep them.</p>`, async () => {
+    const before = bsClone(tg.x), n = v('bsrN').trim(); if (!n) throw new Error('Give the row a name');
+    const x = { ...tg.x, n };
+    if (!isInc && $('#bsrQty').checked) { x.q = num(v('bsrQ') ?? '') ?? (num(v('bsrA')) != null ? 1 : x.q || 1); x.u = num(v('bsrU') ?? '') ?? num(v('bsrA')) ?? x.u ?? 0; delete x.a; delete x.d; }
+    else if (!isInc && tg.x.u != null) { x.a = (num(v('bsrQ'))||0) * (num(v('bsrU'))||0); delete x.q; delete x.u; }
+    else { x.a = num(v('bsrA')) || 0; if (!isInc) { const d = v('bsrD').trim(); if (d) x.d = d; else delete x.d; } }
+    tg.list.splice(tg.r, 1);
+    if (!isInc && Number(v('bsrS')) !== tg.si) doc.secs[Number(v('bsrS'))].rows.push(x); else tg.list.splice(tg.r, 0, x);
+    if ($('#bsrLater').checked) UI.bs.later = [...(UI.bs.later||[]), { from: before.n, to: x }];
+    render();
+  }, { onDelete: async () => { tg.list.splice(tg.r, 1); render(); }, saveLabel: 'Done' });
+  UI.bsMenu = tg;
+}
+function bsSecMenu(si) {
+  const doc = UI.bs.doc, s = doc.secs[si];
+  openSheet(s.t, `${fld('bssT','Section name', s.t)}${sel('bssK','Counts towards', s.kind, [['base','Baseline (regular outgoings)'],['extra','Monthly extras (one-offs this month)'],['list','Nothing, it\'s just a list']])}`, async () => {
+    const t = v('bssT').trim(); if (!t) throw new Error('Name the section'); s.t = t; s.kind = v('bssK'); render();
+  }, { onDelete: async () => { doc.secs.splice(si, 1); render(); }, saveLabel: 'Done' });
+}
+async function bsSave() {
+  const st = UI.bs; if (!st || !st.doc) return;
+  await put(`bsheet/${st.ym}`, st.doc);
+  let n = 0;
+  for (const ch of (st.later||[])) {
+    for (const k of Object.keys(S.bsheet).filter(k => k > st.ym).sort()) {
+      const d = bsClone(S.bsheet[k]); let hit = false;
+      [d.inc||[], ...d.secs.map(s => s.rows)].forEach(rows => rows.forEach((x,i) => { if (!hit && x.n === ch.from) { rows[i] = { ...ch.to, ...(x.off ? {off:true} : {}) }; hit = true; } }));
+      if (hit) { await put(`bsheet/${k}`, d); n++; }
+    }
+  }
+  UI.bs = null; toast(n ? `Saved, and ${n} later month${n===1?'':'s'} updated` : 'Saved');
+}
+async function bsVikiFill() {
+  const doc = UI.bs.doc, vk = doc.viki; if (!vk) return;
+  const claim = ymOf(addMonths(`${UI.bs.ym}-01`, -1)), m = vikiMonth(claim);
+  const wd = m.days.filter(d => d.oncall && d.oncall.kind!=='second' && !isWeekend(d.date) && !(d.bh || isBH(d.date))).length;
+  const we = m.days.filter(d => d.oncall && d.oncall.kind!=='second' && (isWeekend(d.date) || d.bh || isBH(d.date))).length;
+  const s2wd = m.days.filter(d => d.oncall && d.oncall.kind==='second' && !isWeekend(d.date) && !d.bh).reduce((s,d) => s + ocHours(d), 0);
+  const s2we = m.days.filter(d => d.oncall && d.oncall.kind==='second' && (isWeekend(d.date) || d.bh)).reduce((s,d) => s + ocHours(d), 0);
+  const map = [[/weekday/i, wd], [/weekend/i, we], [/2nd.*\(?wd/i, s2wd], [/2nd.*\(?we/i, s2we], [/^1\.5/i, m.h15], [/double/i, m.h2], [/bh/i, m.bhH]];
+  vk.items.forEach(i => { const hit = map.find(([re]) => re.test(i.n)); if (hit) i.q = Math.round(hit[1]*100)/100; });
+  toast(`Filled from ${rangeLabel(claim)}`); render();
 }
 
 function viewOwed() {
@@ -2348,6 +2615,24 @@ document.addEventListener('click', async e => {
   if (a==='hday') { UI.hday = el.dataset.date; return render(); }
   if (a==='cal') { UI.cal = ymOf(addMonths(`${UI.cal}-01`, Number(el.dataset.v))); return render(); }
   if (a==='bm') { UI.bmonth = ymOf(addMonths(`${UI.bmonth}-01`, Number(el.dataset.v))); return render(); }
+  if (a==='bsym') { if (bsDirty()) { toast('Save or undo your changes first'); return; } UI.bym = ymOf(addMonths(`${UI.bym}-01`, Number(el.dataset.v))); UI.bs = null; return render(); }
+  if (a==='bsnew') { const from = el.dataset.from; const doc = from ? bsClone(S.bsheet[from]) : { v:1, inc:[], secs:[{k:'dd',t:'Direct debits and standing orders',kind:'base',rows:[]},{k:'mex',t:'Monthly extras',kind:'extra',rows:[]}], split:50 };
+    if (from) { const mex = doc.secs.find(x => x.kind==='extra'); if (mex && from < UI.bym) mex.rows = []; }
+    UI.bs = { ym: UI.bym, doc, saved: null }; return render(); }
+  if (a==='bstog') { const k = el.dataset.k, sec = UI.bs.doc.secs.find(x => x.k===k); if (sec && sec.kind==='list') { UI.bsOpen = {...(UI.bsOpen||{}), [k]: !(UI.bsOpen||{})[k]}; } else { UI.bsClosed = {...(UI.bsClosed||{}), [k]: !(UI.bsClosed||{})[k]}; } const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  if (a==='bsadd') { const d = UI.bs.doc, si = el.dataset.s, row = el.dataset.qty ? { n:'', q:1, u:0 } : { n:'', a:0 }; const list = si==='i' ? d.inc : d.secs[Number(si)].rows; list.push(row); const y = window.scrollY; render(); window.scrollTo(0,y);
+    const r = document.querySelector(`.xr[data-s="${si}"][data-r="${list.length-1}"] [data-bs="n"]`); if (r) r.focus(); return; }
+  if (a==='bsrow') return bsRowMenu(el);
+  if (a==='bssec') return bsSecMenu(Number(el.dataset.s));
+  if (a==='bsnewsec') { UI.bs.doc.secs.push({ k: uid('s'), t:'New section', kind:'base', rows:[{n:'',a:0}] }); render(); return bsSecMenu(UI.bs.doc.secs.length-1); }
+  if (a==='bsviki') { UI.bsViki = !UI.bsViki; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  if (a==='bsvmode') { const vk = UI.bs.doc.viki; if (el.dataset.v==='fixed' && vk.mode==='calc') vk.fixed = Math.round(bsViki(UI.bs.doc)*100)/100; vk.mode = el.dataset.v; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  if (a==='bsvfill') return bsVikiFill();
+  if (a==='bsundo') { UI.bs = null; render(); toast('Back to the saved sheet'); return; }
+  if (a==='bssave') return bsSave();
+  if (a==='bsdup' || a==='bsup' || a==='bsdown') { const tg = UI.bsMenu; closeSheet(); if (!tg) return; const i = tg.r;
+    if (a==='bsdup') tg.list.splice(i+1, 0, bsClone(tg.x)); else { const j = a==='bsup' ? i-1 : i+1; if (j < 0 || j >= tg.list.length) return render(); [tg.list[i], tg.list[j]] = [tg.list[j], tg.list[i]]; }
+    return render(); }
   if (a==='mseg') { closeSheet(); UI.money = el.dataset.v; keepUI(); render(); return; }
   if (a==='cseg') { UI.carSeg = el.dataset.v; keepUI(); return render(); }
   if (a==='day') return dayForm(el.dataset.date);
@@ -2407,6 +2692,7 @@ document.addEventListener('click', async e => {
 document.addEventListener('change', async e => {
   const el = e.target;
   if (el.id === 'docUpload') { await uploadDoc(el.files[0], el.dataset.group); el.value = ''; return; }
+  if (el.dataset.bs && bsChange(el)) return;
   if (el.dataset.act === 'zpartner') { UI.zpartner = el.checked; return render(); }
   if (el.dataset.act === 'pushpref') { await pushPref(el.dataset.k, el.checked); return; }
   if (el.dataset.act === 'listtick') { const x = S.list.find(i => i.id===el.dataset.id); if (x) await put(`list/${x.id}`, {...x, id:undefined, done: el.checked}); return; }
@@ -2424,6 +2710,7 @@ document.addEventListener('submit', async e => {
 });
 let sTimer;
 document.addEventListener('input', e => {
+  if (e.target.dataset && e.target.dataset.bs && e.target.dataset.bs !== 'on' && e.target.dataset.bs !== 'vikion') return bsInput(e.target);
   if (e.target.id === 'zAmt') { const raw = e.target.value.replace(/[^0-9.]/g,''); UI.zamt = raw; const z = zs(); const p = zilchPlan(raw, UI.zpartner ? { feePct: z.partnerFee } : {}); const o = $('#zOut'); if (o) o.innerHTML = zilchOut(p);
     const needToggle = Number(raw) >= z.threshold, has = !!document.querySelector('[data-act="zpartner"]'); if (needToggle !== has) { render(); const i = $('#zAmt'); if (i) { i.focus(); i.setSelectionRange(raw.length, raw.length); } } return; }
   if (e.target.id !== 'sSearch') return; clearTimeout(sTimer); const val = e.target.value; sTimer = setTimeout(() => { UI.sq = val; UI.slimit = 40; render(); const i = $('#sSearch'); if (i) { i.focus(); i.setSelectionRange(val.length, val.length); } }, 250); });
