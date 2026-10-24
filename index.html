@@ -650,6 +650,25 @@ body:has(.xbar:not([hidden])) .fab{display:none}
 .lvsw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
 .lvsw.bhsw{background:var(--gold,#E8A33D);border-radius:50%;width:6px;height:6px}
 .lvsw.chsw{background:var(--chris);height:3px;width:12px;border-radius:2px}
+
+/* Chris's theme: Liverpool red cards when he's signed in */
+:root[data-user="chris"]{ --midnight:#8A0B1F; --midnight-2:#C8102E; --brass:#B8860B; --brass-2:#F6D778; --brass-soft:#FBF1D6; }
+@media (prefers-color-scheme: dark){:root[data-user="chris"]:not([data-theme="light"]){ --midnight:#5E0614; --midnight-2:#A30D25; --brass:#E9C25A; --brass-2:#F6D778; --brass-soft:#2E2410; }}
+:root[data-user="chris"][data-theme="dark"]{ --midnight:#5E0614; --midnight-2:#A30D25; --brass:#E9C25A; --brass-2:#F6D778; --brass-soft:#2E2410; }
+:root[data-user="chris"] .tblock{--brass:#F6D778;--muted:#F3C2C9;--ink-2:#FBE3E6;--rule:rgba(255,255,255,.14);--rule-2:rgba(255,255,255,.2);--red:#FFD1D8;--good:#B8F0CF}
+:root[data-user="chris"] .tblock{background:radial-gradient(120% 90% at 100% 0%,rgba(246,215,120,.22) 0%,transparent 55%),linear-gradient(160deg,var(--midnight-2) 0%,var(--midnight) 75%)}
+:root[data-user="chris"] .fab{color:#3A2600}
+/* leave: Chris's colours and person switch */
+:root{--lv-ch:#C8102E;--lv-ch-soft:#FBE3E6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--lv-ch:#FF5A6E;--lv-ch-soft:#3A1218}}
+:root[data-theme="dark"]{--lv-ch:#FF5A6E;--lv-ch-soft:#3A1218}
+.lvwho button[data-v="viki"][aria-pressed="true"]{color:var(--lv-al)}
+.lvwho button[data-v="chris"][aria-pressed="true"]{color:var(--lv-ch)}
+.lvwho button{flex:1}
+.lvd.k-ch{background:var(--lv-ch);color:#fff;font-weight:650}
+.lvd.vk::before{content:"";position:absolute;left:20%;right:20%;bottom:2px;height:2px;border-radius:2px;background:var(--lv-al)}
+.lvd.k-ch.vk::before{background:#fff}
+.lvsw.vksw{background:var(--lv-al);height:3px;width:12px;border-radius:2px}
 </style>
 </head>
 <body>
@@ -1307,12 +1326,12 @@ function vikiDay(d) {
   o.extra = o.oc + o.co + o.ot + o.bh; return o;
 }
 const vikiPay = d => (d && d.who==='viki') ? vikiDay(d).extra : 0;
-/* claim period: on call and overtime are cut off on the 25th, so "October" runs 26 September to 25 October and is paid on November's payday */
+/* claim period: on call and overtime are cut off at the start of the 25th (the 25th itself goes on the next claim), so "October" runs 25 September to 24 October and is paid on November's payday */
 function claimRange(ym) {
   const c = Number(vk().cutoff) || 0; if (!c || c >= 28) return { from:`${ym}-01`, to:`${ym}-31` };
-  return { from: `${ymOf(addMonths(`${ym}-01`,-1))}-${pad(c+1)}`, to: `${ym}-${pad(c)}` };
+  return { from: `${ymOf(addMonths(`${ym}-01`,-1))}-${pad(c)}`, to: `${ym}-${pad(c-1)}` };
 }
-const claimYM = date => { const c = Number(vk().cutoff) || 0; return (c && c < 28 && parse(date).getDate() > c) ? ymOf(addMonths(`${ymOf(date)}-01`,1)) : ymOf(date); };
+const claimYM = date => { const c = Number(vk().cutoff) || 0; return (c && c < 28 && parse(date).getDate() >= c) ? ymOf(addMonths(`${ymOf(date)}-01`,1)) : ymOf(date); };
 const rangeLabel = ym => { const x = claimRange(ym), a = parse(x.from), b = parse(x.to); return x.from.endsWith('-01') ? MONTHS[a.getMonth()] : `${a.getDate()} ${MONTHS[a.getMonth()].slice(0,3)} to ${b.getDate()} ${MONTHS[b.getMonth()].slice(0,3)}`; };
 function vikiMonth(ym) {
   const cr = claimRange(ym);
@@ -1396,7 +1415,7 @@ function viewViki() {
     <div class="calhead"><button class="iconbtn" data-act="cal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="cal" data-v="1" aria-label="Next month">›</button></div>
     <div class="cal">${['M','T','W','T','F','S','S'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div>
     <div class="legend"><span class="chip st-shift">Shift</span><span class="chip st-oncall">☾ On call day</span><span class="chip cat"><span class="dot"></span> Call-out</span><span class="chip st-holiday">Holiday</span><span class="chip st-sick">Sick</span></div>
-    <p class="note">${Number(r.cutoff) ? `On call and overtime are cut off on the ${r.cutoff}th, so days after it go on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to add call-outs or change it.</p></section>`;
+    <p class="note">${Number(r.cutoff) ? `Each claim runs from the ${r.cutoff}th to the ${r.cutoff-1}th, so on call from the ${r.cutoff}th goes on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to add call-outs or change it.</p></section>`;
 
   const noRates = !r.salary ? `<div class="banner">Viki's pay rates aren't set yet. <button class="btn small ghost" data-act="vrates">Add them</button></div>` : '';
   return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel() + ratesPanel();
@@ -1460,7 +1479,7 @@ function earningsPanel(ym) {
   return `<section class="panel"><h2>Extra earnings <span class="sub">${money(total,0)} over 6 months</span></h2>
     <div class="cleg"><span><i style="background:var(--c-oc)"></i>On call</span><span><i style="background:var(--c-co)"></i>Call-outs and overtime</span></div>
     ${barChart(rows, { label:'On call and call-out earnings by month worked' })}
-    <p class="note">By claim month (cut off on the ${Number(vk().cutoff)||'last day'}${Number(vk().cutoff)?'th':''}). Each is paid on the following month's payday.</p></section>`;
+    <p class="note">By claim month (${Number(vk().cutoff) ? `${vk().cutoff}th to ${vk().cutoff-1}th` : 'calendar month'}). Each is paid on the following month's payday.</p></section>`;
 }
 function leaveYearViki() { const r = vk(), startMM = Number(r.leaveStart || 4), t = parse(today()); let y = t.getFullYear(); if (t.getMonth()+1 < startMM) y--; const from = `${y}-${pad(startMM)}-01`; return { from, to: addDays(addMonths(from,12),-1) }; }
 const usualHours = date => { const w = parse(date).getDay(); return w===0||w===6 ? 0 : 9.5; };
@@ -1484,48 +1503,79 @@ function lvBlocks(y) {
   blocks.forEach(b => { const ws = (y.weeks||[]).filter(w => w.wc <= b.to && addDays(w.wc,6) >= b.from); b.note = ws.map(w => w.note).filter(Boolean)[0] || ''; b.n = b.days.filter(d => (y.days[d]==='al')).length; b.part = b.days.length - b.n; });
   return blocks;
 }
-function lvMiniMonth(ym, y, who) {
+function lvRuns(dates) {
+  const ds = [...dates].sort(), blocks = [];
+  ds.forEach(d => { const b = blocks[blocks.length-1]; if (b) { let gap = addDays(b.to,1), ok = true; while (gap < d) { if (!isWeekend(gap) && !isBH(gap)) { ok = false; break; } gap = addDays(gap,1); } if (ok) { b.to = d; b.days.push(d); return; } } blocks.push({ from:d, to:d, days:[d] }); });
+  return blocks;
+}
+/* mini month: cls(date) gives the classes for each day, act is the tap action */
+function lvMiniMonth(ym, cls, act, label) {
   const first = parse(`${ym}-01`), daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate(), lead = (first.getDay()+6)%7, t = today();
   let c = ''; for (let i=0;i<lead;i++) c += '<i></i>';
   for (let d=1; d<=daysIn; d++) {
-    const date = `${ym}-${pad(d)}`, k = y && y.days ? y.days[date] : null, bh = isBH(date);
-    const chris = who !== 'viki' && dayRec('chris', date) && dayRec('chris', date).status === 'holiday';
-    c += `<button type="button" class="lvd${k?' k-'+k:''}${bh?' bh':''}${isWeekend(date)?' we':''}${date===t?' today':''}${chris?' ch':''}" data-act="lvday" data-date="${date}" aria-label="${shortDate(date)}${k?', '+LV_KIND[k][0]:''}${bh?', bank holiday':''}">${d}</button>`;
+    const date = `${ym}-${pad(d)}`, k = cls(date) || '';
+    c += `<button type="button" class="lvd ${k}${isBH(date)?' bh':''}${isWeekend(date)?' we':''}${date===t?' today':''}" data-act="${act}" data-date="${date}" aria-label="${shortDate(date)}${label ? label(date) : ''}${isBH(date)?', bank holiday':''}">${d}</button>`;
   }
   return `<div class="lvm"><b>${MONTHS[first.getMonth()].slice(0,3)} ${String(first.getFullYear()).slice(2)}</b><div class="lvg">${['M','T','W','T','F','S','S'].map(x=>`<span>${x}</span>`).join('')}${c}</div></div>`;
 }
+const lvBlockRow = (b, act, colour, soft) => { const t = today(), same = b.from === b.to; return `<button class="rowbtn" data-act="${act}" data-date="${b.from}"><span class="evb" style="background:${soft};color:${colour}">${icon('sun')}</span><span class="grow"><span class="t" style="display:block">${same ? esc(dayShort(b.from)) : `${esc(dayShort(b.from))} – ${esc(dayShort(b.to))}`}</span><span class="m" style="display:block">${b.n ? `${b.n} day${b.n===1?'':'s'}` : ''}${b.part ? `${b.n?', ':''}${b.part} part day${b.part===1?'':'s'}` : ''}${b.note ? ` · ${esc(b.note)}` : ''}</span></span>${b.from > t ? `<span class="chip cat">${daysBetween(t, b.from)}d</span>` : b.to >= t ? '<span class="chip st-holiday">Now</span>' : ''}</button>`; };
+const chrisOff = date => { const r = dayRec('chris', date); return !!(r && r.status === 'holiday'); };
+const vikiOff = date => leaveDay(date) === 'al' || (() => { const r = dayRec('viki', date); return !!(r && r.status === 'holiday'); })();
 function viewLeave() {
+  const lw = UI.lvWho || (UI.lvWho = me());
+  const pseg = `<div class="seg lvwho" role="group" aria-label="Whose leave"><button data-act="lvwho" data-v="viki" aria-pressed="${lw==='viki'}">Viki</button><button data-act="lvwho" data-v="chris" aria-pressed="${lw==='chris'}">Chris</button></div>`;
+  return pseg + (lw === 'chris' ? viewLeaveChris() : viewLeaveViki());
+}
+function viewLeaveViki() {
   const ys = lvYears();
-  if (!ys.length) return `<section class="panel"><h2>Annual leave</h2><p class="empty">No leave card loaded yet.</p></section>`;
+  if (!ys.length) return `<section class="panel"><h2>Viki's leave</h2><p class="empty">No leave card loaded yet.</p></section>`;
   const cur = lvYearFor(today()) || ys[ys.length-1];
   const y = ys.find(x => x.label === UI.lvYear) || cur; UI.lvYear = y.label;
   const s = lvStats(y), dh = Number(S.leave.dayHours) || 9.5, over = s.left < 0;
   const yseg = `<div class="seg lvys" role="group" aria-label="Leave year">${ys.filter(x => x.from >= addMonths(cur.from,-12)).map(x => `<button data-act="lvyear" data-v="${esc(x.label)}" aria-pressed="${x.label===y.label}">${esc(x.label)}</button>`).join('')}</div>`;
-  const hero = tblock({ kicker: `Viki · leave year ${esc(y.label)}`, title: over ? `${fh(-s.left)} hours over` : `${fh(s.left)} hours left`,
+  const hero = tblock({ cls:'lv-viki', kicker: `Viki · leave year ${esc(y.label)}`, title: over ? `${fh(-s.left)} hours over` : `${fh(s.left)} hours left`,
     side: `<span class="tb-kicker">About</span><span class="big">${over?'−':''}${Math.round(Math.abs(s.left)/dh*10)/10} <small style="font-size:.9rem">days</small></span>`,
     cells: [ tbCell('Entitlement', `${fh(y.ent)}h`, 'var(--rule-2)'), tbCell('Carried over', `${Number(y.carried)>0?'+':Number(y.carried)<0?'−':''}${fh(Math.abs(y.carried))}h`, Number(y.carried) < 0 ? 'var(--red)' : 'var(--good)'), tbCell('Booked', `${fh(s.booked)}h`, 'var(--lv-al)') ],
     after: `<div style="padding:12px 0 2px">${gauge(s.avail ? s.booked/s.avail : 0, 'lg')}</div>`,
     foot: `<span>${fh(s.taken)}h taken so far, ${fh(s.coming)}h still to come, out of ${fh(s.avail)}h available. ${fh(s.bh)} bank holidays.</span>` });
-  const blocks = lvBlocks(y), t = today();
-  const next = blocks.filter(b => b.to >= t), past = blocks.filter(b => b.to < t);
-  const bl = b => { const same = b.from === b.to; return `<button class="rowbtn" data-act="lvday" data-date="${b.from}"><span class="evb" style="background:var(--lv-al-soft);color:var(--lv-al)">${icon('sun')}</span><span class="grow"><span class="t" style="display:block">${same ? esc(dayShort(b.from)) : `${esc(dayShort(b.from))} – ${esc(dayShort(b.to))}`}</span><span class="m" style="display:block">${b.n ? `${b.n} day${b.n===1?'':'s'}` : ''}${b.part ? `${b.n?', ':''}${b.part} part day${b.part===1?'':'s'}` : ''}${b.note ? ` · ${esc(b.note)}` : ''}</span></span>${b.from > t ? `<span class="chip cat">${daysBetween(t, b.from)}d</span>` : b.to >= t ? '<span class="chip st-holiday">Now</span>' : ''}</button>`; };
+  const blocks = lvBlocks(y), t = today(), next = blocks.filter(b => b.to >= t), past = blocks.filter(b => b.to < t);
   const months = []; for (let i=0;i<12;i++) months.push(ymOf(addMonths(y.from, i)));
-  const legend = `<div class="legend">${['al','part','oc','do'].map(k => `<span class="chip"><i class="lvsw" style="background:${LV_KIND[k][1]}"></i>${LV_KIND[k][0]}</span>`).join('')}<span class="chip"><i class="lvsw bhsw"></i>Bank holiday</span><span class="chip"><i class="lvsw chsw"></i>Chris off</span></div>`;
+  const legend = `<div class="legend">${['al','part','oc','do'].map(k => `<span class="chip"><i class="lvsw" style="background:${LV_KIND[k][1]}"></i>${LV_KIND[k][0]}</span>`).join('')}<span class="chip"><i class="lvsw bhsw"></i>Bank holiday</span><span class="chip"><i class="lvsw chsw"></i>Chris off too</span></div>`;
+  const cls = date => { const k = (y.days||{})[date]; return `${k ? 'k-'+k : ''}${chrisOff(date) ? ' ch' : ''}`; };
+  const lab = date => { const k = (y.days||{})[date]; return k ? ', '+LV_KIND[k][0] : ''; };
   const weeks = (y.weeks||[]).filter(w => w.h).map(w => `<tr data-act="lvweek" data-wc="${w.wc}"><td>${esc(dayShort(w.wc))}</td><td>${esc(w.note||'')}</td><td class="r">${w.bh ? fh(w.bh) : ''}</td><td class="r">${fh(w.h)}</td></tr>`).join('');
-  // Chris
-  const ly = leaveYear(), cAllow = Number(S.settings.chrisAllowance) || (S.leave.chris && S.leave.chris.allowance) || 0, cBH = (S.leave.chris && S.leave.chris.bh) || 0;
-  const cDays = daysFor('chris', ly.from, ly.to).filter(d => d.status==='holiday'), cTaken = cDays.filter(d => d.date <= t).length;
-  const chris = `<section class="panel"><h2>Chris <span class="sub">leave year from ${esc(shortDate(ly.from))}</span><button class="btn small ghost" data-act="lvchris">Edit</button></h2>
-    <div class="gauge" style="padding-top:0"><div class="gh"><span class="t lvbig">${cAllow ? `${fh(cAllow - cDays.length)} days left` : 'Set his allowance'}</span><span class="amt"><small>${cAllow ? `of ${fh(cAllow)}${cBH ? ` + ${cBH} bank holidays` : ''}` : ''}</small></span></div>${gauge(cAllow ? cDays.length/cAllow : 0,'lg')}
-    <div class="m">${cTaken} taken, ${cDays.length - cTaken} booked. Days marked Holiday on his Work calendar count here.</div></div></section>`;
   return `${yseg}${hero}
-    <section class="panel"><h2>Coming up</h2>${next.length ? `<div class="list">${next.map(bl).join('')}</div>` : '<p class="empty">Nothing else booked this leave year.</p>'}</section>
-    <section class="panel"><h2>Year planner <span class="sub">${esc(y.label)}</span></h2>${legend}<div class="lvyear">${months.map(m => lvMiniMonth(m, y)).join('')}</div><p class="note">From Viki's AL balances card. Tap a day to change it.</p></section>
-    ${chris}
+    <section class="panel"><h2>Coming up</h2>${next.length ? `<div class="list">${next.map(b => lvBlockRow(b, 'lvday', 'var(--lv-al)', 'var(--lv-al-soft)')).join('')}</div>` : '<p class="empty">Nothing else booked this leave year.</p>'}</section>
+    <section class="panel"><h2>Viki's calendar <span class="sub">${esc(y.label)}</span></h2>${legend}<div class="lvyear">${months.map(m => lvMiniMonth(m, cls, 'lvday', lab)).join('')}</div><p class="note">From her AL balances card. Tap a day to change it.</p></section>
     <section class="panel"><h2>Week by week <span class="sub">${fh(s.booked)}h booked</span><button class="btn small ghost" data-act="lvedit">Entitlement</button></h2>
       ${weeks ? `<div class="tbl"><table><thead><tr><th>Week of</th><th>Note</th><th class="r">BH</th><th class="r">AL hours</th></tr></thead><tbody>${weeks}</tbody><tfoot><tr><td colspan="2">Total</td><td class="r">${fh(s.bh)}</td><td class="r">${fh(s.booked)}</td></tr></tfoot></table></div>` : '<p class="empty">No leave booked.</p>'}
-      ${past.length ? `<details><summary>Already taken (${past.length})</summary><div class="list">${past.map(bl).join('')}</div></details>` : ''}
+      ${past.length ? `<details><summary>Already taken (${past.length})</summary><div class="list">${past.map(b => lvBlockRow(b, 'lvday', 'var(--lv-al)', 'var(--lv-al-soft)')).join('')}</div></details>` : ''}
     </section>`;
+}
+function chrisLeaveYear(offset) {
+  const startMM = Number(S.settings.leaveStart || 1), t = parse(today()); let y = t.getFullYear(); if (t.getMonth()+1 < startMM) y--; y += offset;
+  const from = `${y}-${pad(startMM)}-01`, to = addDays(addMonths(from,12),-1);
+  return { from, to, label: startMM === 1 ? String(y) : `${y}/${String(y+1).slice(2)}` };
+}
+function viewLeaveChris() {
+  const off = Number(UI.lvcOff || 0), ly = chrisLeaveYear(off), t = today();
+  const allow = Number(S.settings.chrisAllowance) || (S.leave && S.leave.chris && S.leave.chris.allowance) || 0, bh = (S.leave && S.leave.chris && S.leave.chris.bh) || 0;
+  const days = daysFor('chris', ly.from, ly.to).filter(d => d.status==='holiday' && !isWeekend(d.date)).map(d => d.date).sort();
+  const taken = days.filter(d => d <= t).length, left = allow - days.length;
+  const yseg = `<div class="seg lvys" role="group" aria-label="Leave year">${[-1,0,1].map(o => { const x = chrisLeaveYear(o); return `<button data-act="lvcyear" data-v="${o}" aria-pressed="${o===off}">${esc(x.label)}</button>`; }).join('')}</div>`;
+  const hero = tblock({ cls:'lv-chris', kicker: `Chris · leave year ${esc(ly.label)}`, title: allow ? (left < 0 ? `${fh(-left)} days over` : `${fh(left)} days left`) : 'Set your allowance',
+    side: allow ? `<span class="tb-kicker">Booked</span><span class="big">${days.length} <small style="font-size:.9rem">of ${fh(allow)}</small></span>` : '',
+    cells: [ tbCell('Allowance', allow ? `${fh(allow)} days` : '–', 'var(--rule-2)'), tbCell('Bank holidays', bh ? `+${bh}` : '–', 'var(--gold,#E8A33D)'), tbCell('Taken', `${taken} <small>${days.length - taken} to come</small>`, 'var(--chris)') ],
+    after: allow ? `<div style="padding:12px 0 2px">${gauge(days.length/allow, 'lg')}</div>` : '',
+    foot: `<span>Days marked Holiday on your Work calendar count here.</span><span><button class="linkbtn" data-act="lvchris">Edit allowance</button></span>` });
+  const blocks = lvRuns(days).map(b => ({ ...b, n: b.days.length })), next = blocks.filter(b => b.to >= t), past = blocks.filter(b => b.to < t);
+  const months = []; for (let i=0;i<12;i++) months.push(ymOf(addMonths(ly.from, i)));
+  const cls = date => `${chrisOff(date) && !isWeekend(date) ? 'k-ch' : ''}${vikiOff(date) ? ' vk' : ''}`;
+  const legend = `<div class="legend"><span class="chip"><i class="lvsw" style="background:var(--lv-ch)"></i>Your holiday</span><span class="chip"><i class="lvsw bhsw"></i>Bank holiday</span><span class="chip"><i class="lvsw vksw"></i>Viki off too</span></div>`;
+  return `${yseg}${hero}
+    <section class="panel"><h2>Coming up</h2>${next.length ? `<div class="list">${next.map(b => lvBlockRow(b, 'lvcday', 'var(--lv-ch)', 'var(--lv-ch-soft)')).join('')}</div>` : '<p class="empty">No holiday booked yet. Tap days on the calendar below to add some.</p>'}</section>
+    <section class="panel"><h2>Chris's calendar <span class="sub">${esc(ly.label)}</span></h2>${legend}<div class="lvyear">${months.map(m => lvMiniMonth(m, cls, 'lvcday', date => chrisOff(date) ? ', holiday' : '')).join('')}</div><p class="note">Tap a day to book it as holiday or change it.</p></section>
+    ${past.length ? `<section class="panel"><h2>Already taken <span class="sub">${taken} days</span></h2><div class="list">${past.map(b => lvBlockRow(b, 'lvcday', 'var(--lv-ch)', 'var(--lv-ch-soft)')).join('')}</div></section>` : ''}`;
 }
 async function lvSave(y) { const doc = JSON.parse(JSON.stringify(S.leave)); doc.years[y.label] = y; await put('leave/main', doc); }
 function lvDayForm(date) {
@@ -1682,7 +1732,7 @@ function vikiRatesForm() {
     <div class="fields2">${fld('rSb','On call per hour (£)', r.standby, 'number','step="0.01" inputmode="decimal"')}${fld('rPen','Pension (%)', r.pension, 'number','step="0.1" inputmode="decimal"')}</div>
     <div class="fields2">${fld('rS2','2nd on call, weekday (£/h)', r.secondWD, 'number','step="0.001" inputmode="decimal"')}${fld('rS2w','2nd on call, weekend (£/h)', r.secondWE, 'number','step="0.01" inputmode="decimal"')}</div>
     <div class="fields2">${fld('rTax','Tax code number', r.taxCode, 'number','step="1" inputmode="numeric"')}${sel('rArr','On call is paid', r.arrears?'1':'0', [['1','The month after'],['0','The same month']])}</div>
-    ${fld('rCut','On call and overtime cut-off day (0 = end of month)', r.cutoff ?? 25, 'number','step="1" min="0" max="28" inputmode="numeric"')}
+    ${fld('rCut','Claim month starts on day (0 = calendar month)', r.cutoff ?? 25, 'number','step="1" min="0" max="28" inputmode="numeric"')}
     <div class="fields2">${fld('rBh','Bank holiday uplift (£/h)', r.bhUplift ?? (r.base*0.5).toFixed(2), 'number','step="0.01" inputmode="decimal"')}${fld('rLh','Annual leave (hours a year)', r.leaveHours ?? '', 'number','step="0.5" inputmode="decimal"')}</div>
     ${sel('rLs','Leave year starts', r.leaveStart || 4, MONTHS.map((x,i)=>[i+1,x]))}
     <p class="note">Call-outs are worked out from the basic rate: ${money(r.base*1.5,2)}/h Monday to Saturday and ${money(r.base*2,2)}/h on Sundays and bank holidays.</p>`, async () => {
@@ -2735,6 +2785,9 @@ document.addEventListener('click', async e => {
   if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; closeSheet(); if (fn) { await fn(); toast('Deleted'); } } else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
   if (a==='settings') return settingsForm();
   if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='lvwho') { UI.lvWho = el.dataset.v; return render(); }
+  if (a==='lvcyear') { UI.lvcOff = Number(el.dataset.v); return render(); }
+  if (a==='lvcday') { const prev = UI.who; UI.who = 'chris'; dayForm(el.dataset.date); UI.who = prev; return; }
   if (a==='lvyear') { UI.lvYear = el.dataset.v; return render(); }
   if (a==='lvday') return lvDayForm(el.dataset.date);
   if (a==='lvweek') return lvDayForm(el.dataset.wc);
