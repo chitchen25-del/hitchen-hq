@@ -1099,12 +1099,52 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .cele-card span{color:var(--ink-2)}
 .cele-card .btn{margin-top:10px;background:linear-gradient(135deg,#FF4F6D,#A23BEC);color:#fff}
 @media (prefers-reduced-motion:no-preference){.cele-card{animation:celepop .45s cubic-bezier(.2,1.5,.4,1)}@keyframes celepop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}}
-dl.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0 0;font-size:.92rem}
-dl.kv dt{color:var(--muted,#888);font-weight:600}
-dl.kv dd{margin:0}
-ul.checks{margin:6px 0 0;padding-left:1.1em;font-size:.92rem;line-height:1.45}
-ul.checks li{margin:0 0 6px}
-td small.up{color:var(--good);font-weight:700}
+
+/* Viki sub-tabs and Contract and rises */
+.subtabs{display:flex;gap:4px;padding:4px;margin:-4px 0 0;background:var(--sheet-2);border-radius:14px}
+.subtabs button{flex:1;border:0;background:none;padding:9px 6px;border-radius:10px;font:inherit;font-weight:600;font-size:.9rem;color:var(--muted);cursor:pointer;transition:background .15s ease,color .15s ease}
+.subtabs button[aria-selected="true"]{background:var(--sheet);color:var(--viki);box-shadow:0 1px 3px rgba(8,16,26,.14)}
+.vc-toggle{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 4px}
+.vc-toggle button{border:1px solid var(--rule-2);background:none;color:var(--ink-2);border-radius:999px;padding:6px 12px;font:inherit;font-size:.84rem;font-weight:600;cursor:pointer}
+.vc-toggle button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--sheet)}
+.vc-ladder{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.vc-rung{display:grid;grid-template-columns:72px 1fr auto;align-items:center;gap:10px}
+.vc-rl{display:flex;flex-direction:column;line-height:1.15}
+.vc-rl b{font-weight:650;font-size:.95rem}
+.vc-rl span{font-size:.74rem;color:var(--muted)}
+.vc-track{height:14px;border-radius:7px;background:var(--sheet-2);overflow:hidden}
+.vc-track i{display:block;height:100%;border-radius:7px;background:var(--viki-bar)}
+.vc-rung.now .vc-track i{background:var(--rule-2)}
+.vc-rung.est .vc-track i{background:repeating-linear-gradient(135deg,var(--viki-bar) 0 6px,color-mix(in srgb,var(--viki-bar) 55%,transparent) 6px 12px)}
+.vc-rv{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15;min-width:64px}
+.vc-rv b{font-weight:700;font-size:1.05rem;letter-spacing:-.01em}
+.vc-rv span{font-size:.74rem;color:var(--muted)}
+.vc-rv .vc-up{color:var(--good);font-weight:700;font-size:.8rem}
+.vc-cmp table{width:100%;border-collapse:collapse;font-size:.92rem}
+.vc-cmp th,.vc-cmp td{padding:9px 0;border-top:1px solid var(--rule);vertical-align:top}
+.vc-cmp thead th{border-top:0;padding-top:2px;font-size:.78rem;font-weight:650;color:var(--muted);text-align:right}
+.vc-cmp tbody th{text-align:left;font-weight:500;color:var(--ink-2);padding-right:8px}
+.vc-cmp td{text-align:right;font-weight:600;white-space:nowrap;padding-left:10px;width:30%}
+.vc-cmp td small{display:block;font-size:.76rem;font-weight:700;color:var(--muted);margin-top:1px}
+.vc-cmp td small.up{color:var(--good)}
+.vc-cmp tr.tot th,.vc-cmp tr.tot td{font-weight:750;color:var(--ink);border-top:1.5px solid var(--rule-2)}
+.vc-cmp tr.tot + tr.tot th,.vc-cmp tr.tot + tr.tot td{border-top:1px solid var(--rule)}
+.vc-cmp tr.tot td:last-child{color:var(--good)}
+.vc-split{display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px}
+.vc-split i{display:block;height:100%}
+.vc-splitleg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;font-size:.84rem;color:var(--ink-2)}
+.vc-splitleg span{display:inline-flex;align-items:center;gap:6px}
+.vc-splitleg i{width:9px;height:9px;border-radius:2px}
+.vc-terms{display:flex;flex-direction:column}
+.vc-terms div{padding:9px 0;border-top:1px solid var(--rule)}
+.vc-terms div:first-child{border-top:0;padding-top:0}
+.vc-terms span{display:block;font-size:.76rem;font-weight:650;color:var(--muted);margin-bottom:1px}
+.vc-terms p{margin:0;font-size:.93rem;line-height:1.4}
+.vc-checks{margin:4px 0 0;padding-left:1.3em;display:flex;flex-direction:column;gap:10px;font-size:.92rem;line-height:1.45;color:var(--ink-2)}
+.vc-checks b{color:var(--ink)}
+.vcon .tb-side .big{white-space:nowrap}
+.vcon .tb-cell .vl small.sub{color:var(--good)}
+.vcon .tb-cell:first-child .vl small.sub{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1163,8 +1203,8 @@ const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).
 /* ---------- state ---------- */
 const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
-try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; } catch(e) {}
-const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid})); } catch(e) {} };
+try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.vcmode) UI.vcmode=saved.vcmode; } catch(e) {}
+const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode})); } catch(e) {} };
 let sb = null, session = null, offline = false;
 const LOGIN_DOMAIN = 'hitchen.example.com'; // usernames map to <username>@this (never emailed)
 const userName = () => { const u = session && session.user; if (!u) return ''; return (u.user_metadata && u.user_metadata.username) || (u.email||'').split('@')[0]; };
@@ -1754,7 +1794,8 @@ function viewWork() {
     <button data-act="who" data-who="leave" aria-pressed="${who==='leave'}">Leave</button>
   </div>`;
   fetchCal();
-  if (who==='viki') return whoSeg + viewViki();
+  if (who==='viki') { const sub = UI.vsub === 'contract' ? 'contract' : 'pay';
+    return whoSeg + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Pay and rota</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Contract and rises</button></div>` + (sub==='contract' ? viewVikiContract() : viewViki()); }
   if (who==='leave') return whoSeg + viewLeave();
   if (who==='co') return whoSeg + viewCallouts();
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
@@ -1957,7 +1998,7 @@ function viewViki() {
     <p class="note">${Number(r.cutoff) ? `Each claim runs from the ${r.cutoff}th to the ${r.cutoff-1}th, so on call from the ${r.cutoff}th goes on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to add call-outs or change it.</p></section>`;
 
   const noRates = !r.salary ? `<div class="banner">Viki's pay rates aren't set yet. <button class="btn small ghost" data-act="vrates">Add them</button></div>` : '';
-  return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel() + contractPanel() + ratesPanel();
+  return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel() + ratesPanel();
 }
 
 function claimRows(m) {
@@ -1993,27 +2034,86 @@ function claimText(ym) {
   lines.push(`Total on call ${fh(m.ocH)}h = £${m.oc.toFixed(2)} · call-outs ${fh(m.h15)}h at 1.5x, ${fh(m.h2)}h at 2x`);
   return lines.join('\n');
 }
-/* contract and pay rises: terms from her written particulars (settings/main → viki.contract), rises from viki.awards */
-function contractPanel() {
-  const r = vk(), c = r.contract; if (!c) return '';
-  const cur = claimYM(today()), recent = [1,2,3].map(i => vikiMonth(ymAdd(cur, -i))).filter(m => m.oc || m.co);
-  const avg = k => recent.length ? recent.reduce((s,m) => s + k(m), 0) / recent.length : 0;
-  const ocA = avg(m => m.oc + m.bh), coA = avg(m => m.co + m.ot), enh = Number(r.enh)||0;
-  const baseYM = r.ratesFrom || ymOf(today());
-  const rows = [{ label:`Now, ${esc(c.payYear || '2026/27')}`, f:1, a:null }]
-    .concat((r.awards||[]).filter(a => a.from > baseYM).map(a => ({ a, label:`From ${monShort(a.from)} ${a.from.slice(0,4)}`, f: awardFactor(a.from) })));
-  const calc = x => { const sal = r.salary*x.f, d = `${ymOf(today())}-25`;
-    return { annual: Math.round(sal*12), month: sal, basic: takeHome(sal + enh, 0, d).net, typ: takeHome((sal + enh) + ocA*x.f, coA*x.f, d).net }; };
-  const base = calc(rows[0]);
-  const tr = rows.map((x,i) => { const v = calc(x), up = i ? ` <small class="up">+${money(v.basic - base.basic,0)}</small>` : '', upT = i ? ` <small class="up">+${money(v.typ - base.typ,0)}</small>` : '';
-    return `<tr><td>${x.label}${x.a ? `<br><small>${esc(x.a.label)}${x.a.est ? ' · estimate' : ''}</small>` : ''}</td><td class="r">${x.a ? `+${x.a.pct}%` : ''}</td><td class="r">${money(v.annual,0)}<br><small>${money(v.month,2)}/mo</small></td><td class="r">${money(v.basic,0)}${up}</td>${recent.length ? `<td class="r">${money(v.typ,0)}${upT}</td>` : ''}</tr>`; }).join('');
-  const terms = [['Role', c.role], ['Band', `Band ${c.band}, point ${c.point}${c.topOfBand ? ' (top of the band)' : ''}`], ['Hours', `${c.hours} a week, not counting breaks`], ['Paid', c.payday], ['Leave', c.leave], ['Sick pay', c.sick], ['Notice', `${c.noticeWeeks} weeks, both ways`], ['Pension', c.pension]].filter(t => t[1]);
-  return `<section class="panel"><h2>Contract and pay rises <span class="sub">${esc(c.employer || 'Manx Care')}</span></h2>
-    <div class="tbl"><table><thead><tr><th>Pay year</th><th class="r">Rise</th><th class="r">Salary</th><th class="r">Take-home, salary only</th>${recent.length ? '<th class="r">With her usual on call</th>' : ''}</tr></thead><tbody>${tr}</tbody></table></div>
-    <p class="note">Take-home a month, after pension, NI and tax at this year's rates. ${recent.length ? `“Usual on call” is her average over the last ${recent.length} claim month${recent.length>1?'s':''}: ${money(ocA,0)} on call and ${money(coA,0)} call-outs. ` : ''}Rises are already built into the estimates and the Budget Sheet from the month they start.</p>
-    <dl class="kv">${terms.map(([k,val]) => `<dt>${k}</dt><dd>${esc(val)}</dd>`).join('')}</dl>
-    ${(c.checks||[]).length ? `<h3 class="eyebrow" style="margin-top:12px">Worth checking</h3><ul class="checks">${c.checks.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
-  </section>`;
+/* ===== Viki → Contract & rises: her contract terms and what each agreed pay rise is worth =====
+   Terms come from settings/main → viki.contract, rises from viki.awards; money from the same takeHome engine as her payslip estimate. */
+function vikiPayYears() {
+  const r = vk(), baseYM = r.ratesFrom || ymOf(today());
+  const now = { key:'now', label:'Now', sub: (r.contract && r.contract.payYear) || 'Today', f:1, a:null };
+  return [now].concat((r.awards||[]).filter(a => a.from > baseYM).map(a => ({ key:a.from, label:`${monShort(a.from).slice(0,3)} ${a.from.slice(0,4)}`, sub: a.est ? 'Estimate' : 'Agreed', f: awardFactor(a.from), a })));
+}
+function vikiUsualExtras() {
+  const cur = claimYM(today()), ms = [1,2,3].map(i => vikiMonth(ymAdd(cur, -i))).filter(m => m.oc || m.co);
+  const avg = k => ms.length ? ms.reduce((s,m) => s + k(m), 0) / ms.length : 0;
+  return { n: ms.length, oc: avg(m => m.oc + m.bh), co: avg(m => m.co + m.ot) };
+}
+function vikiYearPay(y, mode, ex) {
+  const r = vk(), enh = Number(r.enh)||0, sal = r.salary * y.f, d = `${ymOf(today())}-25`;
+  const p = mode === 'usual' ? takeHome(sal + enh + ex.oc*y.f, ex.co*y.f, d) : takeHome(sal + enh, 0, d);
+  return { ...p, salYear: Math.round(sal*12), salMonth: sal, hourly: (Number(r.base)||0) * y.f };
+}
+function viewVikiContract() {
+  const r = vk(), c = r.contract || {};
+  if (!r.salary) return `<section class="panel"><p class="empty">Add Viki's pay rates first, then her pay rises show here.</p><div class="btnrow"><button class="btn small" data-act="vrates">Add her rates</button></div></section>`;
+  const years = vikiPayYears(), ex = vikiUsualExtras();
+  const mode = UI.vcmode === 'usual' && ex.n ? 'usual' : 'salary';
+  const pays = years.map(y => vikiYearPay(y, mode, ex)), now = pays[0];
+  const pick = Math.max(1, years.findIndex(y => y.key === UI.vcyr)), cmpI = Math.min(pick, years.length - 1);
+  const last = pays[pays.length - 1], lastY = years[years.length - 1];
+  const plus = (v, dp=0) => `${v >= 0 ? '+' : '−'}${money(Math.abs(v), dp).replace('−','')}`;
+
+  // hero: salary now and where it goes
+  const hero = tblock({ cls:'vcon', kicker: `Band ${esc(c.band || '6')}${c.topOfBand ? ' · top point' : ''}`, title: money(now.salYear,0),
+    side: years.length > 1 ? `<span class="tb-kicker">Up by ${esc(lastY.label)}</span><span class="big">${plus(last.salYear - now.salYear)}</span>` : '',
+    cells: years.map((y,i) => tbCell(`${esc(y.label)}${y.a && y.a.est ? ' <small>est.</small>' : ''}`, `${money(pays[i].salYear,0)}${i ? ` <small class="sub">+${y.a.pct}%</small>` : ` <small class="sub">${money(now.salMonth,2)}/mo</small>`}`)) });
+
+  // take-home ladder
+  const top = Math.max(...pays.map(p => p.net)), floor = Math.min(...pays.map(p => p.net)) * 0.82;
+  const ladder = `<div class="vc-ladder">${years.map((y,i) => { const p = pays[i], w = Math.max(8, (p.net - floor) / (top - floor) * 100);
+    return `<div class="vc-rung${i===0?' now':''}${y.a && y.a.est ? ' est' : ''}"><div class="vc-rl"><b>${esc(y.label)}</b><span>${esc(y.sub)}</span></div>
+      <div class="vc-track"><i style="width:${w.toFixed(1)}%"></i></div>
+      <div class="vc-rv"><b>${money(p.net,0)}</b>${i ? `<span class="vc-up">${plus(p.net - now.net)}</span>` : '<span>a month</span>'}</div></div>`; }).join('')}</div>`;
+  const modeSeg = ex.n ? `<div class="vc-toggle" role="group" aria-label="What to include"><button data-act="vcmode" data-v="salary" aria-pressed="${mode==='salary'}">Salary only</button><button data-act="vcmode" data-v="usual" aria-pressed="${mode==='usual'}">With her usual on call</button></div>` : '';
+  const ladderPanel = `<section class="panel"><h2>Take-home a month</h2>${modeSeg}${ladder}
+    <p class="note">${mode==='usual' ? `Her salary plus her average on call over the last ${ex.n} claim month${ex.n>1?'s':''} (${money(ex.oc,0)} on call, ${money(ex.co,0)} call-outs), which rise by the same amount. ` : ''}After pension, NI and tax at this year's rates.</p></section>`;
+
+  // side-by-side: now vs the chosen year
+  let compare = '';
+  if (years.length > 1) {
+    const y = years[cmpI], p = pays[cmpI];
+    const chips = years.slice(1).map((yy,i) => `<button data-act="vcyr" data-v="${yy.key}" aria-pressed="${i+1===cmpI}">${esc(yy.label)}${yy.a.est ? ' (est.)' : ''}</button>`).join('');
+    /* money rows show the change under the new figure: green when it's more for her, grey when it's a bigger deduction */
+    const row = (label, a, b, opts={}) => { const d = b - a, dp = opts.dp ?? 0, cls = Math.abs(d) < .005 ? '' : opts.neg ? 'dn' : 'up';
+      const f = x => `${opts.neg ? '−' : ''}${money(Math.abs(x), dp).replace('−','')}`;
+      return `<tr class="${opts.tot ? 'tot' : ''}"><th scope="row">${label}</th><td>${f(a)}</td><td>${f(b)}<small class="${cls}">${cls ? plus(d, dp) : 'same'}</small></td></tr>`; };
+    const dg = p.gross - now.gross, dn = p.net - now.net;
+    const parts = [['Take-home', dn, 'var(--good-bar)'], ['Tax', p.tax - now.tax, 'var(--gold-bar)'], ['Pension', p.pension - now.pension, 'var(--oc)'], ['NI', p.ni - now.ni, 'var(--rule-2)']];
+    compare = `<section class="panel"><h2>Side by side</h2>
+      <div class="vc-toggle chips" role="group" aria-label="Compare now with">${chips}</div>
+      <div class="vc-cmp"><table>
+        <thead><tr><th></th><th>Now</th><th>${esc(y.label)}</th></tr></thead>
+        <tbody>
+          ${row('Salary a year', now.salYear, p.salYear)}
+          ${row('Hourly rate', now.hourly, p.hourly, { dp:2 })}
+          ${row(mode==='usual' ? 'Pay a month' : 'Salary a month', now.gross, p.gross, { dp:2 })}
+          ${row('Pension', now.pension, p.pension, { dp:2, neg:true })}
+          ${row('NI', now.ni, p.ni, { dp:2, neg:true })}
+          ${row('Tax', now.tax, p.tax, { dp:2, neg:true })}
+          ${row('Take-home a month', now.net, p.net, { dp:2, tot:true })}
+          ${row('Take-home a year', now.net*12, p.net*12, { tot:true })}
+        </tbody></table></div>
+      <h3 class="eyebrow" style="margin:14px 0 6px">Where the extra ${money(dg,0)} a month goes</h3>
+      <div class="vc-split">${parts.map(([n,v,col]) => `<i style="width:${(v/dg*100).toFixed(1)}%;background:${col}" title="${n}"></i>`).join('')}</div>
+      <div class="vc-splitleg">${parts.map(([n,v,col]) => `<span><i style="background:${col}"></i>${n} <b>${money(v,0)}</b></span>`).join('')}</div>
+      <p class="note">${esc(y.a.label)}. ${y.a.est ? 'The real figure is set by next September\'s CPI. ' : ''}Worked out at this year's tax and NI rates; the Manx budget may move them.</p></section>`;
+  }
+
+  // contract terms and points to check
+  const terms = [['Role', c.role], ['Band', c.band ? `Band ${c.band}, point ${c.point}${c.topOfBand ? ', top of the band' : ''}` : ''], ['Hours', c.hours ? `${c.hours} a week, not counting breaks` : ''], ['Paid', c.payday], ['Leave', c.leave], ['Sick pay', c.sick], ['Notice', c.noticeWeeks ? `${c.noticeWeeks} weeks, both ways` : ''], ['Pension', c.pension]].filter(t => t[1]);
+  const termsPanel = terms.length ? `<section class="panel"><h2>Her contract <span class="sub">${esc(c.employer || '')}</span></h2>
+    <div class="vc-terms">${terms.map(([k,val]) => `<div><span>${k}</span><p>${esc(val)}</p></div>`).join('')}</div></section>` : '';
+  const checks = (c.checks||[]).length ? `<section class="panel"><h2>Worth checking <span class="sub">${c.checks.length}</span></h2>
+    <ol class="vc-checks">${c.checks.map(x => { const [h, ...rest] = String(x).split(': '); return `<li>${rest.length ? `<b>${esc(h)}</b> ${esc(rest.join(': '))}` : esc(x)}</li>`; }).join('')}</ol></section>` : '';
+  return hero + ladderPanel + compare + termsPanel + checks;
 }
 function ratesPanel() {
   const r = vk();
@@ -4420,6 +4520,8 @@ document.addEventListener('click', async e => {
   if (a==='lvedit') return lvEditForm();
   if (a==='lvchris') return lvChrisForm();
   if (a==='who') { UI.who = el.dataset.who; keepUI(); return render(); }
+  if (a==='vsub') { UI.vsub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='vcmode' || a==='vcyr') { if (a==='vcmode') UI.vcmode = el.dataset.v; else UI.vcyr = el.dataset.v; keepUI(); const y = window.scrollY; render(); window.scrollTo(0,y); return; }
   if (a==='hday') { UI.hday = el.dataset.date; return render(); }
   if (a==='cal') { UI.cal = ymOf(addMonths(`${UI.cal}-01`, Number(el.dataset.v))); return render(); }
   if (a==='bm') { UI.bmonth = ymOf(addMonths(`${UI.bmonth}-01`, Number(el.dataset.v))); return render(); }
