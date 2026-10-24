@@ -1067,6 +1067,28 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .ms-ring i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:1.25rem;font-weight:800}
 .ms.done .ms-ring i{color:var(--good)}
 
+/* budget at a glance */
+.gl-tiles .od-t{border:0;font:inherit;text-align:left;cursor:pointer}
+.gl-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fs-list{display:flex;flex-direction:column}
+.fs{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--rule)}
+.fs:first-child{border-top:0}
+.fs .st-tick{margin-top:2px}
+.fs.now{background:color-mix(in srgb,var(--acc) 7%,transparent);border-radius:12px;padding:10px 8px;margin:0 -8px;border-top-color:transparent}
+.fs.past .t,.fs.done .t{color:var(--muted)}
+.fs.done .t{text-decoration:line-through}
+.fs-cuts{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.fs-cuts span{font-size:.76rem;font-weight:700;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,#E8902A 15%,transparent);color:#B5650D}
+.fs-amt{text-align:right;display:flex;flex-direction:column;align-items:flex-end}
+.fs-amt s{font-size:.78rem;color:var(--muted)}
+.fs-amt b{font-size:1.05rem;font-variant-numeric:tabular-nums}
+.panel h2.h2b{margin-top:8px}
+.bc-list{display:flex;flex-direction:column;gap:8px}
+.bc{display:flex;align-items:center;gap:12px;border:0;border-radius:14px;padding:11px 12px;background:var(--sheet-2);text-align:left;font:inherit;color:inherit;cursor:pointer;box-shadow:inset 0 0 0 2px transparent;transition:box-shadow .15s,background .15s}
+.bc.on{background:color-mix(in srgb,var(--acc) 10%,var(--sheet));box-shadow:inset 0 0 0 2px var(--acc)}
+.bc-i{font-size:1.35rem;flex:none}
+.bc b{display:block;font-size:.95rem}
+.bc small{display:block;font-size:.8rem;color:var(--muted);margin-top:2px;line-height:1.3}
 /* celebration */
 .cele{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(7,11,19,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:opacity .3s}
 .cele.out{opacity:0}
@@ -1133,7 +1155,7 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid})); } catch(e) {} };
@@ -1183,7 +1205,7 @@ const TRIP = [
 ];
 
 /* ---------- data layer ---------- */
-const COLL = { bills:'bills', goals:'goals', spend:'spend', service:'service', fuel:'fuel', list:'list', debts:'debts', trips:'trips', carrem:'carrem', payslips:'payslips', files:'files', plans:'plans' };
+const COLL = { bills:'bills', goals:'goals', spend:'spend', service:'service', fuel:'fuel', list:'list', debts:'debts', trips:'trips', carrem:'carrem', payslips:'payslips', files:'files', plans:'plans', buys:'buys' };
 function applyLocal(path, data) {
   const [c, id] = path.split('/');
   if (c === 'days') { if (data) S.days[id] = data; else delete S.days[id]; }
@@ -1195,6 +1217,7 @@ function applyLocal(path, data) {
   else if (c === 'leave') S.leave = data || null;
   else if (c === 'pot') S.pot = data || {entries:[]};
   else if (c === 'wish') S.wish = data || {lists:{}};
+  else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; }
@@ -1203,11 +1226,11 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}} });
+  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d]));
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
   return rows;
@@ -1500,6 +1523,7 @@ const me = () => (userName()||'').toLowerCase().startsWith('v') ? 'viki' : 'chri
 /* quick add, from anywhere */
 function quickAdd() {
   const items = [
+    ['qbuy', 'money', 'Add a purchase', 'Something that wasn\'t in the budget'],
     ['qcallout', 'moon', 'Log a call-out for Viki', 'Opens her most recent on-call day'],
     ['qspend', 'money', 'Add spending', 'After a shop or a fill-up'],
     ['qlist', 'cart', 'Add to the shopping list', 'Shows on both phones'],
@@ -1621,7 +1645,7 @@ function viewHome() {
     cells: [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), payCell ],
     foot });
   setTimeout(runCountUp, 30); updateBadge();
-  return hero + countRibbon('Treats on the way') + week + listPanel() + tiles + billsPanel + carPanel;
+  return hero + glanceCard(true) + countRibbon('Treats on the way') + week + listPanel() + tiles + billsPanel + carPanel;
 }
 function goalBar(g) {
   const pct = g.target ? Math.min(100, Math.round((Number(g.saved)||0)/g.target*100)) : 0;
@@ -2537,9 +2561,9 @@ function bsTotals(doc, ym) {
   const inc = viki + (doc.inc||[]).filter(bsOn).reduce((s,x) => s + (Number(x.a)||0), 0);
   const sec = {}; let base = 0, extra = 0;
   (doc.secs||[]).forEach(s => { const t = s.rows.filter(bsOn).reduce((a,x) => a + bsAmt(x), 0); sec[s.k] = t; if (s.kind==='base') base += t; else if (s.kind==='extra') extra += t; });
-  extra += plan;
+  const buys = ym ? buysNet(ym) : 0; extra += plan + buys;
   const left = inc - base - extra, split = Number(doc.split ?? 50);
-  return { viki, inc, base, extra, plan, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
+  return { viki, inc, base, extra, plan, buys, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
 }
 function bsState() {
   const ym = UI.bym || (UI.bym = ymOf(today()));
@@ -2571,9 +2595,15 @@ function bsSection(s, si, t) {
 }
 function bsPlannerSection(ym) {
   const pm = plannerMonth(ym); if (!pm.total) return '';
-  return `<section class="xsec extra"><div class="xh static"><span class="xt">From Trips and Year ahead</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
+  return `<section class="xsec extra"><div class="xh static"><span class="xt">From Treats and Year ahead</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
     <div class="xrows">${pm.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.p.name)}</span><small>${esc(r.p.kind === 'year' ? 'Year ahead' : kindLabel(r.p.kind||'summer'))}</small></div><span class="xd"></span><output class="xc xa">${money(r.amount,2)}</output><span class="xm"></span></div>`).join('')}</div>
     <div class="xadd"><button type="button" class="linkbtn" data-act="tab" data-v="trips">Change in Treats</button></div></section>`;
+}
+function bsBuysSection(ym) {
+  const net = buysNet(ym), list = buysIn(ym); if (!list.length && Math.abs(net) < .5) return '';
+  return `<section class="xsec extra"><div class="xh static"><span class="xt">Extra spends</span><span class="xtag">Extras</span><b>${money(net,2)}</b></div>
+    <div class="xrows">${list.map(b => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(b.n)}</span><small>${esc(coverLine(b))}</small></div><span class="xd"></span><output class="xc xa">${money(Number(b.a)||0,2)}</output><span class="xm"></span></div>`).join('')}</div>
+    <div class="xadd"><button type="button" class="linkbtn" data-act="buyadd">Add a purchase</button><span class="note"> Food-shop cuts come off this total.</span></div></section>`;
 }
 function bsVikiBlock(doc, t) {
   const vk = doc.viki; if (!vk) return '';
@@ -2623,7 +2653,7 @@ function viewSheet() {
   return `<section class="panel xpanel">${nav}${bsSummary(t, doc)}</section>
     <div class="xsheet" id="bsSheet">
       <div class="xhead"><span></span><span>Item</span><span>Date</span><span>£</span><span></span></div>
-      ${income}${main.map(([s,si]) => bsSection(s, si, t)).join('')}${bsPlannerSection(ym)}
+      ${income}${main.map(([s,si]) => bsSection(s, si, t)).join('')}${bsPlannerSection(ym)}${bsBuysSection(ym)}
       ${lists.length ? `<h3 class="xlh">Lists</h3>${lists.map(([s,si]) => bsSection(s, si, t)).join('')}` : ''}
       <div class="xadd" style="padding:10px 2px"><button type="button" class="linkbtn" data-act="bsnewsec">+ Add a section</button></div>
     </div>
@@ -2776,7 +2806,7 @@ const PL_IDEAS = {
 const PL_HOW = [['save','Save up each month until then'],['once','Pay in one go'],['zilch','Zilch, 4 parts from then']];
 const ymAdd = (ym, n) => ymOf(addMonths(`${ym}-01`, n));
 const ymDiff = (a, b) => { const [ay,am] = a.split('-').map(Number), [by,bm] = b.split('-').map(Number); return (by-ay)*12 + (bm-am); };
-const payYm = d => { const x = parse(d); return x.getDate() >= 25 ? ymOf(d) : ymAdd(ymOf(d), -1); };
+const payYm = d => d >= payday(ymOf(d)) ? ymOf(d) : ymAdd(ymOf(d), -1);
 const mon3 = ym => MONTHS[Number(ym.slice(5,7))-1].slice(0,3);
 const plCur = () => ymOf(today());
 function plItemPays(it, p) {
@@ -3098,6 +3128,7 @@ function sheetFlow(ym) {
   inc.forEach((x, i) => x.c = /chris/i.test(x.name) ? INC_COL[0] : /viki/i.test(x.name) ? INC_COL[1] : INC_COL[2 + (i % 2)]);
   const outs = doc.secs.filter(s => s.kind === 'base' || s.kind === 'extra').map(s => ({ k: s.k, name: FLOW_NAME[s.k] || s.t, v: t.sec[s.k]||0, c: FLOW_COL[s.k] || FLOW_COL.other })).filter(o => o.v > 0.5);
   if (t.plan) outs.push({ k: 'trips', name: 'Treats', v: t.plan, c: FLOW_COL.trips });
+  if (t.buys > .5) outs.push({ k: 'buys', name: 'Extra spends', v: t.buys, c: '#E8902A' });
   return { ym, t, inc: inc.filter(x => x.v > 0), outs };
 }
 function flowChart(f) {
@@ -3152,7 +3183,7 @@ function viewMoneyOverview() {
   const chips = `<div class="seg mchips" role="group" aria-label="Which month">${months.map(m => `<button data-act="ovm" data-v="${m}" aria-pressed="${m===sel}">${mon3(m)}</button>`).join('')}</div>`;
   const spare = f.t.left, msg = spare >= 0 ? `${money(spare,0)} to spare` : `${money(-spare,0)} to find`;
   const ci = checkinCard();
-  return ci + (/ci-s now">[^]*?money jobs/.test(ci) ? '' : nextJobs()) + milestonePanel() + potPanel() + forecastPanel() + `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
+  return glanceCard() + ci + (/ci-s now">[^]*?money jobs/.test(ci) ? '' : nextJobs()) + foodPanel() + milestonePanel() + potPanel() + forecastPanel() + `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
       <p class="note">Pay comes in on the left and goes out to the right, from the ${esc(monthName(sel))} Budget Sheet${f.t.plan ? ', including treats from Treats' : ''}. ${spare >= 0 ? 'Whatever is spare can go to the holiday pot or savings.' : 'The yellow band is the gap to cover this month.'}</p></section>
     <section class="panel"><h2>The months ahead</h2>${monthStrip(cur)}</section>
     ${upcomingTrips()}`;
@@ -3485,6 +3516,113 @@ function countRibbon(title = '') {
   const list = countdowns(); if (!list.length) return '';
   return `<section class="cd-wrap">${title ? `<div class="cd-title">${title}</div>` : ''}<div class="cd-row">${list.map(p => { const n = sleepsN(p.from), now = n <= 0;
     return `<button type="button" class="cd k-${p.kind}" data-act="opentrip" data-kind="${esc(kindTab(p))}" data-id="${esc(p.id)}"><span class="cd-i">${OCC_ICON[p.kind] || '✦'}</span><span class="cd-n">${now ? 'Now!' : n}</span><span class="cd-l">${now ? 'Happening' : n === 1 ? 'sleep to' : 'sleeps to'}</span><b>${esc(occName(p).replace(/['’]s birthday$/i, '’s birthday'))}</b></button>`; }).join('')}</div></section>`;
+}
+
+/* ===== Budget at a glance: food shops, purchases and how each one is covered =====
+   buys/<id>  = { d, a, n, ym, cover: 'food'|'spread'|'spare'|'pot'|'planned', cuts:[{ym, slot, a}], extra }
+   shops/<ym> = { done: { <slot>: { at, actual } } } */
+const SHOP_FLOOR = 0.3; // a shop is never cut below 30% of its usual amount
+const BUY_COVER = {
+  food: ['🛒', 'Take it off the next food shop'],
+  spread: ['🧺', 'Spread it over the rest of the month\'s shops'],
+  spare: ['💷', 'Use this month\'s spare money'],
+  pot: ['🏝️', 'Take it from the holiday pot'],
+  planned: ['✅', 'It was already in the budget'],
+};
+function shopSlots(ym) {
+  const doc = S.bsheet[ym]; if (!doc) return [];
+  const rows = (doc.secs || []).filter(s => s.kind === 'base' || s.kind === 'extra').flatMap(s => s.rows.filter(bsOn)).filter(r => /food|shop|groceries|big monthly/i.test(r.n || '') && !/school|dinner|pet|dog|cat/i.test(r.n || ''));
+  const out = [];
+  rows.filter(r => r.u == null).forEach(r => out.push({ base: Number(r.a) || 0, big: /big|monthly/i.test(r.n) }));
+  rows.filter(r => r.u != null).forEach(r => { for (let i = 0; i < (Number(r.q) || 0); i++) out.push({ base: Number(r.u) || 0 }); });
+  const pd = payday(ym);
+  return out.filter(x => x.base > 0).map((x, i) => ({ ...x, ym, slot: i, d: addDays(pd, i * 7), n: x.big ? 'Big monthly shop' : `Week ${i + 1} shop` }));
+}
+const shopDone = (ym, slot) => ((S.shops[ym] || {}).done || {})[slot];
+const shopCuts = (ym, slot, skip) => (S.buys || []).filter(b => b.id !== skip).flatMap(b => (b.cuts || []).filter(c => c.ym === ym && c.slot === slot).map(c => ({ ...c, b })));
+const shopTarget = (s, skip) => Math.round((s.base - shopCuts(s.ym, s.slot, skip).reduce((t, c) => t + c.a, 0)) * 100) / 100;
+function openSlots(fromToday = true) {
+  const cur = plCur(), t = today();
+  return [...shopSlots(cur), ...shopSlots(ymAdd(cur, 1))].filter(s => !shopDone(s.ym, s.slot) && (!fromToday || addDays(s.d, 6) >= t));
+}
+const nextShop = () => openSlots()[0] || null;
+function planCuts(amount, cover, skip) {
+  let left = Math.round(amount * 100) / 100; const cuts = [];
+  const room = s => Math.max(0, shopTarget(s, skip) - cuts.filter(c => c.ym === s.ym && c.slot === s.slot).reduce((t, c) => t + c.a, 0) - s.base * SHOP_FLOOR);
+  const take = (s, want) => { const a = Math.round(Math.min(want, room(s)) * 100) / 100; if (a > 0) { const c = cuts.find(x => x.ym === s.ym && x.slot === s.slot); if (c) c.a = Math.round((c.a + a) * 100) / 100; else cuts.push({ ym: s.ym, slot: s.slot, a }); left = Math.round((left - a) * 100) / 100; } };
+  const slots = openSlots();
+  if (cover === 'spread') { const cur = plCur(), mine = slots.filter(s => s.ym === cur), use = mine.length ? mine : slots.slice(0, 1); const each = left / Math.max(1, use.length); use.forEach(s => take(s, each)); }
+  if (cover === 'food' || cover === 'spread') for (const s of slots) { if (left <= 0) break; take(s, left); }
+  return { cuts, extra: left > 0.004 ? left : 0 };
+}
+// what the purchases do to a month's Budget Sheet: the spend goes in, food-shop cuts come off, and shops that came in over or under count too
+function buysNet(ym) {
+  let net = 0;
+  (S.buys || []).forEach(b => { if (b.ym === ym && b.cover !== 'pot' && b.cover !== 'planned') net += Number(b.a) || 0; (b.cuts || []).forEach(c => { if (c.ym === ym) net -= c.a; }); });
+  shopSlots(ym).forEach(s => { const d = shopDone(ym, s.slot); if (d && d.actual != null) net += Number(d.actual) - shopTarget(s); });
+  return Math.round(net * 100) / 100;
+}
+const buysIn = ym => (S.buys || []).filter(b => b.ym === ym).sort((a, b) => a.d < b.d ? 1 : -1);
+const daysToPay = () => { const t = today(); let pd = payday(plCur()); if (pd <= t) pd = payday(ymAdd(plCur(), 1)); return daysBetween(t, pd); };
+function coverLine(b) {
+  if ((b.cover === 'food' || b.cover === 'spread') && (b.cuts || []).length > 1 && b.cuts.every(c => Math.abs(c.a - b.cuts[0].a) < .02)) return `${m2(b.cuts[0].a)} off each of the next ${b.cuts.length} food shops${b.extra ? `, ${m2(b.extra)} from spare` : ''}`;
+  if (b.cover === 'food' || b.cover === 'spread') { const parts = (b.cuts || []).map(c => { const s = shopSlots(c.ym)[c.slot]; return s ? `${m2(c.a)} off the ${s.n.toLowerCase()}${c.ym !== b.ym ? ` (${monShort(c.ym)})` : ''}` : ''; }).filter(Boolean); return parts.join(', ') + (b.extra ? `${parts.length ? ', ' : ''}${m2(b.extra)} from spare` : '') || 'From spare'; }
+  return { spare: 'From this month\'s spare', pot: 'From the holiday pot', planned: 'Already in the budget' }[b.cover] || '';
+}
+
+function glanceCard(compact = false) {
+  const cur = plCur(), doc = S.bsheet[cur]; if (!doc) return '';
+  const t = bsTotals(doc, cur), ns = nextShop(), buys = buysIn(cur), extra = buys.reduce((s, b) => s + (Number(b.a) || 0), 0), dp = daysToPay();
+  const nsT = ns ? shopTarget(ns) : 0, cut = ns ? ns.base - nsT : 0;
+  const tiles = `<div class="od-tiles gl-tiles">
+    <button type="button" class="od-t" data-act="${ns ? 'shopdone' : 'mseg'}" ${ns ? `data-ym="${ns.ym}" data-slot="${ns.slot}"` : 'data-v="sheet"'}><span>🛒</span><b>${ns ? m2(nsT) : '–'}</b><em>${ns ? `${esc(ns.n)}${cut > .5 ? ` · ${m2(cut)} off` : ''}` : 'No shops in the sheet'}</em></button>
+    <div class="od-t"><span>🧾</span><b>${m2(extra)}</b><em>${buys.length ? `${buys.length} extra spend${buys.length === 1 ? '' : 's'}` : 'No extra spends'}</em></div>
+    <div class="od-t"><span>📅</span><b>${dp}</b><em>day${dp === 1 ? '' : 's'} to payday</em></div></div>`;
+  return `<section class="panel nopad glance">${headCard({ tone: t.left >= 0 ? 'good' : 'zilch', kicker: compact ? 'Budget at a glance' : `The ${monShort(cur)} pay at a glance`, title: t.left >= 0 ? `${money(t.left, 0)} spare this month` : `${money(-t.left, 0)} to find this month`,
+    body: tiles, actions: hcBtn('＋ Add a purchase', 'buyadd') + (ns ? hcBtn('Shop done', 'shopdone', `data-ym="${ns.ym}" data-slot="${ns.slot}"`) : '') + (compact ? hcBtn('Details', 'tab', 'data-v="money" data-seg="overview"') : '') })}</section>`;
+}
+function foodPanel() {
+  const cur = plCur(), slots = shopSlots(cur), buys = buysIn(cur), t = today(); if (!slots.length && !buys.length) return '';
+  const row = s => { const d = shopDone(s.ym, s.slot), tg = shopTarget(s), cuts = shopCuts(s.ym, s.slot), now = !d && t >= s.d && t <= addDays(s.d, 6), past = !d && addDays(s.d, 6) < t;
+    return `<div class="fs ${d ? 'done' : ''} ${now ? 'now' : ''} ${past ? 'past' : ''}"><button type="button" class="st-tick" data-act="shopdone" data-ym="${s.ym}" data-slot="${s.slot}" aria-pressed="${!!d}" aria-label="${d ? 'Done' : 'Mark done'}: ${esc(s.n)}">${d ? stepIcon('clear') : ''}</button>
+      <div class="grow"><div class="t">${esc(s.n)}${now ? ' <span class="chip ok">This week</span>' : ''}</div><div class="m">From ${esc(dayShort(s.d))}${d && d.actual != null ? ` · came to ${m2(Number(d.actual))}${Math.abs(d.actual - tg) > .5 ? `, ${d.actual > tg ? `${m2(d.actual - tg)} over` : `${m2(tg - d.actual)} under`}` : ''}` : ''}</div>
+      ${cuts.length ? `<div class="fs-cuts">${cuts.map(c => `<span>−${m2(c.a)} ${esc(c.b.n)}</span>`).join('')}</div>` : ''}</div>
+      <div class="fs-amt">${cuts.length ? `<s>${m2(s.base)}</s>` : ''}<b>${m2(tg)}</b></div></div>`; };
+  const net = buysNet(cur);
+  return `<section class="panel"><h2>Food shops <span class="sub">${monShort(cur)} pay</span></h2>
+    ${slots.length ? `<div class="fs-list">${slots.map(row).join('')}</div>` : '<p class="empty">Add the food shop to this month\'s Budget Sheet and the weekly shops show here.</p>'}
+    <h2 class="h2b">Extra spends <button class="btn small" data-act="buyadd">Add</button></h2>
+    ${buys.length ? `<div class="list">${buys.map(b => `<button class="rowbtn" data-act="buyedit" data-id="${esc(b.id)}"><span class="ti-ico" style="background:color-mix(in srgb,var(--acc) 14%,transparent)">${(BUY_COVER[b.cover] || BUY_COVER.spare)[0]}</span><div class="grow"><div class="t">${esc(b.n || 'Purchase')}</div><div class="m">${esc(dayShort(b.d))} · ${esc(coverLine(b))}</div></div><div class="amt">${m2(Number(b.a) || 0)}</div></button>`).join('')}</div>`
+      : `<p class="empty">Bought something that wasn't planned? Add it here and pick how to cover it. Usually it comes off the next food shop.</p>`}
+    ${buys.length || Math.abs(net) > .5 ? `<p class="note">${net > .5 ? `This month's Budget Sheet has ${m2(net)} more going out because of these.` : net < -.5 ? `The month is ${m2(-net)} better off, because shops came in under.` : 'All covered by the food shops, so the month still adds up the same.'}</p>` : ''}</section>`;
+}
+function buyForm(id) {
+  const b = (S.buys || []).find(x => x.id === id) || { d: today(), cover: 'food' };
+  const opts = () => { const a = num(v('byA')) || 0, cur = plCur(), doc = S.bsheet[cur], left = doc ? bsTotals(doc, cur).left + (b.id && b.cover !== 'pot' && b.cover !== 'planned' ? (Number(b.a) || 0) - (b.cuts || []).filter(c => c.ym === cur).reduce((s, c) => s + c.a, 0) : 0) : 0;
+    const desc = k => { if (!a) return { food: 'Like you normally do', spread: 'A little off each shop', spare: `${money(left, 0)} spare this month`, pot: `${money(potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0), 0)} in the pot`, planned: 'Nothing changes' }[k];
+      if (k === 'food' || k === 'spread') { const pc = planCuts(a, k, b.id); if (!pc.cuts.length) return 'No shops left to take it from'; const first = pc.cuts.map(c => { const s = shopSlots(c.ym)[c.slot]; return s ? `${s.n} ${m2(shopTarget(s, b.id))} → ${m2(shopTarget(s, b.id) - c.a)}` : ''; }).slice(0, 3).join(' · '); return first + (pc.extra ? ` · ${m2(pc.extra)} too big for the shops, so from spare` : ''); }
+      if (k === 'spare') return left - a >= 0 ? `Leaves ${money(left - a, 0)} spare this month` : `Leaves the month ${money(a - left, 0)} short`;
+      if (k === 'pot') { const pb = potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0); return `Pot goes from ${money(pb, 0)} to ${money(pb - a, 0)}`; }
+      return 'Nothing changes'; };
+    return Object.entries(BUY_COVER).map(([k, [ic, lbl]]) => `<button type="button" class="bc ${v('byC') === k ? 'on' : ''}" data-act="buyc" data-v="${k}" aria-pressed="${v('byC') === k}"><span class="bc-i">${ic}</span><span class="grow"><b>${lbl}</b><small>${esc(desc(k))}</small></span></button>`).join(''); };
+  openSheet(id ? (b.n || 'Purchase') : 'Add a purchase', `<div class="zinput"><span>£</span><input id="byA" name="byA" inputmode="decimal" placeholder="0" value="${b.a ?? ''}" aria-label="How much"></div>` + fld('byN', 'What was it', b.n || '', 'text', 'placeholder="e.g. School trip, trainers, takeaway"') + fld('byD', 'When', b.d, 'date') +
+    `<input type="hidden" id="byC" value="${esc(b.cover)}"><div class="field"><label>How shall we cover it?</label><div class="bc-list" id="byOpts"></div></div>`, async () => {
+    const a = num(v('byA')), n = v('byN').trim(), cover = v('byC'), d = v('byD') || today(); if (!a || a <= 0) throw new Error('Enter how much it was');
+    const x = { d, a, n: n || 'Purchase', ym: payYm(d), cover }; if (cover === 'food' || cover === 'spread') Object.assign(x, planCuts(a, cover, b.id)); else { x.cuts = []; x.extra = 0; }
+    if (x.extra) x.extra = Math.round(x.extra * 100) / 100;
+    const bid = b.id || uid('by'); await put(`buys/${bid}`, x);
+    const es = potEntries().filter(e => e.buy !== bid); if (cover === 'pot') es.push({ id: uid('pe'), d, a: -a, n: `Covered ${x.n}`, buy: bid }); if (es.length !== potEntries().length || cover === 'pot') await savePot(es);
+  }, id ? { onDelete: async () => { await remove(`buys/${id}`); if (potEntries().some(e => e.buy === id)) await savePot(potEntries().filter(e => e.buy !== id)); } } : {});
+  const draw = () => { const o = $('#byOpts'); if (o) o.innerHTML = opts(); };
+  $('#sheetForm').addEventListener('input', e => { if (e.target.id === 'byA') draw(); }); draw(); setTimeout(() => { const i = $('#byA'); if (i && !id) i.focus(); }, 60);
+}
+function shopDoneForm(ym, slot) {
+  const s = shopSlots(ym)[slot]; if (!s) return; const d = shopDone(ym, slot), tg = shopTarget(s);
+  if (d) { const done = { ...((S.shops[ym] || {}).done || {}) }; delete done[slot]; return put(`shops/${ym}`, { done }); }
+  openSheet(`${s.n} done`, `<p class="note">The target was ${m2(tg)}${s.base - tg > .5 ? ` (${m2(s.base - tg)} off for extra spends)` : ''}. What did it come to? Leave it blank if it was about right.</p>` + fld('sdA', 'It came to (£)', '', 'number', 'step="0.01" min="0" inputmode="decimal"'), async () => {
+    const a = num(v('sdA')), done = { ...((S.shops[ym] || {}).done || {}) }; done[slot] = { at: today(), ...(a !== null && a >= 0 ? { actual: a } : {}) };
+    await put(`shops/${ym}`, { done }); if (a !== null && a < tg - .5) toast(`${m2(tg - a)} under. Nice!`);
+  });
 }
 
 /* ===== headed cards: the bold gradient card style ===== */
@@ -4297,6 +4435,11 @@ document.addEventListener('click', async e => {
   if (a==='pushtest') { el.disabled = true; await pushTest(); el.disabled = false; return; }
   if (a==='qcallout') { closeSheet(); UI.tab = 'work'; UI.who = 'viki'; keepUI(); render(); return vikiDayForm(lastOncallDay()); }
   if (a==='qspend') { closeSheet(); return spendForm(); }
+  if (a==='qbuy') { closeSheet(); return buyForm(); }
+  if (a==='buyadd') return buyForm();
+  if (a==='buyedit') return buyForm(el.dataset.id);
+  if (a==='buyc') { const h = $('#byC'); if (h) h.value = el.dataset.v; const o = $('#byOpts'); if (o) { o.querySelectorAll('.bc').forEach(b => { const on = b.dataset.v === el.dataset.v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); } return; }
+  if (a==='shopdone') return shopDoneForm(el.dataset.ym, Number(el.dataset.slot));
   if (a==='qfuel') { closeSheet(); return fuelForm(); }
   if (a==='qbill') { closeSheet(); return billForm(); }
   if (a==='qlist') { closeSheet(); UI.tab = 'home'; UI.list = 'shopping'; keepUI(); render(); setTimeout(() => { const i = $('#listText'); if (i) { i.focus(); i.scrollIntoView({block:'center'}); } }, 50); return; }
