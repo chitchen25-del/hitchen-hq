@@ -1232,6 +1232,63 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .kstats{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 6px}
 .klph{flex:none;width:44px;height:44px;border-radius:10px;background:var(--sheet-2) center/cover no-repeat}
 .gcharts h3,.gsub{font-size:.84rem;color:var(--muted);margin:14px 0 4px;font-weight:650}
+.pb-kid{color:#fff}
+.pb.pb-face.pb-kid{background-size:cover;background-position:center;color:transparent;box-shadow:0 0 0 1.5px #fff,0 0 0 3px var(--kc)}
+.tb-photo .tb-cell .lb .pb.pb-face.pb-kid{box-shadow:0 0 0 1.5px rgba(255,255,255,.85)}
+.cd.k-school{background:linear-gradient(145deg,#0E5E4A,#22A57A 60%,#8BDC9C)}
+.rowbtn.meal.today .t{color:var(--gold)}
+.row .st-tick + .rowbtn{flex:1;min-width:0}
+/* the girls' own corner */
+.kc-tabs{display:flex;gap:6px;background:var(--sheet);border-radius:18px;padding:5px;box-shadow:var(--shadow)}
+.kc-tabs button{flex:1;border:0;background:none;font:inherit;font-weight:750;font-size:1rem;padding:12px 4px;border-radius:14px;color:var(--muted);cursor:pointer}
+.kc-tabs button[aria-selected="true"]{background:linear-gradient(140deg,#3B1E8C,#A23BEC 55%,#FF6B9A);color:#fff}
+.kc-stars{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;background:var(--sheet);border-radius:22px;padding:16px 18px;box-shadow:var(--shadow)}
+.kc-stars b{font-size:3rem;font-weight:850;letter-spacing:-.04em;line-height:1;background:linear-gradient(140deg,#F2A33A,#FF6B9A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kc-stars span{font-size:1.1rem;font-weight:700}
+.kc-stars small{flex-basis:100%;color:var(--muted);font-size:.92rem}
+.kc-jobs,.kc-goals{display:flex;flex-direction:column;gap:9px}
+.kc-job{display:flex;align-items:center;gap:13px;width:100%;text-align:left;border:0;font:inherit;color:var(--ink);background:var(--sheet);border-radius:20px;padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s ease,background .2s ease}
+.kc-job:active{transform:scale(.97)}
+.kc-job b{display:block;font-size:1.08rem}.kc-job small{color:var(--muted);font-size:.85rem}
+.kc-tick{flex:none;width:34px;height:34px;border-radius:50%;border:2.5px solid var(--rule-2);display:grid;place-items:center;font-weight:900;color:#fff;font-size:1.1rem}
+.kc-job.done{background:color-mix(in srgb,#33B679 12%,var(--sheet))}
+.kc-job.done .kc-tick{background:#33B679;border-color:#33B679}
+.kc-job.done b{text-decoration:line-through;text-decoration-color:rgba(51,182,121,.6)}
+.kc-s{flex:none;font-size:.95rem;letter-spacing:-2px}
+@media (prefers-reduced-motion:no-preference){.kc-job{animation:rise .4s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d)}}
+.kc-goal{display:flex;align-items:center;gap:14px;background:var(--sheet);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+.kc-goal b{display:block;font-size:1.08rem}.kc-goal small{color:var(--muted);font-size:.88rem}
+.kc-emo{font-size:2.2rem;flex:none}
+.kc-bar{height:14px;border-radius:999px;background:var(--sheet-2);overflow:hidden;margin:8px 0 6px}
+.kc-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#A23BEC,#FF6B9A,#F2A33A)}
+.kcheer{position:fixed;left:50%;top:42%;z-index:90;pointer-events:none;transform:translate(-50%,-50%)}
+.kcheer b{display:block;font-size:2.4rem;font-weight:850;color:#F2A33A;text-shadow:0 4px 18px rgba(0,0,0,.25);animation:kpop 1.2s ease both}
+.kcheer i{position:absolute;left:50%;top:50%;font-style:normal;font-size:1.4rem;animation:kburst 1.1s ease-out both;animation-delay:var(--d)}
+@keyframes kpop{0%{transform:scale(.4);opacity:0}25%{transform:scale(1.15);opacity:1}70%{opacity:1}100%{transform:scale(1) translateY(-30px);opacity:0}}
+@keyframes kburst{0%{transform:translate(-50%,-50%) rotate(var(--a)) translateY(0);opacity:1}100%{transform:translate(-50%,-50%) rotate(var(--a)) translateY(-120px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.kcheer i{display:none}}
+/* year in review */
+.yr{position:fixed;inset:0;z-index:80;background:#0b0b14;color:#fff;display:flex;flex-direction:column}
+.yr-track{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.yr-track::-webkit-scrollbar{display:none}
+.yr-card{flex:none;width:100%;scroll-snap-align:center;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:80px 30px 60px;box-sizing:border-box}
+.yr-e{font-size:3.4rem;margin-bottom:10px}
+.yr-face{width:96px;height:96px;border-radius:50%;background-size:cover;background-position:center;box-shadow:0 0 0 4px rgba(255,255,255,.85);margin-bottom:14px}
+.yr-k{font-size:.85rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.yr-big{font-size:clamp(3.6rem,20vw,6rem);font-weight:850;letter-spacing:-.05em;line-height:.95}
+.yr-t{font-size:1.5rem;font-weight:750;letter-spacing:-.02em}
+.yr-s{font-size:1.05rem;line-height:1.45;opacity:.9;max-width:30ch;margin:10px 0 0}
+.yc-a{background:radial-gradient(120% 80% at 100% 0%,rgba(255,211,107,.35),transparent 60%),linear-gradient(160deg,#3B1E8C,#A23BEC 55%,#FF6B9A)}
+.yc-b{background:linear-gradient(160deg,#0B4F4A,#16897F 55%,#7FD8C6)}
+.yc-c{background:linear-gradient(160deg,#4A2309,#D9771E 55%,#FFC46B)}
+.yc-d{background:linear-gradient(160deg,#0F2F6B,#2F7FD8 55%,#8FC6FF)}
+.yc-e{background:linear-gradient(160deg,#5B1238,#C2457F 55%,#FFA3C7)}
+.yc-f{background:linear-gradient(160deg,#7A2E06,#F2A33A 55%,#FFE08A);color:#2B1500}
+.yc-g{background:linear-gradient(160deg,#1A1A1A,#56606E 55%,#B7C0CC)}
+.yc-h{background:linear-gradient(160deg,#5E1A0A,#E5533D 55%,#FFB199)}
+.yr-x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;z-index:2;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.22);color:#fff;font-size:1.1rem;cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.yr-dots{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);display:flex;justify-content:center;gap:7px}
+.yr-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)}.yr-dots i.on{background:#fff;width:20px;border-radius:999px}
 /* round faces */
 .pb.pb-face{background-size:cover;background-position:center;color:transparent;box-shadow:0 0 0 1.5px #fff,0 0 0 3px var(--viki-bar)}
 .pb-chris.pb-face{box-shadow:0 0 0 1.5px #fff,0 0 0 3px var(--chris-bar)}
@@ -1311,8 +1368,8 @@ const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).
 /* ---------- state ---------- */
 const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
-try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.vcmode) UI.vcmode=saved.vcmode; } catch(e) {}
-const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode})); } catch(e) {} };
+try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; } catch(e) {}
+const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode, kidTab:UI.kidTab})); } catch(e) {} };
 let sb = null, session = null, offline = false;
 const LOGIN_DOMAIN = 'hitchen.example.com'; // usernames map to <username>@this (never emailed)
 const userName = () => { const u = session && session.user; if (!u) return ''; return (u.user_metadata && u.user_metadata.username) || (u.email||'').split('@')[0]; };
@@ -1376,17 +1433,18 @@ function applyLocal(path, data) {
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; }
+  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; }
+  else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d]));
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.meals) rows.push(['meals/main', S.meals]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.entries(S.media || {}).forEach(([id,d]) => rows.push([`media/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
@@ -1469,7 +1527,7 @@ function render() {
   $('[data-act="settings"]').hidden = !session;
   $('.fab').hidden = !session;
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
-  if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('#title').textContent = 'Wish list'; $('#subtitle').textContent = 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
+  if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('#title').textContent = `${UI.kid}'s corner`; $('#subtitle').textContent = UI.kidTab === 'jobs' ? 'Tick off your jobs to earn stars' : UI.kidTab === 'save' ? 'What you\'re saving up for' : 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
   const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Holidays, visits, Christmas and birthdays'], car:['The Evoque','Service, checks, fuel and trips']};
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
@@ -1581,6 +1639,13 @@ function agenda(from, to) {
   Object.values(S.days).forEach(d => { if (d.who==='viki' && d.oncall && !calOncall.has(`viki_${d.date}`)) add(d.date, { sort:d.oncall.start||'', time:hm(d.oncall.start), title: d.oncall.kind==='second' ? 'Viki 2nd on call' : 'Viki on call', color: evColor('V: on call', 0), who:'viki', ic:'moon' }); });
   kidsDob().forEach(k => { const b = nextBday(k.dob, from); if (b.date > to || (byDay[b.date] || []).some(x => /birthday|bday/i.test(x.title) && x.title.toLowerCase().includes(k.name.toLowerCase()))) return;
     add(b.date, { sort:'', time:'', title:`${k.name}'s ${ordinal(b.age)} birthday`, color: evColor('birthday', 0), who:'', ic:'cake' }); });
+  for (let d = from; d <= to; d = addDays(d, 1)) {
+    const s = schoolDay(d);
+    if (!isWeekend(d) && ['hol', 'inset'].includes(s.k)) add(d, { sort:'', time:'', title: s.k === 'inset' ? 'Staff training day, no school' : `${s.n}, no school`, color:'#33B679', who:'', ic:'sun' });
+    if (s.k === 'school') { let p = addDays(d, -1); while (isWeekend(p)) p = addDays(p, -1); if (schoolDay(p).k !== 'school' && schoolDay(p).k !== 'none') add(d, { sort:'', time:'', title:'Back to school', color:'#33B679', who:'', ic:'flag' }); }
+    kidsDob().forEach((k, i) => actsOn(wishKey(k.name), d).forEach(a => add(d, { sort:a.from||'', time:hm(a.from), title:`${k.name}: ${a.n}${a.drop ? ` (${whoName(a.drop)} drops off)` : ''}`, where:a.where, color:KIDCOL[i % KIDCOL.length], who:'', ic:'ball' })));
+    const ml = mealOn(d); if (ml) add(d, { sort:'19', time:'', title:`Dinner: ${ml.n}`, color:'#E8A33D', who:'', ic:'heart', meal:true });
+  }
   Object.values(byDay).forEach(a => a.sort((x,y) => x.sort < y.sort ? -1 : x.sort > y.sort ? 1 : 0));
   return byDay;
 }
@@ -1802,13 +1867,13 @@ function viewHome() {
     limit ? `<span><b>${money(Math.max(0,limit-spent),0)}</b> left to spend this month</span>` : '',
     binsTomorrow ? `<span class="hint">${icon('bin')} Bins out tonight</span>` : '',
   ].filter(Boolean).join('');
-  const hs = homeSlot(), hpic = media(hs) ? mediaBg(hs, 'tb-bg') + photoBtn(hs) : '';
+  const hs = homeSlot(), hpic = media(hs) ? mediaBg(hs, 'tb-bg') + photoBtn(hs) : '', tonight = mealOn(t);
   const hero = tblock({ kicker: greet, title: `${DOWS[td.getDay()]} ${td.getDate()} ${MONTHS[td.getMonth()]}`,
-    cells: [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), payCell ],
-    foot, bg: hpic });
+    cells: kidsDob().length ? [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), ...kidsDob().map(kidCell) ] : [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), payCell ], two: kidsDob().length > 0,
+    foot: kidsDob().length ? [r.salary ? `<span><b>Payday ${payTxt === 'Today' || payTxt === 'Tomorrow' ? payTxt.toLowerCase() : payTxt.replace(/^In/, 'in')}</b>${toPay > 1 ? ` (${esc(dayShort(pd))})` : ''}, Viki about ${money(vp.net,0)}</span>` : '', tonight ? `<span class="hint">${mealIcon(tonight.n)} Tonight: ${esc(tonight.n)}</span>` : ''].filter(Boolean).join('') + foot : foot, bg: hpic });
   setTimeout(runCountUp, 30); updateBadge();
   /* calm by default: today, payday and the week first; other panels only when there's something in them */
-  return hero + yearlyUpdateNudge() + checkinCard() + pushNudge() + glanceCard(true) + countRibbon('Treats on the way') + week + listPanel() + tiles + (bills.length ? billsPanel : '') + carPanel;
+  return hero + yearlyUpdateNudge() + clashHome() + yearHome() + checkinCard() + pushNudge() + glanceCard(true) + countRibbon('Coming up') + week + listPanel() + tiles + (bills.length ? billsPanel : '') + carPanel;
 }
 function goalBar(g) {
   const pct = g.target ? Math.min(100, Math.round((Number(g.saved)||0)/g.target*100)) : 0;
@@ -2133,7 +2198,7 @@ function kidGrowPanel(k, i) {
     <h3 class="gsub">Measurements</h3><div class="list">${shown.map(x => `<button class="rowbtn" data-act="kgrow" data-k="${key}" data-id="${esc(x.id)}"><span class="kic" style="--c:${col}">📏</span><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.d))} ${x.d.slice(0, 4)}</span><span class="m" style="display:block">${[x.h ? `${n1(x.h)} cm (${ftin(x.h)})` : '', x.w ? `${n1(x.w)} kg (${stlb(x.w)})` : ''].filter(Boolean).join(' · ')}</span></span></button>`).join('')}</div>
     ${list.length > 6 ? `<p class="note">Showing the latest 6 of ${list.length}.</p>` : ''}</section>`;
 }
-function viewKidWork(k, i) { return kidHero(k, i) + kidGlance(k, i) + kidCalendar() + termDatesPanel() + kidMoneyPanel(k) + kidLogPanel(k) + kidGrowPanel(k, i); }
+function viewKidWork(k, i) { return kidHero(k, i) + kidGlance(k, i) + kidActsPanel(k, i) + kidCalendar() + clashPanel() + kidChoresPanel(k, i) + kidSavePanel(k, i) + kidMoneyPanel(k) + kidLogPanel(k) + kidGrowPanel(k, i) + termDatesPanel(); }
 function kidMoneyForm(key) {
   const k = kidByKey(key); if (!k) return; const d = kidDoc(key);
   openSheet(`${k.name}'s money`, `<div class="fields2">${fld('kmA', 'Pocket money each week (£)', d.pocket.a || '', 'number', 'step="0.01" min="0" inputmode="decimal" placeholder="e.g. 5"')}${sel('kmD', 'Paid on', d.pocket.day, [1, 2, 3, 4, 5, 6, 0].map(x => [x, DOWS[x]]))}</div>` +
@@ -2163,6 +2228,300 @@ function kidGrowForm(key, id) {
   }, e ? { onDelete: () => saveKid(key, d => ({ ...d, growth: d.growth.filter(y => y.id !== e.id) })) } : {});
 }
 const kidByKey = key => kidsDob().find(k => wishKey(k.name) === key) || null;
+const kidIdx = key => Math.max(0, kidsDob().findIndex(k => wishKey(k.name) === key));
+const kidBadge = name => { const c = KIDCOL[kidIdx(wishKey(name)) % KIDCOL.length], m = media(faceSlot(name));
+  if (!m) return `<span class="pb pb-kid" style="background:${c}">${esc(String(name)[0])}</span>`;
+  return m.b64 ? `<span class="pb pb-face pb-kid" style="--kc:${c};background-image:url('${b64URL(m)}')"></span>` : `<span class="pb pb-face pb-kid" style="--kc:${c}" data-photo="${esc(m.path)}"></span>`; };
+
+/* ----- who looks after the girls when school's off and you're both working -----
+   state/cover = { days: { 'YYYY-MM-DD': { who, note } } } */
+const COVER_WHO = { chris: ['Chris takes the day off', '👨'], viki: ['Viki takes the day off', '👩'], grand: ['Grandparents', '👵'], friend: ['Friends or family', '🏡'], club: ['Holiday club', '⚽'], other: ['Someone else', '✏️'] };
+function parentDay(who, date) {
+  const r = dayRec(who, date);
+  if (r) { if (r.status === 'shift' || r.status === 'work' || r.status === 'callout') return { busy: true, txt: r.start ? `${hm(r.start)}–${hm(r.end)}` : 'working' }; return { busy: false, txt: r.status === 'holiday' ? 'on leave' : r.status === 'sick' ? 'off sick' : 'off' }; }
+  if (isWeekend(date)) return { busy: false, txt: 'off' };
+  if (who === 'chris' && isBH(date)) return { busy: false, txt: 'off (bank holiday)' };
+  if (who === 'chris') return { busy: true, txt: 'working', guess: true };
+  return date <= rotaEnd() ? { busy: false, txt: 'off' } : { busy: true, txt: 'rota not out yet', guess: true, unknown: true };
+}
+const coverOf = date => ((S.cover && S.cover.days) || {})[date] || null;
+function clashDays(from = today(), days = 240) {
+  const last = SCHOOL_YEARS[SCHOOL_YEARS.length - 1], end = [addDays(from, days), addDays(last.to, 42)].sort()[0], out = [];
+  for (let d = from; d <= end; d = addDays(d, 1)) {
+    if (isWeekend(d)) continue; const s = schoolDay(d); if (!['hol', 'bh', 'inset'].includes(s.k)) continue;
+    if ((S.plans || []).some(p => ['summer', 'city', 'family'].includes(p.kind) && p.from && p.from <= d && (p.to || p.from) >= d)) continue; /* away together */
+    const c = parentDay('chris', d), v = parentDay('viki', d); if (c.busy && v.busy) out.push({ d, s, c, v, cover: coverOf(d) });
+  }
+  return out;
+}
+const clashRow = x => { const cv = x.cover, w = cv && COVER_WHO[cv.who];
+  return `<button class="rowbtn" data-act="cover" data-date="${x.d}"><span class="kic" style="--c:${cv ? 'var(--good)' : 'var(--bad)'}">${cv ? w[1] : '⚠️'}</span><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.d))}</span><span class="m" style="display:block">Chris ${esc(x.c.txt)}${x.c.guess ? ' (usual)' : ''} · Viki ${esc(x.v.txt)}${cv && cv.note ? ` · ${esc(cv.note)}` : ''}</span></span><span class="chip ${cv ? 'ok' : 'due'}">${cv ? esc(w[0].replace(' takes the day off', ' off')) : x.v.unknown ? 'Check rota' : 'Needs cover'}</span></button>`; };
+function clashPanel() {
+  const all = clashDays(), known = all.filter(x => !x.v.unknown), open = known.filter(x => !x.cover), wait = all.filter(x => x.v.unknown && !x.cover), groups = [];
+  all.forEach(x => { const n = x.s.n; let g = groups.find(y => y.n === n && daysBetween(y.last, x.d) <= 14); if (!g) groups.push(g = { n, items: [] }); g.items.push(x); g.last = x.d; });
+  const gHtml = g => { const shown = g.items.filter(x => !x.v.unknown || x.cover), w = g.items.filter(x => x.v.unknown && !x.cover);
+    return `<h3 class="gsub">${esc(g.n)}</h3><div class="list">${shown.map(clashRow).join('')}${w.length ? `<div class="row"><span class="kic" style="--c:var(--muted)">🗓️</span><span class="grow"><span class="t" style="display:block">${w.length} weekday${w.length === 1 ? '' : 's'} to check</span><span class="m" style="display:block">${esc(dayShort(w[0].d))}${w.length > 1 ? ` – ${esc(dayShort(w[w.length - 1].d))}` : ''}: Chris working, Viki's rota isn't out yet. Tap a day in the school calendar to sort cover early.</span></span></div>` : ''}</div>`; };
+  const sub = open.length ? `${open.length} day${open.length === 1 ? '' : 's'} need cover` : wait.length ? 'Waiting on rotas' : 'All sorted';
+  return `<section class="panel"><h2>Childcare <span class="sub">${sub}</span></h2>
+    ${groups.length ? groups.slice(0, UI.clashAll ? 99 : 3).map(gHtml).join('') + (groups.length > 3 ? `<div class="btnrow"><button class="btn small ghost" data-act="clashall">${UI.clashAll ? 'Show fewer' : `Show all ${groups.length} holidays`}</button></div>` : '')
+      : `<p class="note">One of you is off on every day the girls are off school this year.</p>`}
+    <p class="note">Weekdays the girls are off school while you're both working. Chris counts as working on any weekday that isn't a bank holiday or marked as holiday, and days you're away together don't count. Viki's days come from her rota.</p></section>`;
+}
+function clashHome() {
+  const t = today(), soon = clashDays(t, 21).filter(x => !x.cover && !x.v.unknown); if (!soon.length) return '';
+  const k = kidsDob()[0], n = soon.length;
+  return `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Childcare', title: `${n} day${n === 1 ? '' : 's'} with nobody home`, meta: `<span>The girls are off school and you're both working: ${soon.slice(0, 4).map(x => esc(dayShort(x.d))).join(', ')}${n > 4 ? ` and ${n - 4} more` : ''}.</span>`,
+    actions: hcBtn('Sort cover', 'cover', `data-date="${soon[0].d}"`) + (k ? hcBtn('See all', 'tab', `data-v="work" data-who="${esc(wishKey(k.name))}"`) : '') })}</section>`;
+}
+function coverForm(date) {
+  const cv = coverOf(date), s = schoolDay(date), c = parentDay('chris', date), vv = parentDay('viki', date);
+  openSheet(`${dayShort(date)} · ${s.n}`, `<p class="note" style="margin-top:0">Chris ${esc(c.txt)}${c.guess ? ' (usual)' : ''}, Viki ${esc(vv.txt)}.</p>` + sel('cvW', 'Who\'s looking after the girls', cv ? cv.who : 'grand', Object.entries(COVER_WHO).map(([k, x]) => [k, `${x[1]} ${x[0]}`])) +
+    fld('cvN', 'Note', cv ? cv.note || '' : '', 'text', 'placeholder="e.g. Nana and Grandad, drop off 8am"') +
+    `<label class="toggle"><input type="checkbox" id="cvB"> If Chris is off, mark it as holiday on his calendar</label>`, async () => {
+    const days = { ...((S.cover && S.cover.days) || {}) }, who = v('cvW'); days[date] = { who }; const note = v('cvN').trim(); if (note) days[date].note = note;
+    await put('state/cover', { days });
+    if (who === 'chris' && $('#cvB').checked) await put(`days/chris_${date}`, { who: 'chris', date, status: 'holiday', note: 'Childcare' });
+  }, cv ? { onDelete: async () => { const days = { ...((S.cover && S.cover.days) || {}) }; delete days[date]; await put('state/cover', { days }); } } : {});
+}
+
+/* ----- the girls' activities: kids/<key>.acts = [{ id, n, day, from, to, where, drop, pick, term }] ----- */
+const actsOf = key => (kidDoc(key).acts || []).slice().sort((a, b) => ((Number(a.day) + 6) % 7) - ((Number(b.day) + 6) % 7) || (a.from || '') < (b.from || '') ? -1 : 1);
+function actsOn(key, date) {
+  const w = parse(date).getDay(), s = schoolDay(date), off = ['hol', 'bh', 'inset'].includes(s.k);
+  return actsOf(key).filter(a => Number(a.day) === w && !(a.term !== false && off)).sort((a, b) => (a.from || '') < (b.from || '') ? -1 : 1);
+}
+const whoName = w => w === 'chris' ? 'Chris' : w === 'viki' ? 'Viki' : w || '';
+const actLine = a => `${a.n}${a.from ? ` ${hm(a.from)}` : ''}`;
+function kidActsPanel(k, i) {
+  const key = wishKey(k.name), acts = actsOf(key), col = KIDCOL[i % KIDCOL.length];
+  const byDay = [1, 2, 3, 4, 5, 6, 0].map(d => [d, acts.filter(a => Number(a.day) === d)]).filter(x => x[1].length);
+  return `<section class="panel"><h2>Activities <button class="btn small" data-act="kact" data-k="${key}">Add</button></h2>
+    ${byDay.length ? byDay.map(([d, xs]) => `<h3 class="gsub">${DOWS[d]}</h3><div class="list">${xs.map(a => `<button class="rowbtn" data-act="kact" data-k="${key}" data-id="${esc(a.id)}"><span class="kic" style="--c:${col}">${/swim/i.test(a.n) ? '🏊' : /gym/i.test(a.n) ? '🤸' : /music|piano|guitar|violin|sing/i.test(a.n) ? '🎵' : /danc/i.test(a.n) ? '💃' : /foot|ball|netball|hockey/i.test(a.n) ? '⚽' : /brownie|guide|scout|club/i.test(a.n) ? '🏕️' : '📅'}</span><span class="grow"><span class="t" style="display:block">${esc(a.n)}</span><span class="m" style="display:block">${a.from ? `${hm(a.from)}${a.to ? `–${hm(a.to)}` : ''}` : 'Any time'}${a.where ? ` · ${esc(a.where)}` : ''}${a.term !== false ? ' · term time' : ''}</span></span><span class="amt">${a.drop ? `<small>Drop ${esc(whoName(a.drop))}</small>` : ''}${a.pick ? `<small>Pick up ${esc(whoName(a.pick))}</small>` : ''}</span></button>`).join('')}</div>`).join('')
+      : `<p class="note">Add ${esc(k.name)}'s clubs and lessons, with who does the drop-off and pick-up. They show on Home and in the week ahead.</p>`}</section>`;
+}
+function actForm(key, id) {
+  const k = kidByKey(key); if (!k) return; const a = id ? (kidDoc(key).acts || []).find(x => x.id === id) : null; if (id && !a) return;
+  const people = [['', 'Not set'], ['chris', 'Chris'], ['viki', 'Viki'], ['Grandparents', 'Grandparents'], ['Lift share', 'Lift share'], ['Walks or bus', 'Walks or bus']];
+  openSheet(a ? a.n : `Add an activity for ${k.name}`, fld('acN', 'Activity', a ? a.n : '', 'text', 'placeholder="e.g. Swimming lessons"') + sel('acD', 'Day', a ? a.day : 1, [1, 2, 3, 4, 5, 6, 0].map(x => [x, DOWS[x]])) +
+    `<div class="fields2">${fld('acF', 'Starts', a ? a.from || '' : '', 'time')}${fld('acT', 'Finishes', a ? a.to || '' : '', 'time')}</div>` + fld('acW', 'Where', a ? a.where || '' : '', 'text', 'placeholder="e.g. NSC, Douglas"') +
+    `<div class="fields2">${sel('acDr', 'Drop-off', a ? a.drop || '' : '', people)}${sel('acPu', 'Pick-up', a ? a.pick || '' : '', people)}</div>` +
+    `<label class="toggle"><input type="checkbox" id="acTm" ${!a || a.term !== false ? 'checked' : ''}> Term time only (not in school holidays)</label>`, async () => {
+    const n = v('acN').trim(); if (!n) throw new Error('Say what the activity is');
+    const x = { id: a ? a.id : uid('ac'), n, day: Number(v('acD')), from: v('acF'), to: v('acT'), where: v('acW').trim(), drop: v('acDr'), pick: v('acPu'), term: $('#acTm').checked };
+    await saveKid(key, d => ({ ...d, acts: a ? (d.acts || []).map(y => y.id === a.id ? x : y) : [...(d.acts || []), x] }));
+  }, a ? { onDelete: () => saveKid(key, d => ({ ...d, acts: (d.acts || []).filter(y => y.id !== a.id) })) } : {});
+}
+
+/* ----- Home: what each of the girls is up to today ----- */
+function kidLive(k) {
+  const key = wishKey(k.name), t = today(), s = schoolDay(t), h = new Date().getHours() + new Date().getMinutes() / 60, acts = actsOn(key, t), now = schoolNow(t);
+  const nextAct = acts.find(a => !a.to || toMin(a.to) / 60 > h), main = s.k === 'school' ? (h < 8.5 ? 'School today' : h < 15.25 ? 'At school' : 'Home from school') : now.main;
+  const sub = nextAct ? `${actLine(nextAct)}${nextAct.drop ? `, ${whoName(nextAct.drop)} drops off` : ''}` : s.k === 'school' ? now.sub : now.sub;
+  return { main, sub, live: s.k === 'school' && h >= 8.75 && h < 15.25 };
+}
+const kidCell = k => { const s = kidLive(k); return tbCell(`${kidBadge(k.name)}${esc(k.name)}`, `${s.live ? '<span class="livedot" aria-hidden="true"></span>' : ''}${esc(s.main)}${s.sub ? `<small class="sub">${esc(s.sub)}</small>` : ''}`); };
+/* the countdown ribbon: the next school holiday, or back to school */
+function schoolCountdown() {
+  const t = today(), s = schoolDay(t);
+  if (['hol', 'bh', 'inset'].includes(s.k) || s.k === 'wknd') { const back = nextSchool(t), nb = nextBreak(t);
+    if (back && (s.k !== 'wknd' || daysBetween(t, back) > 2)) return { kind: 'school', school: true, from: back, name: 'Back to school', emo: '🎒' };
+    if (nb && daysBetween(t, nb.from) <= 45) return { kind: 'school', school: true, from: nb.from, name: brkShort(nb.n) === 'Xmas' ? 'Christmas hols' : brkShort(nb.n), emo: '🌴' }; return null; }
+  if (s.k === 'school') { const nb = nextBreak(t); if (nb && daysBetween(t, nb.from) <= 45) return { kind: 'school', school: true, from: nb.from, name: brkShort(nb.n) === 'Xmas' ? 'Christmas hols' : brkShort(nb.n), emo: '🌴' }; }
+  return null;
+}
+
+/* ----- chores and stars: kids/<key>.chores = [{ id, n, stars, freq: 'daily'|'weekly'|'once' }],
+   done = [{ id, c, d, s }], payouts = [{ id, d, stars, a }], rate = pence per star ----- */
+const weekOf = d => addDays(d, -((parse(d).getDay() + 6) % 7));
+const choreDone = (doc, ch, date = today()) => (doc.done || []).find(x => x.c === ch.id && (ch.freq === 'once' ? true : ch.freq === 'weekly' ? weekOf(x.d) === weekOf(date) : x.d === date));
+function starsOf(key) {
+  const d = kidDoc(key), earned = (d.done || []).reduce((s, x) => s + (Number(x.s) || 0), 0), paid = (d.payouts || []).reduce((s, x) => s + (Number(x.stars) || 0), 0);
+  const wk = weekOf(today()), week = (d.done || []).filter(x => weekOf(x.d) === wk).reduce((s, x) => s + (Number(x.s) || 0), 0), rate = Number(d.rate) || 0;
+  return { earned, paid, bal: earned - paid, week, rate, worth: (earned - paid) * rate / 100 };
+}
+const liveChores = d => (d.chores || []).filter(ch => !(ch.freq === 'once' && (d.done || []).some(x => x.c === ch.id && x.d < today())));
+async function toggleChore(key, id) {
+  const d = kidDoc(key), ch = (d.chores || []).find(x => x.id === id); if (!ch) return; const hit = choreDone(d, ch);
+  await saveKid(key, x => ({ ...x, done: hit ? (x.done || []).filter(y => y.id !== hit.id) : [...(x.done || []), { id: uid('cd'), c: ch.id, d: today(), s: Number(ch.stars) || 1 }] }));
+  if (!hit && UI.kid) kidCheer(Number(ch.stars) || 1);
+}
+function kidCheer(n) {
+  const el = document.createElement('div'); el.className = 'kcheer'; el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = `<b>+${n} ⭐</b>` + Array.from({ length: 14 }, (_, i) => `<i style="--a:${i * 26}deg;--d:${(i % 4) * .05}s">${['⭐', '✨', '🌟', '💫'][i % 4]}</i>`).join('');
+  document.body.appendChild(el); setTimeout(() => el.remove(), 1400);
+}
+function kidChoresPanel(k, i) {
+  const key = wishKey(k.name), d = kidDoc(key), st = starsOf(key), chores = liveChores(d), col = KIDCOL[i % KIDCOL.length];
+  const recent = (d.done || []).slice().sort((a, b) => a.d < b.d ? 1 : -1).slice(0, 5), chName = id => ((d.chores || []).find(c => c.id === id) || {}).n || 'A job';
+  return `<section class="panel"><h2>Jobs and stars <button class="btn small" data-act="kchore" data-k="${key}">Add a job</button></h2>
+    <div class="tiles"><div class="tile"><span class="tl">Stars to spend</span><span class="tv">${st.bal} ⭐</span><span class="ts">${st.rate ? `worth ${m2(st.worth)}` : 'Set what a star is worth'}</span></div>
+      <div class="tile"><span class="tl">This week</span><span class="tv">${st.week} ⭐</span><span class="ts">${st.earned} earned in total</span></div></div>
+    ${chores.length ? `<div class="list">${chores.map(ch => { const dn = choreDone(d, ch); return `<div class="row"><button class="st-tick" data-act="kchoredo" data-k="${key}" data-id="${esc(ch.id)}" aria-pressed="${!!dn}" aria-label="${dn ? 'Done' : 'Mark done'}: ${esc(ch.n)}">${dn ? stepIcon('clear') : ''}</button><button class="rowbtn grow" style="border:0;padding:0" data-act="kchore" data-k="${key}" data-id="${esc(ch.id)}"><span class="grow"><span class="t" style="display:block">${esc(ch.n)}</span><span class="m" style="display:block">${ch.freq === 'daily' ? 'Every day' : ch.freq === 'weekly' ? 'Once a week' : 'One-off'}${dn ? ' · done' : ''}</span></span><span class="amt">${'⭐'.repeat(Math.min(5, Number(ch.stars) || 1))}</span></button></div>`; }).join('')}</div>`
+      : `<p class="note">Add jobs like making her bed, feeding the pets or unloading the dishwasher, each worth some stars. She ticks them off herself in her own corner.</p>`}
+    ${recent.length ? `<h3 class="gsub">Recently done</h3><div class="list">${recent.map(x => `<div class="row"><span class="grow"><span class="t">${esc(chName(x.c))}</span></span><span class="m">${esc(dayShort(x.d))} · +${x.s} ⭐</span></div>`).join('')}</div>` : ''}
+    <div class="btnrow"><button class="btn small" data-act="kidmode" data-name="${esc(k.name)}" data-tab="jobs" style="background:${col}">Hand ${esc(k.name)} the phone</button>${st.bal && st.rate ? `<button class="btn small ghost" data-act="kpay" data-k="${key}">Pay out ${m2(st.worth)}</button>` : ''}<button class="btn small ghost" data-act="krate" data-k="${key}">Star value</button></div></section>`;
+}
+function choreForm(key, id) {
+  const k = kidByKey(key); if (!k) return; const ch = id ? (kidDoc(key).chores || []).find(x => x.id === id) : null; if (id && !ch) return;
+  openSheet(ch ? ch.n : `A job for ${k.name}`, fld('chN', 'Job', ch ? ch.n : '', 'text', 'placeholder="e.g. Make your bed"') + `<div class="fields2">${sel('chS', 'Stars', ch ? ch.stars : 1, [1, 2, 3, 4, 5].map(x => [x, '⭐'.repeat(x)]))}${sel('chF', 'How often', ch ? ch.freq : 'daily', [['daily', 'Every day'], ['weekly', 'Once a week'], ['once', 'One-off']])}</div>`, async () => {
+    const n = v('chN').trim(); if (!n) throw new Error('Say what the job is'); const x = { id: ch ? ch.id : uid('ch'), n, stars: Number(v('chS')), freq: v('chF') };
+    await saveKid(key, d => ({ ...d, chores: ch ? (d.chores || []).map(y => y.id === ch.id ? x : y) : [...(d.chores || []), x] }));
+  }, ch ? { onDelete: () => saveKid(key, d => ({ ...d, chores: (d.chores || []).filter(y => y.id !== ch.id) })) } : {});
+}
+function starRateForm(key) {
+  const k = kidByKey(key); if (!k) return; const d = kidDoc(key);
+  openSheet(`What a star is worth`, fld('srR', `Pence per star for ${k.name}`, d.rate ?? '', 'number', 'step="1" min="0" inputmode="numeric" placeholder="e.g. 10"') + `<p class="note">At 10p a star, 20 stars is £2 on top of her pocket money. Leave it empty if stars are just for fun.</p>`, async () => {
+    const r = num(v('srR')); await saveKid(key, x => ({ ...x, rate: r && r > 0 ? r : 0 }));
+  });
+}
+function payoutForm(key) {
+  const k = kidByKey(key); if (!k) return; const st = starsOf(key);
+  openSheet(`Pay ${k.name} for her stars`, `<p class="note" style="margin-top:0">${st.bal} stars at ${st.rate}p each.</p>` + fld('poS', 'Stars to pay', st.bal, 'number', 'step="1" min="1" inputmode="numeric"'), async () => {
+    const n = Math.round(num(v('poS')) || 0); if (n < 1 || n > st.bal) throw new Error(`Pick between 1 and ${st.bal} stars`); const a = Math.round(n * st.rate) / 100;
+    await saveKid(key, x => ({ ...x, payouts: [...(x.payouts || []), { id: uid('sp'), d: today(), stars: n, a }] })); window.__toastAfter = `Paid. Add ${m2(a)} to ${k.name}'s ${kidDoc(key).pocket.via || 'account'}`;
+  }, { saveLabel: 'Paid' });
+}
+
+/* ----- the girls' savings pots: kids/<key>.goals = [{ id, n, target, emo, entries:[{ id, d, a, note }] }] ----- */
+const goalSaved = g => Math.round((g.entries || []).reduce((s, x) => s + (Number(x.a) || 0), 0) * 100) / 100;
+function kidSavePanel(k, i) {
+  const key = wishKey(k.name), goals = kidDoc(key).goals || [], col = KIDCOL[i % KIDCOL.length];
+  return `<section class="panel"><h2>Saving up <button class="btn small" data-act="kgoal" data-k="${key}">New pot</button></h2>
+    ${goals.length ? `<div class="list">${goals.map(g => { const s = goalSaved(g), p = g.target ? s / g.target : 0;
+      return `<button class="rowbtn" data-act="kgoalmoney" data-k="${key}" data-id="${esc(g.id)}"><span class="kic" style="--c:${col}">${esc(g.emo || '🐷')}</span><span class="grow"><span class="t" style="display:block">${esc(g.n)}</span>${gauge(p)}<span class="m" style="display:block">${m2(s)} of ${m2(g.target || 0)}${p >= 1 ? ' · got there! 🎉' : g.target ? ` · ${m2(Math.max(0, g.target - s))} to go` : ''}</span></span><span class="amt">${Math.round(p * 100)}%</span></button>`; }).join('')}</div><p class="note">Tap a pot to add or take out money, or to change it.</p>`
+      : `<p class="note">Make a pot for something ${esc(k.name)} is saving for, and add to it as she puts pocket money aside. She can see how close she is in her own corner.</p>`}</section>`;
+}
+function goalForm(key, id) {
+  const k = kidByKey(key); if (!k) return; const g = id ? (kidDoc(key).goals || []).find(x => x.id === id) : null;
+  openSheet(g ? `Change ${g.n}` : `A savings pot for ${k.name}`, fld('kgN', 'Saving for', g ? g.n : '', 'text', 'placeholder="e.g. Cinnamoroll plush"') + `<div class="fields2">${fld('kgT', 'Target (£)', g ? g.target : '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('kgE', 'Emoji', g ? g.emo || '' : '🐷', 'text', 'maxlength="4"')}</div>`, async () => {
+    const n = v('kgN').trim(), t = num(v('kgT')); if (!n) throw new Error('Say what she\'s saving for'); if (!t || t <= 0) throw new Error('Add a target');
+    const x = { ...(g || { id: uid('gl'), entries: [] }), n, target: t, emo: v('kgE').trim() || '🐷' };
+    await saveKid(key, d => ({ ...d, goals: g ? (d.goals || []).map(y => y.id === g.id ? x : y) : [...(d.goals || []), x] }));
+  }, g ? { onDelete: () => saveKid(key, d => ({ ...d, goals: (d.goals || []).filter(y => y.id !== g.id) })) } : {});
+}
+function goalMoneyForm(key, id) {
+  const k = kidByKey(key), g = (kidDoc(key).goals || []).find(x => x.id === id); if (!k || !g) return; const s = goalSaved(g);
+  openSheet(`${g.emo || '🐷'} ${g.n}`, `<p class="note" style="margin-top:0">${m2(s)} saved of ${m2(g.target)}.</p><div class="zchips" style="margin-bottom:8px">${[1, 2, 5, 10].map(x => `<button type="button" onclick="document.getElementById('kmA2').value=${x}">£${x}</button>`).join('')}</div>` +
+    fld('kmA2', 'Amount (£)', '', 'number', 'step="0.01" min="0" inputmode="decimal"') + `<label class="toggle"><input type="checkbox" id="kmOut"> Taking money out</label>` +
+    (g.entries || []).slice(-5).reverse().map(x => `<div class="row"><span class="grow m">${esc(dayShort(x.d))}${x.note ? ` · ${esc(x.note)}` : ''}</span><b>${x.a < 0 ? '−' : '+'}${m2(Math.abs(x.a))}</b></div>`).join('') +
+    `<div class="btnrow"><button type="button" class="btn small ghost" data-act="kgoal" data-k="${key}" data-id="${esc(g.id)}">Change or delete this pot</button></div>`, async () => {
+    const a = num(v('kmA2')); if (!a || a <= 0) throw new Error('Enter an amount'); const out = $('#kmOut').checked;
+    await saveKid(key, d => ({ ...d, goals: (d.goals || []).map(y => y.id === g.id ? { ...y, entries: [...(y.entries || []), { id: uid('ge'), d: today(), a: out ? -a : a }] } : y) }));
+    if (!out && s < g.target && s + a >= g.target) celebrate(`${k.name} saved up for ${g.n}!`, `${m2(g.target)} in the pot`);
+  });
+}
+
+/* ----- the girls' own corner (hand them the phone): jobs, savings and wishes ----- */
+function kidCornerBody(name, tab) {
+  const key = wishKey(name), d = kidDoc(key);
+  if (tab === 'jobs') { const st = starsOf(key), chores = liveChores(d);
+    return `<div class="kc-stars"><b>${st.bal}</b><span>stars ⭐${st.rate ? ` · ${m2(st.worth)}` : ''}</span><small>${st.week} this week</small></div>
+      <div class="kc-jobs">${chores.length ? chores.map((ch, i) => { const dn = choreDone(d, ch); return `<button type="button" class="kc-job${dn ? ' done' : ''}" style="--d:${i * .04}s" data-act="kchoredo" data-k="${key}" data-id="${esc(ch.id)}" aria-pressed="${!!dn}"><span class="kc-tick">${dn ? '✓' : ''}</span><span class="grow"><b>${esc(ch.n)}</b><small>${ch.freq === 'daily' ? 'Today' : ch.freq === 'weekly' ? 'This week' : 'Once'}</small></span><span class="kc-s">${'⭐'.repeat(Math.min(5, Number(ch.stars) || 1))}</span></button>`; }).join('')
+        : `<p class="kid-empty">No jobs yet. Ask a grown-up to add some!</p>`}</div>`; }
+  if (tab === 'save') { const goals = d.goals || [];
+    return `<div class="kc-goals">${goals.length ? goals.map(g => { const s = goalSaved(g), p = g.target ? Math.min(1, s / g.target) : 0; return `<div class="kc-goal"><span class="kc-emo">${esc(g.emo || '🐷')}</span><div class="grow"><b>${esc(g.n)}</b><div class="kc-bar"><i style="width:${Math.round(p * 100)}%"></i></div><small>${m2(s)} of ${m2(g.target)}${p >= 1 ? ' · You did it! 🎉' : ` · ${m2(g.target - s)} to go`}</small></div></div>`; }).join('')
+      : `<p class="kid-empty">No savings pots yet. What would you like to save up for? Tell a grown-up!</p>`}</div>`; }
+  return null;
+}
+
+/* ----- dinners: meals/main = { lib: [{ id, n, items:[], cost }], plan: { 'YYYY-MM-DD': { lib } | { n, items, cost } } } ----- */
+const mealsDoc = () => ({ lib: [], plan: {}, ...(S.meals || {}) });
+const MEAL_IDEAS = ['Spaghetti bolognese', 'Chicken fajitas', 'Roast chicken', 'Fish fingers and chips', 'Chicken curry', 'Pizza night', 'Jacket potatoes', 'Stir fry', 'Sausage and mash', 'Lasagne', 'Tacos', 'Shepherd\'s pie'];
+function mealOn(date) { const M = mealsDoc(), p = M.plan[date]; if (!p) return null; const lib = p.lib ? M.lib.find(x => x.id === p.lib) : null; if (p.lib && !lib) return null; return lib ? { ...lib, fromLib: true } : { n: p.n, items: p.items || [], cost: p.cost }; }
+const mealIcon = n => /pizza/i.test(n) ? '🍕' : /taco|fajita|burrito/i.test(n) ? '🌮' : /curry/i.test(n) ? '🍛' : /roast|chicken/i.test(n) ? '🍗' : /fish/i.test(n) ? '🐟' : /spag|pasta|lasagne|bolognese/i.test(n) ? '🍝' : /stir|noodle/i.test(n) ? '🍜' : /burger/i.test(n) ? '🍔' : /sausage|mash|pie/i.test(n) ? '🥧' : /potato/i.test(n) ? '🥔' : /takeaway|chippy/i.test(n) ? '🥡' : '🍽️';
+function weekShopTarget(ws) { const cur = plCur(); for (const ym of [cur, ymAdd(cur, 1)]) { const s = shopSlots(ym).filter(x => x.d >= addDays(ws, -6) && x.d <= addDays(ws, 6)).sort((a, b) => Math.abs(daysBetween(ws, a.d)) - Math.abs(daysBetween(ws, b.d)))[0]; if (s) return { t: shopTarget(s), n: s.n }; } return null; }
+function viewMeals() {
+  const t = today(), ws = addDays(weekOf(t), 7 * (UI.mweek || 0)), M = mealsDoc(), days = Array.from({ length: 7 }, (_, i) => addDays(ws, i));
+  const meals = days.map(d => [d, mealOn(d)]), planned = meals.filter(x => x[1]), cost = planned.reduce((s, [, m]) => s + (Number(m.cost) || 0), 0), shop = weekShopTarget(ws);
+  const items = new Set(); planned.forEach(([, m]) => (m.items || []).forEach(x => items.add(x.trim().toLowerCase())));
+  const label = UI.mweek ? (UI.mweek === 1 ? 'Next week' : UI.mweek === -1 ? 'Last week' : `Week of ${dayShort(ws)}`) : 'This week';
+  const used = id => Object.values(M.plan).filter(p => p.lib === id).length;
+  return tblock({ kicker: 'Dinners', title: label, side: `<span class="tb-kicker">Planned</span><span class="big" style="font-size:1.35rem">${planned.length}/7</span>`,
+      cells: [tbCell('Dinners cost', cost ? m2(cost) : '<small>Add rough costs</small>', 'var(--gold-bar)'), tbCell('Food shop', shop ? m2(shop.t) : '<small>Not on the sheet</small>', 'var(--good-bar)'), tbCell('Ingredients', `${items.size}`, 'var(--chris-bar)')],
+      foot: shop && cost ? `<span>${cost <= shop.t ? `Dinners take ${Math.round(cost / shop.t * 100)}% of the ${esc(shop.n.toLowerCase())}, leaving ${m2(shop.t - cost)} for everything else.` : `Dinners come to ${m2(cost - shop.t)} more than the ${esc(shop.n.toLowerCase())}.`}</span>` : '' })
+    + `<section class="panel"><div class="calhead"><button class="iconbtn" data-act="mweek" data-v="-1" aria-label="Previous week">‹</button><b>${esc(dayShort(ws))} – ${esc(dayShort(addDays(ws, 6)))}</b><button class="iconbtn" data-act="mweek" data-v="1" aria-label="Next week">›</button></div>
+      <div class="list">${meals.map(([d, m]) => `<button class="rowbtn meal${d === t ? ' today' : ''}" data-act="meal" data-date="${d}"><span class="kic" style="--c:${m ? 'var(--gold)' : 'var(--muted)'}">${m ? mealIcon(m.n) : '＋'}</span><span class="grow"><span class="t" style="display:block">${d === t ? 'Tonight' : DOWS[parse(d).getDay()]}</span><span class="m" style="display:block">${m ? esc(m.n) : 'Not planned yet'}${m && (m.items || []).length ? ` · ${m.items.length} ingredients` : ''}</span></span><span class="amt">${m && m.cost ? m2(m.cost) : ''}</span></button>`).join('')}</div>
+      <div class="btnrow">${items.size ? `<button class="btn small" data-act="meals2list" data-ws="${ws}">Add ${items.size} ingredients to the shopping list</button>` : ''}<button class="btn small ghost" data-act="mealcopy" data-ws="${ws}">Copy last week's dinners</button></div></section>`
+    + `<section class="panel"><h2>Our dinners <span class="sub">${M.lib.length} saved</span></h2>${M.lib.length ? `<div class="list">${M.lib.slice().sort((a, b) => used(b.id) - used(a.id) || (a.n < b.n ? -1 : 1)).map(x => `<button class="rowbtn" data-act="meallib" data-id="${esc(x.id)}"><span class="kic" style="--c:var(--gold)">${mealIcon(x.n)}</span><span class="grow"><span class="t" style="display:block">${esc(x.n)}</span><span class="m" style="display:block">${(x.items || []).length ? esc(x.items.slice(0, 4).join(', ')) + (x.items.length > 4 ? '…' : '') : 'No ingredients yet'}</span></span><span class="amt">${x.cost ? m2(x.cost) : ''}<small>${used(x.id)}×</small></span></button>`).join('')}</div>` : `<p class="note">Dinners you plan are saved here with their ingredients, so next time it's one tap.</p>`}</section>`;
+}
+function mealForm(date) {
+  const M = mealsDoc(), m = mealOn(date), opts = M.lib.map(x => `<option value="${esc(x.n)}">`).join('') + MEAL_IDEAS.filter(n => !M.lib.some(x => x.n.toLowerCase() === n.toLowerCase())).map(n => `<option value="${esc(n)}">`).join('');
+  openSheet(`${DOWS[parse(date).getDay()]} ${parse(date).getDate()} ${MONTHS[parse(date).getMonth()]}`, `<div class="field"><label for="mlN">Dinner</label><input id="mlN" list="mlList" value="${esc(m ? m.n : '')}" placeholder="Pick one or type a new one" autocomplete="off"><datalist id="mlList">${opts}</datalist></div>` +
+    `<div class="field"><label for="mlI">Ingredients to buy, one per line</label><textarea id="mlI" rows="5" placeholder="Mince&#10;Spaghetti&#10;Chopped tomatoes">${esc(m ? (m.items || []).join('\n') : '')}</textarea></div>` +
+    fld('mlC', 'Rough cost (£, optional)', m && m.cost ? m.cost : '', 'number', 'step="0.5" min="0" inputmode="decimal"') + `<label class="toggle"><input type="checkbox" id="mlS" checked> Save it to our dinners</label>`, async () => {
+    const n = v('mlN').trim(); if (!n) throw new Error('Say what\'s for dinner');
+    const items = v('mlI').split('\n').map(x => x.trim()).filter(Boolean), cost = num(v('mlC')) || 0, doc = mealsDoc(), lib = [...doc.lib], plan = { ...doc.plan };
+    let hit = lib.find(x => x.n.toLowerCase() === n.toLowerCase());
+    if (hit) { hit = { ...hit, items, cost }; lib.splice(lib.findIndex(x => x.id === hit.id), 1, hit); plan[date] = { lib: hit.id }; }
+    else if ($('#mlS').checked) { const x = { id: uid('ml'), n, items, cost }; lib.push(x); plan[date] = { lib: x.id }; }
+    else plan[date] = { n, items, cost };
+    await put('meals/main', { lib, plan });
+  }, m ? { onDelete: async () => { const doc = mealsDoc(), plan = { ...doc.plan }; delete plan[date]; await put('meals/main', { ...doc, plan }); } } : {});
+  setTimeout(() => { const i = $('#mlN'); if (!i) return; i.addEventListener('input', () => { const hit = mealsDoc().lib.find(x => x.n.toLowerCase() === i.value.trim().toLowerCase()); if (hit) { $('#mlI').value = (hit.items || []).join('\n'); $('#mlC').value = hit.cost || ''; } }); }, 0);
+}
+function mealLibForm(id) {
+  const M = mealsDoc(), x = M.lib.find(y => y.id === id); if (!x) return;
+  openSheet(x.n, fld('mbN', 'Dinner', x.n) + `<div class="field"><label for="mbI">Ingredients, one per line</label><textarea id="mbI" rows="6">${esc((x.items || []).join('\n'))}</textarea></div>` + fld('mbC', 'Rough cost (£)', x.cost || '', 'number', 'step="0.5" min="0" inputmode="decimal"'), async () => {
+    const n = v('mbN').trim(); if (!n) throw new Error('Give it a name'); const doc = mealsDoc();
+    await put('meals/main', { ...doc, lib: doc.lib.map(y => y.id === id ? { ...y, n, items: v('mbI').split('\n').map(s => s.trim()).filter(Boolean), cost: num(v('mbC')) || 0 } : y) });
+  }, { onDelete: async () => { const doc = mealsDoc(), plan = {}; Object.entries(doc.plan).forEach(([d, p]) => { if (p.lib !== id) plan[d] = p; }); await put('meals/main', { lib: doc.lib.filter(y => y.id !== id), plan }); } });
+}
+async function mealsToList(ws) {
+  const want = new Map(); for (let i = 0; i < 7; i++) { const m = mealOn(addDays(ws, i)); (m && m.items || []).forEach(x => { const k = x.trim().toLowerCase(); if (k && !want.has(k)) want.set(k, x.trim()); }); }
+  const have = new Set(S.list.filter(x => (x.list || 'shopping') === 'shopping' && !x.done).map(x => String(x.text).trim().toLowerCase()));
+  const add = [...want.entries()].filter(([k]) => !have.has(k)); let i = 0;
+  for (const [, text] of add) await put(`list/${uid('l')}`, { text, list: 'shopping', done: false, by: me(), at: Date.now() + i++ });
+  toast(add.length ? `Added ${add.length} to the shopping list${want.size > add.length ? ` (${want.size - add.length} already on it)` : ''}` : 'They\'re all on the shopping list already');
+}
+async function mealsCopy(ws) {
+  const doc = mealsDoc(), plan = { ...doc.plan }; let n = 0;
+  for (let i = 0; i < 7; i++) { const from = addDays(ws, i - 7), to = addDays(ws, i); if (doc.plan[from] && !plan[to]) { plan[to] = { ...doc.plan[from] }; n++; } }
+  if (!n) return toast('Nothing to copy: last week was empty, or this week is already planned');
+  await put('meals/main', { ...doc, plan }); toast(`Copied ${n} dinner${n === 1 ? '' : 's'}`);
+}
+
+/* ----- the year in review: swipe through the family's year ----- */
+function yearStats(y) {
+  const from = `${y}-01-01`, end = `${y}-12-31`, to = end < today() ? end : today(), inY = d => d && d >= from && d <= to;
+  const cos = coAll(from, to), co = { n: cos.length, h: cos.reduce((s, x) => s + (x.worked || 0), 0), pay: cos.reduce((s, x) => s + (x.pay || 0), 0) };
+  const vDays = daysFor('viki', from, to), cDays = daysFor('chris', from, to);
+  const oncall = vDays.filter(d => d.oncall).length, vHol = vDays.filter(d => d.status === 'holiday').length;
+  const cWork = cDays.filter(d => d.status === 'work' || d.status === 'callout').length, cHol = cDays.filter(d => d.status === 'holiday').length;
+  const kids = kidsDob().map(k => { const key = wishKey(k.name), d = kidDoc(key), hs = (d.growth || []).filter(x => x.h).sort((a, b) => a.d < b.d ? -1 : 1);
+    const inYear = hs.filter(x => inY(x.d)), before = hs.filter(x => x.d < from).pop(), base = before || inYear[0], last = inYear[inYear.length - 1];
+    return { k, grew: base && last && last !== base ? last.h - base.h : null, wins: (d.log || []).filter(x => inY(x.d)).length, stars: (d.done || []).filter(x => inY(x.d)).reduce((s, x) => s + (Number(x.s) || 0), 0), age: ageOn(k.dob, to) }; });
+  const pot = potEntries().filter(e => inY(e.d) && e.a > 0).reduce((s, e) => s + e.a, 0);
+  const trips = (S.plans || []).filter(p => ['summer', 'city', 'family'].includes(p.kind) && inY(p.from));
+  const fuel = S.fuel.filter(f => inY(f.date) && Number(f.mileage)).sort((a, b) => a.mileage - b.mileage), miles = fuel.length > 1 ? fuel[fuel.length - 1].mileage - fuel[0].mileage : 0;
+  const fuelCost = S.fuel.filter(f => inY(f.date)).reduce((s, f) => s + (Number(f.cost) || 0), 0), services = S.service.filter(x => inY(x.date) && x.status !== 'booked').length;
+  const dinners = Object.keys(mealsDoc().plan).filter(inY).length;
+  return { y, to, co, oncall, vHol, cWork, cHol, kids, pot, trips, miles, fuelCost, services, dinners };
+}
+function yearCards(st) {
+  const cards = [], y = st.y, part = st.to < `${y}-12-31`;
+  cards.push({ c: 'yc-a', e: '✨', k: part ? 'So far this year' : 'Year in review', big: `${y}`, t: `The Hitchens' year`, s: 'Swipe to see how it went.' });
+  if (st.co.n || st.oncall) cards.push({ c: 'yc-b', e: '🩺', k: 'Viki at work', big: `${st.co.n}`, t: `call-out${st.co.n === 1 ? '' : 's'}`, s: `${fh(Math.round(st.co.h))} hours in the middle of the night (and day), ${st.oncall} on-call shifts, and ${money(st.co.pay, 0)} earned for it.` });
+  if (st.cWork || st.cHol) cards.push({ c: 'yc-c', e: '🛠️', k: 'Chris at work', big: `${st.cWork}`, t: 'days at work', s: `${st.cHol} days of holiday taken.${st.vHol ? ` Viki had ${st.vHol} days of leave.` : ''}` });
+  st.kids.forEach((x, i) => { if (x.grew === null && !x.wins && !x.stars) return; cards.push({ c: i % 2 ? 'yc-e' : 'yc-d', e: '🌟', k: x.k.name, big: x.grew !== null ? `${sgn(x.grew)} cm` : `${x.wins}`, t: x.grew !== null ? 'taller' : `achievement${x.wins === 1 ? '' : 's'}`, s: [x.grew !== null && x.wins ? `${x.wins} achievement${x.wins === 1 ? '' : 's'} logged` : '', x.stars ? `${x.stars} stars earned for jobs` : '', `${x.age} years old now`].filter(Boolean).join(', ') + '.', face: faceSlot(x.k.name) }); });
+  if (st.trips.length || st.pot) cards.push({ c: 'yc-f', e: '🏖️', k: 'Treats', big: st.trips.length ? `${st.trips.length}` : money(st.pot, 0), t: st.trips.length ? `trip${st.trips.length === 1 ? '' : 's'}` : 'saved in the pot', s: [st.trips.length ? st.trips.map(p => occName(p)).join(', ') : '', st.pot && st.trips.length ? `${money(st.pot, 0)} saved into the holiday pot` : ''].filter(Boolean).join('. ') + '.' });
+  if (st.miles || st.services) cards.push({ c: 'yc-g', e: '🚙', k: 'The Evoque', big: st.miles ? Math.round(st.miles).toLocaleString('en-GB') : `${st.services}`, t: st.miles ? 'miles driven' : `service job${st.services === 1 ? '' : 's'}`, s: [st.fuelCost ? `${money(st.fuelCost, 0)} on fuel` : '', st.services && st.miles ? `${st.services} service job${st.services === 1 ? '' : 's'}` : ''].filter(Boolean).join(', ') + (st.fuelCost || st.services ? '.' : 'Keep logging fuel to see miles here.') });
+  if (st.dinners) cards.push({ c: 'yc-h', e: '🍝', k: 'Dinners', big: `${st.dinners}`, t: 'dinners planned', s: 'Every one saved a "what\'s for tea?" conversation.' });
+  cards.push({ c: 'yc-a', e: '❤️', k: part ? 'More to come' : `Here's to ${y + 1}`, big: '', t: 'Well done, team Hitchen', s: part ? 'Come back in January for the full year.' : 'Same again next year, with a bit more sleep.' });
+  return cards;
+}
+function openYear(y) {
+  y = Number(y) || (parse(today()).getMonth() === 0 ? Number(today().slice(0, 4)) - 1 : Number(today().slice(0, 4)));
+  const cards = yearCards(yearStats(y)), root = document.createElement('div'); root.className = 'yr'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-label', `${y} in review`);
+  root.innerHTML = `<button type="button" class="yr-x" data-act="yrclose" aria-label="Close">✕</button><div class="yr-track">${cards.map((c, i) => `<section class="yr-card ${c.c}" aria-label="${i + 1} of ${cards.length}">${c.face && media(c.face) ? `<span class="yr-face"${faceAttr(c.face)}></span>` : `<span class="yr-e">${c.e}</span>`}<span class="yr-k">${esc(c.k)}</span>${c.big ? `<span class="yr-big">${esc(c.big)}</span>` : ''}<span class="yr-t">${esc(c.t)}</span><p class="yr-s">${esc(c.s)}</p></section>`).join('')}</div><div class="yr-dots">${cards.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>`;
+  document.body.appendChild(root); hydratePhotos();
+  const tr = root.querySelector('.yr-track'), dots = root.querySelectorAll('.yr-dots i');
+  tr.addEventListener('scroll', () => { const i = Math.round(tr.scrollLeft / tr.clientWidth); dots.forEach((d, j) => d.classList.toggle('on', i === j)); }, { passive: true });
+}
+function yearHome() {
+  const t = today(), m = parse(t).getMonth(), d = parse(t).getDate(); if (!(m === 11 && d >= 15) && m !== 0) return '';
+  const y = m === 0 ? Number(t.slice(0, 4)) - 1 : Number(t.slice(0, 4));
+  return `<section class="panel nopad">${headCard({ tone: 'party', kicker: 'Year in review', title: `The Hitchens' ${y}`, meta: '<span>Call-outs, holidays, how much the girls grew, trips and miles. Swipe through the year.</span>', actions: hcBtn('Watch it', 'year', `data-y="${y}"`) })}</section>`;
+}
 
 /* ----- Viki: pay, rota and on-call claims -----
    Her actual rates live in the private database (settings/main → viki), never in this public code.
@@ -2798,7 +3157,7 @@ function planFor(ym) {
 
 const MONEY_GROUPS = [
   { k:'overview', l:'Overview', pages:[['overview','Overview']] },
-  { k:'month', l:'This month', pages:[['sheet','Sheet'],['plan','Plan'],['spending','Spending'],['budget','Budget']] },
+  { k:'month', l:'This month', pages:[['sheet','Sheet'],['meals','Dinners'],['plan','Plan'],['spending','Spending'],['budget','Budget']] },
   { k:'debts', l:'Bills', pages:[['bills','Direct debits'],['owed','Zilch']] },
   { k:'goals', l:'Goals', pages:[['goals','Goals'],['year','Year ahead'],['save','Tips']] },
 ];
@@ -2818,7 +3177,7 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
+  const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave, meals:viewMeals}[UI.money]();
   return (S.bsheet[ym] ? sheetHero(ym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -3897,13 +4256,17 @@ function wishPanel(p) {
     actions: kids.map(k => { const n = wishList(k).items.length, fa = faceAttr(faceSlot(k)); return hcBtn(`${fa ? `<span class="hc-face"${fa} aria-hidden="true"></span>` : ''}${esc(k)}${n ? ` · ${n}` : ''}`, 'kidmode', `data-name="${esc(k)}"`); }).join('') })}</section>`;
 }
 function viewKid() {
-  const name = UI.kid, l = wishList(name), xm = (S.plans || []).filter(p => p.kind === 'christmas' && p.from >= today()).sort((a, b) => a.from < b.from ? -1 : 1)[0];
+  const name = UI.kid, isKid = !!kidByKey(wishKey(name)), tab = isKid && ['jobs', 'save'].includes(UI.kidTab) ? UI.kidTab : 'wish';
+  const l = wishList(name), xm = (S.plans || []).filter(p => p.kind === 'christmas' && p.from >= today()).sort((a, b) => a.from < b.from ? -1 : 1)[0];
   const n = xm ? sleepsN(xm.from) : null, stars = Array.from({ length: 18 }, (_, i) => `<i style="left:${(i * 53) % 100}%;top:${(i * 37) % 100}%;animation-delay:${(i % 6) * .4}s"></i>`).join('');
   const kslot = `kid-${wishKey(name)}`, bd = kidBday(name), bdn = bd ? daysBetween(today(), bd.date) : null;
   const bdLine = !bd ? '' : bdn === 0 ? `<div class="kid-s">🎂 Happy ${ordinal(bd.age)} birthday!</div>` : bdn <= 60 ? `<div class="kid-s">🎂 ${bdn} sleep${bdn === 1 ? '' : 's'} till you're ${bd.age}</div>` : '';
-  return `<section class="kid"><div class="kid-hero${media(kslot) ? ' has-pic' : ''}">${mediaBg(kslot, 'kid-bg')}<div class="kid-stars">${stars}</div><div class="kid-k">✨ Wish list</div><div class="kid-t">${esc(name)}'s wishes</div>${n !== null && n >= 0 ? `<div class="kid-s">${n === 0 ? 'It\'s Christmas!' : `${n} sleep${n === 1 ? '' : 's'} till Christmas`} 🎄</div>` : ''}${bdLine}</div>
-    <form class="kidadd" autocomplete="off"><input name="n" aria-label="Your wish" placeholder="What would you love?" enterkeyhint="done"><input name="link" aria-label="Link, if you have one" placeholder="Link to it (if you have one)" inputmode="url"><button class="btn" type="submit">Add my wish 🎁</button></form>
-    <div class="kid-list">${l.items.length ? l.items.map((w, i) => `<div class="kw" style="--d:${i * .04}s"><span class="kw-star">${['⭐','🌟','💫','✨'][i % 4]}</span><div class="grow"><b>${esc(w.n)}</b>${w.link ? `<a href="${esc(/^https?:/i.test(w.link) ? w.link : 'https://' + w.link)}" target="_blank" rel="noopener">See it</a>` : ''}</div><button type="button" class="kw-del" data-act="kwdel" data-id="${esc(w.id)}" aria-label="Remove ${esc(w.n)}">✕</button></div>`).join('') : `<p class="kid-empty">Nothing here yet. Add your first wish!</p>`}</div>
+  const head = { wish: ['✨ Wish list', `${esc(name)}'s wishes`], jobs: ['⭐ My jobs', `${esc(name)}'s jobs`], save: ['🐷 Saving up', `${esc(name)}'s savings`] }[tab];
+  const tabs = isKid ? `<div class="kc-tabs" role="tablist">${[['jobs', '⭐ Jobs'], ['save', '🐷 Savings'], ['wish', '🎁 Wishes']].map(([k, lb]) => `<button type="button" role="tab" data-act="kidtab" data-v="${k}" aria-selected="${tab === k}">${lb}</button>`).join('')}</div>` : '';
+  const wish = `<form class="kidadd" autocomplete="off"><input name="n" aria-label="Your wish" placeholder="What would you love?" enterkeyhint="done"><input name="link" aria-label="Link, if you have one" placeholder="Link to it (if you have one)" inputmode="url"><button class="btn" type="submit">Add my wish 🎁</button></form>
+    <div class="kid-list">${l.items.length ? l.items.map((w, i) => `<div class="kw" style="--d:${i * .04}s"><span class="kw-star">${['⭐','🌟','💫','✨'][i % 4]}</span><div class="grow"><b>${esc(w.n)}</b>${w.link ? `<a href="${esc(/^https?:/i.test(w.link) ? w.link : 'https://' + w.link)}" target="_blank" rel="noopener">See it</a>` : ''}</div><button type="button" class="kw-del" data-act="kwdel" data-id="${esc(w.id)}" aria-label="Remove ${esc(w.n)}">✕</button></div>`).join('') : `<p class="kid-empty">Nothing here yet. Add your first wish!</p>`}</div>`;
+  return `<section class="kid"><div class="kid-hero${media(kslot) ? ' has-pic' : ''}">${mediaBg(kslot, 'kid-bg')}<div class="kid-stars">${stars}</div><div class="kid-k">${head[0]}</div><div class="kid-t">${head[1]}</div>${tab === 'wish' && n !== null && n >= 0 ? `<div class="kid-s">${n === 0 ? 'It\'s Christmas!' : `${n} sleep${n === 1 ? '' : 's'} till Christmas`} 🎄</div>` : ''}${bdLine}</div>
+    ${tabs}${tab === 'wish' ? wish : kidCornerBody(name, tab)}
     <button type="button" class="kid-exit" data-hold="kidexit">Grown-ups: press and hold to finish</button></section>`;
 }
 async function kidAdd(form) {
@@ -4070,8 +4433,9 @@ function kidBdayCountdowns() {
     .map(({ k, b }) => ({ kind: 'birthday', from: b.date, name: `${k.name}'s birthday`, kid: k.name, age: b.age }));
 }
 function countRibbon(title = '') {
-  const list = [...countdowns(), ...kidBdayCountdowns()].sort((a, b) => a.from < b.from ? -1 : 1).slice(0, 6); if (!list.length) return '';
+  const sc = schoolCountdown(), list = [...countdowns(), ...kidBdayCountdowns(), ...(sc ? [sc] : [])].sort((a, b) => a.from < b.from ? -1 : 1).slice(0, 6); if (!list.length) return '';
   return `<section class="cd-wrap">${title ? `<div class="cd-title">${title}</div>` : ''}<div class="cd-row">${list.map(p => { const n = sleepsN(p.from), now = n <= 0;
+    if (p.school) { const k0 = kidsDob()[0]; return `<button type="button" class="cd k-school" data-act="tab" data-v="work" data-who="${k0 ? esc(wishKey(k0.name)) : 'chris'}"><span class="cd-i">${p.emo}</span><span class="cd-n">${n <= 0 ? 'Now!' : n}</span><span class="cd-l">${n === 1 ? 'sleep to' : 'sleeps to'}</span><b>${esc(p.name)}</b></button>`; }
     if (p.kid) { const fa = faceAttr(faceSlot(p.kid));
       return `<button type="button" class="cd k-birthday" data-act="bday" data-name="${esc(p.kid)}" data-date="${esc(p.from)}" aria-label="${esc(p.kid)} turns ${p.age} in ${n} days. Tap to plan it">${fa ? `<span class="cd-face"${fa} aria-hidden="true"></span>` : `<span class="cd-i">🎂</span>`}<span class="cd-n">${now ? 'Now!' : n}</span><span class="cd-l">${now ? 'Happy birthday' : n === 1 ? 'sleep till' : 'sleeps till'}</span><b>${esc(p.kid)} is ${p.age}</b></button>`; }
     return `<button type="button" class="cd k-${p.kind}" data-act="opentrip" data-kind="${esc(kindTab(p))}" data-id="${esc(p.id)}"><span class="cd-i">${OCC_ICON[p.kind] || '✦'}</span><span class="cd-n">${now ? 'Now!' : n}</span><span class="cd-l">${now ? 'Happening' : n === 1 ? 'sleep to' : 'sleeps to'}</span><b>${esc(occName(p).replace(/['’]s birthday$/i, '’s birthday'))}</b></button>`; }).join('')}</div></section>`;
@@ -4907,6 +5271,7 @@ function settingsForm() {
     <div class="btnrow"><button class="btn ghost small" type="button" data-act="vrates">Viki's pay rates</button></div>
     <p class="eyebrow">Family calendar</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="calset">Google Calendar links</button></div>
     <p class="eyebrow">Pictures</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="pictures">Pictures for Home, Car, Paris and more</button></div>
+    <p class="eyebrow">Year in review</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="year" data-y="${Number(today().slice(0,4))}">${today().slice(0,4)} so far</button>${Number(today().slice(0,4)) > 2026 ? `<button class="btn ghost small" type="button" data-act="year" data-y="${Number(today().slice(0,4)) - 1}">${Number(today().slice(0,4)) - 1}</button>` : ''}</div>
     <p class="eyebrow">Backup</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="backup">Download a backup</button></div><p class="note">Everything in the app as one file. Save it somewhere safe, like iCloud Drive or Google Drive.</p>
     <p class="eyebrow">Notifications on this phone</p><div id="pushBox"><div class="skel" style="height:40px"></div></div>
     <p class="eyebrow">Account</p><p class="note">Signed in as <strong>${esc(userName())}</strong></p>
@@ -4978,7 +5343,8 @@ async function pushPanel() {
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="morning" ${prefs.morning!==false?'checked':''}><span class="grow">7am: today's bills, on call and payday</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="evening" ${prefs.evening!==false?'checked':''}><span class="grow">7pm: tomorrow's bills, bins, on call, renewals and car jobs</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="weekly" ${prefs.weekly!==false?'checked':''}><span class="grow">Sunday 7pm: the week ahead</span></label>
-      <label class="check"><input type="checkbox" data-act="pushpref" data-k="money" ${prefs.money!==false?'checked':''}><span class="grow">Payday money jobs, and a heads-up the evening before Zilch takes a payment</span></label></div>
+      <label class="check"><input type="checkbox" data-act="pushpref" data-k="money" ${prefs.money!==false?'checked':''}><span class="grow">Payday money jobs, and a heads-up the evening before Zilch takes a payment</span></label>
+      <label class="check"><input type="checkbox" data-act="pushpref" data-k="family" ${prefs.family!==false?'checked':''}><span class="grow">The girls: pocket money day, clubs, school holidays, childcare gaps, dinner plans and measuring</span></label></div>
     <div class="btnrow"><button class="btn small ghost" type="button" data-act="pushtest">Send a test</button><button class="btn small ghost" type="button" data-act="pushoff">Turn off on this phone</button></div>`;
 }
 async function pushOn() {
@@ -5045,11 +5411,28 @@ document.addEventListener('click', async e => {
   if (a==='lvedit') return lvEditForm();
   if (a==='lvchris') return lvChrisForm();
   if (a==='who') { UI.who = el.dataset.who; keepUI(); return render(); }
-  if (a==='kday') { const s = schoolDay(el.dataset.date); return toast(`${dayShort(el.dataset.date)}: ${s.n}`); }
+  if (a==='kday') { const d = el.dataset.date, s = schoolDay(d); if (!isWeekend(d) && ['hol', 'bh', 'inset'].includes(s.k) && d >= today()) return coverForm(d); return toast(`${dayShort(d)}: ${s.n}`); }
   if (a==='kmoney') return kidMoneyForm(el.dataset.k);
   if (a==='klog') return kidLogForm(el.dataset.k, el.dataset.id);
   if (a==='kgrow') return kidGrowForm(el.dataset.k, el.dataset.id);
   if (a==='klogall') { UI.klogAll = !UI.klogAll; return render(); }
+  if (a==='cover') return coverForm(el.dataset.date);
+  if (a==='clashall') { UI.clashAll = !UI.clashAll; return render(); }
+  if (a==='kact') return actForm(el.dataset.k, el.dataset.id);
+  if (a==='kchore') return choreForm(el.dataset.k, el.dataset.id);
+  if (a==='kchoredo') return toggleChore(el.dataset.k, el.dataset.id);
+  if (a==='krate') return starRateForm(el.dataset.k);
+  if (a==='kpay') return payoutForm(el.dataset.k);
+  if (a==='kgoal') return goalForm(el.dataset.k, el.dataset.id);
+  if (a==='kgoalmoney') return goalMoneyForm(el.dataset.k, el.dataset.id);
+  if (a==='kidtab') { UI.kidTab = el.dataset.v; keepUI(); render(); return; }
+  if (a==='meal') return mealForm(el.dataset.date);
+  if (a==='meallib') return mealLibForm(el.dataset.id);
+  if (a==='mweek') { UI.mweek = (UI.mweek || 0) + Number(el.dataset.v); return render(); }
+  if (a==='meals2list') return mealsToList(el.dataset.ws);
+  if (a==='mealcopy') return mealsCopy(el.dataset.ws);
+  if (a==='year') { closeSheet(); return openYear(el.dataset.y); }
+  if (a==='yrclose') { const y = document.querySelector('.yr'); if (y) y.remove(); return; }
   if (a==='mgrp') { const g = MONEY_GROUPS.find(x => x.k === el.dataset.v) || MONEY_GROUPS[0]; UI.mlast = UI.mlast || {}; UI.mlast[moneyGroupOf(UI.money).k] = UI.money; UI.money = (UI.mlast[g.k] && g.pages.some(([k]) => k === UI.mlast[g.k])) ? UI.mlast[g.k] : g.pages[0][0]; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='vsub') { UI.vsub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='vcmode' || a==='vcyr') { if (a==='vcmode') UI.vcmode = el.dataset.v; else UI.vcyr = el.dataset.v; keepUI(); const y = window.scrollY; render(); window.scrollTo(0,y); return; }
@@ -5123,7 +5506,7 @@ document.addEventListener('click', async e => {
   if (a==='occ') { UI.occ = el.dataset.id; UI.xopen = null; keepUI(); return render(); }
   if (a==='bday') return bdayForm(el.dataset.name || '', el.dataset.date || '');
   if (a==='xnext') { el.disabled = true; return xApplyNext(el.dataset.plan, el.dataset.next); }
-  if (a==='kidmode') { UI.kid = el.dataset.name; keepUI(); render(); window.scrollTo(0,0); setTimeout(() => { const i = document.querySelector('form.kidadd input[name=n]'); if (i) i.focus(); }, 80); return; }
+  if (a==='kidmode') { UI.kid = el.dataset.name; UI.kidTab = el.dataset.tab || 'wish'; keepUI(); render(); window.scrollTo(0,0); setTimeout(() => { const i = document.querySelector('form.kidadd input[name=n]'); if (i) i.focus(); }, 80); return; }
   if (a==='kwdel') { const l = wishList(UI.kid); return saveWish(UI.kid, l.items.filter(w => w.id !== el.dataset.id)); }
   if (a==='w2g') { el.disabled = true; return wishToGift(el.dataset.plan, el.dataset.item, el.dataset.name, el.dataset.w); }
   if (a==='packseed') { const p = (S.plans||[]).find(x => x.id === el.dataset.plan); if (!p) return; UI.packOpen = p.id; el.disabled = true; return packSave(p.id, () => packSeed(p)); }
@@ -5191,7 +5574,7 @@ document.addEventListener('submit', async e => {
   if (e.target.id !== 'sheetForm') return; e.preventDefault();
   const fn = sheetSave; if (!fn) return;
   const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true;
-  try { await fn(); closeSheet(); toast('Saved'); } catch (err) { formErr(err.message || 'Couldn\'t save that'); btn.disabled = false; }
+  try { window.__toastAfter = ''; await fn(); closeSheet(); toast(window.__toastAfter || 'Saved'); window.__toastAfter = ''; } catch (err) { formErr(err.message || 'Couldn\'t save that'); btn.disabled = false; }
 });
 let sTimer;
 document.addEventListener('input', e => {

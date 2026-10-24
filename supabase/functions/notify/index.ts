@@ -1,4 +1,5 @@
 // Hitchen HQ notifications. Run hourly by pg_cron; sends at 07:00 (today), 19:00 (tomorrow) and Sunday 19:00 (week ahead),
+// plus the girls' reminders (pocket money, clubs, school holidays, childcare gaps, dinners, measuring) at the same times,
 // Isle of Man time. A signed-in family member can also call it to send themselves a test.
 import webpush from 'npm:web-push@3.6.7';
 import { readIcs } from './ics.js';
@@ -48,15 +49,16 @@ function parseRota(title: string) {
 
 async function loadData(today: string) {
   const rows: { path: string; data: any }[] = await (await rest('docs?select=path,data')).json();
-  const D: any = { days: {}, bills: [], carrem: [], settings: {}, cal: { feeds: [] }, checks: { done: {} }, plans: [] };
+  const D: any = { days: {}, bills: [], carrem: [], settings: {}, cal: { feeds: [] }, checks: { done: {} }, plans: [], kids: {}, cover: { days: {} }, meals: { lib: [], plan: {} } };
   for (const r of rows) {
     const [c, id] = r.path.split('/');
     if (c === 'days') D.days[id] = r.data; else if (c === 'plans') D.plans.push({ ...r.data, id }); else if (c === 'bills') D.bills.push({ ...r.data, id }); else if (c === 'carrem') D.carrem.push({ ...r.data, id });
     else if (c === 'settings') D.settings = r.data; else if (r.path === 'private/calendar') D.cal = r.data; else if (r.path === 'state/checks') D.checks = r.data;
+    else if (c === 'kids') D.kids[id] = r.data; else if (r.path === 'state/cover') D.cover = r.data; else if (r.path === 'meals/main') D.meals = r.data;
   }
-  // calendar events for the next 9 days
+  // calendar events for the next 16 days (the week ahead looks two weeks out for childcare gaps)
   D.events = [];
-  const from = Date.parse(today + 'T00:00:00Z') - 86400000, to = from + 10 * 86400000;
+  const from = Date.parse(today + 'T00:00:00Z') - 86400000, to = from + 17 * 86400000;
   for (const f of (D.cal.feeds || [])) {
     try { const res = await fetch(String(f.url).replace(/^webcal:\/\//i, 'https://'), { signal: AbortSignal.timeout(12000) }); if (res.ok) D.events.push(...readIcs(await res.text(), from, to)); } catch (_) { /* skip a feed that fails */ }
   }
@@ -147,6 +149,65 @@ function messages(D: any, today: string, mode: string) {
   return out;
 }
 
+// ---- the girls: school terms (public Isle of Man DESC dates), activities, pocket money, childcare gaps, dinners ----
+const SCHOOL = { from: '2026-09-03', to: '2027-07-23', inset: ['2026-09-01', '2026-09-02'],
+  breaks: [['2026-10-26', '2026-10-30', 'October half term'], ['2026-12-23', '2027-01-05', 'Christmas holidays'], ['2027-02-15', '2027-02-19', 'February half term'], ['2027-03-25', '2027-04-12', 'Easter holidays'], ['2027-05-03', '2027-05-03', 'May Day bank holiday'], ['2027-05-31', '2027-05-31', 'Spring bank holiday'], ['2027-06-01', '2027-06-11', 'TT holiday'], ['2027-07-05', '2027-07-05', 'Tynwald Day']] };
+const BANK_HOLS = new Set(['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-06-05','2026-07-05','2026-07-06','2026-08-31','2026-12-25','2026-12-26','2026-12-28','2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-06-11','2027-07-05','2027-08-30','2027-12-25','2027-12-26','2027-12-27','2027-12-28']);
+const isWk = (d: string) => dow(d) === 0 || dow(d) === 6;
+function school(d: string): { k: string; n: string } {
+  if (SCHOOL.inset.includes(d)) return { k: 'off', n: 'Staff training day' };
+  if (d < SCHOOL.from) return { k: 'off', n: 'Summer holidays' };
+  if (d > SCHOOL.to) return { k: 'off', n: 'Summer holidays' };
+  const b = SCHOOL.breaks.find(x => d >= x[0] && d <= x[1]); if (b) return { k: 'off', n: b[2] };
+  return isWk(d) ? { k: 'wknd', n: 'Weekend' } : { k: 'school', n: 'School' };
+}
+const nextWeekday = (d: string) => { let x = addDays(d, 1); while (isWk(x)) x = addDays(x, 1); return x; };
+const prevWeekday = (d: string) => { let x = addDays(d, -1); while (isWk(x)) x = addDays(x, -1); return x; };
+const kidKey = (n: string) => String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const kidsOf = (D: any) => (D.settings.kids || []).filter((k: any) => k && k.name).map((k: any) => ({ name: k.name, d: D.kids[kidKey(k.name)] || {} }));
+const whoName = (w: string) => w === 'chris' ? 'Chris' : w === 'viki' ? 'Viki' : w || '';
+const actsOn = (kd: any, d: string) => (kd.acts || []).filter((a: any) => Number(a.day) === dow(d) && !(a.term !== false && school(d).k === 'off')).sort((a: any, b: any) => (a.from || '') < (b.from || '') ? -1 : 1);
+const actText = (name: string, a: any) => `${name}: ${a.n}${a.from ? ` ${hm(a.from)}` : ''}${a.drop ? `, ${whoName(a.drop)} drops off` : ''}${a.pick ? `, ${whoName(a.pick)} picks up` : ''}`;
+function dinnerOn(D: any, d: string) { const p = (D.meals.plan || {})[d]; if (!p) return null; if (p.lib) { const l = (D.meals.lib || []).find((x: any) => x.id === p.lib); return l ? l.n : null; } return p.n || null; }
+const awayOn = (D: any, d: string) => D.plans.some((p: any) => ['summer', 'city', 'family'].includes(p.kind) && p.from && p.from <= d && (p.to || p.from) >= d);
+/* only days we're sure about: Viki's rota says she's working, and Chris isn't marked off (he works weekdays that aren't bank holidays) */
+function gapOn(D: any, d: string) {
+  if (isWk(d) || school(d).k !== 'off' || awayOn(D, d) || (D.cover.days || {})[d]) return false;
+  const v = D.rota('viki', d); if (!v || v.status !== 'shift') return false;
+  const c = D.rota('chris', d); if (c) return c.status === 'work' || c.status === 'shift'; return !BANK_HOLS.has(d);
+}
+function familyMessages(D: any, today: string, mode: string) {
+  const out: { title: string; body: string; tag: string }[] = [], kids = kidsOf(D); if (!kids.length) return out;
+  if (mode === 'morning') { const parts: string[] = [];
+    const pm = kids.filter((k: any) => Number(k.d.pocket?.a) > 0 && Number(k.d.pocket?.day ?? 5) === dow(today));
+    if (pm.length) { const same = pm.every((k: any) => Number(k.d.pocket.a) === Number(pm[0].d.pocket.a)), via = pm[0].d.pocket.via;
+      parts.push(same ? `Pocket money day: ${money(Number(pm[0].d.pocket.a))} ${pm.length > 1 ? 'each ' : ''}to ${pm.map((k: any) => k.name).join(' and ')}${via ? ` (${via})` : ''}.` : `Pocket money day: ${pm.map((k: any) => `${money(Number(k.d.pocket.a))} to ${k.name}`).join(', ')}.`); }
+    kids.forEach((k: any) => actsOn(k.d, today).forEach((a: any) => parts.push(`${actText(k.name, a)}.`)));
+    const dn = dinnerOn(D, today); if (dn) parts.push(`Tonight's dinner: ${dn}.`);
+    if (parts.length) out.push({ title: 'Family today', body: parts.join(' '), tag: `family-am-${today}` });
+  }
+  if (mode === 'evening') { const tm = addDays(today, 1), parts: string[] = [];
+    const nw = nextWeekday(today), sTm = school(tm), sNw = school(nw);
+    if (sNw.k === 'school' && school(prevWeekday(nw)).k === 'off' && (tm === nw || isWk(tm))) { if (tm === nw) parts.push('Back to school tomorrow: uniforms, bags and lunches ready.'); }
+    else if (school(today).k === 'school' && sNw.k === 'off' && !isWk(today)) { let back = nw; while (school(back).k !== 'school' && back < addDays(nw, 60)) back = addDays(back, 1);
+      parts.push(`${sNw.n} starts ${tm === nw ? 'tomorrow' : 'after the weekend'}. No school until ${DOWS[dow(back)]} ${Number(back.slice(8))} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(back.slice(5, 7)) - 1]}.`); }
+    if (gapOn(D, tm)) parts.push(`The girls are off school tomorrow and you're both working, with nobody down to look after them yet.`);
+    kids.forEach((k: any) => actsOn(k.d, tm).forEach((a: any) => parts.push(`Tomorrow, ${actText(k.name, a)}.`)));
+    const dn = dinnerOn(D, tm); if (dn) parts.push(`Tomorrow's dinner: ${dn}.`);
+    if (today.slice(8) === '01') { const due = kids.filter((k: any) => { const g = (k.d.growth || []).map((x: any) => x.d).sort(); return g.length && (parse(today).getTime() - parse(g[g.length - 1]).getTime()) / 86400000 > 80; });
+      if (due.length) parts.push(`Time to measure ${due.map((k: any) => k.name).join(' and ')}: it's been about 3 months.`); }
+    if (parts.length) out.push({ title: 'The girls', body: parts.join(' '), tag: `family-pm-${today}` });
+  }
+  if (mode === 'weekly') { const gaps: string[] = []; for (let d = addDays(today, 1); d <= addDays(today, 14); d = addDays(d, 1)) if (gapOn(D, d)) gaps.push(`${DOWS[dow(d)]} ${Number(d.slice(8))}`);
+    const offNext: string[] = []; for (let d = addDays(today, 1); d <= addDays(today, 7); d = addDays(d, 1)) if (!isWk(d) && school(d).k === 'off') offNext.push(school(d).n);
+    const parts: string[] = [];
+    if (offNext.length) parts.push(`No school ${offNext.length >= 5 ? 'all week' : `on ${offNext.length} day${offNext.length === 1 ? '' : 's'}`} (${[...new Set(offNext)].join(', ')}).`);
+    if (gaps.length) parts.push(`Childcare still needed: ${gaps.join(', ')}. Sort it on the Family page.`);
+    if (parts.length) out.push({ title: 'The girls this fortnight', body: parts.join(' '), tag: `family-wk-${today}` });
+  }
+  return out;
+}
+
 async function secrets() { const r = await (await rest('app_secrets?select=name,value')).json(); const s: Record<string, string> = {}; r.forEach((x: any) => { s[x.name] = x.value; }); return s; }
 async function send(subs: any[], msgs: any[], sec: Record<string, string>) {
   webpush.setVapidDetails('mailto:hitchen-hq@users.noreply.github.com', sec.vapid_public, sec.vapid_private);
@@ -173,9 +234,11 @@ Deno.serve(async (req: Request) => {
     const out: any = { date: lp.date, modes, sent: [] };
     for (const mode of modes) {
       const msgs = messages(D, lp.date, mode); out[mode] = msgs;
+      const fam = ['morning', 'evening', 'weekly'].includes(mode) ? familyMessages(D, lp.date, mode) : []; out[`${mode}_family`] = fam;
       if (body.dry) continue;
       const pref = mode === 'weekly' ? 'weekly' : mode.startsWith('money') ? 'money' : mode;
       out.sent.push(...await send(subs.filter((s: any) => s.prefs?.[pref] !== false), msgs, sec));
+      if (fam.length) out.sent.push(...await send(subs.filter((s: any) => s.prefs?.family !== false), fam, sec));
     }
     return json(out);
   }

@@ -14,6 +14,18 @@ The Hitchen family app: work days and call-outs, Viki's shifts and overtime pay,
 2. iPhone: Share → Add to Home Screen. Android: menu → Install app.
 3. Open it from the home screen and sign in with your username and password. Change your password any time in Settings (the gear icon).
 
+## The girls
+
+Family → Aalish / Grayse: Isle of Man school term dates (public DESC dates in `SCHOOL_YEARS` in `index.html`; add next year's each summer), activities with drop-off and pick-up, childcare gaps (days the girls are off school while both parents work, with who's covering), pocket money and phone, jobs and stars, savings pots, achievements and reports, and height and weight. "Hand her the phone" opens her own corner (jobs, savings, wishes); press and hold at the bottom to leave it. Their figures live in the private database (`kids/<name>`, `state/cover`), never in this repository.
+
+## Dinners
+
+Money → This month → Dinners plans the week's tea, saves meals with their ingredients, adds them to the shopping list and compares the cost with the week's food shop (`meals/main`).
+
+## Year in review
+
+Settings → Year in review, and on Home from mid-December to January: swipe through the family's year.
+
 ## Viki's pay
 
 Her pay rates are stored only in the private database (never in this repository) and can be changed in the app: Work → Viki → Viki's rates → Edit. On call and call-outs are paid on the 25th of the following month. The on-call claim table follows the layout of her claim form.
@@ -24,7 +36,7 @@ Home shows the next 7 days from linked Google Calendars. Add links in Settings �
 
 ## Notifications
 
-Each phone turns them on in Settings (on an iPhone the app must be added to the Home Screen first). The Supabase Edge Function `notify` (source in `supabase/functions/notify/`) is called every hour by a `pg_cron` job and sends at 7am, 7pm and Sunday 7pm Isle of Man time. Push keys and the cron secret live in the `app_secrets` table, which the app can't read.
+Each phone turns them on in Settings (on an iPhone the app must be added to the Home Screen first). The Supabase Edge Function `notify` (source in `supabase/functions/notify/`) is called every hour by a `pg_cron` job and sends at 7am, 7pm and Sunday 7pm Isle of Man time. Each phone can also turn on the girls' reminders: pocket money day, clubs, school holidays and back to school, childcare gaps, dinners and measuring. Push keys and the cron secret live in the `app_secrets` table, which the app can't read.
 
 ## Documents
 
