@@ -2438,14 +2438,15 @@ function moneyIn(ym) {
   const ce = chrisExtras(prev);
   const others = (S.settings.income || []).filter(x => x.amount);
   const ebay = Math.round(stmtIncomeAvg('eBay sales') - (fullMonths().length ? fullMonths().reduce((s,m) => s + (monthSummary(m).cats['Post and eBay costs']||0), 0)/fullMonths().length : 0));
-  if (ebay > 0 && !others.some(x => /ebay/i.test(x.name))) others.push({ name:'eBay sales after postage', amount: ebay, auto:true });
+  /* eBay is never guaranteed, so its average is shown as a possible extra but not counted in the plan */
+  if (ebay > 0 && !others.some(x => /ebay/i.test(x.name))) others.push({ name:'eBay sales after postage', amount: ebay, auto:true, bonus:true });
   const items = [
     { who:'chris', name:'Chris take-home', amount: c.net, note: c.net ? `${esc(dayShort(payday(ym)))}${c.fromStmt ? ', average from your statements' : ''}` : 'Add in Plan' },
     ...(ce.net ? [{ who:'chris', name:'Chris call-outs', amount: ce.net, note:`${ce.shifts} shift${ce.shifts===1?'':'s'}, ${ce.calls} call-out${ce.calls===1?'':'s'}, after tax (estimate)` }] : []),
     { who:'viki', name: vReal ? 'Viki take-home' : 'Viki take-home (estimate)', amount: vNet, note: r.salary ? esc(dayShort(payday(ym))) : 'Add her rates in Work' },
-    ...others.map(x => ({ who:'', name:x.name, amount:Number(x.amount)||0, note: x.auto ? 'Average from your statements' : 'Every month' })),
+    ...others.map(x => ({ who:'', name:x.name, amount:Number(x.amount)||0, bonus: !!x.bonus, note: x.bonus ? 'Not counted. Your average after postage, a bonus if things sell' : x.auto ? 'Average from your statements' : 'Every month' })),
   ];
-  return { items, total: items.reduce((s,x) => s + (Number(x.amount)||0), 0) };
+  return { items, total: items.filter(x => !x.bonus).reduce((s,x) => s + (Number(x.amount)||0), 0) };
 }
 function planFor(ym) {
   const inc = moneyIn(ym), bills = S.bills.reduce((s,b)=>s+perMonth(b),0), budget = (S.budget.cats||[]).reduce((s,c)=>s+(Number(c.limit)||0),0);
@@ -2607,7 +2608,7 @@ function viewPlan() {
   const mixParts = [['Bills', P.bills, '#3F51B5'], ['Spending budget', P.budget, '#0B8043'], ['Owed', P.owed, '#D50000'], ['Savings', P.save, '#039BE5'], ['Treats', P.trips, '#8E24AA']];
   return `
   <section class="panel"><h2>Coming in <button class="btn small ghost" data-act="incomeform">Edit</button></h2>
-    <div class="list">${P.inc.items.map(x => `<div class="row">${x.who ? badge(x.who) : '<span class="sw" style="background:var(--good-bar)"></span>'}<div class="grow"><div class="t">${esc(x.name)}</div><div class="m">${x.note}</div></div><div class="amt">${x.amount ? money(x.amount,0) : '—'}</div></div>`).join('')}</div>
+    <div class="list">${P.inc.items.map(x => `<div class="row">${x.who ? badge(x.who) : '<span class="sw" style="background:var(--good-bar)"></span>'}<div class="grow"><div class="t">${esc(x.name)}</div><div class="m">${x.note}</div></div><div class="amt"${x.bonus ? ' style="color:var(--muted);font-weight:500"' : ''}>${x.amount ? `${x.bonus ? '+' : ''}${money(x.amount,0)}` : '—'}</div></div>`).join('')}</div>
     <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow t">Total</div><div class="amt">${money(P.inc.total,0)}</div></div>
   </section>
   <section class="panel"><h2>Payday plan</h2>
