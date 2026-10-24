@@ -539,6 +539,10 @@ nav.tabs button[aria-current="page"] svg{color:var(--brass)}
 .zinput input{border:0;background:transparent;font-size:2.6rem;font-weight:600;letter-spacing:-.03em;width:100%;min-width:0;padding:0;outline:none;color:var(--ink)}
 .zinput:focus-within{border-bottom-color:var(--brass)}
 .zchips{display:flex;gap:6px;flex-wrap:wrap}
+.plmonths{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.plmonths span{background:var(--sheet-2);border-radius:12px;padding:7px 8px;display:flex;flex-direction:column;gap:1px}
+.plmonths small{font-size:.72rem;color:var(--muted);font-weight:600}
+.plmonths b{font-variant-numeric:tabular-nums;font-size:.95rem}
 .zchips button{border:0;background:var(--sheet-2);border-radius:999px;padding:6px 11px;font-weight:600;font-size:.92rem;cursor:pointer}
 .zsum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .zsum div{background:var(--sheet-2);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -740,7 +744,7 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg})); } catch(e) {} };
@@ -790,7 +794,7 @@ const TRIP = [
 ];
 
 /* ---------- data layer ---------- */
-const COLL = { bills:'bills', goals:'goals', spend:'spend', service:'service', fuel:'fuel', list:'list', debts:'debts', trips:'trips', carrem:'carrem', payslips:'payslips', files:'files' };
+const COLL = { bills:'bills', goals:'goals', spend:'spend', service:'service', fuel:'fuel', list:'list', debts:'debts', trips:'trips', carrem:'carrem', payslips:'payslips', files:'files', plans:'plans' };
 function applyLocal(path, data) {
   const [c, id] = path.split('/');
   if (c === 'days') { if (data) S.days[id] = data; else delete S.days[id]; }
@@ -808,7 +812,7 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null });
+  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[] });
 }
 function snapshotRows() {
   const rows = [];
@@ -1864,7 +1868,7 @@ function moneyIn(ym) {
 function planFor(ym) {
   const inc = moneyIn(ym), bills = S.bills.reduce((s,b)=>s+perMonth(b),0), budget = (S.budget.cats||[]).reduce((s,c)=>s+(Number(c.limit)||0),0);
   const owed = S.debts.reduce((s,d) => s + (Number(d.monthly)||0), 0) - S.debts.filter(d => S.bills.some(b => b.name.toLowerCase()===String(d.name).toLowerCase())).reduce((s,d)=>s+(Number(d.monthly)||0),0);
-  const save = Number((S.settings.plan||{}).save) || 0, trips = S.trips.reduce((s,t) => s + (Number(t.monthly)||0), 0);
+  const save = Number((S.settings.plan||{}).save) || 0, trips = S.trips.reduce((s,t) => s + (Number(t.monthly)||0), 0) + plannerMonth(ym).total;
   const left = inc.total - bills - budget - owed - save - trips;
   return { inc, bills, budget, owed, save, trips, left };
 }
@@ -1879,10 +1883,10 @@ function viewMoney() {
     cells: [ tbCell('Bills', money(P.bills,0), '#3F51B5'), tbCell('Budget', money(P.budget,0), '#0B8043'), tbCell(P.save ? 'Savings' : 'Owed', money(P.save || P.owed,0), P.save ? '#039BE5' : '#D50000') ],
     after: P.inc.total ? `<div style="padding:12px 0 2px">${flow}</div>` : '',
     foot: P.inc.total ? `<span>${(() => { const l = ['bills', 'the spending budget', ...(P.owed?['money owed']:[]), ...(P.save?['savings']:[]), ...(P.trips?['trip savings']:[])]; return `What's left once ${l.slice(0,-1).join(', ')} and ${l[l.length-1]} are covered.`; })()}</span>` : `<span><button class="linkbtn" data-act="mseg" data-v="plan">Add your pay to see what's spare each month</button></span>` });
-  const segs = [['plan','Plan'],['sheet','Sheet'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
+  const segs = [['plan','Plan'],['sheet','Sheet'],['planner','Planner'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
   if (!segs.some(x => x[0]===UI.money)) UI.money = 'bills';
   const seg = `<div class="seg" role="group" aria-label="Money section">${segs.map(([k,l]) => `<button data-act="mseg" data-v="${k}" aria-pressed="${UI.money===k}">${l}</button>`).join('')}</div>`;
-  const body = {plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
+  const body = {plan:viewPlan, sheet:viewSheet, planner:viewPlanner, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
   return hero + seg + body;
 }
 /* ----- bank statements: transactions loaded from the Nationwide statements (stmt/<yyyy-mm> docs) ----- */
@@ -2022,7 +2026,7 @@ function viewPlan() {
       ${row('#0B8043','Spending budget', 'Food, fuel, kids and the rest', P.budget, 'mseg" data-v="budget')}
       ${P.owed ? row('#D50000','Money owed', 'Payments not already in bills', P.owed, 'mseg" data-v="owed') : ''}
       ${row('#039BE5','Savings', P.save ? 'Straight into savings on payday' : 'Tap to set an amount', P.save, 'planform')}
-      ${P.trips ? row('#8E24AA','Trip pots', S.trips.map(t => esc(t.name)).join(', '), P.trips, 'mseg" data-v="goals') : ''}
+      ${P.trips ? row('#8E24AA','Trips and holidays', [...S.trips.map(t => esc(t.name)), ...plannerMonth(ym).rows.map(r => esc(r.p.name))].join(', '), P.trips, 'mseg" data-v="planner') : ''}
       <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow"><div class="t">${P.left >= 0 ? 'Left over' : 'Short by'}</div><div class="m">${P.left >= 0 ? 'Room for the unexpected, or more savings' : 'Plans add up to more than comes in'}</div></div><div class="amt" style="color:${P.left<0?'var(--red)':'var(--good)'}">${money(Math.abs(P.left),0)}</div></div>
     </div>
   </section>
@@ -2125,13 +2129,14 @@ function bsViki(doc) {
   const extra = (vk.items||[]).reduce((s,i) => s + (Number(i.r)||0)*(Number(i.q)||0), 0);
   return (extra + (Number(vk.base)||0)) * (Number(vk.keep)||100)/100 * (Number(vk.net)||1);
 }
-function bsTotals(doc) {
-  const viki = doc.viki && !doc.viki.off ? bsViki(doc) : 0;
+function bsTotals(doc, ym) {
+  const viki = doc.viki && !doc.viki.off ? bsViki(doc) : 0, plan = ym ? plannerMonth(ym).total : 0;
   const inc = viki + (doc.inc||[]).filter(bsOn).reduce((s,x) => s + (Number(x.a)||0), 0);
   const sec = {}; let base = 0, extra = 0;
   (doc.secs||[]).forEach(s => { const t = s.rows.filter(bsOn).reduce((a,x) => a + bsAmt(x), 0); sec[s.k] = t; if (s.kind==='base') base += t; else if (s.kind==='extra') extra += t; });
+  extra += plan;
   const left = inc - base - extra, split = Number(doc.split ?? 50);
-  return { viki, inc, base, extra, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
+  return { viki, inc, base, extra, plan, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
 }
 function bsState() {
   const ym = UI.bym || (UI.bym = ymOf(today()));
@@ -2161,6 +2166,12 @@ function bsSection(s, si, t) {
     <div class="xadd"><button type="button" class="linkbtn" data-act="bsadd" data-s="${si}">+ Add a row</button><button type="button" class="linkbtn" data-act="bsadd" data-s="${si}" data-qty="1">+ Add quantity × price</button><button type="button" class="linkbtn" data-act="bssec" data-s="${si}">Section settings</button></div>` : ''}
   </section>`;
 }
+function bsPlannerSection(ym) {
+  const pm = plannerMonth(ym); if (!pm.total) return '';
+  return `<section class="xsec extra"><div class="xh static"><span class="xt">Holiday planner</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
+    <div class="xrows">${pm.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.p.name)}</span><small>${esc((PL_KINDS.find(k => k[0]===(r.p.kind||'summer'))||[])[1]||'')}</small></div><span class="xd"></span><output class="xc xa">${money(r.amount,2)}</output><span class="xm"></span></div>`).join('')}</div>
+    <div class="xadd"><button type="button" class="linkbtn" data-act="mseg" data-v="planner">Change in the planner</button></div></section>`;
+}
 function bsVikiBlock(doc, t) {
   const vk = doc.viki; if (!vk) return '';
   const open = !!UI.bsViki;
@@ -2180,7 +2191,7 @@ function bsVikiBlock(doc, t) {
     </div>` : ''}`;
 }
 function bsSummary(t, doc) {
-  const d = UI.bs.saved ? bsTotals(JSON.parse(UI.bs.saved)) : null, dl = d && bsDirty() ? t.left - d.left : 0;
+  const d = UI.bs.saved ? bsTotals(JSON.parse(UI.bs.saved), UI.bs.ym) : null, dl = d && bsDirty() ? t.left - d.left : 0;
   const tot = Math.max(t.inc, t.base + t.extra, 1);
   return `<div class="xsum" id="bsSum">
     <div class="xk"><span>Coming in</span><b data-bst="inc">${money(t.inc,0)}</b></div>
@@ -2200,7 +2211,7 @@ function viewSheet() {
     return `<section class="panel">${nav}<p class="empty">There's no budget sheet for ${monthName(ym)} yet.</p>
       <div class="btnrow">${prev ? `<button class="btn small" data-act="bsnew" data-from="${prev}">Start from ${monthName(prev)}</button>` : ''}${next && !prev ? `<button class="btn small" data-act="bsnew" data-from="${next}">Start from ${monthName(next)}</button>` : ''}<button class="btn small ghost" data-act="bsnew">Start blank</button></div></section>`;
   }
-  const t = bsTotals(doc);
+  const t = bsTotals(doc, ym);
   const lists = doc.secs.map((s,si) => [s,si]).filter(([s]) => s.kind==='list'), main = doc.secs.map((s,si) => [s,si]).filter(([s]) => s.kind!=='list');
   const income = `<section class="xsec inc"><div class="xh static"><span class="xt">Monthly income</span><span class="xtag">In</span><b data-bst="inc2">${money(t.inc,2)}</b></div>
     <div class="xrows">${bsVikiBlock(doc, t)}${(doc.inc||[]).map((x,ri) => bsRow('i', ri, x, 'inc')).join('')}</div>
@@ -2209,7 +2220,7 @@ function viewSheet() {
   return `<section class="panel xpanel">${nav}${bsSummary(t, doc)}</section>
     <div class="xsheet" id="bsSheet">
       <div class="xhead"><span></span><span>Item</span><span>Date</span><span>£</span><span></span></div>
-      ${income}${main.map(([s,si]) => bsSection(s, si, t)).join('')}
+      ${income}${main.map(([s,si]) => bsSection(s, si, t)).join('')}${bsPlannerSection(ym)}
       ${lists.length ? `<h3 class="xlh">Lists</h3>${lists.map(([s,si]) => bsSection(s, si, t)).join('')}` : ''}
       <div class="xadd" style="padding:10px 2px"><button type="button" class="linkbtn" data-act="bsnewsec">+ Add a section</button></div>
     </div>
@@ -2217,11 +2228,11 @@ function viewSheet() {
 }
 /* live recalculation while typing, without re-rendering (keeps the keyboard up) */
 function bsRefresh() {
-  const doc = UI.bs && UI.bs.doc; if (!doc) return; const t = bsTotals(doc);
+  const doc = UI.bs && UI.bs.doc; if (!doc) return; const t = bsTotals(doc, UI.bs.ym);
   const set = (sel, txt) => { const e = document.querySelector(sel); if (e) e.textContent = txt; };
   ['inc','base','extra'].forEach(k => set(`[data-bst="${k}"]`, money(t[k],0))); ['left','save','hol'].forEach(k => set(`[data-bst="${k}"]`, money(t[k],2))); set('[data-bst="inc2"]', money(t.inc,2));
   set('[data-bst="splitA"]', `${t.split}%`); set('[data-bst="splitB"]', `${100-t.split}%`);
-  const sv = UI.bs.saved ? bsTotals(JSON.parse(UI.bs.saved)) : null, dl = sv && bsDirty() ? t.left - sv.left : 0, de = document.querySelector('[data-bst="delta"]');
+  const sv = UI.bs.saved ? bsTotals(JSON.parse(UI.bs.saved), UI.bs.ym) : null, dl = sv && bsDirty() ? t.left - sv.left : 0, de = document.querySelector('[data-bst="delta"]');
   if (de) { de.textContent = dl ? `${dl>0?'+':'−'}${money(Math.abs(dl),2).replace('−','')} vs saved` : ''; de.className = dl>0?'up':dl<0?'down':''; }
   const lk = document.querySelector('.xk.big'); if (lk) lk.classList.toggle('neg', t.left < 0);
   const tot = Math.max(t.inc, t.base + t.extra, 1); [['base',t.base],['extra',t.extra],['left',Math.max(0,t.left)]].forEach(([k,v]) => { const e = document.querySelector(`[data-bsw="${k}"]`); if (e) e.style.width = `${v/tot*100}%`; });
@@ -2346,6 +2357,121 @@ function tripForm(id) {
     const data = { name, budget: num(v('tBud')) || 0, monthly: num(v('tMon')) || 0 }; if (v('tFrom')) data.from = v('tFrom'); if (v('tTo')) data.to = v('tTo');
     await put(`trips/${id || uid('t')}`, data);
   }, id ? { onDelete: () => remove(`trips/${id}`) } : {});
+}
+
+/* ----- holiday planner: plans/<id> = { kind, name, from, to, note, saveFrom, items:[{id,n,a,how,ym,from,paid,note}] } ----- */
+const PL_KINDS = [['summer','Summer holiday'],['family','Family visits'],['city','City breaks']];
+const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5' };
+const PL_IDEAS = {
+  summer: ['Flights','Hotel or villa','Car hire','Airport parking','Transfers','Travel insurance','Excursions','Spending money'],
+  family: ['Steam Packet','Fuel','Premier Inn','Gifts','Days out','Food and drink'],
+  city: ['Flights or ferry','Hotel','Attractions','Local transport','Food and drink','Spending money'],
+};
+const PL_HOW = [['save','Save up each month until then'],['once','Pay in one go'],['zilch','Zilch, 4 parts from then']];
+const ymAdd = (ym, n) => ymOf(addMonths(`${ym}-01`, n));
+const ymDiff = (a, b) => { const [ay,am] = a.split('-').map(Number), [by,bm] = b.split('-').map(Number); return (by-ay)*12 + (bm-am); };
+const payYm = d => { const x = parse(d); return x.getDate() >= 25 ? ymOf(d) : ymAdd(ymOf(d), -1); };
+const mon3 = ym => MONTHS[Number(ym.slice(5,7))-1].slice(0,3);
+const plCur = () => ymOf(today());
+function plItemPays(it, p) {
+  const cost = Number(it.a)||0, ym = it.ym || plCur(); if (!cost) return [];
+  if (it.how === 'zilch') { const z = zilchPlan(cost, { avail: zs().limit, start: `${ym}-01` }); return z ? z.pays.map(x => ({ ym: ymOf(x.date), amount: x.amount })) : []; }
+  if (it.paid) return [];
+  if (it.how === 'once') return [{ ym, amount: cost }];
+  let start = it.from || p.saveFrom || plCur(); if (start > ym) start = ym;
+  const n = ymDiff(start, ym) + 1, each = Math.round(cost / n * 100) / 100, out = [];
+  for (let i = 0; i < n; i++) out.push({ ym: ymAdd(start, i), amount: i === n-1 ? Math.round((cost - each*(n-1))*100)/100 : each });
+  return out;
+}
+function plPays(p) { const by = {}; (p.items||[]).forEach(it => plItemPays(it, p).forEach(x => by[x.ym] = (by[x.ym]||0) + x.amount)); return by; }
+function plannerMonth(ym) {
+  const rows = []; (S.plans||[]).forEach(p => { const a = plPays(p)[ym] || 0; if (a > 0.004) rows.push({ p, amount: Math.round(a*100)/100 }); });
+  return { rows, total: Math.round(rows.reduce((s,r) => s + r.amount, 0)*100)/100 };
+}
+function plStats(p) {
+  const items = p.items||[], cost = items.reduce((s,i) => s + (Number(i.a)||0), 0), paid = items.filter(i => i.paid).reduce((s,i) => s + (Number(i.a)||0), 0);
+  const fees = items.filter(i => i.how==='zilch').reduce((s,i) => { const z = zilchPlan(Number(i.a)||0, { avail: zs().limit }); return s + (z ? z.fee : 0); }, 0);
+  const pays = plPays(p), cur = plCur(), future = Object.entries(pays).filter(([ym]) => ym >= cur).sort();
+  return { cost, paid, fees, future, toPay: future.reduce((s,[,a]) => s + a, 0) };
+}
+function plWhen(it, p) {
+  const ym = it.ym || plCur();
+  if (it.paid && it.how !== 'zilch') return 'Paid';
+  if (it.how === 'once') return `Pay in ${mon3(ym)} ${ym.slice(2,4)}`;
+  if (it.how === 'zilch') return `Zilch from ${mon3(ym)}`;
+  const pays = plItemPays(it, p); if (!pays.length) return '';
+  return pays.length === 1 ? `Save in ${mon3(ym)}` : `${money(pays[0].amount,0)} a month, ${mon3(pays[0].ym)} to ${mon3(ym)}`;
+}
+function plOverview() {
+  const cur = plCur(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, i));
+  const per = months.map(ym => { const parts = PL_KINDS.map(([k,l]) => ({ v: (S.plans||[]).filter(p => (p.kind||'summer')===k).reduce((s,p) => s + (plPays(p)[ym]||0), 0), c: PL_COL[k], name: l })); return { ym, parts, total: parts.reduce((s,x) => s + x.v, 0) }; });
+  const any = per.some(x => x.total > 0);
+  if (!any) return `<section class="panel"><h2>Paying for it</h2><p class="note">Add a trip below and cost it up. Each thing you add gets a month and a way to pay, and the planner works out what to put aside each month. It then shows up in that month's Budget Sheet under Monthly extras, so you can see whether the month still adds up.</p></section>`;
+  const peak = Math.max(...per.map(x => x.total)), list = per.filter(x => x.total > 0).slice(0, 6).map(x => { const sh = S.bsheet[x.ym], t = sh ? bsTotals(sh, x.ym) : null;
+    return `<button class="rowbtn" data-act="plsheet" data-v="${x.ym}"><span class="sw" style="background:${x.parts.find(p => p.v)?.c || 'var(--rule-2)'}"></span><div class="grow"><div class="t">${monthName(x.ym)}</div><div class="m">${t ? (t.left >= 0 ? `Sheet still ${money(t.left,0)} spare after this` : `Sheet ${money(-t.left,0)} short with this`) : 'No budget sheet for this month yet'}</div></div><div class="amt" ${t && t.left < 0 ? 'style="color:var(--red)"' : ''}>${money(x.total,0)}</div></button>`; }).join('');
+  return `<section class="panel"><h2>Paying for it <span class="sub">next 12 months</span></h2>
+    <div class="cleg">${PL_KINDS.map(([k,l]) => `<span><i style="background:${PL_COL[k]}"></i>${l}</span>`).join('')}</div>
+    ${barChart(per.map(x => ({ label: mon3(x.ym), parts: x.parts })), { label: 'Planner money to put aside each month', fmt: v => v === peak ? `Most ${money(v,0)}` : '' })}
+    <div class="list">${list}</div>
+    <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Budget Sheet, and these amounts are already counted in each month's sheet. Tap a month to open it.</p></section>`;
+}
+function plPanel(p) {
+  const st = plStats(p), items = p.items||[], cur = plCur();
+  const dates = p.from ? `${shortDate(p.from)}${p.to ? ` to ${shortDate(p.to)}` : ''}` : 'No dates yet';
+  const days = p.from ? daysBetween(today(), p.from) : null;
+  const next = st.future.slice(0, 8);
+  return `<section class="panel"><h2>${esc(p.name)} <button class="btn small ghost" data-act="plan" data-id="${esc(p.id)}">Edit</button></h2>
+    <div class="gauge" style="padding-top:0"><div class="gh"><span class="t" style="font-stretch:125%;font-weight:800;font-size:1.5rem">${money(st.cost,0)}</span><span class="amt"><small>${money(st.paid,0)} paid</small></span></div>${gauge(st.cost ? st.paid/st.cost : 0,'lg')}
+    <div class="m">${esc(dates)}${days !== null && days > 0 ? `, ${days} days to go` : ''}.${p.note ? ` ${esc(p.note)}.` : ''}${st.fees ? ` Includes about ${money(st.fees,0)} of Zilch fees on top.` : ''}</div></div>
+    ${items.length ? `<div class="list">${items.map(it => `<button class="rowbtn" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}"><span class="sw" style="background:${it.paid ? 'var(--good)' : it.how==='zilch' ? 'var(--g3)' : PL_COL[p.kind||'summer']}"></span><div class="grow"><div class="t">${esc(it.n)}${it.paid ? ' <span class="chip ok">Paid</span>' : ''}</div><div class="m">${esc(plWhen(it, p))}${it.note ? ` · ${esc(it.note)}` : ''}</div></div><div class="amt">${money(it.a||0,0)}</div></button>`).join('')}</div>` : `<p class="empty">Nothing costed yet. Tap an idea below or add your own.</p>`}
+    <div class="zchips" style="margin-top:10px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
+    ${next.length ? `<h3 class="eyebrow" style="margin-top:16px">How it gets paid, ${money(st.toPay,0)} still to find</h3><div class="plmonths">${next.map(([ym,a]) => `<span><small>${mon3(ym)} ${ym.slice(2,4)}</small><b>${money(a,0)}</b></span>`).join('')}</div>${st.future.length > next.length ? `<p class="note">And ${st.future.length - next.length} more month${st.future.length - next.length === 1 ? '' : 's'} after that.</p>` : ''}` : ''}
+    ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
+  </section>`;
+}
+function viewPlanner() {
+  const k = PL_KINDS.some(x => x[0]===UI.pltab) ? UI.pltab : 'summer', label = PL_KINDS.find(x => x[0]===k)[1];
+  const tabs = `<div class="seg" role="group" aria-label="Which kind of trip" style="margin-top:14px">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => (p.kind||'summer')===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}">${l}${n ? ` (${n})` : ''}</button>`; }).join('')}</div>`;
+  const list = (S.plans||[]).filter(p => (p.kind||'summer')===k).sort((a,b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
+  return plOverview() + tabs + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add a ${esc(label.toLowerCase().replace(/s$/,''))}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>`;
+}
+function tripPlanForm(id, kind) {
+  const p = (S.plans||[]).find(x => x.id===id) || { kind: kind || UI.pltab || 'summer', saveFrom: plCur() };
+  openSheet(id ? p.name : 'New trip', fld('plN','Name', p.name||'', 'text','placeholder="e.g. Spain, August 2027"') + sel('plK','Type', p.kind||'summer', PL_KINDS) +
+    `<div class="fields2">${fld('plF','Leave', p.from||'', 'date')}${fld('plT','Back', p.to||'', 'date')}</div>` +
+    fld('plS','Start saving from (pay month)', p.saveFrom || plCur(), 'month') + fld('plNote','Note', p.note||'', 'text','placeholder="Who\'s going, where you\'re staying"'), async () => {
+    const name = v('plN').trim(); if (!name) throw new Error('Give the trip a name');
+    const data = { ...p, name, kind: v('plK'), saveFrom: v('plS') || plCur(), items: p.items || [] }; delete data.id;
+    ['from','to','note'].forEach(f => delete data[f]); if (v('plF')) data.from = v('plF'); if (v('plT')) data.to = v('plT'); if (v('plNote').trim()) data.note = v('plNote').trim();
+    UI.pltab = data.kind; await put(`plans/${id || uid('pl')}`, data);
+  }, id ? { onDelete: () => remove(`plans/${id}`) } : {});
+}
+function planItemForm(planId, itemId, name) {
+  const p = (S.plans||[]).find(x => x.id===planId); if (!p) return;
+  const it = (p.items||[]).find(x => x.id===itemId) || { n: name || '', how: 'save', ym: p.from ? payYm(p.from) : ymAdd(plCur(), 1), from: '' };
+  const showFrom = () => { const box = $('#pliFromBox'); if (box) box.hidden = v('pliH') !== 'save'; const hint = $('#pliHint'); if (hint) hint.textContent = plHint(); };
+  const plHint = () => { const a = num(v('pliA')), how = v('pliH'), ym = v('pliM'); if (!a || !ym) return '';
+    const tmp = { a, how, ym, from: v('pliF') }; if (how === 'zilch') { const z = zilchPlan(a, { avail: zs().limit }); return z ? `${money(z.upfront,2)} in ${mon3(ym)}, then ${z.pays.length-1} more payments. About ${money(z.fee,2)} in fees.` : ''; }
+    const pays = plItemPays(tmp, p); return how === 'once' ? `${money(a,2)} out of the ${monthName(ym)} pay.` : pays.length > 1 ? `Put aside ${money(pays[0].amount,2)} a month for ${pays.length} months, ${monthName(pays[0].ym)} to ${monthName(ym)}.` : `${money(a,2)} out of the ${monthName(ym)} pay.`; };
+  openSheet(itemId ? it.n : `Add to ${p.name}`, fld('pliN','What', it.n||'', 'text','placeholder="e.g. Flights"') +
+    `<div class="fields2">${fld('pliA','Cost (£)', it.a ?? '', 'number','step="0.01" min="0" inputmode="decimal"')}${fld('pliM','Pay by (pay month)', it.ym || '', 'month')}</div>` +
+    sel('pliH','How you\'ll pay for it', it.how || 'save', PL_HOW) +
+    `<div id="pliFromBox" ${(it.how||'save')==='save' ? '' : 'hidden'}>${fld('pliF','Start saving from', it.from || p.saveFrom || plCur(), 'month')}</div>
+    <p class="note" id="pliHint"></p>` + fld('pliNote','Note', it.note||'', 'text','placeholder="e.g. Jet2, booked ref ABC123"') +
+    `<label class="toggle"><input type="checkbox" id="pliP" ${it.paid ? 'checked' : ''}> Booked and paid${it.how==='zilch' ? ' (Zilch payments still count)' : ''}</label>`, async () => {
+    const n = v('pliN').trim(), a = num(v('pliA')); if (!n) throw new Error('Say what it is'); if (a === null || a < 0) throw new Error('Enter what it costs, roughly is fine');
+    const ym = v('pliM'); if (!/^\d{4}-\d\d$/.test(ym)) throw new Error('Pick the month it needs paying by');
+    const x = { id: it.id || uid('pi'), n, a, how: v('pliH'), ym }; if (x.how === 'save' && v('pliF') && v('pliF') !== (p.saveFrom || '')) x.from = v('pliF');
+    if (v('pliNote').trim()) x.note = v('pliNote').trim(); if ($('#pliP').checked) x.paid = true;
+    const items = [...(p.items||[])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
+    const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items });
+  }, itemId ? { onDelete: async () => { const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items: (p.items||[]).filter(y => y.id !== itemId) }); } } : {});
+  $('#sheetForm').addEventListener('input', showFrom); $('#sheetForm').addEventListener('change', showFrom); showFrom();
+}
+async function planSpread(id) {
+  const p = (S.plans||[]).find(x => x.id===id); if (!p) return; const from = p.saveFrom || plCur();
+  const items = (p.items||[]).map(it => { if (it.paid) return it; const { from: _f, ...r } = it; return { ...r, how: 'save' }; });
+  const { id: _, ...rest } = p; await put(`plans/${id}`, { ...rest, items }); toast(`Everything not yet paid is now saved for from ${monthName(from)}`);
 }
 
 /* ----- renewals ----- */
@@ -2939,6 +3065,11 @@ document.addEventListener('click', async e => {
   if (a==='planform') return planForm();
   if (a==='debt') return debtForm(el.dataset.id);
   if (a==='trip') return tripForm(el.dataset.id);
+  if (a==='pltab') { UI.pltab = el.dataset.v; return render(); }
+  if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
+  if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
+  if (a==='plspread') return planSpread(el.dataset.id);
+  if (a==='plsheet') { if (bsDirty()) { toast('Save or undo your sheet changes first'); return; } UI.bym = el.dataset.v; UI.bs = null; UI.money = 'sheet'; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='import') return importForm();
   if (a==='pushon') { el.disabled = true; try { await pushOn(); } catch(err) { toast('Couldn\'t turn on notifications'); pushPanel(); } return; }
   if (a==='pushoff') { el.disabled = true; return pushOff(); }
