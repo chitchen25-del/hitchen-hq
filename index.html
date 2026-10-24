@@ -1310,6 +1310,90 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .pic-row small{color:var(--muted);font-size:.8rem}
 .pic-th{position:relative;width:56px;height:56px;flex:none;border-radius:12px;overflow:hidden;background:var(--sheet-2);display:grid;place-items:center}
 .pic-th span{font-size:.62rem;color:var(--muted);text-align:center;line-height:1.1;padding:4px}
+
+/* ---- sparkline, car log chart, year ribbon, drive timeline, import summary ---- */
+:root{--cl-all:color-mix(in srgb,var(--chris-bar) 30%,transparent);--cl-work:var(--chris-bar);--rb-me:var(--chris-bar);--rb-hol:color-mix(in srgb,var(--good-bar) 45%,transparent);--rb-bh:var(--gold-bar);--rb-we:color-mix(in srgb,var(--ink) 7%,transparent);--rb-day:color-mix(in srgb,var(--ink) 4%,transparent)}
+.spark{display:block;width:100%;height:64px;overflow:visible}
+.spark-zero{stroke:currentColor;stroke-opacity:.25;stroke-dasharray:3 4}
+.hrs-spark{padding:10px 18px 4px;color:inherit}
+.hrs-spark small{display:flex;justify-content:space-between;opacity:.75;font-size:.72rem;margin-top:2px}
+@media (prefers-reduced-motion:no-preference){
+  main.enter .spark-line{stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 1.2s cubic-bezier(.4,.1,.2,1) .15s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  main.enter .spark-dot{animation:pop .4s cubic-bezier(.2,1.6,.4,1) 1.2s both}
+  main.enter .cl-track i{animation:growup .7s cubic-bezier(.2,.8,.2,1) both;transform-origin:bottom}
+  main.enter .cl-col .cl-track i{animation-delay:calc(var(--i,0) * 45ms)}
+  @keyframes growup{from{transform:scaleY(0)}to{transform:none}}
+  main.enter .rb-grid{animation:rbIn .7s ease both .1s}
+  @keyframes rbIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+  .rb-grid i.rb-me{animation:glow 3s ease-in-out infinite}
+  @keyframes glow{50%{box-shadow:0 0 2px rgba(255,255,255,.3)}}
+  .dv-leg,.lp-row{animation:rise .4s cubic-bezier(.2,.7,.2,1) both}
+}
+.cl-chart{padding:12px 18px 4px}
+.cl-bars{display:flex;align-items:flex-end;gap:6px;height:150px}
+.cl-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;height:100%}
+.cl-v{font-size:.62rem;opacity:.8;white-space:nowrap;font-variant-numeric:tabular-nums}
+.cl-track{flex:1;width:100%;display:flex;align-items:flex-end;border-radius:6px;background:color-mix(in srgb,currentColor 6%,transparent)}
+.cl-track i{display:flex;flex-direction:column;justify-content:flex-end;width:100%;border-radius:6px;background:var(--cl-all);overflow:hidden}
+.cl-track b{display:block;width:100%;background:var(--cl-work);border-radius:0 0 6px 6px}
+.cl-m{font-size:.7rem;opacity:.75}
+.cl-leg{margin-top:8px}
+.rb{padding:12px 0 4px}
+.rb-grid{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;aspect-ratio:53/7;max-width:100%}
+.rb-grid i{border-radius:2px;background:rgba(255,255,255,.12)}
+.rb-grid i.rb-pad{background:none}
+.rb-grid i.rb-we{background:rgba(255,255,255,.05)}
+.rb-grid i.rb-hol{background:rgba(160,240,190,.55)}
+.rb-grid i.rb-hol.rb-we{background:rgba(160,240,190,.3)}
+.rb-grid i.rb-bh{background:#F6BF26}
+.rb-grid i.rb-me{background:#fff;box-shadow:0 0 6px rgba(255,255,255,.7)}
+.rb-months{display:grid;grid-template-columns:repeat(12,1fr);font-size:.64rem;opacity:.75;margin-top:4px}
+.rb .legend{margin-top:8px}
+.rb .legend .chip{background:rgba(255,255,255,.14);color:#fff;border-color:transparent}
+.rb .sw-me{background:#fff}.rb .sw-hol{background:rgba(160,240,190,.75)}.rb .sw-bh{background:#F6BF26}
+.lvd.pl{box-shadow:inset 0 0 0 2px var(--chris-bar)}
+.lp-list{padding:0 16px}.lp-list .lp-row{gap:12px;align-items:center}
+.lp-n{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:46px;height:46px;border-radius:12px;background:var(--chris-soft);color:var(--chris);line-height:1}
+.lp-n b{font-size:1.15rem}.lp-n small{font-size:.62rem}
+.lp-row.done .lp-n{background:var(--good-soft);color:var(--good)}
+.lp-why{opacity:.85;font-style:normal}
+.lp-note{padding:0 16px}
+.lp-viki{padding:4px 16px 14px}.lp-viki h3{font-size:.95rem;margin:6px 0 2px}
+.lp-chips{display:flex;flex-wrap:wrap;gap:6px}
+.dv-alerts{display:grid;gap:8px;padding:12px 16px 4px}
+.dv-alert{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;background:var(--sheet-2);border-left:4px solid var(--chris-bar);font-size:.88rem}
+.dv-alert b{font-weight:700}
+.dv-alert.t-warn{border-left-color:var(--gold-bar);background:var(--gold-soft)}
+.dv-alert.t-good{border-left-color:var(--good-bar);background:var(--good-soft)}
+.dv-days{list-style:none;margin:0;padding:8px 16px 16px;display:grid;gap:14px}
+.dv-day{display:grid;grid-template-columns:44px 1fr;gap:12px}
+.dv-date{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:4px;line-height:1}
+.dv-date b{font-size:1.35rem}.dv-date span{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.dv-legs{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px dashed color-mix(in srgb,var(--chris-bar) 45%,transparent);display:grid;gap:10px}
+.dv-leg{display:flex;gap:10px;align-items:flex-start;position:relative}
+.dv-ico{flex:none;width:30px;height:30px;margin-left:-30px;border-radius:50%;display:grid;place-items:center;background:var(--sheet);box-shadow:0 0 0 2px color-mix(in srgb,var(--chris-bar) 45%,transparent);font-size:.95rem}
+.dv-leg .grow{display:flex;flex-direction:column;gap:3px;min-width:0}
+.dv-leg .t{font-weight:650}
+.dv-leg .m{color:var(--muted);font-size:.86rem}
+.dv-chips{display:flex;flex-wrap:wrap;gap:6px}
+.dv-chips span{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--chris-soft);color:var(--chris)}
+.dv-leg.k-ferry .dv-chips span{background:var(--sheet-2);color:var(--ink-2)}
+.imp-sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:2px 0 12px}
+.imp-sum div{background:var(--sheet-2);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.imp-sum b{font-size:1.1rem}.imp-sum b.pos{color:var(--good)}.imp-sum b.neg{color:var(--bad)}
+.imp-sum span{font-size:.78rem;color:var(--muted)}
+.imp-h{font-size:.95rem;margin:14px 0 2px}
+.hrs-acts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.hrs-acts .btn{flex:1 1 160px;justify-content:center}
+.hrs-row-ico{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.85rem}
+.hrs-row-ico.p{background:var(--good-soft);color:var(--good)}.hrs-row-ico.n{background:var(--bad-soft);color:var(--bad)}.hrs-row-ico.z{background:var(--sheet-2);color:var(--muted)}
+.lp-tease{display:flex;align-items:center;gap:12px}
+.cl-hero .cl-track{background:rgba(255,255,255,.08)}.cl-hero .cl-track i{background:rgba(255,255,255,.3)}.cl-hero .cl-track b{background:#fff}
+.cl-hero .cl-leg .chip{background:rgba(255,255,255,.14);color:#fff;border-color:transparent}
+.cl-hero .cl-leg .lvsw[style*="--cl-all"]{background:rgba(255,255,255,.35)!important}.cl-hero .cl-leg .lvsw[style*="--cl-work"]{background:#fff!important}
+@media (max-width:520px){.cl-v{display:none}.cl-col:last-child .cl-v,.cl-col.mx .cl-v{display:block}}
+.cl-bars{padding:0 2px}
 </style>
 </head>
 <body>
@@ -1368,8 +1452,8 @@ const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).
 /* ---------- state ---------- */
 const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
-try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; } catch(e) {}
-const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode, kidTab:UI.kidTab})); } catch(e) {} };
+try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; if (saved.csub) UI.csub=saved.csub; } catch(e) {}
+const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode, kidTab:UI.kidTab, csub:UI.csub})); } catch(e) {} };
 let sb = null, session = null, offline = false;
 const LOGIN_DOMAIN = 'hitchen.example.com'; // usernames map to <username>@this (never emailed)
 const userName = () => { const u = session && session.user; if (!u) return ''; return (u.user_metadata && u.user_metadata.username) || (u.email||'').split('@')[0]; };
@@ -1404,10 +1488,11 @@ const TRIP = [
     ['t_critair','Crit\'Air sticker (only if driving into Paris), bought from the official site'],['t_nodetector','No speed camera detector apps on'] ]},
   {g:'Cover and paperwork', items:[
     ['t_breakdown','European breakdown cover confirmed (check RAC policy first)'],['t_ins','Insurer told about the trip and modifications'],
-    ['t_revolut','Revolut card topped up for euro spending'] ]},
+    ['t_revolut','Revolut card topped up for euro spending'],['t_dover','Check Port of Dover advice the week before (arrive up to 2 hours early)'] ]},
   {g:'Car prep', items:[
     ['t_windscreen','Windscreen leak fixed'],['t_screenwash','Screenwash with antifreeze'],['t_tyres','Tyres checked'],
-    ['t_oil','Oil level checked'],['t_battery','Battery tested'] ]},
+    ['t_oil','Oil level checked'],['t_battery','Battery tested'],
+    ['t_chain','Timing chains and brakes rechecked after the first 500 miles'],['t_wipers','Wiper blades good for winter rain'],['t_bulbs','Spare bulb kit (recommended in France)'] ]},
   {g:'Comfort for the drive', items:[
     ['t_charger','12V multi-port USB charger and long lead to the back'],['t_downloads','Films, shows and music downloaded on tablets'],
     ['t_headphones','Wired headphones'],['t_mounts','Headrest tablet mounts'],['t_pillows','Travel pillows and blankets'],
@@ -1433,18 +1518,18 @@ function applyLocal(path, data) {
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; }
+  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.hours) rows.push(['state/hours', S.hours]); if (S.meals) rows.push(['meals/main', S.meals]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.hours) rows.push(['state/hours', S.hours]); if (S.carlog) rows.push(['state/carlog', S.carlog]); if (S.leaveplan) rows.push(['state/leaveplan', S.leaveplan]); if (S.meals) rows.push(['meals/main', S.meals]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.entries(S.media || {}).forEach(([id,d]) => rows.push([`media/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
@@ -1534,7 +1619,7 @@ function render() {
   const views = { home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
   if (render.lastTab !== UI.tab) { app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); render.lastTab = UI.tab; }
-  hydratePhotos(); checkMilestones();
+  hydratePhotos(); checkMilestones(); countUp(app);
 }
 
 /* ----- title block: the grid of labelled boxes that opens each page ----- */
@@ -2034,6 +2119,227 @@ function viewWork() {
   </section>`;
 }
 
+/* ----- little bits of motion: numbers count up the first time they appear (skipped for reduced motion) ----- */
+const CU_SEEN = new Set();
+function countUp(root) {
+  const els = (root || document).querySelectorAll('[data-cu]'); if (!els.length) return;
+  const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  els.forEach(el => {
+    const key = el.dataset.cuKey || el.dataset.cu + el.dataset.cuFmt; if (still || CU_SEEN.has(key)) return; CU_SEEN.add(key);
+    const to = Number(el.dataset.cu), fmt = el.dataset.cuFmt || 'int', final = el.innerHTML, t0 = performance.now(), dur = 900;
+    const show = x => fmt === 'gbp' ? money(Math.round(x), 0) : fmt === 'hm' ? hmin(x, el.dataset.cuSign !== '0') : String(Math.round(x));
+    const step = now => { const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3); if (p < 1) { el.textContent = show(to * e); requestAnimationFrame(step); } else el.innerHTML = final; };
+    requestAnimationFrame(step);
+  });
+}
+/* a smooth sparkline with a soft fill; points are [x, y] in any units */
+function sparkline(pts, { w = 320, h = 64, tone = 'var(--good)', zero = true } = {}) {
+  if (pts.length < 2) return '';
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]).concat(zero ? [0] : []);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), pad = 6;
+  const X = x => pad + (x - x0) / ((x1 - x0) || 1) * (w - pad * 2), Y = y => h - pad - (y - y0) / ((y1 - y0) || 1) * (h - pad * 2);
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(''), last = pts[pts.length - 1], gid = 'sg' + Math.random().toString(36).slice(2, 7);
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="How the balance has moved">
+    <defs><linearGradient id="${gid}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${tone}" stop-opacity=".35"/><stop offset="1" stop-color="${tone}" stop-opacity="0"/></linearGradient></defs>
+    ${zero && y0 < 0 && y1 > 0 ? `<line x1="${pad}" x2="${w - pad}" y1="${Y(0).toFixed(1)}" y2="${Y(0).toFixed(1)}" class="spark-zero"/>` : ''}
+    <path d="${line}L${X(last[0]).toFixed(1)},${h - pad}L${X(pts[0][0]).toFixed(1)},${h - pad}Z" fill="url(#${gid})"/>
+    <path d="${line}" fill="none" stroke="${tone}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" class="spark-line"/>
+    <circle cx="${X(last[0]).toFixed(1)}" cy="${Y(last[1]).toFixed(1)}" r="4" fill="${tone}" class="spark-dot"/></svg>`;
+}
+
+/* ----- Car trip import: the Land Rover app's journey CSVs keep the work calendar, hours and car log up to date -----
+   settings.chrisWork = { lat, lng, r (km), name } is the work location, kept in the private database.
+   state/carlog = { from, upto, days: { 'YYYY-MM-DD': [miles, litres, trips, work miles, work litres] } }
+   A day is only replaced when the new file has at least as many trips for it (exports are capped, so edge days can be partial). */
+function csvParse(text) {
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++) { const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true; else if (c === ',') { row.push(f); f = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(f); f = ''; if (row.some(x => x !== '')) rows.push(row); row = []; } else f += c; }
+  row.push(f); if (row.some(x => x !== '')) rows.push(row); return rows;
+}
+function tripsFromCSV(texts) {
+  const seen = new Set(), out = [];
+  const iso = s => { const m = String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m ? `${m[3]}-${pad(m[2])}-${pad(m[1])}` : null; };
+  const ll = s => { const p = String(s).split(',').map(Number); return p.length === 2 && p.every(n => !isNaN(n)) ? p : null; };
+  texts.forEach(text => { const rows = csvParse(text.replace(/^﻿/, '')); if (!rows.length) return;
+    const H = rows[0].map(x => x.trim().toLowerCase()), col = name => H.findIndex(h => h.startsWith(name));
+    const c = { sd: col('start date'), st: col('start time'), ed: col('end date'), et: col('end time'), sl: col('start location'), sc: col('start coord'), el: col('end location'), ec: col('end coord'), mi: col('distance'), mpg: col('efficiency') };
+    if (c.sd < 0 || c.st < 0 || c.ec < 0) throw new Error('That doesn\'t look like a Land Rover trips file');
+    rows.slice(1).forEach(r => { const d = iso(r[c.sd]); if (!d) return; const mi = Number(r[c.mi]) || 0, key = `${d}|${r[c.st]}|${r[c.et]}|${mi}`; if (seen.has(key)) return; seen.add(key);
+      out.push({ d, s: r[c.st], e: r[c.et], ed: iso(r[c.ed]) || d, from: r[c.sl] || '', to: r[c.el] || '', fc: ll(r[c.sc]), tc: ll(r[c.ec]), mi, mpg: Number(r[c.mpg]) || 0 }); });
+  });
+  return out.sort((a, b) => a.d + a.s < b.d + b.s ? -1 : 1);
+}
+const kmApart = (a, b) => !a || !b ? 1e9 : Math.hypot((a[0] - b[0]) * 111.2, (a[1] - b[1]) * 111.32 * Math.cos(a[0] * Math.PI / 180));
+/* first import with no work location saved: the most common weekday-morning destination */
+function guessWork(trips) {
+  const n = {}; trips.forEach(t => { const w = parse(t.d).getDay(); if (w < 1 || w > 5 || !t.tc || t.e < '06:00' || t.e > '09:30') return; const k = t.tc.map(x => x.toFixed(3)).join(','); (n[k] = n[k] || []).push(t); });
+  const best = Object.values(n).sort((a, b) => b.length - a.length)[0]; if (!best || best.length < 5) return null;
+  const lat = best.reduce((a, t) => a + t.tc[0], 0) / best.length, lng = best.reduce((a, t) => a + t.tc[1], 0) / best.length;
+  return { lat, lng, r: 0.5, name: (best[0].to.split(',')[0] || 'Work').trim() };
+}
+const hoursRules = H => ({ start: '08:00', ends: ['17:00', '17:00', '17:00', '17:00', '14:00'], lunch: 30, grace: 15, minWeekend: 60, ...((H && H.contract) || {}) });
+const tmin = s => { const [h, m] = String(s).split(':').map(Number); return h * 60 + (m || 0); };
+const hm12 = s => { const [h, m] = String(s).split(':').map(Number); return `${h % 12 || 12}:${pad(m)}${h < 12 ? 'am' : 'pm'}`; };
+function tripImport() {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv,text/csv'; inp.multiple = true;
+  inp.onchange = async () => { const files = [...(inp.files || [])]; if (!files.length) return;
+    try { toast('Reading the trips…'); const texts = await Promise.all(files.map(f => f.text())); await tripApply(tripsFromCSV(texts), files.length); }
+    catch (e) { toast(e.message || 'Couldn\'t read that file'); } };
+  inp.click();
+}
+async function tripApply(trips, nFiles) {
+  if (!trips.length) throw new Error('No trips found in that file');
+  let W = S.settings.chrisWork; if (!W) { W = guessWork(trips); if (!W) throw new Error('Couldn\'t work out where work is from these trips'); await put('settings/main', { ...S.settings, chrisWork: W }); }
+  const key = String(W.name || '').split(/[ ,]/)[0].toLowerCase(), near = (c, nm) => (key.length > 3 && String(nm || '').toLowerCase().includes(key)) || kmApart(c, [W.lat, W.lng]) <= (W.r || 0.5), t = today();
+  const byDay = {}; trips.forEach(x => (byDay[x.d] = byDay[x.d] || []).push(x));
+  const dates = Object.keys(byDay).sort(), first = dates[0], last = dates[dates.length - 1];
+  /* the car log */
+  const log = JSON.parse(JSON.stringify(S.carlog || { days: {} })); log.days = log.days || {};
+  let changedLog = 0; dates.forEach(d => { const L = byDay[d], gal = x => x.mpg > 0 ? x.mi / x.mpg * 4.54609 : 0, w = L.filter(x => near(x.fc, x.from) || near(x.tc, x.to));
+    const row = [+L.reduce((a, x) => a + x.mi, 0).toFixed(1), +L.reduce((a, x) => a + gal(x), 0).toFixed(2), L.length, +w.reduce((a, x) => a + x.mi, 0).toFixed(1), +w.reduce((a, x) => a + gal(x), 0).toFixed(2)];
+    const old = log.days[d]; if (!old || row[2] >= old[2]) { log.days[d] = row; changedLog++; } });
+  const all = Object.keys(log.days).sort(); log.from = all[0]; log.upto = all[all.length - 1];
+  /* each day: when the car got to work and when it left */
+  const work = {}; dates.forEach(d => { const L = byDay[d], a = L.filter(x => near(x.tc, x.to) && x.ed === d).map(x => x.e).sort(), l = L.filter(x => near(x.fc, x.from)).map(x => x.s).sort();
+    if (a.length && l.length && l[l.length - 1] > a[0]) work[d] = { in: a[0], out: l[l.length - 1] }; });
+  const H = JSON.parse(JSON.stringify(S.hours || { since: [], rate: 14 })); H.since = H.since || []; const R = hoursRules(H), asOf = H.asOf || '0000-00-00';
+  let newDays = 0, newHours = [], clash = [], checks = [];
+  const full = d => d < t; /* today's still going, so it waits for the next import */
+  for (const d of dates) { if (!full(d)) continue; const wd = parse(d).getDay(), we = wd === 0 || wd === 6, rec = dayRec('chris', d), w = work[d];
+    if (w) {
+      const mins = tmin(w.out) - tmin(w.in);
+      if (we && mins < R.minWeekend) continue;
+      if (rec && rec.status && rec.status !== 'work' && rec.status !== 'callout') { clash.push({ d, rec }); continue; }
+      if (!rec || rec.src === 'car log') { const data = { who: 'chris', date: d, status: 'work', start: w.in, end: w.out, src: 'car log' }; if (wd >= 1 && wd <= 4) data.lunch = R.lunch; if (we) data.note = 'Weekend at work';
+        if (!rec || rec.start !== w.in || rec.end !== w.out) { await put(`days/chris_${d}`, { ...(rec || {}), ...data }); if (!rec) newDays++; } }
+      if (d > asOf && !H.since.some(e => e.id === `c${d}`)) {
+        if (we) newHours.push({ id: `c${d}`, d, what: `${wd === 6 ? 'Saturday' : 'Sunday'} at work, ${hm12(w.in)} to ${hm12(w.out)}`, m: mins });
+        else { const late = tmin(w.in) - tmin(R.start), end = tmin(R.ends[wd - 1] || '17:00'), early = end - tmin(w.out), noLunch = wd <= 4 && tmin(w.out) <= 13 * 60;
+          if (late > R.grace) newHours.push({ id: `c${d}`, d, what: `Arrived ${hm12(w.in)} (start ${hm12(R.start)})`, m: -late });
+          if (early > R.grace) newHours.push({ id: `c${d}e`, d, what: `Left ${hm12(w.out)} (finish ${hm12(R.ends[wd - 1])})${noLunch ? ', before lunch' : ''}`, m: -(early - (noLunch ? R.lunch : 0)) }); }
+      }
+    } else if (!we && !isBH(d) && !rec && d > asOf) checks.push(d);
+  }
+  if (newHours.length || dates.some(d => full(d) && d > asOf)) { H.since.push(...newHours); const lastFull = dates.filter(full).pop(); if (lastFull && lastFull > asOf) H.asOf = lastFull; await put('state/hours', H); }
+  if (changedLog) await put('state/carlog', log);
+  tripSummary({ trips: trips.length, nFiles, first, last, newDays, newHours, clash, checks, W });
+}
+function tripSummary(r) {
+  const plus = r.newHours.filter(x => x.m > 0).reduce((a, x) => a + x.m, 0), minus = r.newHours.filter(x => x.m < 0).reduce((a, x) => a + x.m, 0);
+  const opts = [['', 'Leave for now'], ['bike', 'At work (motorbike)'], ['holiday', 'Holiday'], ['sick', 'Off sick'], ['owed', 'Day off, hours owed']];
+  const body = `<div class="imp-sum">
+      <div><b>${r.trips.toLocaleString('en-GB')}</b><span>trips read from ${r.nFiles} file${r.nFiles === 1 ? '' : 's'}</span></div>
+      <div><b>${esc(dayShort(r.first).slice(4))} – ${esc(dayShort(r.last).slice(4))}</b><span>covered</span></div>
+      <div><b>${r.newDays}</b><span>new work day${r.newDays === 1 ? '' : 's'} on your calendar</span></div>
+      <div><b class="${plus + minus >= 0 ? 'pos' : 'neg'}">${r.newHours.length ? hmin(plus + minus) : 'None'}</b><span>change to your hours</span></div></div>
+    ${r.newHours.length ? `<div class="list">${r.newHours.map(x => `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.d))}</span><span class="m" style="display:block">${esc(x.what)}</span></span><span class="amt" style="color:${x.m > 0 ? 'var(--good)' : 'var(--bad)'}">${hmin(x.m)}</span></div>`).join('')}</div>` : ''}
+    ${r.clash.length ? `<p class="note">The car was at ${esc(r.W.name)} on ${r.clash.map(c => `${esc(dayShort(c.d))} (marked ${esc(c.rec.status)})`).join(', ')}. Check those days on your calendar.</p>` : ''}
+    ${r.checks.length ? `<h3 class="imp-h">Days the car didn't go to work</h3><p class="note" style="margin-top:0">Say what each one was, or leave it for later.</p>${r.checks.map(d => sel(`ck_${d}`, dayShort(d), '', opts)).join('')}` : '<p class="note">Every weekday is accounted for.</p>'}`;
+  openSheet('Trips imported', body, async () => {
+    const H = JSON.parse(JSON.stringify(S.hours || { since: [] })); H.since = H.since || []; let hChanged = false; const R = hoursRules(H);
+    for (const d of r.checks) { const k = v(`ck_${d}`); if (!k) continue; const wd = parse(d).getDay();
+      if (k === 'bike') await put(`days/chris_${d}`, { who: 'chris', date: d, status: 'work', note: 'Motorbike day (no car trip)', src: 'car log' });
+      else if (k === 'holiday' || k === 'sick') await put(`days/chris_${d}`, { who: 'chris', date: d, status: k, src: 'car log' });
+      else if (k === 'owed') { await put(`days/chris_${d}`, { who: 'chris', date: d, status: 'off', note: 'Day off, hours owed', src: 'car log' });
+        const std = wd === 5 ? tmin(R.ends[4]) - tmin(R.start) : tmin(R.ends[wd - 1]) - tmin(R.start) - R.lunch; H.since.push({ id: `c${d}o`, d, what: 'Day off, hours owed', m: -std }); hChanged = true; } }
+    if (hChanged) await put('state/hours', H);
+    window.__toastAfter = 'All up to date';
+  }, { saveLabel: r.checks.length ? 'Save' : 'Done' });
+}
+
+/* ----- what the car really costs, from the journey log ----- */
+function fuelPrice() {
+  const f = (S.fuel || []).filter(x => Number(x.cost) > 0 && Number(x.litres) > 0).sort((a, b) => a.date < b.date ? 1 : -1)[0];
+  return Number(S.settings.fuelPrice) || (f ? Number(f.cost) / Number(f.litres) : 1.85);
+}
+function carlogStats(year) {
+  const L = S.carlog; if (!L || !L.days) return null; const y = String(year || today().slice(0, 4)), days = Object.entries(L.days).filter(([d]) => d.startsWith(y)); if (!days.length) return null;
+  const sum = i => days.reduce((a, [, r]) => a + (Number(r[i]) || 0), 0), price = fuelPrice();
+  const months = {}; days.forEach(([d, r]) => { const m = d.slice(0, 7), o = months[m] = months[m] || { mi: 0, l: 0, wmi: 0, wl: 0 }; o.mi += r[0]; o.l += r[1]; o.wmi += r[3]; o.wl += r[4]; });
+  const workDays = days.filter(([, r]) => r[3] > 0).length, wl = sum(4), mi = sum(0), l = sum(1);
+  const bike = daysFor('chris', `${y}-01-01`, `${y}-12-31`).filter(d => d.status === 'work' && !d.start && /motorbike/i.test(d.note || '')).length;
+  const span = Math.max(1, daysBetween(days[0][0], days[days.length - 1][0]) + 1);
+  return { y, mi, l, mpg: l ? mi / (l / 4.54609) : 0, cost: l * price, price, months, workDays, wl, wcost: wl * price, perDay: workDays ? wl / workDays * price : 0, bike, bikeSave: workDays ? bike * wl / workDays * price : 0, span, perYear: l * price / span * 365, upto: L.upto };
+}
+function carlogPanel() {
+  const c = carlogStats(); if (!c) return `<section class="panel"><h2>From the journey log</h2><p class="note" style="margin-top:0">Import your Land Rover trips on Family → Chris → Hours &amp; leave and the real fuel costs show up here.</p></section>`;
+  const ms = Object.keys(c.months).sort(), max = Math.max(...ms.map(m => c.months[m].l * c.price)) || 1;
+  const bars = `<div class="cl-bars" role="img" aria-label="Fuel spend each month">${ms.map((m, i) => { const o = c.months[m], v = o.l * c.price, wv = o.wl * c.price;
+    return `<div class="cl-col${v === max ? ' mx' : ''}" style="--i:${i}" title="${monShort(m)}: ${money(v, 0)}, ${Math.round(o.mi)} miles"><span class="cl-v">${money(v, 0)}</span><span class="cl-track"><i style="height:${(v / max * 100).toFixed(1)}%"><b style="height:${(v ? wv / v * 100 : 0).toFixed(1)}%"></b></i></span><span class="cl-m">${monShort(m).slice(0, 1)}</span></div>`; }).join('')}</div>
+    <div class="legend cl-leg"><span class="chip"><i class="lvsw" style="background:var(--cl-all)"></i>All driving</span><span class="chip"><i class="lvsw" style="background:var(--cl-work)"></i>To and from work</span></div>`;
+  return tblock({ cls: 'cl-hero', kicker: `From the journey log · ${c.y} so far`, title: `<span data-cu="${Math.round(c.cost)}" data-cu-fmt="gbp" data-cu-key="clcost">${money(c.cost, 0)}</span> on diesel`,
+      side: `<span class="tb-kicker">Real mpg</span><span class="big">${c.mpg.toFixed(1)}</span>`,
+      cells: [tbCell('Miles', Math.round(c.mi).toLocaleString('en-GB'), 'var(--chris-bar)'), tbCell('Per year', money(c.perYear, 0), 'var(--gold-bar)'), tbCell('Litres', Math.round(c.l).toLocaleString('en-GB'), 'var(--good-bar)')],
+      after: `<div class="cl-chart">${bars}</div>`,
+      foot: `<span>At ${money(c.price, 2)} a litre · <button class="linkbtn" data-act="fuelprice">Change</button></span><span>Log to ${esc(dayShort(c.upto).slice(4))}</span>` })
+    + `<section class="panel"><h2>Getting to work</h2><div class="list">
+      <div class="row"><span class="grow"><span class="t" style="display:block">Commute so far</span><span class="m" style="display:block">${c.workDays} days the car went to work</span></span><span class="amt">${money(c.wcost, 0)}</span></div>
+      <div class="row"><span class="grow"><span class="t" style="display:block">Each day you drive in</span><span class="m" style="display:block">There and back, including school and shop stops on the way</span></span><span class="amt">${money(c.perDay, 2)}</span></div>
+      <div class="row"><span class="grow"><span class="t" style="display:block">A year of commuting</span><span class="m" style="display:block">About 225 working days</span></span><span class="amt">${money(c.perDay * 225, 0)}</span></div>
+      <div class="row"><span class="grow"><span class="t" style="display:block">Motorbike days</span><span class="m" style="display:block">${c.bike} day${c.bike === 1 ? '' : 's'} the car stayed at home, before the bike's own fuel</span></span><span class="amt" style="color:var(--good)">${c.bike ? `${money(c.bikeSave, 0)} saved` : '–'}</span></div>
+    </div></section>`;
+}
+function fuelPriceForm() {
+  openSheet('Diesel price', fld('fpP', 'Price a litre (£)', fuelPrice().toFixed(3), 'number', 'min="0.5" max="4" step="0.001" inputmode="decimal"') + '<p class="note">Used for the journey-log costs. Your fill-ups set it automatically if they include the cost and litres.</p>', async () => {
+    const p = Number(v('fpP')); if (!(p > 0.5 && p < 4)) throw new Error('Enter a price like 1.859'); await put('settings/main', { ...S.settings, fuelPrice: p });
+  });
+}
+
+/* ----- holiday plan: state/leaveplan = { year, blocks:[{id, label, leave:[dates], from, to, why}], reserve, viki:[{from,to,label}], note } ----- */
+function leavePlanFor(year) { const P = S.leaveplan; return P && String(P.year) === String(year) ? P : null; }
+function yearRibbon(year, planned) {
+  const first = parse(`${year}-01-01`), lead = (first.getDay() + 6) % 7, days = [], set = new Set(planned);
+  for (let i = 0; i < lead; i++) days.push('<i class="rb-pad"></i>');
+  for (let s = `${year}-01-01`; s.startsWith(String(year)); s = addDays(s, 1)) {
+    const sd = s <= addDays(SCHOOL_YEARS[SCHOOL_YEARS.length - 1].to, 40) ? schoolDay(s) : { k: 'none' };
+    const k = set.has(s) ? 'rb-me' : isBH(s) ? 'rb-bh' : chrisOff(s) ? 'rb-me' : sd.k === 'hol' || sd.k === 'inset' ? (isWeekend(s) ? 'rb-hol rb-we' : 'rb-hol') : isWeekend(s) ? 'rb-we' : '';
+    days.push(`<i class="${k}" title="${esc(shortDate(s))}${set.has(s) ? ', your holiday' : isBH(s) ? ', bank holiday' : sd.k === 'hol' ? `, ${esc(sd.n)}` : ''}"></i>`);
+  }
+  const months = MONTHS.map(m => `<span>${m.slice(0, 1)}</span>`).join('');
+  return `<div class="rb"><div class="rb-grid">${days.join('')}</div><div class="rb-months">${months}</div>
+    <div class="legend"><span class="chip"><i class="lvsw sw-me"></i>Your holiday</span><span class="chip"><i class="lvsw sw-hol"></i>School holidays</span><span class="chip"><i class="lvsw sw-bh"></i>Bank holiday</span></div></div>`;
+}
+const runOff = (dates) => { /* the whole stretch off around a block, counting weekends and bank holidays */
+  const s = new Set(dates); let a = dates[0], b = dates[dates.length - 1];
+  const off = d => s.has(d) || isWeekend(d) || isBH(d) || chrisOff(d);
+  while (off(addDays(a, -1))) a = addDays(a, -1); while (off(addDays(b, 1))) b = addDays(b, 1);
+  return { from: a, to: b, n: daysBetween(a, b) + 1 };
+};
+function leavePlanPanel(year) {
+  const P = leavePlanFor(year); if (!P) return '';
+  const booked = d => chrisOff(d), blocks = P.blocks.map(b => ({ ...b, run: runOff(b.leave), done: b.leave.every(booked) }));
+  const used = blocks.reduce((a, b) => a + b.leave.length, 0), offDays = blocks.reduce((a, b) => a + b.run.n, 0), left = blocks.filter(b => !b.done);
+  return `<section class="panel nopad lp">${headCard({ tone: 'sea', kicker: `Suggested plan · ${esc(String(year))}`, title: `<span data-cu="${offDays}" data-cu-key="lp${year}">${offDays}</span> days off for ${used} days' leave`,
+      meta: `<span>${esc(P.note || 'Built around the girls\' school holidays and the bank holidays.')}</span>`,
+      body: yearRibbon(year, blocks.flatMap(b => b.leave)), actions: left.length ? hcBtn(`Book all ${left.reduce((a, b) => a + b.leave.filter(d => !booked(d)).length, 0)} days`, 'lpbook', '') : '' })}
+    <div class="list lp-list">${blocks.map(b => `<div class="row lp-row${b.done ? ' done' : ''}"><span class="lp-n"><b>${b.leave.length}</b><small>day${b.leave.length === 1 ? '' : 's'}</small></span><span class="grow"><span class="t" style="display:block">${esc(b.label)}</span>
+      <span class="m" style="display:block">Off ${esc(dayShort(b.run.from))} to ${esc(dayShort(b.run.to))}: <b>${b.run.n} days</b> in a row</span>${b.why ? `<span class="m lp-why" style="display:block">${esc(b.why)}</span>` : ''}</span>
+      ${b.done ? '<span class="chip ks-now">Booked</span>' : `<button class="btn small ghost" data-act="lpbook" data-id="${esc(b.id)}">Book</button>`}</div>`).join('')}</div>
+    ${P.reserve ? `<p class="note lp-note">${P.reserve} day${P.reserve === 1 ? '' : 's'} kept in reserve for emergencies or a birthday.</p>` : ''}
+    ${(P.viki || []).length ? `<div class="lp-viki"><h3>Weeks for Viki to cover</h3><p class="note" style="margin-top:0">School holidays you're working. Her rota decides the rest.</p><div class="lp-chips">${P.viki.map(x => `<span class="chip">${esc(x.label)}</span>`).join('')}</div></div>` : ''}
+  </section>`;
+}
+async function leavePlanBook(id) {
+  const P = S.leaveplan; if (!P) return; const blocks = P.blocks.filter(b => !id || b.id === id); let n = 0;
+  for (const b of blocks) for (const d of b.leave) { if (chrisOff(d)) continue; await put(`days/chris_${d}`, { who: 'chris', date: d, status: 'holiday', src: 'plan' }); n++; }
+  toast(n ? `${n} day${n === 1 ? '' : 's'} booked` : 'Already booked');
+}
+
+/* ----- the drive: plan.drive = [{ d, legs:[{ k:'car'|'ferry'|'stay', t, mi, dur, note }] }], plan.alerts = [{ t, note, tone }] ----- */
+function drivePanel(p) {
+  if (!(p.drive || []).length || (p.to || p.from) < today()) return '';
+  const ICO = { car: '🚗', ferry: '⛴️', stay: '🛏️', park: '🏰' }, miles = p.drive.reduce((a, d) => a + d.legs.reduce((b, l) => b + (Number(l.mi) || 0), 0), 0);
+  const c = carlogStats(), mpg = Number(p.mpg) || 34, litres = miles / mpg * 4.54609, price = Number(p.fuelPrice) || 1.95;
+  const alerts = (p.alerts || []).map(a => `<div class="dv-alert t-${esc(a.tone || 'info')}"><b>${esc(a.t)}</b><span>${esc(a.note || '')}</span></div>`).join('');
+  return `<section class="panel nopad dv">${headCard({ tone: 'sea', kicker: 'The drive', title: `${Math.round(miles).toLocaleString('en-GB')} miles, door to door`,
+      meta: `<span>About ${Math.round(litres)} litres of diesel at ${mpg} mpg${c ? ` (your car managed ${c.mpg.toFixed(0)} mpg around the island this year)` : ''}: roughly ${money(litres * price, 0)}.</span>` })}
+    ${alerts ? `<div class="dv-alerts">${alerts}</div>` : ''}
+    <ol class="dv-days">${p.drive.map(d => `<li class="dv-day"><div class="dv-date"><b>${parse(d.d).getDate()}</b><span>${esc(DOWS[parse(d.d).getDay()].slice(0, 3))}</span></div><ol class="dv-legs">${d.legs.map(l => `<li class="dv-leg k-${esc(l.k)}"><span class="dv-ico" aria-hidden="true">${ICO[l.k] || '•'}</span><span class="grow"><span class="t">${esc(l.t)}</span>${l.mi || l.dur ? `<span class="dv-chips">${l.mi ? `<span>${l.mi} mi</span>` : ''}${l.dur ? `<span>${esc(l.dur)}</span>` : ''}</span>` : ''}${l.note ? `<span class="m">${esc(l.note)}</span>` : ''}</span></li>`).join('')}</ol></li>`).join('')}</ol>
+  </section>`;
+}
+
 /* ----- Chris's hours balance -----
    state/hours = { asOf, rate, pattern, since:[{id, d, what, m}], pre:[{d, what, m}], pay:[{l, net, note}], report }
    m is minutes: + extra time worked, − time short. "since" runs from the March pay that reset the balance to zero.
@@ -2047,21 +2353,24 @@ function chrisHolLeft() {
 }
 function viewChrisHours() {
   const H = S.hours;
-  if (!H || !Array.isArray(H.since)) return `<section class="panel"><p class="empty">No hours worked out yet.</p><div class="btnrow"><button class="btn small" data-act="hrsadd">Log time</button></div></section>`;
+  const acts = `<div class="hrs-acts"><button class="btn" data-act="tripimport">Import car trips</button><button class="btn ghost" data-act="hrsadd">Log time</button></div>`;
+  if (!H || !Array.isArray(H.since)) return `${acts}<section class="panel"><p class="empty">No hours worked out yet. Import your Land Rover trips to start.</p></section>`;
   const rate = Number(H.rate) || 14, since = [...H.since].sort((a,b) => a.d < b.d ? -1 : 1);
   const plus = since.filter(x => x.m > 0).reduce((a,x) => a + x.m, 0), minus = since.filter(x => x.m < 0).reduce((a,x) => a + x.m, 0), bal = plus + minus;
   const hol = chrisHolLeft();
-  const hero = tblock({ cls:'lv-chris', kicker: `Hours balance · since the March reset`, title: Math.abs(bal) < 1 ? 'All square' : bal > 0 ? `${hmin(bal, false)} owed to you` : `You owe ${hmin(bal, false)}`,
-    side: `<span class="tb-kicker">Worth</span><span class="big">${money(Math.abs(bal)/60*rate, 0)}</span>`,
+  let run = 0; const pts = [[0, 0], ...since.map((x, i) => [i + 1, run += x.m])];
+  const cu = `data-cu="${Math.abs(bal)}" data-cu-fmt="hm" data-cu-sign="0" data-cu-key="hrsbal"`;
+  const hero = tblock({ cls:'lv-chris', kicker: `Hours balance · since the March reset`, title: Math.abs(bal) < 1 ? 'All square' : bal > 0 ? `<span ${cu}>${hmin(bal, false)}</span> owed to you` : `You owe <span ${cu}>${hmin(bal, false)}</span>`,
+    side: `<span class="tb-kicker">Worth</span><span class="big" data-cu="${Math.round(Math.abs(bal)/60*rate)}" data-cu-fmt="gbp" data-cu-key="hrsgbp">${money(Math.abs(bal)/60*rate, 0)}</span>`,
+    after: since.length > 1 ? `<div class="hrs-spark">${sparkline(pts, { tone: '#fff' })}<small><span>March reset</span><span>Now</span></small></div>` : '',
     cells: [ tbCell('Extra worked', hmin(plus), 'var(--good-bar)'), tbCell('Time short', hmin(minus), 'var(--bad)'), tbCell('Holiday left', hol.allow ? `${hol.left} <small>of ${hol.allow}</small>` : '–', 'var(--chris-bar)') ],
     foot: `<span>40 hours a week · £${rate} an hour</span>${H.asOf ? `<span>Checked to ${esc(shortDate(H.asOf))}</span>` : ''}` });
-  const row = (x, act) => `<${act ? `button class="rowbtn" data-act="${act}" data-id="${esc(x.id)}"` : 'div class="row"'}><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.d))}</span><span class="m" style="display:block">${esc(x.what)}</span></span><span class="amt" style="color:${x.m > 0 ? 'var(--good)' : x.m < 0 ? 'var(--bad)' : 'var(--muted)'}">${x.m ? hmin(x.m) : 'None'}</span></${act ? 'button' : 'div'}>`;
+  const row = (x, act) => `<${act ? `button class="rowbtn" data-act="${act}" data-id="${esc(x.id)}"` : 'div class="row"'}><span class="hrs-row-ico ${x.m > 0 ? 'p' : x.m < 0 ? 'n' : 'z'}" aria-hidden="true">${x.m > 0 ? '+' : x.m < 0 ? '−' : '·'}</span><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.d))}</span><span class="m" style="display:block">${esc(x.what)}</span></span><span class="amt" style="color:${x.m > 0 ? 'var(--good)' : x.m < 0 ? 'var(--bad)' : 'var(--muted)'}">${x.m ? hmin(x.m) : 'None'}</span></${act ? 'button' : 'div'}>`;
   const pre = H.pre || [], preTot = pre.reduce((a,x) => a + x.m, 0);
-  return `${hero}
-    ${H.report ? `<a class="btn" style="display:flex;justify-content:center;margin:0 0 14px" href="${esc(H.report)}" target="_blank" rel="noopener">Open the report for your boss</a>` : ''}
+  return `${hero}${acts}
+    ${H.report ? `<a class="btn ghost" style="display:flex;justify-content:center;margin:0 0 14px" href="${esc(H.report)}" target="_blank" rel="noopener">Open the report for your boss</a>` : ''}
     <section class="panel"><h2>Since the reset <span class="sub">${hmin(bal)}</span></h2><p class="note" style="margin-top:0">Saturdays in and time short on weekdays, against ${esc(H.pattern || 'your normal hours')}. Tap a line to change it.</p>
-      <div class="list">${since.map(x => row(x, 'hrsedit')).join('')}</div>
-      <div class="btnrow"><button class="btn small" data-act="hrsadd">Log time</button></div></section>
+      <div class="list">${since.map(x => row(x, 'hrsedit')).join('')}</div></section>
     ${pre.length ? `<section class="panel"><h2>Before the reset <span class="sub">settled</span></h2><div class="list">${pre.map(x => row(x)).join('')}</div>
       <p class="note">${Math.abs(preTot) <= 120 ? `The March pay cut cleared what was owed, to within ${hmin(Math.abs(preTot), false)}.` : `Left over: ${hmin(preTot)}.`}</p></section>` : ''}
     ${(H.pay||[]).length ? `<section class="panel"><h2>What the wages show</h2><div class="list">${H.pay.map(p => `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(p.l)}</span><span class="m" style="display:block">${esc(p.note)}</span></span><span class="amt">${money(p.net, 2)}</span></div>`).join('')}</div></section>` : ''}`;
@@ -2979,9 +3288,11 @@ function viewLeaveChris() {
     foot: `<span>Days marked Holiday on your Work calendar count here.</span><span><button class="linkbtn" data-act="lvchris">Edit allowance</button></span>` });
   const blocks = lvRuns(days).map(b => ({ ...b, n: b.days.length })), next = blocks.filter(b => b.to >= t), past = blocks.filter(b => b.to < t);
   const months = []; for (let i=0;i<12;i++) months.push(ymOf(addMonths(ly.from, i)));
-  const cls = date => `${chrisOff(date) && !isWeekend(date) ? 'k-ch' : ''}${vikiOff(date) ? ' vk' : ''}`;
+  const lp = leavePlanFor(ly.label), planned = new Set(lp ? lp.blocks.flatMap(b => b.leave) : []);
+  const cls = date => `${chrisOff(date) && !isWeekend(date) ? 'k-ch' : ''}${vikiOff(date) ? ' vk' : ''}${planned.has(date) && !chrisOff(date) ? ' pl' : ''}`;
+  const nextLp = !lp && off === 0 ? leavePlanFor(chrisLeaveYear(1).label) : null;
   const legend = `<div class="legend"><span class="chip"><i class="lvsw" style="background:var(--lv-ch)"></i>Your holiday</span><span class="chip"><i class="lvsw bhsw"></i>Bank holiday</span><span class="chip"><i class="lvsw vksw"></i>Viki off too</span></div>`;
-  return `${yseg}${hero}
+  return `${yseg}${hero}${lp ? leavePlanPanel(ly.label) : ''}${nextLp ? `<button class="panel rowbtn lp-tease" data-act="lvcyear" data-v="1"><span class="lp-n"><b>${nextLp.year}</b></span><span class="grow"><span class="t" style="display:block">Your ${nextLp.year} holiday plan is ready</span><span class="m" style="display:block">Built around the girls' school holidays. Tap to see it.</span></span><span aria-hidden="true">›</span></button>` : ''}
     <section class="panel"><h2>Coming up</h2>${next.length ? `<div class="list">${next.map(b => lvBlockRow(b, 'lvcday', 'var(--lv-ch)', 'var(--lv-ch-soft)')).join('')}</div>` : '<p class="empty">No holiday booked yet. Tap days on the calendar below to add some.</p>'}</section>
     <section class="panel"><h2>Chris's calendar <span class="sub">${esc(ly.label)}</span></h2>${legend}<div class="lvyear">${months.map(m => lvMiniMonth(m, cls, 'lvcday', date => chrisOff(date) ? ', holiday' : '')).join('')}</div><p class="note">Tap a day to book it as holiday or change it.</p></section>
     ${past.length ? `<section class="panel"><h2>Already taken <span class="sub">${taken} days</span></h2><div class="list">${past.map(b => lvBlockRow(b, 'lvcday', 'var(--lv-ch)', 'var(--lv-ch-soft)')).join('')}</div></section>` : ''}`;
@@ -3978,7 +4289,7 @@ function plPanel(p) {
   const hero = items.filter(it => it.img).slice(0, 3);
   return `${tripHero(p, st)}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
-    ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
+    ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + drivePanel(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
     ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
     ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
@@ -5189,7 +5500,7 @@ function viewFuel() {
   const cc = carCosts();
   const costs = cc.miles ? `<section class="panel"><h2>Running costs <span class="sub">over ${cc.miles.toLocaleString('en-GB')} miles</span></h2>
     <div class="stats"><div class="stat"><span>Fuel</span><b>${(cc.fuelPpm*100).toFixed(1)}p</b><span>a mile, ${money(cc.fuelCost,0)}</span></div><div class="stat"><span>Fuel and servicing</span><b>${(cc.ppm*100).toFixed(1)}p</b><span>a mile, ${money(cc.fuelCost+cc.serviceCost,0)}</span></div></div></section>` : '';
-  return costs + fuelChart() + `<section class="panel"><h2>Fuel <button class="btn small" data-act="fuel">Add fill-up</button></h2>
+  return carlogPanel() + costs + fuelChart() + `<section class="panel"><h2>Fuel <button class="btn small" data-act="fuel">Add fill-up</button></h2>
     <div class="stats"><div class="stat"><span>Average</span><b>${avg?avg.toFixed(1):'—'}</b><span>mpg</span></div><div class="stat"><span>Fuel this month</span><b>${money(monthCost,0)}</b><span>${MONTHS[parse(today()).getMonth()]}</span></div></div>
     ${rows.length ? `<div class="list">${rows.map(r => `<button class="rowbtn" data-act="fuel" data-id="${esc(r.id)}"><div class="grow"><div class="t">${shortDate(r.date)}</div><div class="m">${Number(r.mileage).toLocaleString('en-GB')} miles · ${r.litres} L${r.mpg?` · ${r.mpg.toFixed(1)} mpg`:''}${r.ppm?` · ${(r.ppm*100).toFixed(1)}p a mile`:''}</div></div><div class="amt">${money(r.cost)}</div></button>`).join('')}</div>` : `<p class="empty">Log fill-ups with the mileage and litres to see your real mpg. Fill to full each time for accurate figures.</p>`}
   </section>`;
@@ -5484,6 +5795,9 @@ document.addEventListener('click', async e => {
   if (a==='mgrp') { const g = MONEY_GROUPS.find(x => x.k === el.dataset.v) || MONEY_GROUPS[0]; UI.mlast = UI.mlast || {}; UI.mlast[moneyGroupOf(UI.money).k] = UI.money; UI.money = (UI.mlast[g.k] && g.pages.some(([k]) => k === UI.mlast[g.k])) ? UI.mlast[g.k] : g.pages[0][0]; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='csub') { UI.csub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='hrsadd') return hrsForm();
+  if (a==='tripimport') return tripImport();
+  if (a==='fuelprice') return fuelPriceForm();
+  if (a==='lpbook') return leavePlanBook(el.dataset.id);
   if (a==='hrsedit') return hrsForm(el.dataset.id);
   if (a==='vsub') { UI.vsub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='vcmode' || a==='vcyr') { if (a==='vcmode') UI.vcmode = el.dataset.v; else UI.vcyr = el.dataset.v; keepUI(); const y = window.scrollY; render(); window.scrollTo(0,y); return; }

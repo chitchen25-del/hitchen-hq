@@ -30,6 +30,18 @@ Settings → Year in review, and on Home from mid-December to January: swipe thr
 
 Family → Chris → Hours & leave shows Chris's hours balance (Saturdays in, minus time short), holiday left and a link to the report for his manager. Tap Log time to add a Saturday or a short day. The figures are stored in the private database as `state/hours`, never in this code.
 
+## Car trips
+
+Export your journeys from the Land Rover app (each export holds up to 300 trips, so do a few) and tap Import car trips on Chris → Hours & leave. Duplicates are ignored. The import fills in work days on the calendar, adds Saturdays and short days to the hours balance, lists weekdays the car didn't go to work so you can say what they were, and keeps a day-by-day car log. The work location and the log are stored privately (`settings.chrisWork`, `state/carlog`). Car → Fuel and costs shows what the driving really costs from that log. The Sunday evening notification on the first Sunday of the month gives Chris his hours balance and nudges for a new export when the log is a month old.
+
+## Holiday plans
+
+A suggested holiday plan (`state/leaveplan`) shows on Leave → Chris for its year, with a year-at-a-glance strip and a Book button for each block.
+
+## Trip drive plans
+
+A trip can carry `drive` (day-by-day legs) and `alerts`; they show as The drive on the trip, with a fuel estimate.
+
 ## Viki's pay
 
 Her pay rates are stored only in the private database (never in this repository) and can be changed in the app: Work → Viki → Viki's rates → Edit. On call and call-outs are paid on the 25th of the following month. The on-call claim table follows the layout of her claim form.

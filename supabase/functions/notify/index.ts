@@ -55,6 +55,7 @@ async function loadData(today: string) {
     if (c === 'days') D.days[id] = r.data; else if (c === 'plans') D.plans.push({ ...r.data, id }); else if (c === 'bills') D.bills.push({ ...r.data, id }); else if (c === 'carrem') D.carrem.push({ ...r.data, id });
     else if (c === 'settings') D.settings = r.data; else if (r.path === 'private/calendar') D.cal = r.data; else if (r.path === 'state/checks') D.checks = r.data;
     else if (c === 'kids') D.kids[id] = r.data; else if (r.path === 'state/cover') D.cover = r.data; else if (r.path === 'meals/main') D.meals = r.data;
+    else if (r.path === 'state/hours') D.hours = r.data; else if (r.path === 'state/carlog') D.carlog = r.data;
   }
   // calendar events for the next 16 days (the week ahead looks two weeks out for childcare gaps)
   D.events = [];
@@ -208,6 +209,20 @@ function familyMessages(D: any, today: string, mode: string) {
   return out;
 }
 
+// ---- Chris's hours: a monthly balance on the first Sunday, and a nudge when the car log needs a fresh export ----
+const MON3 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function chrisWeekly(D: any, today: string) {
+  const H = D.hours; if (!H || !Array.isArray(H.since)) return [];
+  const bal = H.since.reduce((a: number, x: any) => a + (Number(x.m) || 0), 0), a = Math.abs(Math.round(bal)), h = Math.floor(a / 60), m = a % 60;
+  const t = h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m`;
+  const upto = (D.carlog && D.carlog.upto) || H.asOf, age = upto ? Math.round((Date.parse(today) - Date.parse(upto)) / 86400000) : 99;
+  const firstSunday = Number(today.slice(8)) <= 7, stale = age >= 28;
+  if (!firstSunday && age < 35) return [];
+  const parts = [Math.abs(bal) < 1 ? 'Your hours are square.' : bal > 0 ? `You're owed ${t}.` : `You owe ${t}.`];
+  if (stale && upto) parts.push(`The car log stops at ${Number(upto.slice(8))} ${MON3[Number(upto.slice(5, 7)) - 1]}. Export your Land Rover trips and import them on your Hours page.`);
+  return [{ title: 'Your hours', body: parts.join(' '), tag: `hours-${today}` }];
+}
+
 async function secrets() { const r = await (await rest('app_secrets?select=name,value')).json(); const s: Record<string, string> = {}; r.forEach((x: any) => { s[x.name] = x.value; }); return s; }
 async function send(subs: any[], msgs: any[], sec: Record<string, string>) {
   webpush.setVapidDetails('mailto:hitchen-hq@users.noreply.github.com', sec.vapid_public, sec.vapid_private);
@@ -235,10 +250,12 @@ Deno.serve(async (req: Request) => {
     for (const mode of modes) {
       const msgs = messages(D, lp.date, mode); out[mode] = msgs;
       const fam = ['morning', 'evening', 'weekly'].includes(mode) ? familyMessages(D, lp.date, mode) : []; out[`${mode}_family`] = fam;
+      const ch = mode === 'weekly' ? chrisWeekly(D, lp.date) : []; if (mode === 'weekly') out.weekly_chris = ch;
       if (body.dry) continue;
       const pref = mode === 'weekly' ? 'weekly' : mode.startsWith('money') ? 'money' : mode;
       out.sent.push(...await send(subs.filter((s: any) => s.prefs?.[pref] !== false), msgs, sec));
       if (fam.length) out.sent.push(...await send(subs.filter((s: any) => s.prefs?.family !== false), fam, sec));
+      if (ch.length) out.sent.push(...await send(subs.filter((s: any) => s.who === 'chris' && s.prefs?.weekly !== false), ch, sec));
     }
     return json(out);
   }
