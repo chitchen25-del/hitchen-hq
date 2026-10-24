@@ -101,7 +101,7 @@ function messages(D: any, today: string, mode: string) {
   const out: { title: string; body: string; tag: string }[] = [];
   if (mode === 'moneyam' && payday(today.slice(0, 7)) === today) {
     const jobs = moneyJobs(D, today.slice(0, 7));
-    if (jobs.length) out.push({ title: 'Payday money jobs', body: `${jobs.length} thing${jobs.length === 1 ? '' : 's'} to do from this pay: ${jobs.slice(0, 3).join(', ')}${jobs.length > 3 ? ` and ${jobs.length - 3} more` : ''}. Tick them off in Trips.`, tag: `money-${today}` });
+    if (jobs.length) out.push({ title: 'Payday money jobs', body: `${jobs.length} thing${jobs.length === 1 ? '' : 's'} to do from this pay: ${jobs.slice(0, 3).join(', ')}${jobs.length > 3 ? ` and ${jobs.length - 3} more` : ''}. Tick them off in Treats.`, tag: `money-${today}` });
   }
   if (mode === 'moneypm') {
     const tm = addDays(today, 1), z = zilchTomorrow(D, tm);
@@ -127,6 +127,11 @@ function messages(D: any, today: string, mode: string) {
     // renewals at 30, 7 and 1 days
     for (const b of D.bills) { const r = b.renew || (b.freq === 'annual' ? nextDue(b, today) : null); if (!r) continue; const n = Math.round((parse(r).getTime() - parse(today).getTime()) / 86400000);
       if ([30, 7, 1].includes(n)) out.push({ title: `${b.name} renews ${n === 1 ? 'tomorrow' : `in ${n} days`}`, body: 'Check the renewal price and shop around before it renews automatically.', tag: `renew-${b.id}-${n}` }); }
+    // trips: packing nudges a week before and the night before
+    for (const p of D.plans) { if (!p.from || ['christmas', 'birthday', 'year'].includes(p.kind)) continue; const n = Math.round((parse(p.from).getTime() - parse(today).getTime()) / 86400000);
+      const nm = String(p.name || '').replace(/\s+20\d\d$/, ''), pk = p.pack || [], left = pk.filter((x: any) => !x.done).length;
+      if (n === 7) out.push({ title: `A week until ${nm}!`, body: pk.length ? `${left} thing${left === 1 ? '' : 's'} still to pack. The list is in Treats.` : 'Time to start packing. There\'s a ready-made list in Treats.', tag: `pack-${p.id}-7` });
+      if (n === 1) out.push({ title: `${nm} tomorrow!`, body: pk.length && left ? `${left} thing${left === 1 ? '' : 's'} left on the packing list. Passports by the door!` : 'Passports by the door, and get some sleep!', tag: `pack-${p.id}-1` }); }
     for (const c of D.carrem) { if (!c.date) continue; const n = Math.round((parse(c.date).getTime() - parse(today).getTime()) / 86400000);
       if ([30, 7, 1].includes(n)) out.push({ title: `Car: ${c.name} ${n === 1 ? 'tomorrow' : `in ${n} days`}`, body: c.note || 'Due soon. Open the Car page for details.', tag: `car-${c.id}-${n}` }); }
   }

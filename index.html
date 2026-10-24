@@ -894,6 +894,189 @@ body:has(.xbar:not([hidden])) .fab{display:none}
 .corow .cbar i{display:block;height:100%;border-radius:999px;background:var(--g1)}
 .corow .cv{font-weight:650;font-variant-numeric:tabular-nums;min-width:4.5em;text-align:right}
 .corow .cv small{color:var(--muted);font-weight:500}
+/* ===== Jazz layer: a colour for each tab, bolder headings, bright buttons, playful motion ===== */
+:root{--acc:#A23BEC;--acc2:#FF6B9A}
+:root[data-tab="home"]{--acc:#FF4F6D;--acc2:#FFA94D}
+:root[data-tab="work"]{--acc:#3F7BEA;--acc2:#2CC4E8}
+:root[data-tab="money"]{--acc:#10A56B;--acc2:#7ACB3E}
+:root[data-tab="trips"],:root[data-tab="kid"]{--acc:#A23BEC;--acc2:#FF6B9A}
+:root[data-tab="car"]{--acc:#F07A1A;--acc2:#FFC23D}
+body{background:radial-gradient(760px 360px at 112% -6%,color-mix(in srgb,var(--acc) 15%,transparent),transparent 62%),radial-gradient(620px 320px at -18% 2%,color-mix(in srgb,var(--acc2) 13%,transparent),transparent 62%),var(--film);background-attachment:fixed;transition:background .4s ease}
+.brand h1{font-weight:750;font-size:1.9rem;letter-spacing:-.03em}
+.brand h1::after{content:"";display:block;width:46px;height:5px;border-radius:9px;margin-top:5px;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.brand small{font-weight:550}
+.panel>h2{font-weight:750;font-size:1.14rem;letter-spacing:-.02em}
+.panel>h2::before{content:"";flex:none;width:5px;align-self:stretch;min-height:1.1em;border-radius:9px;background:linear-gradient(180deg,var(--acc),var(--acc2));margin-right:2px}
+.panel>h2{justify-content:flex-start}
+.panel>h2>.sub,.panel>h2>.btn,.panel>h2>button{margin-left:auto}
+.m{font-size:.86rem;line-height:1.35}
+.note{font-size:.88rem;line-height:1.45}
+.t{font-weight:650}
+.btn:not(.ghost){background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 55%,var(--acc2)));color:#fff;box-shadow:0 6px 16px -8px color-mix(in srgb,var(--acc) 80%,transparent)}
+.btn.ghost{color:color-mix(in srgb,var(--acc) 75%,var(--ink));background:color-mix(in srgb,var(--acc) 10%,var(--sheet-2))}
+.seg button[aria-pressed="true"]{color:var(--acc);box-shadow:var(--shadow),inset 0 -3px 0 color-mix(in srgb,var(--acc) 70%,transparent)}
+.bar i{background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.zchips button{border:0;background:color-mix(in srgb,var(--acc) 9%,var(--sheet));color:color-mix(in srgb,var(--acc) 70%,var(--ink));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--acc) 28%,transparent);font-weight:650;border-radius:999px}
+nav.tabs button[data-tab="home"]{--tc:#FF4F6D} nav.tabs button[data-tab="work"]{--tc:#3F7BEA} nav.tabs button[data-tab="money"]{--tc:#10A56B} nav.tabs button[data-tab="trips"]{--tc:#A23BEC} nav.tabs button[data-tab="car"]{--tc:#F07A1A}
+nav.tabs button svg{color:color-mix(in srgb,var(--tc) 70%,var(--muted))}
+nav.tabs button[aria-current="page"]{background:color-mix(in srgb,var(--tc) 14%,transparent);color:var(--tc)}
+nav.tabs button[aria-current="page"] svg{color:var(--tc)}
+.fab{background:linear-gradient(150deg,var(--acc2),var(--acc));color:#fff;box-shadow:0 10px 24px -8px color-mix(in srgb,var(--acc) 70%,transparent),0 2px 6px rgba(0,0,0,.12)}
+.tile .tv{font-weight:700}
+.st-tick[aria-pressed="true"]{background:linear-gradient(135deg,#10A56B,#7ACB3E);border-color:transparent}
+@media (prefers-reduced-motion:no-preference){
+  main.enter .bar i,main.enter .xp-bar i,main.enter .hc-prog i,main.enter .th-bar i,main.enter .rv-bars i{animation:grow .8s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}
+  @keyframes grow{from{transform:scaleX(0)}to{transform:none}}
+  .st-tick[aria-pressed="true"] svg{animation:pop .3s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes pop{from{transform:scale(.2)}to{transform:none}}
+}
+
+/* tones for headed cards */
+.hcard.t-party{background:radial-gradient(120% 90% at 100% 0%,rgba(255,211,107,.3),transparent 55%),linear-gradient(135deg,#4B1E8C,#B23A86 55%,#FF7A59)}
+
+/* treat tabs */
+.pltabs button{display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15}
+.pltabs .pt-i{font-size:1.15rem;line-height:1}
+.pltabs small{font-size:.7rem;font-weight:800;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc);border-radius:99px;padding:0 6px}
+
+/* countdown ribbon */
+.cd-wrap{display:flex;flex-direction:column;gap:8px}
+.cd-title{font-weight:750;font-size:1.02rem;padding:0 4px}
+.cd-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;margin:0 -2px;scrollbar-width:none}
+.cd-row::-webkit-scrollbar{display:none}
+.cd{flex:none;width:128px;scroll-snap-align:start;border:0;border-radius:20px;padding:12px 12px 12px;text-align:left;color:#fff;cursor:pointer;display:flex;flex-direction:column;gap:1px;position:relative;overflow:hidden;box-shadow:0 10px 22px -12px rgba(0,0,0,.45);font:inherit}
+.cd::after{content:"";position:absolute;width:90px;height:90px;border-radius:50%;right:-30px;top:-30px;background:rgba(255,255,255,.14)}
+.cd.k-christmas{background:linear-gradient(145deg,#7A0F1E,#C62828 60%,#E5533D)}
+.cd.k-birthday{background:linear-gradient(145deg,#5B2A9E,#C2457F 60%,#FF8A5B)}
+.cd.k-city{background:linear-gradient(145deg,#1B1F5E,#3F51B5 60%,#7C5CE0)}
+.cd.k-summer{background:linear-gradient(145deg,#D2591E,#F2A33A 60%,#FFD36B);color:#3A1C00}
+.cd.k-family{background:linear-gradient(145deg,#0A5A31,#0B8043 55%,#33B679)}
+.cd-i{font-size:1.3rem}
+.cd-n{font-size:2rem;font-weight:800;letter-spacing:-.04em;line-height:1;margin-top:6px}
+.cd-l{font-size:.74rem;font-weight:700;opacity:.85}
+.cd b{font-size:.92rem;line-height:1.2;margin-top:2px}
+@media (prefers-reduced-motion:no-preference){main.enter .cd{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}main.enter .cd:nth-child(2){animation-delay:.06s}main.enter .cd:nth-child(3){animation-delay:.12s}main.enter .cd:nth-child(n+4){animation-delay:.18s}}
+
+/* occasion picker */
+.occ-row{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+.occ-row::-webkit-scrollbar{display:none}
+.occ{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-width:108px;border:0;border-radius:16px;padding:10px 12px;background:var(--sheet);box-shadow:var(--shadow);cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.occ-i{font-size:1.25rem}
+.occ b{font-size:.92rem;font-weight:750}.occ b small{font-weight:600;color:var(--muted)}
+.occ>small{font-size:.76rem;color:var(--muted);font-weight:600}
+.occ.on{color:#fff;box-shadow:0 10px 22px -12px rgba(0,0,0,.5)}
+.occ.on.k-christmas{background:linear-gradient(145deg,#7A0F1E,#C62828 70%,#E5533D)}
+.occ.on.k-birthday{background:linear-gradient(145deg,#5B2A9E,#C2457F 70%,#FF8A5B)}
+.occ.on small,.occ.on b small{color:rgba(255,255,255,.85)}
+.occ.add{background:transparent;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--acc) 35%,transparent);color:var(--acc)}
+
+/* present rows: wishes and history */
+.xw{color:var(--acc);font-weight:700}
+.xwish,.xhist{margin-top:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.xhist{background:var(--sheet-2)}
+.xh-h{font-size:.78rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.xw-chips{display:flex;flex-wrap:wrap;gap:6px}
+.xw-c{border:0;border-radius:99px;padding:6px 11px;font:inherit;font-size:.86rem;font-weight:650;background:var(--sheet);color:var(--acc);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--acc) 35%,transparent);cursor:pointer}
+.xw-c.taken{color:var(--good);box-shadow:none;background:color-mix(in srgb,var(--good) 12%,transparent);cursor:default}
+.xh-r{font-size:.86rem;padding:3px 0}.xh-r b{display:block;font-size:.84rem}.xh-r span{color:var(--muted)}
+
+/* how it went */
+.rv-leg{display:flex;gap:14px;font-size:.8rem;color:var(--muted);font-weight:600}
+.rv-leg span{display:flex;align-items:center;gap:6px}.rv-leg i{width:12px;height:8px;border-radius:4px;display:inline-block}
+.rv-rows{display:flex;flex-direction:column;gap:8px}
+.rv-r{display:grid;grid-template-columns:88px minmax(0,1fr) 64px;align-items:center;gap:10px;font-size:.88rem}
+.rv-n{font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rv-r b{text-align:right;font-variant-numeric:tabular-nums}
+.rv-bars{display:flex;flex-direction:column;gap:3px}
+.rv-bars i{display:block;height:7px;border-radius:5px}
+i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--acc),var(--acc2))} i.rv-a.over{background:var(--red)}
+
+/* kids' wish mode */
+.kid{display:flex;flex-direction:column;gap:14px}
+.kid-hero{position:relative;overflow:hidden;border-radius:26px;padding:26px 20px 22px;color:#fff;background:radial-gradient(120% 100% at 100% 0%,rgba(255,211,107,.45),transparent 55%),linear-gradient(140deg,#3B1E8C,#A23BEC 55%,#FF6B9A);box-shadow:0 18px 36px -18px rgba(90,30,140,.7)}
+.kid-stars i{position:absolute;width:5px;height:5px;border-radius:50%;background:#fff;opacity:.7}
+@media (prefers-reduced-motion:no-preference){.kid-stars i{animation:twinkle 2.4s ease-in-out infinite}@keyframes twinkle{50%{opacity:.15;transform:scale(.5)}}}
+.kid-k{font-weight:800;font-size:.9rem;letter-spacing:.05em;text-transform:uppercase;opacity:.9;position:relative}
+.kid-t{font-size:2.2rem;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:4px;position:relative}
+.kid-s{font-size:1.05rem;font-weight:700;margin-top:8px;position:relative}
+.kidadd{display:flex;flex-direction:column;gap:8px;background:var(--sheet);border-radius:22px;padding:14px;box-shadow:var(--shadow)}
+.kidadd input{border:0;background:var(--sheet-2);border-radius:14px;padding:14px;font:inherit;font-size:1.1rem}
+.kidadd input[name=link]{font-size:.92rem;padding:10px 14px}
+.kidadd .btn{font-size:1.1rem;padding:14px}
+.kid-list{display:flex;flex-direction:column;gap:8px}
+.kw{display:flex;align-items:center;gap:12px;background:var(--sheet);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+@media (prefers-reduced-motion:no-preference){.kw{animation:rise .4s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d)}}
+.kw-star{font-size:1.6rem}
+.kw b{display:block;font-size:1.1rem}
+.kw a{font-size:.86rem;font-weight:700;color:#A23BEC}
+.kw-del{border:0;background:var(--sheet-2);color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;flex:none}
+.kid-empty{text-align:center;color:var(--muted);font-size:1.05rem;padding:20px 0}
+.kid-exit{margin-top:18px;border:0;background:transparent;color:var(--muted);font:inherit;font-size:.86rem;font-weight:650;padding:14px;border-radius:14px;position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}
+.kid-exit::before{content:"";position:absolute;inset:0;background:color-mix(in srgb,#A23BEC 18%,transparent);transform:scaleX(0);transform-origin:left}
+.kid-exit.holding::before{transform:scaleX(1);transition:transform 1.3s linear}
+
+/* packing */
+.pk-wrap{padding:6px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.pk-car{display:flex;align-items:center;gap:12px;border:0;border-radius:14px;padding:12px;background:color-mix(in srgb,#F07A1A 12%,transparent);font:inherit;color:inherit;text-align:left;cursor:pointer}
+.pk-car>span{font-size:1.5rem}.pk-car b{display:block}.pk-car small{display:block;color:var(--muted);font-size:.8rem}.pk-car em{font-style:normal;font-weight:750;color:#C25E10}
+.pk-h{display:flex;justify-content:space-between;font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:6px 2px 2px}
+.pk{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--rule)}
+.pk .st-tick{width:24px;height:24px}
+.pk-n{flex:1;border:0;background:none;text-align:left;font:inherit;color:inherit;padding:2px 0;cursor:pointer}
+.pk.done .pk-n{text-decoration:line-through;color:var(--muted)}
+.packadd{display:flex;gap:8px;margin-top:4px}
+.packadd input,.packadd select{min-width:0;border:0;background:var(--sheet-2);border-radius:12px;padding:10px 12px;font:inherit}
+.packadd input{flex:1}.packadd select{flex:none;width:112px}
+
+/* on the day */
+.od-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin-top:12px}
+.od-t{display:flex;flex-direction:column;gap:1px;background:rgba(255,255,255,.16);border-radius:14px;padding:10px;color:#fff;text-decoration:none}
+.od-t span{font-size:1.4rem}.od-t b{font-size:1.15rem}.od-t b small{font-weight:600;opacity:.8}.od-t em{font-style:normal;font-size:.76rem;opacity:.85}
+.hcard a.hc-btn{text-decoration:none;display:inline-block}
+
+/* payday check-in */
+.ci-wrap{padding:6px 14px 14px;display:flex;flex-direction:column}
+.ci-s{padding:10px 0;border-bottom:1px solid var(--rule)}
+.ci-s:last-child{border-bottom:0}
+.ci-h{display:flex;align-items:center;gap:10px}
+.ci-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.9rem;background:var(--sheet-2);color:var(--muted);flex:none}
+.ci-dot.now{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff}
+.ci-dot.ok{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.ci-lbl{font-weight:750}
+.ci-s:not(.now) .ci-lbl{color:var(--muted)}
+.ci-done{margin:2px 0 0 38px;font-size:.86rem;color:var(--muted)}
+.ci-inc{margin:8px 0 0 38px;display:flex;flex-direction:column;gap:4px}
+.ci-inc div{display:flex;justify-content:space-between;font-size:.95rem}
+.ci-inc .tot{border-top:1px solid var(--rule);padding-top:6px;font-weight:800}
+.ci-s .btnrow{margin-left:38px}
+.ci-s .step{margin-left:38px}
+.ci-s .step:first-of-type{border-top:0}
+.pltabs button{font-size:.82rem;padding-inline:6px}
+.ci-end{margin:8px 0 0 38px;padding:12px;border-radius:12px;display:flex;flex-direction:column;gap:2px}
+.ci-end.good{background:color-mix(in srgb,var(--good) 12%,transparent)}.ci-end.find{background:color-mix(in srgb,var(--gold) 16%,transparent)}
+.ci-end b{font-size:1.3rem}.ci-end span{font-size:.88rem;color:var(--ink-2)}
+
+/* milestones */
+.ms-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.ms-row::-webkit-scrollbar{display:none}
+.ms{flex:none;width:112px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;padding:10px 6px;border-radius:16px;background:var(--sheet-2)}
+.ms.done{background:color-mix(in srgb,var(--good) 12%,transparent)}
+.ms b{font-size:.84rem;line-height:1.2}.ms small{font-size:.74rem;color:var(--muted);font-weight:600}
+.ms-ring{position:relative;width:56px;height:56px;display:block}
+.ms-ring svg{width:56px;height:56px;display:block}
+.ms-ring i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:1.25rem;font-weight:800}
+.ms.done .ms-ring i{color:var(--good)}
+
+/* celebration */
+.cele{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(7,11,19,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:opacity .3s}
+.cele.out{opacity:0}
+.cele canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cele-card{position:relative;background:var(--sheet);border-radius:26px;padding:26px 24px 20px;width:min(320px,86vw);text-align:center;display:flex;flex-direction:column;gap:6px;box-shadow:var(--shadow-lg)}
+.cele-big{font-size:3rem;line-height:1}
+.cele-card b{font-size:1.4rem;letter-spacing:-.02em}
+.cele-card span{color:var(--ink-2)}
+.cele-card .btn{margin-top:10px;background:linear-gradient(135deg,#FF4F6D,#A23BEC);color:#fff}
+@media (prefers-reduced-motion:no-preference){.cele-card{animation:celepop .45s cubic-bezier(.2,1.5,.4,1)}@keyframes celepop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}}
 </style>
 </head>
 <body>
@@ -909,7 +1092,7 @@ body:has(.xbar:not([hidden])) .fab{display:none}
   <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Home</button>
   <button data-tab="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Work</button>
   <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16v11H4z"/><path d="M4 8l2-4h12l2 4"/><circle cx="12" cy="13.5" r="2.5"/></svg>Money</button>
-  <button data-tab="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/><path d="M4 12h16"/></svg>Trips</button>
+  <button data-tab="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12"/><path d="M12 9c-2-4-6-4-6-1.5S10 9 12 9c2 0 6 1 6-1.5S14 5 12 9z"/></svg>Treats</button>
   <button data-tab="car"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="8" cy="17" r="2"/><circle cx="16" cy="17" r="2"/><path d="M5 12h14"/></svg>Car</button>
 </nav>
 
@@ -950,10 +1133,10 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
-try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; } catch(e) {}
-const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg})); } catch(e) {} };
+try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; } catch(e) {}
+const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid})); } catch(e) {} };
 let sb = null, session = null, offline = false;
 const LOGIN_DOMAIN = 'hitchen.example.com'; // usernames map to <username>@this (never emailed)
 const userName = () => { const u = session && session.user; if (!u) return ''; return (u.user_metadata && u.user_metadata.username) || (u.email||'').split('@')[0]; };
@@ -1011,6 +1194,7 @@ function applyLocal(path, data) {
   else if (c === 'stmt') { if (id==='meta') S.stmtMeta = data; else if (data) S.stmt[id] = data; else delete S.stmt[id]; }
   else if (c === 'leave') S.leave = data || null;
   else if (c === 'pot') S.pot = data || {entries:[]};
+  else if (c === 'wish') S.wish = data || {lists:{}};
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; }
@@ -1019,11 +1203,11 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]} });
+  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
   return rows;
@@ -1099,19 +1283,20 @@ function checkStatus(c) {
 let pending = false;
 function schedule() { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; render(); }); }
 function render() {
-  document.documentElement.dataset.user = session ? me() : '';
+  document.documentElement.dataset.user = session ? me() : ''; document.documentElement.dataset.tab = UI.kid ? 'kid' : UI.tab;
   document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab===UI.tab ? 'page' : 'false'));
   $('nav.tabs').hidden = !session;
   $('[data-act="settings"]').hidden = !session;
   $('.fab').hidden = !session;
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
-  const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Work','Rotas, on call and pay'], money:['Money','Bills, budget and savings'], trips:['Trips','Holidays, family visits and city breaks'], car:['The Evoque','Service, checks, fuel and trips']};
+  if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('#title').textContent = 'Wish list'; $('#subtitle').textContent = 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
+  const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Work','Rotas, on call and pay'], money:['Money','Bills, budget and savings'], trips:['Treats','Holidays, visits, Christmas and birthdays'], car:['The Evoque','Service, checks, fuel and trips']};
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
   const views = { home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
   if (render.lastTab !== UI.tab) { app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); render.lastTab = UI.tab; }
-  hydratePhotos();
+  hydratePhotos(); checkMilestones();
 }
 
 /* ----- title block: the grid of labelled boxes that opens each page ----- */
@@ -1153,7 +1338,7 @@ async function fetchCal(force) {
   if (!force && Date.now() - (CAL.at||0) < 10*60*1000) return;
   calBusy = true;
   try {
-    const from = `${ymOf(addMonths(today(),-3))}-01`, to = addDays(today(), 200);
+    const from = `${ymOf(addMonths(today(),-3))}-01`, to = addDays(today(), 370);
     const { data, error } = await sb.functions.invoke('calendar', { body: { from, to } });
     if (error) throw error;
     CAL.calendars = data.calendars || []; CAL.at = Date.now(); CAL.error = '';
@@ -1436,7 +1621,7 @@ function viewHome() {
     cells: [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), payCell ],
     foot });
   setTimeout(runCountUp, 30); updateBadge();
-  return hero + week + listPanel() + tiles + billsPanel + carPanel;
+  return hero + countRibbon('Treats on the way') + week + listPanel() + tiles + billsPanel + carPanel;
 }
 function goalBar(g) {
   const pct = g.target ? Math.min(100, Math.round((Number(g.saved)||0)/g.target*100)) : 0;
@@ -2083,7 +2268,7 @@ function planFor(ym) {
 
 function viewMoney() {
   const ym = ymOf(today()), P = planFor(ym), t = today();
-  const parts = [['Bills', P.bills, '#3F51B5'], ['Spending budget', P.budget, '#0B8043'], ['Owed', P.owed, '#D50000'], ['Savings', P.save, '#039BE5'], ['Trips', P.trips, '#8E24AA'], ['Left over', Math.max(0,P.left), 'var(--rule-2)']].filter(x => x[1] > 0);
+  const parts = [['Bills', P.bills, '#3F51B5'], ['Spending budget', P.budget, '#0B8043'], ['Owed', P.owed, '#D50000'], ['Savings', P.save, '#039BE5'], ['Treats', P.trips, '#8E24AA'], ['Left over', Math.max(0,P.left), 'var(--rule-2)']].filter(x => x[1] > 0);
   const base = Math.max(P.inc.total, P.bills + P.budget + P.owed + P.save + P.trips, 1);
   const flow = `<div class="mix" aria-hidden="true">${parts.map(([n,v,c]) => `<i title="${esc(n)}" style="width:${v/base*100}%;background:${c}"></i>`).join('')}</div>`;
   const hero = tblock({ kicker: `${MONTHS[parse(t).getMonth()]} plan`, title: P.inc.total ? `${money(P.left,0)} ${P.left >= 0 ? 'spare' : 'short'}` : `${money(P.bills,0)} of bills a month`,
@@ -2230,7 +2415,7 @@ function viewSpending() {
 function viewPlan() {
   const ym = ymOf(today()), P = planFor(ym), c = ck();
   const row = (sw, name, note, amt, act) => `<${act?`button class="rowbtn" data-act="${act}"`:'div class="row"'}><span class="sw" style="background:${sw}"></span><div class="grow"><div class="t">${name}</div>${note?`<div class="m">${note}</div>`:''}</div><div class="amt">${money(amt,0)}</div></${act?'button':'div'}>`;
-  const mixParts = [['Bills', P.bills, '#3F51B5'], ['Spending budget', P.budget, '#0B8043'], ['Owed', P.owed, '#D50000'], ['Savings', P.save, '#039BE5'], ['Trips', P.trips, '#8E24AA']];
+  const mixParts = [['Bills', P.bills, '#3F51B5'], ['Spending budget', P.budget, '#0B8043'], ['Owed', P.owed, '#D50000'], ['Savings', P.save, '#039BE5'], ['Treats', P.trips, '#8E24AA']];
   return `
   <section class="panel"><h2>Coming in <button class="btn small ghost" data-act="incomeform">Edit</button></h2>
     <div class="list">${P.inc.items.map(x => `<div class="row">${x.who ? badge(x.who) : '<span class="sw" style="background:var(--good-bar)"></span>'}<div class="grow"><div class="t">${esc(x.name)}</div><div class="m">${x.note}</div></div><div class="amt">${x.amount ? money(x.amount,0) : '—'}</div></div>`).join('')}</div>
@@ -2243,7 +2428,7 @@ function viewPlan() {
       ${row('#0B8043','Spending budget', 'Food, fuel, kids and the rest', P.budget, 'mseg" data-v="budget')}
       ${P.owed ? row('#D50000','Money owed', 'Payments not already in bills', P.owed, 'mseg" data-v="owed') : ''}
       ${row('#039BE5','Savings', P.save ? 'Straight into savings on payday' : 'Tap to set an amount', P.save, 'planform')}
-      ${P.trips ? row('#8E24AA','Trips and holidays', [...S.trips.map(t => esc(t.name)), ...plannerMonth(ym).rows.map(r => esc(r.p.name))].join(', '), P.trips, 'tab" data-v="trips') : ''}
+      ${P.trips ? row('#8E24AA','Treats', [...S.trips.map(t => esc(t.name)), ...plannerMonth(ym).rows.map(r => esc(r.p.name))].join(', '), P.trips, 'tab" data-v="trips') : ''}
       <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow"><div class="t">${P.left >= 0 ? 'Left over' : 'Short by'}</div><div class="m">${P.left >= 0 ? 'Room for the unexpected, or more savings' : 'Plans add up to more than comes in'}</div></div><div class="amt" style="color:${P.left<0?'var(--red)':'var(--good)'}">${money(Math.abs(P.left),0)}</div></div>
     </div>
   </section>
@@ -2342,6 +2527,7 @@ const bsAmt = x => x.u != null ? (Number(x.q)||0) * (Number(x.u)||0) : (Number(x
 const bsOn = x => !x.off;
 function bsViki(doc) {
   const vk = doc.viki; if (!vk) return 0;
+  if (vk.actual != null) return Number(vk.actual)||0;
   if (vk.mode !== 'calc') return Number(vk.fixed)||0;
   const extra = (vk.items||[]).reduce((s,i) => s + (Number(i.r)||0)*(Number(i.q)||0), 0);
   return (extra + (Number(vk.base)||0)) * (Number(vk.keep)||100)/100 * (Number(vk.net)||1);
@@ -2386,8 +2572,8 @@ function bsSection(s, si, t) {
 function bsPlannerSection(ym) {
   const pm = plannerMonth(ym); if (!pm.total) return '';
   return `<section class="xsec extra"><div class="xh static"><span class="xt">From Trips and Year ahead</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
-    <div class="xrows">${pm.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.p.name)}</span><small>${esc(r.p.kind === 'year' ? 'Year ahead' : (PL_KINDS.find(k => k[0]===(r.p.kind||'summer'))||[])[1]||'')}</small></div><span class="xd"></span><output class="xc xa">${money(r.amount,2)}</output><span class="xm"></span></div>`).join('')}</div>
-    <div class="xadd"><button type="button" class="linkbtn" data-act="tab" data-v="trips">Change in Trips</button></div></section>`;
+    <div class="xrows">${pm.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.p.name)}</span><small>${esc(r.p.kind === 'year' ? 'Year ahead' : kindLabel(r.p.kind||'summer'))}</small></div><span class="xd"></span><output class="xc xa">${money(r.amount,2)}</output><span class="xm"></span></div>`).join('')}</div>
+    <div class="xadd"><button type="button" class="linkbtn" data-act="tab" data-v="trips">Change in Treats</button></div></section>`;
 }
 function bsVikiBlock(doc, t) {
   const vk = doc.viki; if (!vk) return '';
@@ -2395,7 +2581,7 @@ function bsVikiBlock(doc, t) {
   const items = (vk.items||[]).map((i,ii) => `<div class="xr vi" data-vi="${ii}"><span class="xn">${esc(i.n)}</span>${bsCell('vr', i.r, 'xd', 'inputmode="decimal" aria-label="Rate"')}${bsCell('vq', i.q, 'xd xq', 'inputmode="decimal" aria-label="How many"')}<output class="xc xa" data-bsvi="${ii}">${money((Number(i.r)||0)*(Number(i.q)||0),2)}</output></div>`).join('');
   return `<div class="xr viki${vk.off?' off':''}" data-viki="1">
       <label class="xon" aria-label="Include Viki's wages"><input type="checkbox" data-bs="vikion" ${vk.off?'':'checked'}></label>
-      <div class="xname"><button type="button" class="xn xbtn" data-act="bsviki">Viki's wages <span class="chev">${open?'▾':'▸'}</span></button><small>${vk.mode==='calc' ? 'worked out from on call' : 'typed in'}</small></div>
+      <div class="xname"><button type="button" class="xn xbtn" data-act="bsviki">Viki's wages <span class="chev">${open?'▾':'▸'}</span></button><small>${vk.actual != null ? 'what actually came in, from the payday check-in' : vk.mode==='calc' ? 'worked out from on call' : 'typed in'}</small></div>
       <span class="xd"></span>
       ${vk.mode==='calc' ? `<output class="xc xa" data-bsvnet="1">${money(t.viki,2)}</output>` : bsMoneyIn('vfixed', vk.fixed, 'aria-label="Viki\'s wages"')}
       <span class="xm"></span></div>
@@ -2577,13 +2763,14 @@ function tripForm(id) {
 }
 
 /* ----- holiday planner: plans/<id> = { kind, name, from, to, note, saveFrom, items:[{id,n,a,how,ym,from,paid,note}] } ----- */
-const PL_KINDS = [['summer','Summer holiday'],['family','Family visits'],['city','City breaks'],['christmas','Christmas']];
-const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5', christmas:'#C62828', year:'#2E9E62' };
+const PL_KINDS = [['summer','Holidays'],['family','Family visits'],['city','City breaks'],['christmas','Christmas & birthdays']];
+const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5', christmas:'#C62828', birthday:'#E5577A', year:'#2E9E62' };
 const PL_IDEAS = {
   summer: ['Flights','Hotel or villa','Car hire','Airport parking','Transfers','Travel insurance','Excursions','Spending money'],
   family: ['Steam Packet','Fuel','Premier Inn','Gifts','Days out','Food and drink'],
   city: ['Flights or ferry','Hotel','Attractions','Local transport','Food and drink','Spending money'],
-  christmas: ['Presents for Aalish','Presents for Grayse','Stocking fillers','Christmas food','Wrapping and cards','Christmas day out'],
+  christmas: ['Stocking fillers','Christmas food','Wrapping and cards','Christmas day out'],
+  birthday: ['Party or day out','Birthday cake','Party bags','Decorations'],
   year: [],
 };
 const PL_HOW = [['save','Save up each month until then'],['once','Pay in one go'],['zilch','Zilch, 4 parts from then']];
@@ -2622,7 +2809,7 @@ function plWhen(it, p) {
 }
 function plOverview() {
   const cur = plCur(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, i));
-  const per = months.map(ym => { const parts = PL_KINDS.map(([k,l]) => ({ v: (S.plans||[]).filter(p => (p.kind||'summer')===k).reduce((s,p) => s + (plPays(p)[ym]||0), 0), c: PL_COL[k], name: l })); return { ym, parts, total: parts.reduce((s,x) => s + x.v, 0) }; });
+  const per = months.map(ym => { const parts = PL_KINDS.map(([k,l]) => ({ v: (S.plans||[]).filter(p => kindTab(p)===k).reduce((s,p) => s + (plPays(p)[ym]||0), 0), c: PL_COL[k], name: l })); return { ym, parts, total: parts.reduce((s,x) => s + x.v, 0) }; });
   const any = per.some(x => x.total > 0);
   if (!any) return `<section class="panel"><h2>Paying for it</h2><p class="note">Add a trip below and cost it up. Each thing you add gets a month and a way to pay, and the planner works out what to put aside each month. It then shows up in that month's Budget Sheet in Money, so you can see whether the month still adds up.</p></section>`;
   const peak = Math.max(...per.map(x => x.total)), list = per.filter(x => x.total > 0).slice(0, 6).map(x => { const sh = S.bsheet[x.ym], t = sh ? bsTotals(sh, x.ym) : null;
@@ -2635,20 +2822,21 @@ function plOverview() {
 }
 function viewPlanner() {
   const k = PL_KINDS.some(x => x[0]===UI.pltab) ? UI.pltab : 'summer', label = PL_KINDS.find(x => x[0]===k)[1];
-  const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of trip">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => (p.kind||'summer')===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}">${l}${n ? ` (${n})` : ''}</button>`; }).join('')}</div>`;
-  const list = (S.plans||[]).filter(p => (p.kind||'summer')===k).sort((a,b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
-  return tabs + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">${k === 'christmas' ? 'Add another Christmas' : `Add a ${esc(label.toLowerCase().replace(/s$/,''))}`}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plOverview();
+  const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of treat">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}"><span class="pt-i">${OCC_ICON[kk]}</span>${{ summer: 'Holidays', family: 'Visits', city: 'City breaks', christmas: 'Celebrations' }[kk]}${n ? ` <small>${n}</small>` : ''}</button>`; }).join('')}</div>`;
+  const list = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===k).sort((a,b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
+  if (k === 'christmas') return countRibbon() + tabs + occasionView(list);
+  return countRibbon() + tabs + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : `a ${esc(label.toLowerCase().replace(/s$/,''))}`}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plOverview();
 }
 function tripPlanForm(id, kind) {
   const p = (S.plans||[]).find(x => x.id===id) || { kind: kind || UI.pltab || 'summer', saveFrom: plCur() };
-  openSheet(id ? p.name : 'New trip', fld('plN','Name', p.name||'', 'text','placeholder="e.g. Spain, August 2027"') + sel('plK','Type', p.kind||'summer', PL_KINDS) +
+  openSheet(id ? p.name : 'New trip', fld('plN','Name', p.name||'', 'text','placeholder="e.g. Spain, August 2027"') + sel('plK','Type', p.kind||'summer', PL_TYPES) +
     `<div class="fields2">${fld('plF','Leave', p.from||'', 'date')}${fld('plT','Back', p.to||'', 'date')}</div>` +
     fld('plS','Start saving from (pay month)', p.saveFrom || plCur(), 'month') + fld('plNote','Note', p.note||'', 'text','placeholder="Who\'s going, where you\'re staying"') + photoField('plPh', 'Cover photo', p.cover), async () => {
     const name = v('plN').trim(); if (!name) throw new Error('Give the trip a name');
     const data = { ...p, name, kind: v('plK'), saveFrom: v('plS') || plCur(), items: p.items || [] }; delete data.id;
     ['from','to','note'].forEach(f => delete data[f]); if (v('plF')) data.from = v('plF'); if (v('plT')) data.to = v('plT'); if (v('plNote').trim()) data.note = v('plNote').trim();
     const ph = getPh(); if (ph) data.cover = await uploadPhoto(ph); else if ($('#plPhDel') && $('#plPhDel').checked) delete data.cover;
-    UI.pltab = data.kind; await put(`plans/${id || uid('pl')}`, data);
+    UI.pltab = kindTab(data); keepUI(); await put(`plans/${id || uid('pl')}`, data);
   }, id ? { onDelete: () => remove(`plans/${id}`) } : {});
   const getPh = photoWatch('plPh');
 }
@@ -2719,6 +2907,11 @@ function tripArt(kind, seed = 1) {
       <path d="M307 64 l4 9 10 1 -8 6 3 10 -9 -5 -9 5 3 -10 -8 -6 10 -1z" fill="#FFD36B"/>
       <g>${[[262,112,'#FF8FB6'],[296,140,'#FFD36B'],[276,168,'#7EE0E6'],[318,170,'#FF8FB6'],[250,150,'#FFD36B']].map(([x,y,c]) => `<circle cx="${x}" cy="${y}" r="4.5" fill="${c}"/>`).join('')}</g>
       <g transform="translate(150 168)"><rect width="44" height="34" rx="3" fill="#D84343"/><rect x="18" width="8" height="34" fill="#FFD36B"/><rect x="58" y="10" width="34" height="24" rx="3" fill="#2A7F5B"/><rect x="71" y="10" width="7" height="24" fill="#FFD36B"/></g></svg>`; }
+  if (kind === 'birthday') { const conf = Array.from({ length: 46 }, () => `<rect x="${(rnd()*400).toFixed(0)}" y="${(rnd()*200).toFixed(0)}" width="${(rnd()*5+3).toFixed(1)}" height="${(rnd()*3+2).toFixed(1)}" rx="1" fill="${['#FFD36B','#7EE0E6','#FFFFFF','#FF9AC4','#B8F28A'][Math.floor(rnd()*5)]}" transform="rotate(${(rnd()*90).toFixed(0)})" opacity=".85"/>`).join('');
+    const bal = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 60 C-6 80 6 95 -2 120" stroke="#fff" stroke-width="1.5" fill="none" opacity=".7"/><ellipse cx="0" cy="28" rx="24" ry="30" fill="${c}"/><ellipse cx="-8" cy="16" rx="6" ry="9" fill="#fff" opacity=".35"/><path d="M-4 58 h8 l-4 6z" fill="${c}"/></g>`;
+    return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="bd1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5B2A9E"/><stop offset=".6" stop-color="#C2457F"/><stop offset="1" stop-color="#FF8A5B"/></linearGradient></defs><rect width="400" height="220" fill="url(#bd1)"/>${conf}
+      ${bal(250, 30, 1.1, '#FFD36B')}${bal(300, 52, .9, '#7EE0E6')}${bal(345, 24, 1, '#FF9AC4')}${bal(205, 64, .75, '#B8F28A')}
+      <g transform="translate(120 150)"><rect x="0" y="22" width="90" height="48" rx="6" fill="#FFF3E6"/><rect x="0" y="22" width="90" height="12" rx="6" fill="#FF9AC4"/><rect x="12" y="0" width="66" height="26" rx="5" fill="#FFF3E6"/><rect x="12" y="0" width="66" height="8" rx="4" fill="#7EE0E6"/>${[24,45,66].map(x => `<rect x="${x-2}" y="-14" width="4" height="14" rx="2" fill="#fff"/><path d="M${x} -24 q4 5 0 9 q-4 -4 0 -9z" fill="#FFD36B"/>`).join('')}</g></svg>`; }
   if (kind === 'summer') return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="su1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A5A"/><stop offset=".55" stop-color="#FFC27A"/><stop offset="1" stop-color="#FFE3A6"/></linearGradient><linearGradient id="su2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA8C9"/><stop offset="1" stop-color="#136E9A"/></linearGradient></defs>
     <rect width="400" height="220" fill="url(#su1)"/><circle cx="300" cy="96" r="44" fill="#FFF2C4"/><circle cx="300" cy="96" r="62" fill="#FFF2C4" opacity=".25"/>
     <path d="M0 140 Q50 128 100 140 T200 140 T300 140 T400 140 V220 H0Z" fill="url(#su2)"/><path d="M0 158 Q50 148 100 158 T200 158 T300 158 T400 158 V220 H0Z" fill="#0F5F86" opacity=".55"/>
@@ -2775,8 +2968,8 @@ function sleepsTo(p) {
   return { big: 'Back home', small: 'Hope it was magic' };
 }
 function tripHero(p, st, opts = {}) {
-  const k = p.kind || 'summer', lbl = (PL_KINDS.find(x => x[0]===k)||[])[1] || '', sl = sleepsTo(p);
-  const dates = p.from ? `${shortDate(p.from).replace(/ \d{4}$/,'')}${p.to && k !== 'christmas' ? ` – ${shortDate(p.to).replace(/ \d{4}$/,'')}` : ''}` : '';
+  const k = p.kind || 'summer', lbl = kindLabel(k), sl = sleepsTo(p);
+  const dates = p.from ? `${shortDate(p.from).replace(/ \d{4}$/,'')}${p.to && !isGift(p) ? ` – ${shortDate(p.to).replace(/ \d{4}$/,'')}` : ''}` : '';
   const sorted = st.cost ? st.paid / st.cost : 0, seed = [...String(p.id||p.name)].reduce((s, ch) => s + ch.charCodeAt(0), 0);
   return `<${opts.tag||'section'} class="trip-hero k-${k}${opts.mini ? ' mini' : ''}" ${opts.attrs||''}><div class="th-art">${tripArt(k, seed)}</div><div class="th-photo" ${p.cover ? `data-photo="${esc(p.cover)}"` : ''}></div><div class="th-shade"></div>
     <div class="th-top"><span class="th-kind">${esc(lbl)}${dates ? ` · ${esc(dates)}` : ''}</span>${opts.mini ? '' : `<button type="button" class="th-btn" data-act="plan" data-id="${esc(p.id)}" aria-label="Edit trip and photo">${p.cover ? 'Edit' : 'Add photo'}</button>`}</div>
@@ -2804,10 +2997,10 @@ function plPanel(p) {
   const hero = items.filter(it => it.img).slice(0, 3);
   return `${tripHero(p, st)}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
-    ${p.kind === 'christmas' ? xmasList(p) : stepsPanel(p) + tripMoney(p) + tripDays(p)}
-    ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
-    ${st.future.length && p.kind !== 'christmas' ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
-    ${p.kind === 'christmas' ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
+    ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
+    ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
+    ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
+    ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
     ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
     <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
     ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
@@ -2828,11 +3021,13 @@ function xmasRow(p, it, i) {
   const person = xIsPerson(it), name = person ? xName(it.n) : it.n, col = XAV[i % XAV.length], got = gifts.filter(g => g.got).length;
   const pct = bud ? Math.min(1, spent / bud) : (spent ? 1 : 0), over = left < -0.004;
   const status = over ? `<b class="xr-over">${m2(-left)}</b><small>over</small>` : gifts.length && left < 0.5 ? `<b class="xr-done">Done</b><small>on budget</small>` : `<b>${m2(left)}</b><small>left</small>`;
-  const meta = gifts.length ? `${m2(spent)} of ${m2(bud)} · ${gifts.length} ${person ? `present${gifts.length===1?'':'s'}` : `thing${gifts.length===1?'':'s'}`}${got ? ` · ${got === gifts.length ? 'all' : got} bought` : ''}` : `${m2(bud)} to spend · nothing added yet`;
+  const wn = person ? wishList(name).items.filter(w => !w.taken).length : 0;
+  const meta = (gifts.length ? `${m2(spent)} of ${m2(bud)} · ${gifts.length} ${person ? `present${gifts.length===1?'':'s'}` : `thing${gifts.length===1?'':'s'}`}${got ? ` · ${got === gifts.length ? 'all' : got} bought` : ''}` : `${m2(bud)} to spend · nothing added yet`) + (wn ? ` · <span class="xw">${wn} wish${wn === 1 ? '' : 'es'}</span>` : '');
   const av = person ? `<span class="xp-av" style="background:${col}">${esc(name.charAt(0).toUpperCase())}</span>` : `<span class="xp-av ico" style="background:color-mix(in srgb,${TCATI[itemCat(it)][2]} 16%,transparent);color:${TCATI[itemCat(it)][2]}">${tcatIcon(itemCat(it))}</span>`;
   const body = !open ? '' : `<div class="xp-body">
-    ${gifts.length ? `<div class="xg-list">${gifts.map(g => `<div class="xg ${g.got ? 'got' : ''}"><button type="button" class="st-tick" data-act="xgot" data-plan="${esc(p.id)}" data-item="${esc(it.id)}" data-g="${esc(g.id)}" aria-pressed="${!!g.got}" aria-label="${g.got ? 'Bought' : 'Mark bought'}: ${esc(g.n)}">${g.got ? stepIcon('clear') : ''}</button><button type="button" class="xg-n" data-act="xgift" data-plan="${esc(p.id)}" data-item="${esc(it.id)}" data-g="${esc(g.id)}"><span>${esc(g.n)}</span>${g.note ? `<small>${esc(g.note)}</small>` : ''}</button><b>${Number(g.a) ? m2(Number(g.a)) : '<em>£?</em>'}</b></div>`).join('')}</div>` : `<p class="xp-empty">${person ? `Nothing for ${esc(name)} yet. Add the first present below.` : 'Nothing added yet.'}</p>`}
-    <form class="xadd" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" autocomplete="off"><input name="n" aria-label="Present" placeholder="${person ? `Add a present for ${esc(name)}` : 'Add something'}" enterkeyhint="next"><span class="xadd-a"><i>£</i><input name="a" aria-label="Cost in pounds" inputmode="decimal" placeholder="0" enterkeyhint="done"></span><button class="btn small" type="submit">Add</button></form>
+    ${gifts.length ? `<div class="xg-list">${gifts.map(g => `<div class="xg ${g.got ? 'got' : ''}"><button type="button" class="st-tick" data-act="xgot" data-plan="${esc(p.id)}" data-item="${esc(it.id)}" data-g="${esc(g.id)}" aria-pressed="${!!g.got}" aria-label="${g.got ? 'Bought' : 'Mark bought'}: ${esc(g.n)}">${g.got ? stepIcon('clear') : ''}</button><button type="button" class="xg-n" data-act="xgift" data-plan="${esc(p.id)}" data-item="${esc(it.id)}" data-g="${esc(g.id)}"><span>${esc(g.n)}</span>${g.note || g.receipt ? `<small>${g.receipt ? '🧾 Receipt saved' : ''}${g.note && g.receipt ? ' · ' : ''}${g.note ? esc(g.note) : ''}</small>` : ''}</button><b>${Number(g.a) ? m2(Number(g.a)) : '<em>£?</em>'}</b></div>`).join('')}</div>` : `<p class="xp-empty">${person ? `Nothing for ${esc(name)} yet. Add the first present below.` : 'Nothing added yet.'}</p>`}
+    ${person ? xRowExtras(p, it, name) : ''}
+    <form class="xadd" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" autocomplete="off"><input name="n" aria-label="Present" placeholder="${person ? 'Add a present' : 'Add something'}" enterkeyhint="next"><span class="xadd-a"><i>£</i><input name="a" aria-label="Cost in pounds" inputmode="decimal" placeholder="0" enterkeyhint="done"></span><button class="btn small" type="submit">Add</button></form>
     <div class="xp-run" data-left="${left}">${over ? `<b class="xr-over">${m2(-left)} over</b> ${esc(person ? `${name}'s` : 'the')} budget of ${m2(bud)}` : `<b>${m2(left)} left</b> of ${esc(person ? `${name}'s` : 'the')} ${m2(bud)}`}</div>
     <div class="xp-foot"><button type="button" class="btn small ghost" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}">Change budget</button></div></div>`;
   return `<div class="xp ${open ? 'open' : ''}"><button type="button" class="xp-head" data-act="xopen" data-id="${esc(it.id)}" aria-expanded="${open}">${av}<div class="grow"><div class="t">${esc(name)}</div><div class="xp-bar ${over ? 'over' : ''}"><i style="width:${Math.round(pct*100)}%;${over ? '' : `background:${person ? col : TCATI[itemCat(it)][2]}`}"></i></div><div class="m">${meta}</div></div><div class="xp-left">${status}</div>${XCHEV}</button>${body}</div>`;
@@ -2842,14 +3037,15 @@ function xmasList(p) {
   const left = Math.round((bud - spent) * 100) / 100, gifts = items.flatMap(giftsOf), got = gifts.filter(g => g.got).length;
   const people = items.filter(xIsPerson), others = items.filter(i => !xIsPerson(i)), ym = (items[0] && items[0].ym) || plCur();
   const overBy = items.reduce((s, i) => s + Math.max(0, giftSpent(i) - (Number(i.a)||0)), 0);
-  const card = headCard({ tone: 'xmas', kicker: 'Christmas list', title: left >= 0 ? `${m2(left)} left to spend` : `${m2(-left)} over budget`,
+  const first = items[0] || {}, howTxt = first.how === 'save' ? `Saved up a bit each month until the ${monShort(ym)} pay` : first.how === 'zilch' ? `On Zilch from ${monShort(ym)}` : `From the ${monShort(ym)} pay, on the card`;
+  const card = headCard({ tone: p.kind === 'birthday' ? 'party' : 'xmas', kicker: p.kind === 'birthday' ? 'Birthday list' : 'Christmas list', title: left >= 0 ? `${m2(left)} left to spend` : `${m2(-left)} over budget`,
     meta: `<span class="st-pill" style="background:rgba(255,255,255,.22)">${m2(spent)} of ${m2(bud)}</span>${gifts.length ? `${gifts.length} present${gifts.length===1?'':'s'} picked · ${got} bought` : 'Tap a name to start adding presents'}`,
-    body: `<div class="hc-prog"><i style="width:${bud ? Math.min(100, Math.round(spent / bud * 100)) : 0}%"></i></div><div class="hc-note">From the ${monShort(ym)} pay, on the card.${overBy > 0.5 ? ` ${m2(overBy)} over on some people, so the ${monShort(ym)} Budget Sheet counts that extra.` : ' Go over on anyone and the extra shows up in that month\'s Budget Sheet.'}</div>` });
+    body: `<div class="hc-prog"><i style="width:${bud ? Math.min(100, Math.round(spent / bud * 100)) : 0}%"></i></div><div class="hc-note">${howTxt}.${overBy > 0.5 ? ` ${m2(overBy)} over on some people, so the ${monShort(ym)} Budget Sheet counts that extra.` : ' Go over on anyone and the extra shows up in that month\'s Budget Sheet.'}</div>` });
   return `<section class="panel nopad xmas">${card}<div class="xl">
     ${people.length ? `<div class="xl-h">Presents <span>${people.length} ${people.length === 1 ? 'person' : 'people'}</span></div>${people.map((it, i) => xmasRow(p, it, i)).join('')}` : ''}
     <form class="xperson" data-plan="${esc(p.id)}" autocomplete="off"><input name="n" aria-label="Who" placeholder="Add someone"><span class="xadd-a"><i>£</i><input name="a" aria-label="Their budget in pounds" inputmode="decimal" placeholder="Budget"></span><button class="btn small ghost" type="submit">Add</button></form>
     ${others.length ? `<div class="xl-h">Everything else <span>${m2(others.reduce((s, i) => s + itemCost(i), 0))}</span></div>${others.map((it, i) => xmasRow(p, it, i)).join('')}` : ''}
-    <div class="zchips" style="margin:10px 0 4px">${['Stocking fillers','Wrapping and cards','Christmas day out'].concat(others.some(i => /food/i.test(i.n)) ? [] : ['Christmas food']).filter(n => !items.some(i => i.n === n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
+    <div class="zchips" style="margin:10px 0 4px">${(p.kind === 'birthday' ? ['Party or day out', 'Birthday cake', 'Party bags', 'Decorations'] : ['Stocking fillers','Wrapping and cards','Christmas day out'].concat(others.some(i => /food/i.test(i.n)) ? [] : ['Christmas food'])).filter(n => !items.some(i => i.n === n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
   </div></section>`;
 }
 async function xSaveItem(planId, itemId, fn) {
@@ -2858,11 +3054,18 @@ async function xSaveItem(planId, itemId, fn) {
 }
 function xGiftForm(planId, itemId, gid) {
   const p = (S.plans||[]).find(x => x.id === planId), it = p && (p.items||[]).find(x => x.id === itemId), g = it && giftsOf(it).find(x => x.id === gid); if (!g) return;
-  openSheet(g.n, fld('xgN', 'Present', g.n) + fld('xgA', 'Cost (£)', g.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"') + fld('xgW', 'Where from or a note', g.note || '', 'text', 'placeholder="e.g. Smyths, or Amazon basket"') + `<label class="toggle"><input type="checkbox" id="xgG" ${g.got ? 'checked' : ''}> Bought</label>`, async () => {
+  openSheet(g.n, fld('xgN', 'Present', g.n) + fld('xgA', 'Cost (£)', g.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"') + fld('xgW', 'Where from or a note', g.note || '', 'text', 'placeholder="e.g. Smyths, or Amazon basket"') + `<label class="toggle"><input type="checkbox" id="xgG" ${g.got ? 'checked' : ''}> Bought</label>` + photoField('xgPh', 'Receipt photo (handy for returns)', g.receipt), async () => {
     const n = v('xgN').trim(), a = num(v('xgA')); if (!n) throw new Error('Say what the present is');
     const x = { id: g.id, n, a: a && a > 0 ? a : 0 }; if (v('xgW').trim()) x.note = v('xgW').trim(); if ($('#xgG').checked) x.got = true;
+    const ph = getPh(); if (ph) { x.receipt = await uploadPhoto(ph); x.got = true; } else if (g.receipt && !($('#xgPhDel') && $('#xgPhDel').checked)) x.receipt = g.receipt;
     await xSaveItem(planId, itemId, it => ({ ...it, gifts: giftsOf(it).map(y => y.id === gid ? x : y) }));
   }, { onDelete: () => xSaveItem(planId, itemId, it => ({ ...it, gifts: giftsOf(it).filter(y => y.id !== gid) })) });
+  const getPh = photoWatch('xgPh');
+}
+function xRowExtras(p, it, name) {
+  const hist = giftHistory(p, it), wishes = wishList(name).items;
+  return (wishes.length ? `<div class="xwish"><div class="xh-h">✨ ${esc(name)}'s wishes</div><div class="xw-chips">${wishes.map(w => w.taken ? `<span class="xw-c taken">✓ ${esc(w.n)}</span>` : `<button type="button" class="xw-c" data-act="w2g" data-plan="${esc(p.id)}" data-item="${esc(it.id)}" data-name="${esc(name)}" data-w="${esc(w.id)}">+ ${esc(w.n)}</button>`).join('')}</div></div>` : '')
+    + (hist.length ? `<div class="xhist"><div class="xh-h">🕰️ Last time</div>${hist.map(h => `<div class="xh-r"><b>${esc(occName(h.q))}</b><span>${m2(giftSpent(h.m))} · ${giftsOf(h.m).slice(0, 4).map(g => esc(g.n)).join(', ')}${giftsOf(h.m).length > 4 ? ` and ${giftsOf(h.m).length - 4} more` : ''}</span></div>`).join('')}</div>` : '');
 }
 async function xAddGift(form) {
   const n = (form.n.value||'').trim(), a = num(form.a.value); if (!n) { form.n.focus(); return; }
@@ -2894,7 +3097,7 @@ function sheetFlow(ym) {
   if (doc.viki && !doc.viki.off) inc.splice(/chris/i.test(inc[0]?.name||'') ? 1 : 0, 0, { name: 'Viki', v: t.viki });
   inc.forEach((x, i) => x.c = /chris/i.test(x.name) ? INC_COL[0] : /viki/i.test(x.name) ? INC_COL[1] : INC_COL[2 + (i % 2)]);
   const outs = doc.secs.filter(s => s.kind === 'base' || s.kind === 'extra').map(s => ({ k: s.k, name: FLOW_NAME[s.k] || s.t, v: t.sec[s.k]||0, c: FLOW_COL[s.k] || FLOW_COL.other })).filter(o => o.v > 0.5);
-  if (t.plan) outs.push({ k: 'trips', name: 'Trips', v: t.plan, c: FLOW_COL.trips });
+  if (t.plan) outs.push({ k: 'trips', name: 'Treats', v: t.plan, c: FLOW_COL.trips });
   return { ym, t, inc: inc.filter(x => x.v > 0), outs };
 }
 function flowChart(f) {
@@ -2940,7 +3143,7 @@ function potChart(start, n = 6) {
 function upcomingTrips() {
   const list = (S.plans||[]).filter(p => p.kind !== 'year' && (!p.to || p.to >= today())).sort((a, b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
   if (!list.length) return '';
-  return `<section class="panel"><h2>Treats on the way <button class="btn small ghost" data-act="tab" data-v="trips">All trips</button></h2><div class="tripcards">${list.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="opentrip" data-kind="${esc(p.kind||'summer')}"` })).join('')}</div></section>`;
+  return `<section class="panel"><h2>Treats on the way <button class="btn small ghost" data-act="tab" data-v="trips">All treats</button></h2><div class="tripcards">${list.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="opentrip" data-kind="${esc(p.kind||'summer')}"` })).join('')}</div></section>`;
 }
 function viewMoneyOverview() {
   const cur = plCur(), months = Object.keys(S.bsheet).filter(m => m >= cur).sort().slice(0, 6);
@@ -2948,8 +3151,9 @@ function viewMoneyOverview() {
   const sel = months.includes(UI.ovm) ? UI.ovm : (months.includes(cur) ? cur : months[0]), f = sheetFlow(sel);
   const chips = `<div class="seg mchips" role="group" aria-label="Which month">${months.map(m => `<button data-act="ovm" data-v="${m}" aria-pressed="${m===sel}">${mon3(m)}</button>`).join('')}</div>`;
   const spare = f.t.left, msg = spare >= 0 ? `${money(spare,0)} to spare` : `${money(-spare,0)} to find`;
-  return nextJobs() + potPanel() + forecastPanel() + `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
-      <p class="note">Pay comes in on the left and goes out to the right, from the ${esc(monthName(sel))} Budget Sheet${f.t.plan ? ', including trips from Trips' : ''}. ${spare >= 0 ? 'Whatever is spare can go to the holiday pot or savings.' : 'The yellow band is the gap to cover this month.'}</p></section>
+  const ci = checkinCard();
+  return ci + (/ci-s now">[^]*?money jobs/.test(ci) ? '' : nextJobs()) + milestonePanel() + potPanel() + forecastPanel() + `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
+      <p class="note">Pay comes in on the left and goes out to the right, from the ${esc(monthName(sel))} Budget Sheet${f.t.plan ? ', including treats from Treats' : ''}. ${spare >= 0 ? 'Whatever is spare can go to the holiday pot or savings.' : 'The yellow band is the gap to cover this month.'}</p></section>
     <section class="panel"><h2>The months ahead</h2>${monthStrip(cur)}</section>
     ${upcomingTrips()}`;
 }
@@ -3026,12 +3230,261 @@ async function toggleStep(planId, key, itemId) {
 }
 function nextJobs() {
   const cur = plCur(), jobs = [];
-  (S.plans||[]).filter(p => p.kind !== 'christmas').forEach(p => tripSteps(p).forEach(g => g.steps.forEach(s => { if (s.kind === 'do' && !s.done && g.ym <= ymAdd(cur, 1)) jobs.push({ p, s, ym: g.ym }); })));
+  (S.plans||[]).filter(p => !isGift(p)).forEach(p => tripSteps(p).forEach(g => g.steps.forEach(s => { if (s.kind === 'do' && !s.done && g.ym <= ymAdd(cur, 1)) jobs.push({ p, s, ym: g.ym }); })));
   [cur, ymAdd(cur, 1)].forEach(ym => { const j = potJob(ym); if (j && !j.done) jobs.push({ p: { id: '__pot' }, s: j, ym }); });
   jobs.sort((a, b) => a.ym < b.ym ? -1 : a.ym > b.ym ? 1 : a.s.order - b.s.order);
   if (!jobs.length) return '';
   return `<section class="panel steps"><h2>Money jobs coming up <span class="sub">this month and next</span></h2>${jobs.slice(0, 6).map(j => `<div class="st-mini"><span class="st-when">${j.ym === cur ? 'Now' : MONTHS[Number(j.ym.slice(5,7))-1].slice(0,3)}</span>${stepRow(j.p, j.s)}</div>`).join('')}
-    <div class="btnrow"><button class="btn small ghost" data-act="tab" data-v="trips">See every step in Trips</button></div></section>`;
+    <div class="btnrow"><button class="btn small ghost" data-act="tab" data-v="trips">See every step in Treats</button></div></section>`;
+}
+
+/* ===== Treats: occasions (Christmas and birthdays), present history, wish lists, packing, on the day ===== */
+const GIFT_KINDS = ['christmas', 'birthday'];
+const isGift = p => !!p && GIFT_KINDS.includes(p.kind);
+const kindTab = p => p.kind === 'birthday' ? 'christmas' : (p.kind || 'summer');
+const PL_TYPES = [['summer','Holiday'],['family','Family visit'],['city','City break'],['christmas','Christmas'],['birthday','Birthday']];
+const kindLabel = k => (PL_TYPES.find(x => x[0] === k) || [])[1] || '';
+const occName = p => String(p.name || '').replace(/\s+20\d\d$/, '');
+const sleepsN = d => d ? daysBetween(today(), d) : null;
+const sleepsTxt = d => { const n = sleepsN(d); return n === null ? '' : n > 1 ? `${n} sleeps` : n === 1 ? 'Tomorrow' : n === 0 ? 'Today' : 'Been'; };
+const OCC_ICON = { christmas: '🎄', birthday: '🎈', summer: '☀️', family: '🏡', city: '🏰' };
+
+/* birthdays in the family calendar, next 12 months */
+function calBirthdays() {
+  const t = today(), out = [], seen = new Set();
+  (CAL.calendars || []).forEach(c => (c.events || []).forEach(e => {
+    if (!/birthday|bday/i.test(e.title || '')) return; const d = evDate(e); if (d < t) return;
+    const name = String(e.title).replace(/\(.*?\)/g, '').replace(/\b(19|20)\d\d\b/g, '').replace(/['’]s\b/g, '').replace(/birthday|bday|🎈|🎉|🎂/ig, '').replace(/[^\p{L}\s'-]/gu, '').replace(/\s+/g, ' ').trim();
+    if (!name || seen.has(name.toLowerCase())) return; seen.add(name.toLowerCase()); out.push({ name, d });
+  }));
+  const have = new Set((S.plans || []).filter(p => p.kind === 'birthday').map(p => `${xName(String(p.name).replace(/['’]s birthday.*$/i, '')).toLowerCase()}|${p.from}`));
+  return out.filter(b => !have.has(`${b.name.toLowerCase()}|${b.d}`)).sort((a, b) => a.d < b.d ? -1 : 1);
+}
+function bdayForm(name = '', date = '') {
+  openSheet('Add a birthday', fld('bdN', 'Whose birthday', name, 'text', 'placeholder="Name"') + fld('bdD', 'Date', date, 'date') +
+    `<div class="fields2">${fld('bdA', 'Presents (£)', '', 'number', 'step="1" min="0" inputmode="decimal" placeholder="e.g. 150"')}${fld('bdP', 'Party or day out (£)', '', 'number', 'step="1" min="0" inputmode="decimal" placeholder="Optional"')}</div>
+    <p class="note">The app saves a little each month until the day, and counts it in each month's Budget Sheet.</p>`, async () => {
+    const n = v('bdN').trim(), d = v('bdD'), a = num(v('bdA')) || 0, party = num(v('bdP')) || 0; if (!n) throw new Error('Say whose birthday it is'); if (!d) throw new Error('Pick the date');
+    let ym = payYm(d); const cur = plCur(); if (ym < cur) ym = cur;
+    const items = [{ id: uid('pi'), n: `Presents for ${n}`, a, how: 'save', ym, cat: 'gift', via: 'card' }];
+    if (party > 0) items.push({ id: uid('pi'), n: 'Party or day out', a: party, how: 'save', ym, cat: 'fun', via: 'card' });
+    const id = uid('pl'); UI.pltab = 'christmas'; UI.occ = id; keepUI();
+    await put(`plans/${id}`, { kind: 'birthday', name: `${n}'s birthday`, from: d, saveFrom: cur, items });
+  });
+}
+
+/* what each person got last time */
+function giftHistory(p, it) {
+  const who = xName(it.n).toLowerCase();
+  return (S.plans || []).filter(q => isGift(q) && q.id !== p.id && (q.from || '') < (p.from || '9')).sort((a, b) => (a.from || '') < (b.from || '') ? 1 : -1)
+    .map(q => { const m = (q.items || []).find(x => xName(x.n).toLowerCase() === who); return m && giftsOf(m).length ? { q, m } : null; }).filter(Boolean).slice(0, 2);
+}
+
+/* after the day: how it went, and next year's budgets from it */
+function giftReview(p) {
+  const items = p.items || [], gifts = items.flatMap(giftsOf), end = p.to || p.from, t = today();
+  if (!gifts.length || !((end && t > end) || gifts.every(g => g.got))) return '';
+  const rows = items.map(it => ({ it, name: xIsPerson(it) ? xName(it.n) : it.n, bud: Number(it.a) || 0, act: giftSpent(it) })).filter(r => r.bud || r.act);
+  const tb = rows.reduce((s, r) => s + r.bud, 0), ta = rows.reduce((s, r) => s + r.act, 0), peak = Math.max(1, ...rows.map(r => Math.max(r.bud, r.act)));
+  const next = p.kind === 'christmas' ? (S.plans || []).filter(q => q.kind === 'christmas' && (q.from || '') > (p.from || '')).sort((a, b) => a.from < b.from ? -1 : 1)[0] : null;
+  const months = next ? Math.max(1, ymDiff(next.saveFrom || plCur(), payYm(next.from)) + 1) : 0, sugg = Math.ceil(ta / 50) * 50;
+  return `<section class="panel"><h2>How it went <span class="sub ${ta <= tb ? 'good' : 'find'}">${ta <= tb ? `${m2(tb - ta)} under budget` : `${m2(ta - tb)} over budget`}</span></h2>
+    <div class="rv-leg"><span><i class="rv-b"></i>Budget</span><span><i class="rv-a"></i>Spent</span></div>
+    <div class="rv-rows">${rows.map(r => `<div class="rv-r"><span class="rv-n">${esc(r.name)}</span><div class="rv-bars"><i class="rv-b" style="width:${r.bud / peak * 100}%"></i><i class="rv-a ${r.act > r.bud + .5 ? 'over' : ''}" style="width:${r.act / peak * 100}%"></i></div><b>${m2(r.act)}</b></div>`).join('')}</div>
+    <p class="note">${m2(ta)} spent of ${m2(tb)} planned.${next ? ` Spending the same next time is about ${money(sugg,0)}, which is ${money(sugg / months, 0)} a month over ${months} months.` : ''}</p>
+    ${next ? `<div class="btnrow"><button class="btn small" data-act="xnext" data-plan="${esc(p.id)}" data-next="${esc(next.id)}">Set ${esc(occName(next))} from this</button></div>` : ''}</section>`;
+}
+async function xApplyNext(fromId, nextId) {
+  const p = (S.plans || []).find(x => x.id === fromId), q = (S.plans || []).find(x => x.id === nextId); if (!p || !q) return;
+  const tpl = (q.items || [])[0] || { how: 'save', ym: payYm(q.from), cat: 'gift', via: 'card' }, items = [...(q.items || [])];
+  (p.items || []).forEach(it => { const act = giftSpent(it); if (!act) return; const a = Math.ceil(act / 5) * 5, i = items.findIndex(x => xName(x.n).toLowerCase() === xName(it.n).toLowerCase());
+    if (i >= 0) items[i] = { ...items[i], a }; else items.push({ id: uid('pi'), n: it.n, a, how: tpl.how, ym: tpl.ym, from: tpl.from, cat: itemCat(it), via: 'card' }); });
+  const { id, ...rest } = q; await put(`plans/${q.id}`, { ...rest, items }); toast(`${occName(q)} budgets updated`);
+}
+
+/* wish lists: wish/main = { lists: { key: { name, items:[{id,n,link,at,taken}] } } } */
+const wishKey = n => String(n || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const wishList = n => ((S.wish && S.wish.lists) || {})[wishKey(n)] || { name: n, items: [] };
+async function saveWish(name, items) { const lists = { ...((S.wish && S.wish.lists) || {}) }; lists[wishKey(name)] = { name, items }; await put('wish/main', { lists }); }
+function wishKids(p) {
+  const people = (p.items || []).filter(xIsPerson), top = Math.max(0, ...people.map(i => Number(i.a) || 0));
+  const kids = people.filter(i => top && (Number(i.a) || 0) >= top * .8).map(i => xName(i.n));
+  Object.values((S.wish && S.wish.lists) || {}).forEach(l => { if (l.items.length && !kids.some(k => wishKey(k) === wishKey(l.name))) kids.push(l.name); });
+  return kids;
+}
+function wishPanel(p) {
+  if (p.kind !== 'christmas' || (p.from && p.from < today())) return '';
+  const kids = wishKids(p); if (!kids.length) return '';
+  return `<section class="panel nopad">${headCard({ tone: 'night', kicker: 'Wish lists', title: 'Let the girls add their wishes', meta: `<span>Hand them the phone. They see only their own wishes, with no prices and nothing about what you've bought.</span>`,
+    actions: kids.map(k => { const n = wishList(k).items.length; return hcBtn(`${esc(k)}${n ? ` · ${n}` : ''}`, 'kidmode', `data-name="${esc(k)}"`); }).join('') })}</section>`;
+}
+function viewKid() {
+  const name = UI.kid, l = wishList(name), xm = (S.plans || []).filter(p => p.kind === 'christmas' && p.from >= today()).sort((a, b) => a.from < b.from ? -1 : 1)[0];
+  const n = xm ? sleepsN(xm.from) : null, stars = Array.from({ length: 18 }, (_, i) => `<i style="left:${(i * 53) % 100}%;top:${(i * 37) % 100}%;animation-delay:${(i % 6) * .4}s"></i>`).join('');
+  return `<section class="kid"><div class="kid-hero"><div class="kid-stars">${stars}</div><div class="kid-k">✨ Wish list</div><div class="kid-t">${esc(name)}'s wishes</div>${n !== null && n >= 0 ? `<div class="kid-s">${n === 0 ? 'It\'s Christmas!' : `${n} sleep${n === 1 ? '' : 's'} till Christmas`} 🎄</div>` : ''}</div>
+    <form class="kidadd" autocomplete="off"><input name="n" aria-label="Your wish" placeholder="What would you love?" enterkeyhint="done"><input name="link" aria-label="Link, if you have one" placeholder="Link to it (if you have one)" inputmode="url"><button class="btn" type="submit">Add my wish 🎁</button></form>
+    <div class="kid-list">${l.items.length ? l.items.map((w, i) => `<div class="kw" style="--d:${i * .04}s"><span class="kw-star">${['⭐','🌟','💫','✨'][i % 4]}</span><div class="grow"><b>${esc(w.n)}</b>${w.link ? `<a href="${esc(/^https?:/i.test(w.link) ? w.link : 'https://' + w.link)}" target="_blank" rel="noopener">See it</a>` : ''}</div><button type="button" class="kw-del" data-act="kwdel" data-id="${esc(w.id)}" aria-label="Remove ${esc(w.n)}">✕</button></div>`).join('') : `<p class="kid-empty">Nothing here yet. Add your first wish!</p>`}</div>
+    <button type="button" class="kid-exit" data-hold="kidexit">Grown-ups: press and hold to finish</button></section>`;
+}
+async function kidAdd(form) {
+  const n = (form.n.value || '').trim(); if (!n) { form.n.focus(); return; } const link = (form.link.value || '').trim(), l = wishList(UI.kid);
+  form.n.value = ''; form.link.value = ''; const w = { id: uid('w'), n, at: today() }; if (link) w.link = link;
+  await saveWish(UI.kid, [...l.items, w]); setTimeout(() => { const i = document.querySelector('form.kidadd input[name=n]'); if (i) i.focus(); }, 60);
+}
+async function wishToGift(planId, itemId, name, wid) {
+  const l = wishList(name), w = l.items.find(x => x.id === wid); if (!w) return; const gid = uid('g');
+  await xSaveItem(planId, itemId, it => ({ ...it, gifts: [...giftsOf(it), { id: gid, n: w.n, a: 0, ...(w.link ? { note: w.link } : {}) }] }));
+  await saveWish(name, l.items.map(x => x.id === wid ? { ...x, taken: gid } : x)); toast('Added to the list. Tap it to add the price');
+}
+
+/* occasion picker for Christmas and birthdays */
+function occasionView(list) {
+  const t = today(), sorted = list.slice().sort((a, b) => (a.from || '9') < (b.from || '9') ? -1 : 1);
+  const sel = sorted.find(p => p.id === UI.occ) || sorted.find(p => (p.to || p.from || '9') >= t) || sorted[sorted.length - 1];
+  const bdays = calBirthdays().slice(0, 8);
+  const row = `<div class="occ-row" role="group" aria-label="Which occasion">${sorted.map(p => `<button type="button" class="occ k-${p.kind} ${sel && p.id === sel.id ? 'on' : ''}" data-act="occ" data-id="${esc(p.id)}" aria-pressed="${!!(sel && p.id === sel.id)}"><span class="occ-i">${OCC_ICON[p.kind]}</span><b>${esc(occName(p).replace(/['’]s birthday$/i, ''))}${p.kind === 'christmas' ? ` <small>${esc((p.from || '').slice(0, 4))}</small>` : ''}</b><small>${esc(sleepsTxt(p.from) || 'No date')}</small></button>`).join('')}<button type="button" class="occ add" data-act="bday"><span class="occ-i">＋</span><b>Birthday</b><small>Add one</small></button></div>`;
+  const sugg = bdays.length ? `<section class="panel"><h2>Birthdays coming up <span class="sub">from your calendar</span></h2><div class="zchips">${bdays.map(b => `<button type="button" data-act="bday" data-name="${esc(b.name)}" data-date="${b.d}">🎈 ${esc(b.name)} · ${esc(shortDate(b.d).replace(/ \d{4}$/, ''))}</button>`).join('')}</div><p class="note">Tap one to give it a budget. It saves a little each month until the day.</p></section>` : '';
+  return row + (sel ? plPanel(sel) + giftReview(sel) : `<section class="panel"><p class="empty">Nothing planned yet.</p></section>`) + sugg;
+}
+
+/* packing list: plan.pack = [{id,n,g,done}] */
+const PACK_GROUPS = ['Documents', 'Car', 'Grown-ups', 'Kids', 'Extras'];
+const isFrance = p => /france|paris|calais|disney|dover/i.test([p.name, ...(p.items || []).map(i => i.n), ...(p.days || []).map(d => d.t + ' ' + (d.places || []).join(' '))].join(' '));
+function packSeed(p) {
+  const L = [], add = (g, arr) => arr.forEach(n => L.push({ id: uid('pk'), n, g }));
+  const fr = isFrance(p);
+  add('Documents', ['Passports', 'Driving licences', ...(fr ? ['International Driving Permit'] : []), 'Car registration document (original)', 'Car insurance certificate', 'Breakdown cover details', 'Travel insurance', 'Hotel bookings', 'Ferry tickets']);
+  if (/disney/i.test(p.name)) add('Documents', ['Disney park tickets']);
+  if (!fr) add('Car', ['Phone holder and car charger', 'Snacks and water', 'Blankets and pillows']);
+  add('Grown-ups', ['Warm coats, hats and gloves', 'Comfy walking shoes', 'Clothes for each night', 'Toiletries', 'Medicines and paracetamol', 'Phone chargers and a power bank', 'Bank cards and the Revolut card']);
+  add('Kids', ['Warm coats, hats and gloves', 'Waterproof ponchos', 'Comfy walking shoes', 'Pyjamas', 'Headphones', 'Tablets, charged', 'Favourite teddy']);
+  if (/disney/i.test(p.name)) add('Kids', ['Autograph book and pen']);
+  return L;
+}
+function packPanel(p) {
+  if (isGift(p) || p.kind === 'year' || !p.from || (p.to || p.from) < today()) return '';
+  const n = sleepsN(p.from), pk = p.pack || [], done = pk.filter(x => x.done).length, open = UI.packOpen ? UI.packOpen === p.id : n <= 14;
+  if (!pk.length) return `<section class="panel nopad">${headCard({ tone: 'sea', kicker: n <= 7 ? 'A week to go' : 'Packing', title: n <= 7 ? 'Time to start packing' : 'Packing list', meta: `<span>${isFrance(p) ? 'Ready-made for driving in France: documents, the car kit, and lists for grown-ups and kids.' : 'Ready-made lists for documents, the car, grown-ups and kids.'} Change anything you like.</span>`, actions: hcBtn('Start the packing list', 'packseed', `data-plan="${esc(p.id)}"`) })}</section>`;
+  const groups = [...PACK_GROUPS, ...new Set(pk.map(x => x.g).filter(g => !PACK_GROUPS.includes(g)))].map(g => [g, pk.filter(x => x.g === g)]).filter(([, l]) => l.length);
+  return `<section class="panel nopad pack">${headCard({ tone: 'sea', kicker: n <= 7 && n >= 0 ? (n <= 1 ? 'Last night at home' : 'A week to go') : 'Packing', title: done === pk.length ? 'All packed!' : `${done} of ${pk.length} packed`,
+    body: `<div class="hc-prog"><i style="width:${Math.round(done / pk.length * 100)}%"></i></div>`, actions: hcBtn(open ? 'Hide the list' : 'Show the list', 'packopen', `data-plan="${esc(p.id)}"`) })}
+    ${open ? `<div class="pk-wrap">${isFrance(p) ? (() => { const all = TRIP.flatMap(g => g.items), d = all.filter(([id]) => (S.trip.done || {})[id]).length; return `<button type="button" class="pk-car" data-act="tab" data-v="car" data-seg="trip"><span>🚗</span><div class="grow"><b>France car checklist</b><small>GBM sticker, permit, vests, beam adjusters and more · ${d} of ${all.length} done</small></div><em>Open</em></button>`; })() : ''}${groups.map(([g, l]) => `<div class="pk-g"><div class="pk-h">${esc(g)}<span>${l.filter(x => x.done).length}/${l.length}</span></div>${l.map(x => `<div class="pk ${x.done ? 'done' : ''}"><button type="button" class="st-tick" data-act="packtick" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" aria-pressed="${!!x.done}" aria-label="${x.done ? 'Packed' : 'Mark packed'}: ${esc(x.n)}">${x.done ? stepIcon('clear') : ''}</button><button type="button" class="pk-n" data-act="packedit" data-plan="${esc(p.id)}" data-id="${esc(x.id)}">${esc(x.n)}</button></div>`).join('')}</div>`).join('')}
+      <form class="packadd" data-plan="${esc(p.id)}" autocomplete="off"><input name="n" aria-label="Something to pack" placeholder="Add something"><select name="g" aria-label="Which list">${[...new Set([...PACK_GROUPS, ...pk.map(x => x.g)])].map(g => `<option>${esc(g)}</option>`).join('')}</select><button class="btn small" type="submit">Add</button></form></div>` : ''}</section>`;
+}
+async function packSave(planId, fn) { const p = (S.plans || []).find(x => x.id === planId); if (!p) return; const { id, ...rest } = p; await put(`plans/${planId}`, { ...rest, pack: fn(p.pack || [], p) }); }
+function packEditForm(planId, id) {
+  const p = (S.plans || []).find(x => x.id === planId), x = p && (p.pack || []).find(y => y.id === id); if (!x) return;
+  openSheet(x.n, fld('pkN', 'What', x.n) + sel('pkG', 'Which list', x.g, [...new Set([...PACK_GROUPS, ...(p.pack || []).map(y => y.g)])].map(g => [g, g])), async () => {
+    const n = v('pkN').trim(); if (!n) throw new Error('Say what it is'); await packSave(planId, pk => pk.map(y => y.id === id ? { ...y, n, g: v('pkG') } : y));
+  }, { onDelete: () => packSave(planId, pk => pk.filter(y => y.id !== id)) });
+}
+
+/* on the day: today's plan, weather, euros left, tonight's bed */
+const WX = {};
+const wxTown = pl => { if (/disney/i.test(pl)) return 'Chessy'; const parts = String(pl).split(',').map(s => s.trim()).filter(Boolean); let s = parts.length > 1 ? parts[parts.length - 1] : parts[0] || ''; return s.replace(/\b\d{4,5}\b/g, '').replace(/premier inn|port of|hotel|crowne plaza|travelodge/ig, '').trim() || s; };
+const WXI = c => c === 0 ? '☀️' : c <= 2 ? '🌤️' : c === 3 ? '☁️' : c <= 48 ? '🌫️' : c <= 67 ? '🌧️' : c <= 77 ? '🌨️' : c <= 82 ? '🌦️' : c <= 86 ? '🌨️' : '⛈️';
+function wxFetch(town, date) {
+  const k = `${town}|${date}`; if (WX[k]) return WX[k] === 'busy' ? null : WX[k]; WX[k] = 'busy';
+  (async () => { try {
+    const g = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?count=1&name=${encodeURIComponent(town)}`)).json(), loc = g.results && g.results[0]; if (!loc) throw 0;
+    const f = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${date}&end_date=${date}`)).json();
+    const d = f.daily; WX[k] = { town: loc.name, code: d.weather_code[0], hi: Math.round(d.temperature_2m_max[0]), lo: Math.round(d.temperature_2m_min[0]), rain: d.precipitation_probability_max[0] }; schedule();
+  } catch (e) { WX[k] = { none: true }; } })();
+  return null;
+}
+function tripEuroToday(p) {
+  const gbp = (p.items || []).filter(it => it.how !== 'zilch' && itemVia(it) === 'revolut').reduce((s, it) => s + (Number(it.a) || 0), 0); if (!gbp) return null;
+  const rate = Number(p.rate) || 1.19, eur = gbp * rate, spent = (p.spend || []).reduce((s, x) => s + (Number(x.a) || 0), 0), fr = (p.days || []).filter(d => /calais|france|disney/i.test(d.t + ' ' + (d.places || []).join(' '))).map(d => d.d).sort();
+  const from = fr[0] || p.from, to = fr[fr.length - 1] || p.to || from, t = today(); if (!(t >= from && t <= to)) return null;
+  const days = Math.max(1, daysBetween(from, to) + 1); return Math.round(eur / days * (daysBetween(from, t) + 1) - spent);
+}
+function onTheDay(p) {
+  const t = today(); if (isGift(p) || !p.from || t < p.from || t > (p.to || p.from)) return '';
+  const day = (p.days || []).find(d => d.d === t), n = daysBetween(p.from, t) + 1, places = day ? day.places || [] : [];
+  const bed = places.filter(x => /inn|hotel|plaza|lodge|travelodge|airbnb|cottage/i.test(x)).pop(), wxPlace = bed || places[places.length - 1] || p.name;
+  const w = wxFetch(wxTown(wxPlace), t), eur = tripEuroToday(p);
+  const tiles = [
+    w && !w.none ? `<div class="od-t"><span>${WXI(w.code)}</span><b>${w.hi}° <small>/ ${w.lo}°</small></b><em>${esc(w.town)}${w.rain >= 40 ? ` · ${w.rain}% rain` : ''}</em></div>` : `<div class="od-t"><span>⛅</span><b>${w && w.none ? '–' : '…'}</b><em>${w && w.none ? 'No forecast' : 'Weather'}</em></div>`,
+    eur !== null ? `<div class="od-t"><span>💶</span><b>€${Math.max(0, eur)}</b><em>${eur >= 0 ? 'to spend today' : `€${-eur} over, easy tomorrow`}</em></div>` : '',
+    bed ? `<a class="od-t" href="${mapsLink(bed)}" target="_blank" rel="noopener"><span>🛏️</span><b>Tonight</b><em>${esc(bed.split(',')[0])}</em></a>` : '',
+  ].filter(Boolean).join('');
+  const park = day && /disney/i.test(day.t + places.join(' ')) ? `<a class="hc-btn" href="https://www.disneylandparis.com/en-gb/calendar/" target="_blank" rel="noopener">Park hours</a>` : '';
+  return `<section class="panel nopad">${headCard({ tone: 'magic', kicker: `Day ${n} · ${DOWS[parse(t).getDay()]} ${parse(t).getDate()} ${MONTHS[parse(t).getMonth()]}`, title: day ? esc(day.t) : 'Have the best day', meta: day && day.n ? `<span>${esc(day.n)}</span>` : '',
+    body: `<div class="od-tiles">${tiles}</div>`, actions: [places.length ? places.map(x => `<a class="hc-btn" href="${mapsLink(x)}" target="_blank" rel="noopener">${esc(x.split(',')[0])}</a>`).join('') : '', park, eur !== null ? hcBtn('Log spending', 'tspend', `data-plan="${esc(p.id)}"`) : ''].join('') })}</section>`;
+}
+
+/* payday check-in: bsheet/<ym>.ci = { inc, jobs, done } */
+function checkinCard() {
+  const cur = plCur(), pd = payday(cur), t = today(), doc = S.bsheet[cur]; if (!doc || t < pd || daysBetween(pd, t) > 6) return '';
+  const ci = doc.ci || {}; if (ci.done) return '';
+  const tot = bsTotals(doc, cur), inc = (doc.inc || []).filter(bsOn).map(x => ({ n: String(x.n || '').replace(/['’]s? wages|\s*wages/i, '').trim() || x.n, a: Number(x.a) || 0 }));
+  if (doc.viki && !doc.viki.off) inc.push({ n: 'Viki', a: tot.viki });
+  const jobs = []; (S.plans || []).filter(p => !isGift(p)).forEach(p => tripSteps(p).forEach(g => { if (g.ym === cur) g.steps.forEach(s => { if (s.kind === 'do') jobs.push({ p, s }); }); }));
+  const pj = potJob(cur); if (pj) jobs.push({ p: { id: '__pot' }, s: pj });
+  const left = jobs.filter(j => !j.s.done).length, step = !ci.inc ? 1 : !ci.jobs && left ? 2 : 3;
+  const dot = (i, lbl) => `<span class="ci-dot ${i < step ? 'ok' : i === step ? 'now' : ''}">${i < step ? '✓' : i}</span><span class="ci-lbl">${lbl}</span>`;
+  const s1 = `<div class="ci-s ${step === 1 ? 'now' : 'ok'}"><div class="ci-h">${dot(1, 'What came in')}</div>${step === 1 ? `<div class="ci-inc">${inc.map(x => `<div><span>${esc(x.n)}</span><b>${money(x.a, 0)}</b></div>`).join('')}<div class="tot"><span>Total</span><b>${money(tot.inc, 0)}</b></div></div><div class="btnrow"><button class="btn small" data-act="ciok" data-k="inc">Yes, that's right</button><button class="btn small ghost" data-act="ciinc">It was different</button></div>` : `<div class="ci-done">${money(tot.inc, 0)} came in</div>`}</div>`;
+  const s2 = `<div class="ci-s ${step === 2 ? 'now' : step > 2 ? 'ok' : ''}"><div class="ci-h">${dot(2, 'This month\'s money jobs')}</div>${step === 2 ? `${jobs.map(j => stepRow(j.p, j.s)).join('')}<div class="btnrow"><button class="btn small ghost" data-act="ciok" data-k="jobs">Done for now</button></div>` : step > 2 ? `<div class="ci-done">${jobs.length - left} of ${jobs.length} done</div>` : ''}</div>`;
+  const s3 = `<div class="ci-s ${step === 3 ? 'now' : ''}"><div class="ci-h">${dot(3, 'How the month ends')}</div>${step === 3 ? `<div class="ci-end ${tot.left >= 0 ? 'good' : 'find'}"><b>${tot.left >= 0 ? `${money(tot.left, 0)} to spare` : `${money(-tot.left, 0)} to find`}</b><span>${tot.left >= 0 ? 'Brilliant. That can go in the holiday pot.' : 'The holiday pot can cover it.'}</span></div><div class="btnrow"><button class="btn small" data-act="ciok" data-k="done">Finish check-in 🎉</button></div>` : ''}</div>`;
+  return `<section class="panel nopad checkin steps">${headCard({ tone: 'good', kicker: 'Payday check-in', title: `3 quick steps for the ${monShort(cur)} pay`, meta: `<span>Takes two minutes. Do it together with a cuppa.</span>` })}<div class="ci-wrap">${s1}${s2}${s3}</div></section>`;
+}
+async function ciSet(k) {
+  const cur = plCur(), doc = S.bsheet[cur]; if (!doc) return; const ci = { ...(doc.ci || {}), [k]: today() };
+  await put(`bsheet/${cur}`, { ...doc, ci }); if (k === 'done') celebrate('Payday sorted', 'Money checked, jobs done. Nice work, both of you.');
+}
+function ciIncForm() {
+  const cur = plCur(), doc = S.bsheet[cur]; if (!doc) return; const tot = bsTotals(doc, cur), incs = (doc.inc || []).map((x, i) => [x, i]).filter(([x]) => bsOn(x));
+  openSheet('What actually came in', incs.map(([x, i]) => fld(`ci${i}`, esc(x.n), Number(x.a) || 0, 'number', 'step="0.01" inputmode="decimal"')).join('') + (doc.viki && !doc.viki.off ? fld('ciV', 'Viki\'s wages', Math.round(tot.viki * 100) / 100, 'number', 'step="0.01" inputmode="decimal"') : '') + '<p class="note">This updates the month\'s Budget Sheet so the rest of the month adds up.</p>', async () => {
+    const d = JSON.parse(JSON.stringify(doc)); incs.forEach(([, i]) => { const a = num(v(`ci${i}`)); if (a !== null) d.inc[i].a = a; });
+    if ($('#ciV')) { const a = num(v('ciV')); if (a !== null && Math.abs(a - tot.viki) > .5) d.viki.actual = a; }
+    d.ci = { ...(d.ci || {}), inc: today() }; await put(`bsheet/${cur}`, d);
+  });
+}
+
+/* milestones and celebrations */
+function milestones() {
+  const t = today(), cur = plCur(), out = [];
+  (S.plans || []).forEach(p => (p.steps || []).filter(s => s.how === 'clear').forEach(s => out.push({ key: `ms:${p.id}:${s.key}`, ico: '⚡', title: 'Car Zilch cleared', sub: s.ym ? `${monShort(s.ym)} payday` : '', done: !!(p.done || {})[s.key], pct: (p.done || {})[s.key] ? 1 : .66, cheer: 'The car is paid off. That\'s a big one.' })));
+  (S.plans || []).filter(p => !isGift(p) && p.kind !== 'year' && p.from && (p.to || p.from) >= addDays(t, -14)).forEach(p => { const st = plStats(p), pct = st.cost ? st.paid / st.cost : 0;
+    out.push({ key: `ms:paid:${p.id}`, ico: OCC_ICON[p.kind] || '✦', title: `${occName(p)} all booked`, sub: `${Math.round(pct * 100)}% sorted`, done: st.cost > 0 && pct >= .999, pct, cheer: `Everything for ${occName(p)} is booked. Now the fun bit.` }); });
+  (S.plans || []).filter(p => isGift(p) && p.from && p.from >= addDays(t, -3)).forEach(p => { const g = (p.items || []).flatMap(giftsOf), got = g.filter(x => x.got).length;
+    if (g.length) out.push({ key: `ms:gifts:${p.id}`, ico: OCC_ICON[p.kind], title: p.kind === 'christmas' ? 'Every present bought' : `${occName(p)} presents bought`, sub: `${got} of ${g.length}`, done: got === g.length, pct: got / g.length, cheer: 'All the presents are sorted. Time to wrap!' }); });
+  try { const zm = zilchMonths().filter(m => m.total > .5).map(m => m.ym).sort(), last = zm[zm.length - 1];
+    if (last) { const free = ymAdd(last, 1), span = Math.max(1, ymDiff('2026-10', free)); out.push({ key: `ms:zfree:${free}`, ico: '🎉', title: 'Zilch-free', sub: monthName(free), done: cur >= free, pct: Math.min(1, Math.max(0, ymDiff('2026-10', cur) / span)), cheer: 'No more Zilch payments. Every penny is yours again.' }); } } catch (e) {}
+  return out;
+}
+function checkMilestones() {
+  if (!(S.plans || []).length) return; let seen = null; try { seen = JSON.parse(localStorage.getItem('hhq-ms') || 'null'); } catch (e) {}
+  const first = !seen, ms = milestones(); seen = seen || {}; const fresh = ms.filter(m => m.done && !seen[m.key]); ms.forEach(m => { if (m.done) seen[m.key] = 1; });
+  try { localStorage.setItem('hhq-ms', JSON.stringify(seen)); } catch (e) {}
+  if (!first && fresh.length) setTimeout(() => celebrate(fresh[0].title + '!', fresh[0].cheer), 350);
+}
+function milestonePanel() {
+  const ms = milestones(); if (!ms.length) return '';
+  return `<section class="panel"><h2>Milestones <span class="sub">${ms.filter(m => m.done).length} of ${ms.length} reached</span></h2><div class="ms-row">${ms.map(m => `<div class="ms ${m.done ? 'done' : ''}">${msRing(m.pct, m.done ? '✓' : m.ico)}<b>${esc(m.title)}</b><small>${esc(m.done ? 'Done!' : m.sub)}</small></div>`).join('')}</div></section>`;
+}
+const msRing = (pct, mid) => { const r = 24, c = 2 * Math.PI * r; return `<span class="ms-ring"><svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="${r}" fill="none" stroke="var(--sheet-2)" stroke-width="5"/><circle cx="28" cy="28" r="${r}" fill="none" stroke="url(#msg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${Math.max(.01, Math.min(1, pct || 0)) * c} ${c}" transform="rotate(-90 28 28)"/><defs><linearGradient id="msg" x1="0" x2="1"><stop offset="0" stop-color="var(--acc)"/><stop offset="1" stop-color="var(--acc2)"/></linearGradient></defs></svg><i>${mid}</i></span>`; };
+function celebrate(title, sub = '') {
+  document.querySelector('.cele')?.remove();
+  const el = document.createElement('div'); el.className = 'cele'; el.setAttribute('role', 'alertdialog'); el.setAttribute('aria-label', title);
+  el.innerHTML = `<canvas></canvas><div class="cele-card"><div class="cele-big">🎉</div><b>${esc(title)}</b><span>${esc(sub)}</span><button type="button" class="btn">Yay!</button></div>`;
+  document.body.appendChild(el); const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 300); };
+  el.addEventListener('click', close); setTimeout(close, 6000);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = el.querySelector('canvas'), ctx = cv.getContext('2d'), W = cv.width = innerWidth * devicePixelRatio, H = cv.height = innerHeight * devicePixelRatio, cols = ['#FF5A5F', '#FFB347', '#FFD36B', '#7ED957', '#36C5F0', '#A23BEC', '#FF6B9A'];
+  const bits = Array.from({ length: 160 }, () => ({ x: W / 2 + (Math.random() - .5) * W * .3, y: H * .45, vx: (Math.random() - .5) * 22 * devicePixelRatio, vy: (-Math.random() * 22 - 8) * devicePixelRatio, s: (Math.random() * 6 + 4) * devicePixelRatio, r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: cols[Math.floor(Math.random() * cols.length)] }));
+  let f = 0; (function tick() { if (!el.isConnected || f++ > 240) return; ctx.clearRect(0, 0, W, H); bits.forEach(b => { b.vy += .55 * devicePixelRatio; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.r += b.vr; ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.r); ctx.fillStyle = b.c; ctx.fillRect(-b.s / 2, -b.s / 4, b.s, b.s / 2); ctx.restore(); }); requestAnimationFrame(tick); })();
+}
+
+/* countdown ribbon: on Home and the top of Treats */
+function countdowns(max = 6) {
+  const t = today();
+  return (S.plans || []).filter(p => p.kind !== 'year' && p.from && (p.to || p.from) >= t).sort((a, b) => a.from < b.from ? -1 : 1).slice(0, max);
+}
+function countRibbon(title = '') {
+  const list = countdowns(); if (!list.length) return '';
+  return `<section class="cd-wrap">${title ? `<div class="cd-title">${title}</div>` : ''}<div class="cd-row">${list.map(p => { const n = sleepsN(p.from), now = n <= 0;
+    return `<button type="button" class="cd k-${p.kind}" data-act="opentrip" data-kind="${esc(kindTab(p))}" data-id="${esc(p.id)}"><span class="cd-i">${OCC_ICON[p.kind] || '✦'}</span><span class="cd-n">${now ? 'Now!' : n}</span><span class="cd-l">${now ? 'Happening' : n === 1 ? 'sleep to' : 'sleeps to'}</span><b>${esc(occName(p).replace(/['’]s birthday$/i, '’s birthday'))}</b></button>`; }).join('')}</div></section>`;
 }
 
 /* ===== headed cards: the bold gradient card style ===== */
@@ -3197,7 +3650,7 @@ function tripSpendForm(planId, id) {
 const tripDocs = p => docsPanel(`trip_${p.id}`, 'Keep the hotel confirmation, ferry tickets, park tickets and insurance here. Once opened they stay on the phone, so they work in France without signal.', 'Tickets and bookings');
 
 /* ===== year ahead: plans/pl_year, kind year ===== */
-const YEAR_IDEAS = ['Christmas 2027', 'Car insurance', 'Car service and MOT', 'Birthdays', 'TT week', 'Summer holiday 2027', 'School uniforms', 'Vet and pet insurance'];
+const YEAR_IDEAS = ['Car insurance', 'Car service and MOT', 'TT week', 'Summer holiday 2027', 'School uniforms', 'Vet and pet insurance'];
 async function ensureYearPlan() { let p = (S.plans||[]).find(x => x.kind === 'year'); if (p) return p; p = { kind: 'year', name: 'Year ahead', saveFrom: plCur(), items: [] }; await put('plans/pl_year', p); return { ...p, id: 'pl_year' }; }
 function viewYear() {
   const p = (S.plans||[]).find(x => x.kind === 'year'), cur = plCur(), items = p ? (p.items||[]) : [];
@@ -3821,7 +4274,19 @@ document.addEventListener('click', async e => {
   if (a==='xopen') { UI.xopen = UI.xopen === el.dataset.id ? null : el.dataset.id; render(); if (UI.xopen) { const f = document.querySelector(`form.xadd[data-id="${UI.xopen}"]`); if (f) f.closest('.xp').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } return; }
   if (a==='xgot') { el.disabled = true; return xSaveItem(el.dataset.plan, el.dataset.item, it => ({ ...it, gifts: giftsOf(it).map(g => g.id === el.dataset.g ? (g.got ? (({ got, ...r }) => r)(g) : { ...g, got: true }) : g) })); }
   if (a==='xgift') return xGiftForm(el.dataset.plan, el.dataset.item, el.dataset.g);
-  if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='occ') { UI.occ = el.dataset.id; UI.xopen = null; keepUI(); return render(); }
+  if (a==='bday') return bdayForm(el.dataset.name || '', el.dataset.date || '');
+  if (a==='xnext') { el.disabled = true; return xApplyNext(el.dataset.plan, el.dataset.next); }
+  if (a==='kidmode') { UI.kid = el.dataset.name; keepUI(); render(); window.scrollTo(0,0); setTimeout(() => { const i = document.querySelector('form.kidadd input[name=n]'); if (i) i.focus(); }, 80); return; }
+  if (a==='kwdel') { const l = wishList(UI.kid); return saveWish(UI.kid, l.items.filter(w => w.id !== el.dataset.id)); }
+  if (a==='w2g') { el.disabled = true; return wishToGift(el.dataset.plan, el.dataset.item, el.dataset.name, el.dataset.w); }
+  if (a==='packseed') { const p = (S.plans||[]).find(x => x.id === el.dataset.plan); if (!p) return; UI.packOpen = p.id; el.disabled = true; return packSave(p.id, () => packSeed(p)); }
+  if (a==='packopen') { const n = sleepsN(((S.plans||[]).find(x => x.id === el.dataset.plan)||{}).from), isOpen = UI.packOpen ? UI.packOpen === el.dataset.plan : n <= 14; UI.packOpen = isOpen ? '__none' : el.dataset.plan; return render(); }
+  if (a==='packtick') { el.disabled = true; return packSave(el.dataset.plan, pk => pk.map(x => x.id === el.dataset.id ? (x.done ? (({ done, ...r }) => r)(x) : { ...x, done: true }) : x)); }
+  if (a==='packedit') return packEditForm(el.dataset.plan, el.dataset.id);
+  if (a==='ciok') { el.disabled = true; return ciSet(el.dataset.k); }
+  if (a==='ciinc') return ciIncForm();
+  if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; if (el.dataset.id) UI.occ = el.dataset.id; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
   if (a==='plspread') { if (!el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again: this turns Zilch and one-off payments into monthly saving'; return; } return planSpread(el.dataset.id); }
@@ -3865,6 +4330,8 @@ document.addEventListener('submit', async e => {
   if (e.target.id === 'listAdd') { e.preventDefault(); const i = $('#listText'); const text = (i.value||'').trim(); if (!text) return; i.value = ''; await put(`list/${uid('l')}`, { text, list: UI.list||'shopping', done:false, by: me(), at: Date.now() }); setTimeout(() => { const n = $('#listText'); if (n) n.focus(); }, 30); return; }
   if (e.target.classList.contains('xadd')) { e.preventDefault(); return xAddGift(e.target); }
   if (e.target.classList.contains('xperson')) { e.preventDefault(); return xAddPerson(e.target); }
+  if (e.target.classList.contains('kidadd')) { e.preventDefault(); return kidAdd(e.target); }
+  if (e.target.classList.contains('packadd')) { e.preventDefault(); const fm = e.target, n = (fm.n.value||'').trim(); if (!n) return; const g = fm.g.value; fm.n.value = ''; await packSave(fm.dataset.plan, pk => [...pk, { id: uid('pk'), n, g }]); setTimeout(() => { const i = document.querySelector(`form.packadd[data-plan="${fm.dataset.plan}"] input[name=n]`); if (i) i.focus(); }, 60); return; }
   if (e.target.id !== 'sheetForm') return; e.preventDefault();
   const fn = sheetSave; if (!fn) return;
   const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true;
@@ -3878,6 +4345,10 @@ document.addEventListener('input', e => {
     const needToggle = Number(raw) >= z.threshold, has = !!document.querySelector('[data-act="zpartner"]'); if (needToggle !== has) { render(); const i = $('#zAmt'); if (i) { i.focus(); i.setSelectionRange(raw.length, raw.length); } } return; }
   if (e.target.id !== 'sSearch') return; clearTimeout(sTimer); const val = e.target.value; sTimer = setTimeout(() => { UI.sq = val; UI.slimit = 40; render(); const i = $('#sSearch'); if (i) { i.focus(); i.setSelectionRange(val.length, val.length); } }, 250); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#sheetRoot').innerHTML) closeSheet(); });
+let holdT = null;
+document.addEventListener('pointerdown', e => { const h = e.target.closest('[data-hold="kidexit"]'); if (!h) return; h.classList.add('holding');
+  holdT = setTimeout(() => { holdT = null; UI.kid = null; keepUI(); render(); window.scrollTo(0,0); toast('Wish list saved'); }, 1300); });
+['pointerup','pointercancel'].forEach(ev => document.addEventListener(ev, e => { if (!holdT) return; const h = document.querySelector('.kid-exit.holding'); if (h) h.classList.remove('holding'); clearTimeout(holdT); holdT = null; }, true));
 
 /* ---------- boot ---------- */
 async function boot() {
