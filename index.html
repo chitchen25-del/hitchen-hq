@@ -604,6 +604,42 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .ms-inc{position:absolute;top:-4px;bottom:-4px;width:2.5px;background:var(--ink);border-radius:2px;transform:translateX(-1px)}
 .ms-l{font-size:.8rem;white-space:nowrap;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .ms-l.good{color:var(--good)} .ms-l.find{color:var(--gold)}
+.steps .step{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--rule)}
+.st-group .step:first-of-type{border-top:0}
+.step .t{font-weight:700;font-size:.95rem;line-height:1.25}
+.step .m{font-size:.82rem;color:var(--muted);margin-top:2px;line-height:1.3}
+.step .amt{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.step.done .t{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
+.step.done .amt{color:var(--muted)}
+.step.k-auto .amt{color:var(--ink-2);font-weight:700}
+.step.k-also{opacity:.62}
+.st-tick{width:26px;height:26px;border-radius:50%;border:2px solid var(--rule-2);background:transparent;display:grid;place-items:center;flex:none;cursor:pointer;color:#fff;padding:0}
+.st-tick[aria-pressed="true"]{background:var(--good);border-color:var(--good)}
+.st-tick svg{width:15px;height:15px}
+.st-tick.ghost{border-style:dashed;cursor:default;opacity:.5}
+.st-ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none}
+.st-ico svg{width:18px;height:18px}
+.chip.st-auto{background:color-mix(in srgb,#E8902A 16%,transparent);color:#B86A10;vertical-align:1px}
+.chip.st-also{background:var(--sheet-2);color:var(--muted);vertical-align:1px}
+.st-next{border-radius:18px;padding:14px 16px;background:linear-gradient(135deg,#2A1E6B,#6A2E8E 60%,#C2457F);color:#fff;box-shadow:var(--shadow)}
+.st-next.good{background:linear-gradient(135deg,#0B7A3E,#33B679)}
+.st-nk{font-size:.76rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.st-nt{font-size:1.15rem;font-weight:800;margin-top:3px;line-height:1.25}
+.st-nm{display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:650;font-size:.9rem;flex-wrap:wrap}
+.st-pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:.78rem;font-weight:800;color:#fff}
+.st-group{margin-top:8px;border:1px solid var(--rule);border-radius:16px;padding:4px 12px 2px}
+.st-group.past{opacity:.6}
+.st-gh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0 6px;border-bottom:1px solid var(--rule)}
+.st-gh b{display:block;font-size:1rem}
+.st-gh span{display:block;font-size:.78rem;color:var(--muted);margin-top:1px}
+.st-gh em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.st-gh em small{display:block;font-size:.72rem;font-weight:600;color:var(--muted)}
+.st-key{margin-top:8px}
+.st-key summary{cursor:pointer;font-weight:700;font-size:.88rem;color:var(--ink-2);padding:6px 0}
+.st-mini{display:grid;grid-template-columns:38px minmax(0,1fr);align-items:center;border-top:1px solid var(--rule)}
+.st-mini:first-of-type{border-top:0}
+.st-mini .step{border-top:0}
+.st-when{font-size:.74rem;font-weight:800;color:var(--muted);text-transform:uppercase}
 .zchips{display:flex;gap:6px;flex-wrap:wrap}
 .seg.pltabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .seg.pltabs button{white-space:normal;text-align:center;line-height:1.2;padding:8px 6px}
@@ -2474,12 +2510,11 @@ function plStats(p) {
   return { cost, paid, fees, future, toPay: future.reduce((s,[,a]) => s + a, 0) };
 }
 function plWhen(it, p) {
-  const ym = it.ym || plCur();
-  if (it.paid && it.how !== 'zilch') return 'Paid';
-  if (it.how === 'once') return `Pay in ${mon3(ym)} ${ym.slice(2,4)}`;
-  if (it.how === 'zilch') return `Zilch from ${mon3(ym)}`;
-  const pays = plItemPays(it, p); if (!pays.length) return '';
-  return pays.length === 1 ? `Save in ${mon3(ym)}` : `${money(pays[0].amount,0)} a month, ${mon3(pays[0].ym)} to ${mon3(ym)}`;
+  const ym = it.ym || plCur(), M = MONTHS[Number(ym.slice(5,7))-1];
+  if (it.how === 'zilch') return it.paid ? `Booked on Zilch in ${M}, paying it off over 3 months` : `Zilch in ${M}, then 3 monthly payments`;
+  if (it.paid) return 'Paid';
+  if (it.how === 'once') { const v = itemVia(it); return `${v === 'revolut' ? 'Revolut euros' : v === 'cash' ? 'Cash' : 'Card'}, from the ${M} pay`; }
+  const pays = plItemPays(it, p); return pays.length > 1 ? `Holiday pot, ${money(pays[0].amount,0)} a month from ${mon3(pays[0].ym)} to ${mon3(ym)}` : `Holiday pot, ${M}`;
 }
 function plOverview() {
   const cur = plCur(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, i));
@@ -2516,13 +2551,13 @@ function tripPlanForm(id, kind) {
 function planItemForm(planId, itemId, name) {
   const p = (S.plans||[]).find(x => x.id===planId); if (!p) return;
   const it = (p.items||[]).find(x => x.id===itemId) || { n: name || '', how: 'save', ym: p.from ? payYm(p.from) : ymAdd(plCur(), 1), from: '' };
-  const showFrom = () => { const box = $('#pliFromBox'); if (box) box.hidden = v('pliH') !== 'save'; const hint = $('#pliHint'); if (hint) hint.textContent = plHint(); };
+  const showFrom = () => { const box = $('#pliFromBox'); if (box) box.hidden = v('pliH') !== 'save'; const vb = $('#pliVBox'); if (vb) vb.hidden = v('pliH') === 'zilch'; const hint = $('#pliHint'); if (hint) hint.textContent = plHint(); };
   const plHint = () => { const a = num(v('pliA')), how = v('pliH'), ym = v('pliM'); if (!a || !ym) return '';
     const tmp = { a, how, ym, from: v('pliF') }; if (how === 'zilch') { const z = zilchPlan(a, { avail: zs().limit }); return z ? `${money(z.upfront,2)} in ${mon3(ym)}, then ${z.pays.length-1} more payments. About ${money(z.fee,2)} in fees.` : ''; }
     const pays = plItemPays(tmp, p); return how === 'once' ? `${money(a,2)} out of the ${monthName(ym)} pay.` : pays.length > 1 ? `Put aside ${money(pays[0].amount,2)} a month for ${pays.length} months, ${monthName(pays[0].ym)} to ${monthName(ym)}.` : `${money(a,2)} out of the ${monthName(ym)} pay.`; };
   openSheet(itemId ? it.n : `Add to ${p.name}`, fld('pliN','What', it.n||'', 'text','placeholder="e.g. Flights"') +
     `<div class="fields2">${fld('pliA','Cost (£)', it.a ?? '', 'number','step="0.01" min="0" inputmode="decimal"')}${fld('pliM','Pay by (pay month)', it.ym || '', 'month')}</div>` +
-    sel('pliH','How you\'ll pay for it', it.how || 'save', PL_HOW) + sel('pliC','Type', itemCat(it), TCAT.map(c => [c[0], c[1]])) +
+    sel('pliH','How you\'ll pay for it', it.how || 'save', PL_HOW) + `<div id="pliVBox">${sel('pliV','Pay with', itemVia(it), Object.entries(VIA))}</div>` + sel('pliC','Type', itemCat(it), TCAT.map(c => [c[0], c[1]])) +
     `<div id="pliFromBox" ${(it.how||'save')==='save' ? '' : 'hidden'}>${fld('pliF','Start saving from', it.from || p.saveFrom || plCur(), 'month')}</div>
     <p class="note" id="pliHint"></p>` + fld('pliNote','Note', it.note||'', 'text','placeholder="e.g. Jet2, booked ref ABC123"') +
     `<label class="toggle"><input type="checkbox" id="pliP" ${it.paid ? 'checked' : ''}> Booked and paid${it.how==='zilch' ? ' (Zilch payments still count)' : ''}</label>` + photoField('pliPh', 'Photo (optional)', it.img), async () => {
@@ -2530,7 +2565,7 @@ function planItemForm(planId, itemId, name) {
     const ym = v('pliM'); if (!/^\d{4}-\d\d$/.test(ym)) throw new Error('Pick the month it needs paying by');
     const x = { id: it.id || uid('pi'), n, a, how: v('pliH'), ym }; if (x.how === 'save' && v('pliF') && v('pliF') !== (p.saveFrom || '')) x.from = v('pliF');
     if (v('pliNote').trim()) x.note = v('pliNote').trim(); if ($('#pliP').checked) x.paid = true;
-    x.cat = v('pliC'); const ph = getPh(); if (ph) x.img = await uploadPhoto(ph); else if (it.img && !($('#pliPhDel') && $('#pliPhDel').checked)) x.img = it.img;
+    x.cat = v('pliC'); if (x.how !== 'zilch') x.via = v('pliV'); const ph = getPh(); if (ph) x.img = await uploadPhoto(ph); else if (it.img && !($('#pliPhDel') && $('#pliPhDel').checked)) x.img = it.img;
     const items = [...(p.items||[])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
     const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items });
   }, itemId ? { onDelete: async () => { const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items: (p.items||[]).filter(y => y.id !== itemId) }); } } : {});
@@ -2656,6 +2691,7 @@ function plPanel(p) {
   const hero = items.filter(it => it.img).slice(0, 3);
   return `${tripHero(p, st)}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
+    ${stepsPanel(p)}
     ${parts.length ? `<section class="panel"><h2>Where the trip money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
     ${st.future.length ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
     <section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
@@ -2729,11 +2765,89 @@ function viewMoneyOverview() {
   const sel = months.includes(UI.ovm) ? UI.ovm : (months.includes(cur) ? cur : months[0]), f = sheetFlow(sel);
   const chips = `<div class="seg mchips" role="group" aria-label="Which month">${months.map(m => `<button data-act="ovm" data-v="${m}" aria-pressed="${m===sel}">${mon3(m)}</button>`).join('')}</div>`;
   const spare = f.t.left, msg = spare >= 0 ? `${money(spare,0)} to spare` : `${money(-spare,0)} to find`;
-  return `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
+  return nextJobs() + `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
       <p class="note">Pay comes in on the left and goes out to the right, from the ${esc(monthName(sel))} Budget Sheet${f.t.plan ? ', including trips from Trips' : ''}. ${spare >= 0 ? 'Whatever is spare can go to the holiday pot or savings.' : 'The yellow band is the gap to cover this month.'}</p></section>
     <section class="panel"><h2>The months ahead</h2>${monthStrip(cur)}</section>
     ${potChart(cur) ? `<section class="panel"><h2>Spare money, added up</h2>${potChart(cur)}<p class="note">Spare money from each month added up, with any short months taken off. It shows how the months help each other.</p></section>` : ''}
     ${upcomingTrips()}`;
+}
+
+/* ----- step by step: exactly what to pay, when, and how ----- */
+const VIA = { card: 'Joint account card', revolut: 'Revolut, in euros', cash: 'Cash' };
+const itemVia = it => it.via || (/revolut|euro|€/i.test(it.note||'') ? 'revolut' : 'card');
+const STEP_ICON = {
+  card: '<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>',
+  zilch: '<path d="M7 7h10L7 17h10"/>',
+  auto: '<path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/>',
+  pot: '<path d="M5 9h14l-1 10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/>',
+  revolut: '<path d="M17 7a6 6 0 1 0 0 10"/><path d="M5 10h8M5 14h8"/>',
+  clear: '<path d="M5 13l4 4L19 7"/>',
+};
+const STEP_COL = { card: '#3F7BEA', zilch: '#E8902A', auto: '#E8902A', pot: '#2BA59A', revolut: '#5B6475', clear: '#E8902A' };
+const stepIcon = h => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${STEP_ICON[h]||STEP_ICON.card}</svg>`;
+function tripSteps(p) {
+  const steps = [], add = s => steps.push(s), done = p.done || {}, merge = {};
+  const mergeAdd = (key, base, amount, what) => { const m = merge[key] || (merge[key] = { ...base, amount: 0, whats: [] }); m.amount += amount; m.whats.push(what); };
+  (p.items||[]).forEach(it => { const cost = Number(it.a)||0, ym = it.ym || plCur(); if (!cost) return;
+    if (it.how === 'zilch') {
+      const z = zilchPlan(cost, { avail: zs().limit, start: `${ym}-01` }); if (!z) return;
+      add({ key: `zbook:${it.id}`, ym, how: 'zilch', kind: 'do', item: it.id, title: `Book ${it.n} on Zilch`, amount: z.pays[0].amount, sub: `${money(cost,0)} in all. Zilch takes ${money(z.pays[0].amount, z.pays[0].amount % 1 ? 2 : 0)} today, the rest over 3 months`, done: !!it.paid, order: 2 });
+      z.pays.slice(1).forEach(x => mergeAdd(`zauto:${ymOf(x.date)}`, { key: `zauto:${ymOf(x.date)}`, ym: ymOf(x.date), how: 'auto', kind: 'auto', title: 'Zilch takes a payment', order: 5 }, x.amount, it.n));
+    } else if (it.how === 'save') {
+      const pays = plItemPays({ ...it, paid: false }, p);
+      pays.forEach(x => mergeAdd(`pot:${x.ym}`, { key: `pot:${x.ym}`, ym: x.ym, how: 'pot', kind: 'do', title: 'Move money into the holiday pot', order: 1 }, x.amount, it.n));
+      add({ key: `spay:${it.id}`, ym, how: itemVia(it), kind: 'do', item: it.id, title: `Pay for ${it.n} from the pot`, amount: cost, sub: VIA[itemVia(it)], done: !!it.paid, order: 3 });
+    } else {
+      const v = itemVia(it);
+      if (v === 'revolut') mergeAdd(`rev:${ym}`, { key: `rev:${ym}`, ym, how: 'revolut', kind: 'do', title: 'Top up Revolut for the trip', order: 4 }, cost, it.n);
+      else add({ key: `pay:${it.id}`, ym, how: v, kind: 'do', item: it.id, title: `Pay for ${it.n}`, amount: cost, sub: VIA[v], done: !!it.paid, order: 3 });
+    }
+  });
+  Object.values(merge).forEach(m => { const what = m.whats.length > 3 ? `${m.whats.slice(0,3).join(', ')} and ${m.whats.length-3} more` : m.whats.join(', ').replace(/, ([^,]*)$/, ' and $1');
+    const low = m.whats.map(x => x.toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' and $1');
+    add({ ...m, amount: Math.round(m.amount*100)/100, sub: m.how === 'auto' ? `Comes out on its own. Covers your ${m.whats.length} Zilch booking${m.whats.length===1?'':'s'}` : m.how === 'revolut' ? `From the joint account, then spend in euros on ${low}` : `On payday, so it's there when needed. For ${what}`, done: !!done[m.key] }); });
+  (p.steps||[]).forEach(s => add({ ...s, done: !!done[s.key], order: s.order ?? 0 }));
+  const groups = {}; steps.forEach(s => (groups[s.ym] = groups[s.ym] || []).push(s));
+  return Object.keys(groups).sort().map(ym => ({ ym, steps: groups[ym].sort((a, b) => (a.kind === 'also') - (b.kind === 'also') || a.order - b.order) }));
+}
+const stepWho = s => s.kind === 'auto' ? '<span class="chip st-auto">Automatic</span>' : s.kind === 'also' ? '<span class="chip st-also">Car, not the trip</span>' : '';
+function stepRow(p, s) {
+  const col = STEP_COL[s.how] || STEP_COL.card, tick = s.kind !== 'also';
+  return `<div class="step ${s.done ? 'done' : ''} k-${s.kind}">
+    ${tick ? `<button type="button" class="st-tick" data-act="plstep" data-plan="${esc(p.id)}" data-key="${esc(s.key)}" ${s.item ? `data-item="${esc(s.item)}"` : ''} aria-pressed="${s.done}" aria-label="${s.done ? 'Done' : 'Mark done'}: ${esc(s.title)}">${s.done ? stepIcon('clear') : ''}</button>` : '<span class="st-tick ghost"></span>'}
+    <span class="st-ico" style="background:color-mix(in srgb,${col} 15%,transparent);color:${col}">${stepIcon(s.how)}</span>
+    <div class="grow"><div class="t">${esc(s.title)} ${stepWho(s)}</div>${s.sub ? `<div class="m">${esc(s.sub)}</div>` : ''}</div>
+    <div class="amt">${s.amount ? money(s.amount, s.amount % 1 ? 2 : 0) : ''}</div></div>`;
+}
+const payWhen = ym => { const cur = plCur(), d = ymDiff(cur, ym); return d === 0 ? 'Now' : d === 1 ? 'Next month' : d < 0 ? 'Done and dusted' : `In ${d} months`; };
+function stepsPanel(p) {
+  const groups = tripSteps(p), cur = plCur(); if (!groups.length) return '';
+  const all = groups.flatMap(g => g.steps.map(s => ({ ...s, ym: g.ym }))), todo = all.filter(s => s.kind === 'do' && !s.done);
+  const next = todo[0], left = todo.length;
+  const callout = next ? `<div class="st-next"><div class="st-nk">Next thing to do</div><div class="st-nt">${esc(next.title)}</div><div class="st-nm"><span class="st-pill" style="background:${STEP_COL[next.how]}">${next.how === 'zilch' ? 'Zilch' : next.how === 'pot' ? 'Holiday pot' : next.how === 'revolut' ? 'Revolut' : next.how === 'clear' ? 'Zilch app' : 'Card'}</span>${money(next.amount, next.amount % 1 ? 2 : 0)} · ${esc(next.ym === cur ? `from this month's pay` : `after the ${MONTHS[Number(next.ym.slice(5,7))-1]} payday`)}</div></div>`
+    : `<div class="st-next good"><div class="st-nk">All sorted</div><div class="st-nt">Everything for this trip is booked and paid. Enjoy it.</div></div>`;
+  return `<section class="panel steps"><h2>Step by step <span class="sub">${left ? `${left} thing${left===1?'':'s'} to do` : 'all done'}</span></h2>${callout}
+    ${groups.map(g => { const own = g.steps.filter(s => s.kind !== 'also'), tot = own.reduce((s, x) => s + (Number(x.amount)||0), 0), past = g.ym < cur && own.every(s => s.done);
+      return `<div class="st-group ${past ? 'past' : ''}"><div class="st-gh"><div><b>${MONTHS[Number(g.ym.slice(5,7))-1]} pay</b><span>${esc(payWhen(g.ym))} · lands around the 25th</span></div><em>${money(tot,0)}<small>going out</small></em></div>${g.steps.map(s => stepRow(p, s)).join('')}</div>`; }).join('')}
+    <details class="st-key"><summary>What the colours mean</summary>
+      <div class="step"><span class="st-ico" style="background:color-mix(in srgb,${STEP_COL.card} 15%,transparent);color:${STEP_COL.card}">${stepIcon('card')}</span><div class="grow"><div class="t">Card</div><div class="m">Pay in full with the joint account card. Done in one go.</div></div></div>
+      <div class="step"><span class="st-ico" style="background:color-mix(in srgb,${STEP_COL.zilch} 15%,transparent);color:${STEP_COL.zilch}">${stepIcon('zilch')}</span><div class="grow"><div class="t">Zilch</div><div class="m">Book with the Zilch card. A quarter comes out that day, and the rest comes out on its own over the next three months, with a small fee each time.</div></div></div>
+      <div class="step"><span class="st-ico" style="background:color-mix(in srgb,${STEP_COL.pot} 15%,transparent);color:${STEP_COL.pot}">${stepIcon('pot')}</span><div class="grow"><div class="t">Holiday pot</div><div class="m">Move the amount into the savings pot on payday, then pay from it when the time comes.</div></div></div>
+      <div class="step"><span class="st-ico" style="background:color-mix(in srgb,${STEP_COL.revolut} 15%,transparent);color:${STEP_COL.revolut}">${stepIcon('revolut')}</span><div class="grow"><div class="t">Revolut</div><div class="m">Top up from the joint account before you go, then spend in euros with no card fees.</div></div></div>
+    </details></section>`;
+}
+async function toggleStep(planId, key, itemId) {
+  const p = (S.plans||[]).find(x => x.id === planId); if (!p) return; const { id, ...rest } = p;
+  if (itemId) { const items = (p.items||[]).map(it => it.id === itemId ? (it.paid ? (({ paid, ...r }) => r)(it) : { ...it, paid: true }) : it); await put(`plans/${planId}`, { ...rest, items }); }
+  else { const done = { ...(p.done||{}) }; if (done[key]) delete done[key]; else done[key] = true; await put(`plans/${planId}`, { ...rest, done }); }
+}
+function nextJobs() {
+  const cur = plCur(), jobs = [];
+  (S.plans||[]).forEach(p => tripSteps(p).forEach(g => g.steps.forEach(s => { if (s.kind === 'do' && !s.done && g.ym <= ymAdd(cur, 1)) jobs.push({ p, s, ym: g.ym }); })));
+  jobs.sort((a, b) => a.ym < b.ym ? -1 : a.ym > b.ym ? 1 : a.s.order - b.s.order);
+  if (!jobs.length) return '';
+  return `<section class="panel steps"><h2>Money jobs coming up <span class="sub">this month and next</span></h2>${jobs.slice(0, 6).map(j => `<div class="st-mini"><span class="st-when">${j.ym === cur ? 'Now' : MONTHS[Number(j.ym.slice(5,7))-1].slice(0,3)}</span>${stepRow(j.p, j.s)}</div>`).join('')}
+    <div class="btnrow"><button class="btn small ghost" data-act="tab" data-v="trips">See every step in Trips</button></div></section>`;
 }
 
 /* ----- renewals ----- */
@@ -3329,6 +3443,7 @@ document.addEventListener('click', async e => {
   if (a==='trip') return tripForm(el.dataset.id);
   if (a==='pltab') { UI.pltab = el.dataset.v; return render(); }
   if (a==='ovm') { UI.ovm = el.dataset.v; return render(); }
+  if (a==='plstep') { el.disabled = true; return toggleStep(el.dataset.plan, el.dataset.key, el.dataset.item); }
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
