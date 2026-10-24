@@ -1320,14 +1320,15 @@ const ocHours = d => d.oncall ? span(d.oncall.start, d.oncall.end) : 0;
 function coDate(d, c) { const s = toMin(c.from), os = toMin(d.oncall ? d.oncall.start : (d.end || '00:00')); return (s!==null && os!==null && s < os) ? addDays(d.date,1) : d.date; }
 function coMult(d, c) { if (c.mult) return Number(c.mult); const cd = coDate(d,c); return (parse(cd).getDay()===0 || isBH(cd) || (cd===d.date && d.bh)) ? 2 : 1.5; }
 const coHours = c => span(c.from, c.to);
-const CO_BASE = 2; /* her standard call-out is 2 hours */
+const CO_BASE = 2; /* her standard call-out is 2 hours, and any call-out is paid as at least 2 hours */
+const coPaid = c => { const h = coHours(c); return h > 0 ? Math.max(h, Number(vk().coMin ?? CO_BASE)) : 0; };
 const addTime = (t, h) => { const m = toMin(t); if (m===null) return ''; const x = ((m + Math.round(Number(h)*60)) % 1440 + 1440) % 1440; return `${pad(Math.floor(x/60))}:${pad(x%60)}`; };
 const otMult = d => d.otMult ? Number(d.otMult) : (parse(d.date).getDay()===0 || isBH(d.date) || d.bh) ? 2 : 1.5;
 const bhRate = () => { const r = vk(); return r.bhUplift != null ? Number(r.bhUplift) : r.base * 0.5; };
 function vikiDay(d) {
   const r = vk(); const o = { hrs: shiftHours(d), ocH: ocHours(d), oc:0, h15:0, h2:0, co:0, otH:0, ot:0, bhH:0, bh:0 };
   o.oc = o.ocH * ocRate(d);
-  (d.callouts||[]).forEach(c => { const h = coHours(c), m = coMult(d,c); if (m===2) o.h2 += h; else o.h15 += h; o.co += h * r.base * m; });
+  (d.callouts||[]).forEach(c => { const h = coPaid(c), m = coMult(d,c); if (m===2) o.h2 += h; else o.h15 += h; o.co += h * r.base * m; });
   if (d.ot) { o.otH = Number(d.ot)||0; o.ot = o.otH * r.base * otMult(d); }
   if ((d.bh || isBH(d.date)) && d.status==='shift') { o.bhH = o.hrs; o.bh = o.hrs * bhRate(); }
   o.extra = o.oc + o.co + o.ot + o.bh; return o;
@@ -1434,7 +1435,7 @@ function claimRows(m) {
     const x = vikiDay(d), cos = d.callouts||[];
     const base = { date:d.date, day:DOWS[parse(d.date).getDay()].slice(0,3), start:d.oncall?hm(d.oncall.start):'', end:d.oncall?hm(d.oncall.end):'', hrs:d.oncall?fh(x.ocH):'', amt:d.oncall?x.oc:null, second:d.oncall&&d.oncall.kind==='second' };
     if (!cos.length) rows.push({...base, cont:false});
-    cos.forEach((c,i) => rows.push({...(i ? {date:d.date, day:'', start:'', end:'', hrs:'', amt:null} : base), cont: i>0, from:hm(c.from), to:hm(c.to), ch:fh(coHours(c)), mult:coMult(d,c), note:c.note||''}));
+    cos.forEach((c,i) => rows.push({...(i ? {date:d.date, day:'', start:'', end:'', hrs:'', amt:null} : base), cont: i>0, from:hm(c.from), to:hm(c.to), ch:fh(coPaid(c)), mult:coMult(d,c), note:c.note||''}));
   });
   return rows;
 }
@@ -1468,7 +1469,7 @@ function ratesPanel() {
     <div class="rates">
       ${tile('Salary', money(r.salary,2), `a month · ${money(r.base,2)}/h · 37.5h week`)}
       ${tile('On call', money(r.standby,2)+'/h', `weekday 13.5h = ${money(r.standby*13.5,2)}<br>weekend or bank hol 24h = ${money(r.standby*24,2)}`)}
-      ${tile('Call-out, Mon–Sat', money(r.base*1.5,2)+'/h', 'time and a half, hours actually worked')}
+      ${tile('Call-out, Mon–Sat', money(r.base*1.5,2)+'/h', `time and a half, minimum ${r.coMin ?? CO_BASE} hours each`)}
       ${tile('Call-out, Sun & bank hol', money(r.base*2,2)+'/h', 'double time')}
       ${tile('2nd on call', money(r.secondWD,2)+'/h', `weekend ${money(r.secondWE,2)}/h`)}
       ${tile('Pension', r.pension+'%', 'of salary and on call; call-outs aren\'t pensionable')}
@@ -1684,7 +1685,7 @@ function vikiDayForm(date) {
     <div class="tsec"><div class="tsec-h"><b>Call-outs</b><span class="pill g" id="vCoAmt">${fh(x.h15+x.h2)}h · ${money(x.co,2)}</span></div>
       ${draft.callouts.map((c,i) => `<div class="co"><div class="co-top"><span>Call-out ${i+1}</span><span><button type="button" class="multbtn" data-vm="${i}" title="Tap to switch rate">${coMult(draft,c)===2?'2×':'1.5×'}</button><button type="button" class="x" data-vx="${i}" aria-label="Remove call-out ${i+1}">×</button></span></div>
         <div class="fields3">${fld(`vCf${i}`,'From', c.from||'', 'time')}${fld(`vCt${i}`,'To', c.to||'', 'time')}${fld(`vCh${i}`,'Hours', c.from && c.to ? fh(coHours(c)) : CO_BASE, 'number','min="0.25" step="0.25" inputmode="decimal"')}</div>
-        <div class="cohrs"><span>${c.isNew ? `Set to her usual ${CO_BASE} hours. Different?` : 'Quick pick'}</span>${[1,2,3,4].map(h => `<button type="button" data-vh="${i}" data-v="${h}" aria-pressed="${c.from && c.to && coHours(c)===h}">${h}h</button>`).join('')}</div>
+        <div class="cohrs"><span id="vCp${i}">${c.from && c.to && coHours(c) < coPaid(c) ? `Worked ${coHours(c) < 1 ? Math.round(coHours(c)*60)+' min' : fh(coHours(c))+'h'}, paid as ${fh(coPaid(c))} hours (her minimum)` : c.isNew ? `Set to her usual ${CO_BASE} hours. Different?` : 'Quick pick'}</span>${[1,2,3,4].map(h => `<button type="button" data-vh="${i}" data-v="${h}" aria-pressed="${c.from && c.to && coHours(c)===h}">${h}h</button>`).join('')}</div>
         ${fld(`vCn${i}`,'Note (optional)', c.note||'', 'text','placeholder="e.g. emergency theatre"')}</div>`).join('')}
       <button type="button" class="btn ghost small" data-vadd="1">+ Add call-out</button>
     </div>
@@ -1721,7 +1722,8 @@ function vikiDayForm(date) {
     if (m) { const i = m[2], f = $(`#vCf${i}`), t = $(`#vCt${i}`), h = $(`#vCh${i}`);
       if ((m[1]==='f' || m[1]==='h') && f.value) { const hrs = num(h.value); if (hrs && hrs > 0) t.value = addTime(f.value, hrs); }
       else if (m[1]==='t' && f.value && t.value) h.value = fh(span(f.value, t.value));
-      box.querySelectorAll(`[data-vh="${i}"]`).forEach(x => x.setAttribute('aria-pressed', String(num(h.value) === Number(x.dataset.v)))); }
+      box.querySelectorAll(`[data-vh="${i}"]`).forEach(x => x.setAttribute('aria-pressed', String(num(h.value) === Number(x.dataset.v))));
+      const cp = $(`#vCp${i}`), c = { from:f.value, to:t.value }; if (cp && c.from && c.to) cp.textContent = coHours(c) < coPaid(c) ? `Worked ${coHours(c) < 1 ? Math.round(coHours(c)*60)+' min' : fh(coHours(c))+'h'}, paid as ${fh(coPaid(c))} hours (her minimum)` : 'Quick pick'; }
     refresh(); });
   box.addEventListener('change', refresh);
   box.addEventListener('click', e => {
@@ -1751,7 +1753,7 @@ function vikiRatesForm() {
     ${fld('rCut','Claim month starts on day (0 = calendar month)', r.cutoff ?? 25, 'number','step="1" min="0" max="28" inputmode="numeric"')}
     <div class="fields2">${fld('rBh','Bank holiday uplift (£/h)', r.bhUplift ?? (r.base*0.5).toFixed(2), 'number','step="0.01" inputmode="decimal"')}${fld('rLh','Annual leave (hours a year)', r.leaveHours ?? '', 'number','step="0.5" inputmode="decimal"')}</div>
     ${sel('rLs','Leave year starts', r.leaveStart || 4, MONTHS.map((x,i)=>[i+1,x]))}
-    <p class="note">Call-outs are worked out from the basic rate: ${money(r.base*1.5,2)}/h Monday to Saturday and ${money(r.base*2,2)}/h on Sundays and bank holidays.</p>`, async () => {
+    <p class="note">Call-outs are worked out from the basic rate: ${money(r.base*1.5,2)}/h Monday to Saturday and ${money(r.base*2,2)}/h on Sundays and bank holidays, and each one is paid as at least ${r.coMin ?? CO_BASE} hours.</p>`, async () => {
     const out = {...(S.settings.viki||{})};
     const map = { salary:'rSal', base:'rBase', standby:'rSb', pension:'rPen', secondWD:'rS2', secondWE:'rS2w', taxCode:'rTax' };
     for (const [k,id] of Object.entries(map)) { const n = num(v(id)); if (n===null || n<0) throw new Error('Each rate needs a number'); out[k] = n; }
