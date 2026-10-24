@@ -3545,13 +3545,13 @@ function openSlots(fromToday = true) {
   const cur = plCur(), t = today();
   return [...shopSlots(cur), ...shopSlots(ymAdd(cur, 1))].filter(s => !shopDone(s.ym, s.slot) && (!fromToday || addDays(s.d, 6) >= t));
 }
-const nextShop = () => openSlots()[0] || null;
+const nextShop = () => { const o = openSlots(); return o.find(s => !s.big || addDays(s.d, 2) >= today()) || o[0] || null; };
 function planCuts(amount, cover, skip) {
   let left = Math.round(amount * 100) / 100; const cuts = [];
   const room = s => Math.max(0, shopTarget(s, skip) - cuts.filter(c => c.ym === s.ym && c.slot === s.slot).reduce((t, c) => t + c.a, 0) - s.base * SHOP_FLOOR);
   const take = (s, want) => { const a = Math.round(Math.min(want, room(s)) * 100) / 100; if (a > 0) { const c = cuts.find(x => x.ym === s.ym && x.slot === s.slot); if (c) c.a = Math.round((c.a + a) * 100) / 100; else cuts.push({ ym: s.ym, slot: s.slot, a }); left = Math.round((left - a) * 100) / 100; } };
-  const slots = openSlots();
-  if (cover === 'spread') { const cur = plCur(), mine = slots.filter(s => s.ym === cur), use = mine.length ? mine : slots.slice(0, 1); const each = left / Math.max(1, use.length); use.forEach(s => take(s, each)); }
+  const slots = openSlots().filter(s => !s.big); // extra spends come off the weekly shops, never the big monthly one
+  if (cover === 'spread') { const cur = plCur(), mine = slots.filter(s => s.ym === cur), use = mine.length ? mine : slots.slice(0, 1); const each = Math.floor(left / Math.max(1, use.length) * 100) / 100; use.forEach((s, i) => take(s, i === use.length - 1 ? left : each)); }
   if (cover === 'food' || cover === 'spread') for (const s of slots) { if (left <= 0) break; take(s, left); }
   return { cuts, extra: left > 0.004 ? left : 0 };
 }
