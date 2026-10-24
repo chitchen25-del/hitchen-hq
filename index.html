@@ -1148,6 +1148,30 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .vcon .tb-side .big{white-space:nowrap}
 .vcon .tb-cell .vl small.sub{color:var(--good)}
 .vcon .tb-cell:first-child .vl small.sub{color:var(--muted)}
+
+/* Car: photo hero */
+.carhero{position:relative;isolation:isolate;overflow:hidden;border-radius:var(--r-panel);min-height:440px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 18px 40px -18px rgba(40,20,0,.55),0 2px 6px rgba(8,16,26,.12);background:#1d1a17}
+.ch-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transform-origin:75% 60%}
+@media (prefers-reduced-motion:no-preference){.ch-img{animation:chDrift 22s ease-in-out infinite alternate}@keyframes chDrift{from{transform:scale(1.02)}to{transform:scale(1.1) translate(-1.5%,-1%)}}}
+.ch-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(20,12,4,.38) 0%,rgba(20,12,4,0) 26%,rgba(10,8,8,0) 46%,rgba(10,10,14,.55) 68%,rgba(8,9,12,.88) 100%)}
+.ch-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 14px 0}
+.ch-badge{font-size:.74rem;font-weight:650;letter-spacing:.02em;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);border:1px solid rgba(255,255,255,.22);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ch-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.18);color:#fff;font:inherit;font-size:.8rem;font-weight:700;padding:8px 12px;min-height:36px;border-radius:999px;cursor:pointer;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);flex:none}
+.ch-btn:active{transform:scale(.97)}
+.ch-body{padding:0 16px 16px;display:flex;flex-direction:column;gap:2px}
+.ch-k{font-size:.82rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:#FFD9A8;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.ch-miles{font-size:1.05rem;font-weight:600;color:rgba(255,255,255,.9);text-shadow:0 2px 14px rgba(0,0,0,.45)}
+.ch-miles b{font-size:2.9rem;font-weight:800;letter-spacing:-.04em;line-height:1;color:#fff;margin-right:4px;font-variant-numeric:tabular-nums}
+.ch-asof{font-size:.76rem;color:rgba(255,255,255,.72)}
+.ch-glass{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.ch-g{display:flex;flex-direction:column;gap:2px;min-width:0;padding:10px 10px 11px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5)}
+.ch-g.warn{background:rgba(255,145,60,.24);border-color:rgba(255,190,130,.45)}
+.ch-g.ok .ch-gv{color:#B8F5D0}
+.ch-gl{font-size:.7rem;font-weight:650;color:rgba(255,255,255,.75);white-space:nowrap}
+.ch-gv{font-size:1.02rem;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-gv small{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.75)}
+.ch-gs{font-size:.7rem;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-foot{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:12px;font-size:.72rem;color:rgba(255,255,255,.62)}
 </style>
 </head>
 <body>
@@ -1262,6 +1286,7 @@ function applyLocal(path, data) {
   else if (c === 'settings') S.settings = data || {};
   else if (c === 'budget') S.budget = data || {cats:[]};
   else if (c === 'car') S.car = data || {};
+  else if (c === 'media') { S.media = S.media || {}; if (data) S.media[id] = data; else delete S.media[id]; }
   else if (c === 'stmt') { if (id==='meta') S.stmtMeta = data; else if (data) S.stmt[id] = data; else delete S.stmt[id]; }
   else if (c === 'leave') S.leave = data || null;
   else if (c === 'pot') S.pot = data || {entries:[]};
@@ -1275,12 +1300,13 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{} });
 }
 function snapshotRows() {
   const rows = [];
   rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d]));
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
+  Object.entries(S.media || {}).forEach(([id,d]) => rows.push([`media/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
   return rows;
 }
@@ -4294,6 +4320,26 @@ function fuelChart() {
   return `<section class="panel"><h2>Fuel by month</h2>${barChart(rows, { label:'Fuel spending by month' })}</section>`;
 }
 
+/* the car photo lives in the private database (media/car-hero) as base64; turned into a blob URL once */
+const CAR_IMG = { key:'', url:'' };
+function carPhoto() {
+  const m = (S.media || {})['car-hero']; if (!m || !m.b64) return null;
+  const key = `${m.b64.length}:${m.b64.slice(-24)}`;
+  if (CAR_IMG.key !== key) {
+    try { const bin = atob(m.b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      if (CAR_IMG.url) URL.revokeObjectURL(CAR_IMG.url); CAR_IMG.url = URL.createObjectURL(new Blob([u8], { type: m.mime || 'image/webp' })); CAR_IMG.key = key; }
+    catch (e) { return null; }
+  }
+  return { url: CAR_IMG.url, focus: m.focus || '72% 55%' };
+}
+let milesCounted = false;
+function milesCountUp() {
+  const el = document.querySelector('[data-miles]'); if (!el || milesCounted) return; milesCounted = true;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const target = Number(el.dataset.miles) || 0, from = Math.max(0, target - 1800), start = performance.now(), dur = 1100;
+  const step = now => { const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(from + (target - from) * e).toLocaleString('en-GB'); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 function viewCar() {
   const segs = [['service','Service log'],['checks','Checks and dates'],['fuel','Fuel and costs'],['docs','Documents'],['trip','Paris trip']];
   const seg = `<div class="seg" role="group" aria-label="Car section">${segs.map(([k,l]) => `<button data-act="cseg" data-v="${k}" aria-pressed="${UI.carSeg===k}">${l}</button>`).join('')}</div>`;
@@ -4304,12 +4350,32 @@ function viewCar() {
   const remDue = S.carrem.map(c => ({ c, st: carRemStatus(c) })).filter(x => x.st.cls!=='ok');
   const nextRem = S.carrem.filter(c => c.date && c.date >= today()).sort((a,b) => a.date < b.date ? -1 : 1)[0];
   const cc = carCosts();
-  const hero = tblock({ kicker:'2018 Range Rover Evoque Landmark, TD4 180', title: S.car.mileage ? `${Number(S.car.mileage).toLocaleString('en-GB')} miles` : 'Add the mileage',
+  const heroPlain = tblock({ kicker:'2018 Range Rover Evoque Landmark, TD4 180', title: S.car.mileage ? `${Number(S.car.mileage).toLocaleString('en-GB')} miles` : 'Add the mileage',
     side: `<button class="btn small ghost" data-act="mileage">Update</button>`,
     cells: [ tbCell('Due now', due.length ? `<span style="color:var(--red)">${due.length}</span> <small>check${due.length===1?'':'s'}</small>` : 'Nothing', due.length ? 'var(--red)' : 'var(--good-bar)'),
              tbCell('Running cost', cc.ppm ? `${(cc.ppm*100).toFixed(1)}p <small>a mile</small>` : mpgs.length ? `${(mpgs.reduce((a,b)=>a+b,0)/mpgs.length).toFixed(1)} <small>mpg</small>` : '<small>Log fill-ups</small>', 'var(--gold-bar)'),
              tbCell('Next date', nextRem ? `${esc(dayShort(nextRem.date).slice(4))}<small class="sub">${esc(nextRem.name)}</small>` : nextJob ? `${esc(dayShort(nextJob.date).slice(4))}<small class="sub">Booked job</small>` : '<small>Add renewals</small>', remDue.length ? 'var(--gold-bar)' : 'var(--chris-bar)') ],
     foot: `<span>Oil 0W-30 to STJLR.03.5007</span><span>No software updates on the engine module (remapped)</span>` });
+  const ph = carPhoto(), miles = Number(S.car.mileage) || 0;
+  const avgMpg = mpgs.length ? mpgs.reduce((a,b)=>a+b,0)/mpgs.length : 0;
+  const glass = (lb, vl, sub, tone='') => `<div class="ch-g ${tone}"><span class="ch-gl">${lb}</span><span class="ch-gv">${vl}</span>${sub ? `<span class="ch-gs">${sub}</span>` : ''}</div>`;
+  const hero = !ph ? heroPlain : `<section class="carhero" aria-label="The car">
+    <img class="ch-img" src="${ph.url}" alt="Grey Range Rover Evoque on a clifftop at sunset" style="object-position:${esc(ph.focus)}" decoding="async">
+    <div class="ch-shade" aria-hidden="true"></div>
+    <div class="ch-top"><span class="ch-badge">2018 · Landmark · TD4 180</span><button class="ch-btn" data-act="mileage" aria-label="Update mileage"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Mileage</button></div>
+    <div class="ch-body">
+      <span class="ch-k">Range Rover Evoque</span>
+      <span class="ch-miles">${miles ? `<b data-miles="${miles}">${miles.toLocaleString('en-GB')}</b> miles` : '<b>Add the mileage</b>'}</span>
+      ${S.car.mileageDate ? `<span class="ch-asof">as of ${esc(dayShort(S.car.mileageDate))}</span>` : ''}
+      <div class="ch-glass">
+        ${glass('Due now', due.length ? `${due.length} <small>check${due.length===1?'':'s'}</small>` : 'All clear', due.length ? 'See Checks' : 'Nothing overdue', due.length ? 'warn' : 'ok')}
+        ${glass('Running cost', cc.ppm ? `${(cc.ppm*100).toFixed(1)}p <small>/mile</small>` : avgMpg ? `${avgMpg.toFixed(1)} <small>mpg</small>` : '–', cc.ppm || avgMpg ? (avgMpg && cc.ppm ? `${avgMpg.toFixed(1)} mpg` : '') : 'Log a fill-up')}
+        ${glass('Next date', nextRem ? esc(dayShort(nextRem.date).slice(4)) : nextJob ? esc(dayShort(nextJob.date).slice(4)) : '–', nextRem ? esc(nextRem.name) : nextJob ? 'Booked job' : 'Add renewals', remDue.length ? 'warn' : '')}
+      </div>
+      <div class="ch-foot"><span>Oil 0W-30 · STJLR.03.5007</span><span>Remapped: no ECU updates</span></div>
+    </div>
+  </section>`;
+  if (ph && miles) setTimeout(milesCountUp, 30);
   return hero + seg + ({service:viewService, checks:viewChecks, fuel:viewFuel, docs:() => docsPanel('car'), trip:viewTrip}[UI.carSeg] || viewService)();
 }
 function viewService() {
