@@ -77,6 +77,9 @@ const lc = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
 function moneyJobs(D: any, ym: string) {
   const jobs: string[] = [];
   for (const p of D.plans) { const done = p.done || {};
+    if (p.kind === 'christmas') { const due = (p.items || []).filter((it: any) => it.ym === ym);
+      const tot = due.reduce((t: number, it: any) => t + Math.max(Number(it.a) || 0, (it.gifts || []).reduce((g: number, x: any) => g + (Number(x.a) || 0), 0)), 0);
+      if (tot) jobs.push(`Christmas shopping (${money(tot)} budget)`); continue; }
     for (const s of (p.steps || [])) if (s.kind === 'do' && s.ym === ym && !done[s.key]) jobs.push(lc(s.title));
     for (const it of (p.items || [])) { const a = Number(it.a) || 0; if (it.paid || it.ym !== ym || !a) continue;
       if (it.how === 'zilch') jobs.push(`book ${it.n} on Zilch`);

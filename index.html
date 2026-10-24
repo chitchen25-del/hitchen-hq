@@ -648,6 +648,49 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .hcard.t-night{background:linear-gradient(135deg,#141B3D,#2C2F7A 60%,#5B48B5)}
 .hcard.t-good{background:linear-gradient(135deg,#0A5A31,#0B7A3E 50%,#33B679)}
 .hcard .st-nt{font-size:1.6rem}
+.hcard.t-xmas{background:radial-gradient(120% 90% at 100% 0%,rgba(255,211,107,.28),transparent 55%),linear-gradient(135deg,#5A0B16,#A51C2B 55%,#D8452F)}
+.panel.xmas{padding:0}
+.xl{padding:4px 14px 12px}
+.xl-h{display:flex;justify-content:space-between;align-items:baseline;font-size:.76rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:14px 2px 6px}
+.xl-h span{letter-spacing:0;text-transform:none;font-weight:700}
+.xp{border:1px solid var(--rule);border-radius:16px;margin-bottom:8px;background:var(--sheet);overflow:hidden;transition:box-shadow .2s}
+.xp.open{box-shadow:var(--shadow);border-color:var(--rule-2)}
+.xp-head{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:0;background:none;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.xp-head .t{font-weight:800;font-size:1.02rem}
+.xp-head .m{font-size:.8rem;color:var(--muted);margin-top:4px}
+.xp-av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff;font-weight:800;font-size:1.05rem;box-shadow:inset 0 -2px 0 rgba(0,0,0,.15)}
+.xp-av.ico{border-radius:12px;box-shadow:none}.xp-av.ico svg{width:20px;height:20px}
+.xp-bar{height:6px;border-radius:99px;background:var(--sheet-2);overflow:hidden;margin-top:6px}
+.xp-bar i{display:block;height:100%;border-radius:99px;transition:width .35s ease}
+.xp-bar.over i{background:var(--red)}
+.xp-left{text-align:right;flex:none;min-width:58px}
+.xp-left b{display:block;font-size:1.05rem;font-weight:800;font-variant-numeric:tabular-nums}
+.xp-left small{display:block;font-size:.72rem;color:var(--muted);font-weight:600}
+.xr-over{color:var(--red)}.xr-done{color:var(--good)}
+.xp-chev{width:18px;height:18px;flex:none;color:var(--muted);transition:transform .2s}
+.xp.open .xp-chev{transform:rotate(180deg)}
+.xp-body{padding:0 12px 12px;border-top:1px solid var(--rule)}
+.xg-list{padding-top:4px}
+.xg{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--rule)}
+.xg .st-tick{width:24px;height:24px}
+.xg-n{flex:1;min-width:0;border:0;background:none;text-align:left;font:inherit;color:inherit;padding:2px 0;cursor:pointer}
+.xg-n span{display:block;font-weight:650}
+.xg-n small{display:block;font-size:.78rem;color:var(--muted)}
+.xg.got .xg-n span{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+.xg b{font-variant-numeric:tabular-nums;font-weight:800}.xg b em{font-style:normal;color:var(--muted);font-weight:600}
+.xp-empty{color:var(--muted);font-size:.88rem;margin:10px 0 4px}
+.xadd,.xperson{display:flex;gap:8px;align-items:center;margin-top:10px}
+.xadd input,.xperson input{min-width:0;border:1px solid var(--rule-2);border-radius:12px;padding:10px 12px;font:inherit;background:var(--sheet);color:inherit}
+.xadd>input,.xperson>input{flex:1}
+.xadd-a{position:relative;flex:none;width:84px}
+.xadd-a i{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--muted);font-weight:700;pointer-events:none}
+.xadd-a input{width:100%;padding-left:22px}
+.xperson{margin:4px 0 2px}
+.xperson .xadd-a{width:104px}
+.xperson input{border-style:dashed}
+.xp-run{margin-top:10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--good) 10%,transparent);font-size:.92rem}
+.xp-run b{font-weight:800}
+.xp-foot{display:flex;justify-content:flex-end;margin-top:8px}
 .hc-act{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .hc-btn{border:0;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-weight:800;font-size:.9rem;padding:9px 14px;border-radius:999px;cursor:pointer}
 .hc-btn:first-child{background:#fff;color:#14263A}
@@ -2550,7 +2593,7 @@ const payYm = d => { const x = parse(d); return x.getDate() >= 25 ? ymOf(d) : ym
 const mon3 = ym => MONTHS[Number(ym.slice(5,7))-1].slice(0,3);
 const plCur = () => ymOf(today());
 function plItemPays(it, p) {
-  const cost = Number(it.a)||0, ym = it.ym || plCur(); if (!cost) return [];
+  const cost = itemCost(it), ym = it.ym || plCur(); if (!cost) return [];
   if (it.how === 'zilch') { const z = zilchPlan(cost, { avail: zs().limit, start: `${ym}-01` }); return z ? z.pays.map(x => ({ ym: ymOf(x.date), amount: x.amount })) : []; }
   if (it.paid) return [];
   if (it.how === 'once') return [{ ym, amount: cost }];
@@ -2565,7 +2608,7 @@ function plannerMonth(ym) {
   return { rows, total: Math.round(rows.reduce((s,r) => s + r.amount, 0)*100)/100 };
 }
 function plStats(p) {
-  const items = p.items||[], cost = items.reduce((s,i) => s + (Number(i.a)||0), 0), paid = items.filter(i => i.paid).reduce((s,i) => s + (Number(i.a)||0), 0);
+  const items = p.items||[], cost = items.reduce((s,i) => s + itemCost(i), 0), paid = p.kind === 'christmas' ? items.reduce((s,i) => s + giftsOf(i).filter(g => g.got).reduce((t,g) => t + (Number(g.a)||0), 0), 0) : items.filter(i => i.paid).reduce((s,i) => s + itemCost(i), 0);
   const fees = items.filter(i => i.how==='zilch').reduce((s,i) => { const z = zilchPlan(Number(i.a)||0, { avail: zs().limit }); return s + (z ? z.fee : 0); }, 0);
   const pays = plPays(p), cur = plCur(), future = Object.entries(pays).filter(([ym]) => ym >= cur).sort();
   return { cost, paid, fees, future, toPay: future.reduce((s,[,a]) => s + a, 0) };
@@ -2594,7 +2637,7 @@ function viewPlanner() {
   const k = PL_KINDS.some(x => x[0]===UI.pltab) ? UI.pltab : 'summer', label = PL_KINDS.find(x => x[0]===k)[1];
   const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of trip">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => (p.kind||'summer')===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}">${l}${n ? ` (${n})` : ''}</button>`; }).join('')}</div>`;
   const list = (S.plans||[]).filter(p => (p.kind||'summer')===k).sort((a,b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
-  return tabs + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add a ${esc(label.toLowerCase().replace(/s$/,''))}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plOverview();
+  return tabs + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">${k === 'christmas' ? 'Add another Christmas' : `Add a ${esc(label.toLowerCase().replace(/s$/,''))}`}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plOverview();
 }
 function tripPlanForm(id, kind) {
   const p = (S.plans||[]).find(x => x.id===id) || { kind: kind || UI.pltab || 'summer', saveFrom: plCur() };
@@ -2741,7 +2784,7 @@ function tripHero(p, st, opts = {}) {
     <div class="th-foot"><div class="th-prog"><div class="th-pt">${money(st.paid,0)} of ${money(st.cost + st.fees,0)} sorted</div><div class="th-bar"><i style="width:${Math.round(Math.min(1, sorted)*100)}%"></i></div></div>${opts.mini ? '' : ring(sorted, 58, '#FFD36B')}</div></${opts.tag||'section'}>`;
 }
 function tripCatParts(p) {
-  const by = {}; (p.items||[]).forEach(it => { const c = itemCat(it); by[c] = (by[c]||0) + (Number(it.a)||0); });
+  const by = {}; (p.items||[]).forEach(it => { const c = itemCat(it); by[c] = (by[c]||0) + itemCost(it); });
   const parts = TCAT.filter(c => by[c[0]]).map(c => ({ k: c[0], name: c[1], c: c[2], v: by[c[0]] }));
   const fees = plStats(p).fees; if (fees > 0.5) parts.push({ k: 'fees', name: 'Zilch fees', c: '#A9B1BF', v: fees });
   return parts;
@@ -2761,15 +2804,84 @@ function plPanel(p) {
   const hero = items.filter(it => it.img).slice(0, 3);
   return `${tripHero(p, st)}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
-    ${stepsPanel(p)}
-    ${p.kind === 'christmas' ? '' : tripMoney(p) + tripDays(p)}
+    ${p.kind === 'christmas' ? xmasList(p) : stepsPanel(p) + tripMoney(p) + tripDays(p)}
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
-    ${st.future.length ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
-    <section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
+    ${st.future.length && p.kind !== 'christmas' ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
+    ${p.kind === 'christmas' ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
     ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
     <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
     ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
-  </section>${p.kind === 'christmas' ? '' : tripDocs(p)}`;
+  </section>${tripDocs(p)}`}`;
+}
+
+/* ===== Christmas list: one row per person; tap to open, add presents, running totals ===== */
+const giftsOf = it => Array.isArray(it && it.gifts) ? it.gifts : [];
+const giftSpent = it => Math.round(giftsOf(it).reduce((s, g) => s + (Number(g.a)||0), 0) * 100) / 100;
+const itemCost = it => Math.max(Number(it.a)||0, giftSpent(it));
+const m2 = x => money(x, Math.abs(x % 1) > 0.004 ? 2 : 0);
+const XAV = ['#C62828','#1F7A55','#B8860B','#3F6FD8','#7E4CC9','#D2477A','#16897F','#D9771E'];
+const xName = n => String(n||'').replace(/^presents?\s+for\s+/i, '').trim() || n;
+const xIsPerson = it => /^presents?\s+for\s+/i.test(it.n||'') || (itemCat(it) === 'gift' && !/stocking|wrapping|cards/i.test(it.n||''));
+const XCHEV = '<svg class="xp-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+function xmasRow(p, it, i) {
+  const gifts = giftsOf(it), bud = Number(it.a)||0, spent = giftSpent(it), left = Math.round((bud - spent) * 100) / 100, open = UI.xopen === it.id;
+  const person = xIsPerson(it), name = person ? xName(it.n) : it.n, col = XAV[i % XAV.length], got = gifts.filter(g => g.got).length;
+  const pct = bud ? Math.min(1, spent / bud) : (spent ? 1 : 0), over = left < -0.004;
+  const status = over ? `<b class="xr-over">${m2(-left)}</b><small>over</small>` : gifts.length && left < 0.5 ? `<b class="xr-done">Done</b><small>on budget</small>` : `<b>${m2(left)}</b><small>left</small>`;
+  const meta = gifts.length ? `${m2(spent)} of ${m2(bud)} · ${gifts.length} ${person ? `present${gifts.length===1?'':'s'}` : `thing${gifts.length===1?'':'s'}`}${got ? ` · ${got === gifts.length ? 'all' : got} bought` : ''}` : `${m2(bud)} to spend · nothing added yet`;
+  const av = person ? `<span class="xp-av" style="background:${col}">${esc(name.charAt(0).toUpperCase())}</span>` : `<span class="xp-av ico" style="background:color-mix(in srgb,${TCATI[itemCat(it)][2]} 16%,transparent);color:${TCATI[itemCat(it)][2]}">${tcatIcon(itemCat(it))}</span>`;
+  const body = !open ? '' : `<div class="xp-body">
+    ${gifts.length ? `<div class="xg-list">${gifts.map(g => `<div class="xg ${g.got ? 'got' : ''}"><button type="button" class="st-tick" data-act="xgot" data-plan="${esc(p.id)}" data-item="${esc(it.id)}" data-g="${esc(g.id)}" aria-pressed="${!!g.got}" aria-label="${g.got ? 'Bought' : 'Mark bought'}: ${esc(g.n)}">${g.got ? stepIcon('clear') : ''}</button><button type="button" class="xg-n" data-act="xgift" data-plan="${esc(p.id)}" data-item="${esc(it.id)}" data-g="${esc(g.id)}"><span>${esc(g.n)}</span>${g.note ? `<small>${esc(g.note)}</small>` : ''}</button><b>${Number(g.a) ? m2(Number(g.a)) : '<em>£?</em>'}</b></div>`).join('')}</div>` : `<p class="xp-empty">${person ? `Nothing for ${esc(name)} yet. Add the first present below.` : 'Nothing added yet.'}</p>`}
+    <form class="xadd" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" autocomplete="off"><input name="n" aria-label="Present" placeholder="${person ? `Add a present for ${esc(name)}` : 'Add something'}" enterkeyhint="next"><span class="xadd-a"><i>£</i><input name="a" aria-label="Cost in pounds" inputmode="decimal" placeholder="0" enterkeyhint="done"></span><button class="btn small" type="submit">Add</button></form>
+    <div class="xp-run" data-left="${left}">${over ? `<b class="xr-over">${m2(-left)} over</b> ${esc(person ? `${name}'s` : 'the')} budget of ${m2(bud)}` : `<b>${m2(left)} left</b> of ${esc(person ? `${name}'s` : 'the')} ${m2(bud)}`}</div>
+    <div class="xp-foot"><button type="button" class="btn small ghost" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}">Change budget</button></div></div>`;
+  return `<div class="xp ${open ? 'open' : ''}"><button type="button" class="xp-head" data-act="xopen" data-id="${esc(it.id)}" aria-expanded="${open}">${av}<div class="grow"><div class="t">${esc(name)}</div><div class="xp-bar ${over ? 'over' : ''}"><i style="width:${Math.round(pct*100)}%;${over ? '' : `background:${person ? col : TCATI[itemCat(it)][2]}`}"></i></div><div class="m">${meta}</div></div><div class="xp-left">${status}</div>${XCHEV}</button>${body}</div>`;
+}
+function xmasList(p) {
+  const items = p.items||[], bud = items.reduce((s, i) => s + (Number(i.a)||0), 0), spent = items.reduce((s, i) => s + giftSpent(i), 0);
+  const left = Math.round((bud - spent) * 100) / 100, gifts = items.flatMap(giftsOf), got = gifts.filter(g => g.got).length;
+  const people = items.filter(xIsPerson), others = items.filter(i => !xIsPerson(i)), ym = (items[0] && items[0].ym) || plCur();
+  const overBy = items.reduce((s, i) => s + Math.max(0, giftSpent(i) - (Number(i.a)||0)), 0);
+  const card = headCard({ tone: 'xmas', kicker: 'Christmas list', title: left >= 0 ? `${m2(left)} left to spend` : `${m2(-left)} over budget`,
+    meta: `<span class="st-pill" style="background:rgba(255,255,255,.22)">${m2(spent)} of ${m2(bud)}</span>${gifts.length ? `${gifts.length} present${gifts.length===1?'':'s'} picked · ${got} bought` : 'Tap a name to start adding presents'}`,
+    body: `<div class="hc-prog"><i style="width:${bud ? Math.min(100, Math.round(spent / bud * 100)) : 0}%"></i></div><div class="hc-note">From the ${monShort(ym)} pay, on the card.${overBy > 0.5 ? ` ${m2(overBy)} over on some people, so the ${monShort(ym)} Budget Sheet counts that extra.` : ' Go over on anyone and the extra shows up in that month\'s Budget Sheet.'}</div>` });
+  return `<section class="panel nopad xmas">${card}<div class="xl">
+    ${people.length ? `<div class="xl-h">Presents <span>${people.length} ${people.length === 1 ? 'person' : 'people'}</span></div>${people.map((it, i) => xmasRow(p, it, i)).join('')}` : ''}
+    <form class="xperson" data-plan="${esc(p.id)}" autocomplete="off"><input name="n" aria-label="Who" placeholder="Add someone"><span class="xadd-a"><i>£</i><input name="a" aria-label="Their budget in pounds" inputmode="decimal" placeholder="Budget"></span><button class="btn small ghost" type="submit">Add</button></form>
+    ${others.length ? `<div class="xl-h">Everything else <span>${m2(others.reduce((s, i) => s + itemCost(i), 0))}</span></div>${others.map((it, i) => xmasRow(p, it, i)).join('')}` : ''}
+    <div class="zchips" style="margin:10px 0 4px">${['Stocking fillers','Wrapping and cards','Christmas day out'].concat(others.some(i => /food/i.test(i.n)) ? [] : ['Christmas food']).filter(n => !items.some(i => i.n === n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
+  </div></section>`;
+}
+async function xSaveItem(planId, itemId, fn) {
+  const p = (S.plans||[]).find(x => x.id === planId); if (!p) return; const { id, ...rest } = p;
+  await put(`plans/${planId}`, { ...rest, items: (p.items||[]).map(it => it.id === itemId ? fn(it) : it) });
+}
+function xGiftForm(planId, itemId, gid) {
+  const p = (S.plans||[]).find(x => x.id === planId), it = p && (p.items||[]).find(x => x.id === itemId), g = it && giftsOf(it).find(x => x.id === gid); if (!g) return;
+  openSheet(g.n, fld('xgN', 'Present', g.n) + fld('xgA', 'Cost (£)', g.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"') + fld('xgW', 'Where from or a note', g.note || '', 'text', 'placeholder="e.g. Smyths, or Amazon basket"') + `<label class="toggle"><input type="checkbox" id="xgG" ${g.got ? 'checked' : ''}> Bought</label>`, async () => {
+    const n = v('xgN').trim(), a = num(v('xgA')); if (!n) throw new Error('Say what the present is');
+    const x = { id: g.id, n, a: a && a > 0 ? a : 0 }; if (v('xgW').trim()) x.note = v('xgW').trim(); if ($('#xgG').checked) x.got = true;
+    await xSaveItem(planId, itemId, it => ({ ...it, gifts: giftsOf(it).map(y => y.id === gid ? x : y) }));
+  }, { onDelete: () => xSaveItem(planId, itemId, it => ({ ...it, gifts: giftsOf(it).filter(y => y.id !== gid) })) });
+}
+async function xAddGift(form) {
+  const n = (form.n.value||'').trim(), a = num(form.a.value); if (!n) { form.n.focus(); return; }
+  const planId = form.dataset.plan, itemId = form.dataset.id; form.n.value = ''; form.a.value = '';
+  await xSaveItem(planId, itemId, it => ({ ...it, gifts: [...giftsOf(it), { id: uid('g'), n, a: a && a > 0 ? a : 0 }] }));
+  setTimeout(() => { const f = document.querySelector(`form.xadd[data-id="${itemId}"]`); if (f) f.n.focus(); }, 60);
+}
+async function xAddPerson(form) {
+  const n = (form.n.value||'').trim(), a = num(form.a.value); if (!n) { form.n.focus(); return; }
+  const p = (S.plans||[]).find(x => x.id === form.dataset.plan); if (!p) return; const { id, ...rest } = p, first = (p.items||[])[0] || {};
+  const it = { id: uid('pi'), n: /^presents?\s+for/i.test(n) ? n : `Presents for ${n}`, a: a && a > 0 ? a : 0, how: 'once', ym: first.ym || plCur(), via: 'card', cat: 'gift' };
+  UI.xopen = it.id; await put(`plans/${p.id}`, { ...rest, items: [...(p.items||[]), it] });
+}
+function xRunPreview(inp) {
+  const form = inp.closest('form.xadd'), run = form && form.parentNode.querySelector('.xp-run'); if (!run) return;
+  if (!run.dataset.base) run.dataset.base = run.innerHTML; const add = num(inp.value), left = Number(run.dataset.left);
+  if (!add || add <= 0) { run.innerHTML = run.dataset.base; return; }
+  const after = Math.round((left - add) * 100) / 100;
+  run.innerHTML = after >= 0 ? `<b>${m2(after)} left</b> after this one` : `<b class="xr-over">${m2(-after)} over</b> with this one`;
 }
 
 /* ----- money: where it goes ----- */
@@ -2858,7 +2970,7 @@ const stepIcon = h => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor
 function tripSteps(p) {
   const steps = [], add = s => steps.push(s), done = p.done || {}, merge = {};
   const mergeAdd = (key, base, amount, what) => { const m = merge[key] || (merge[key] = { ...base, amount: 0, whats: [] }); m.amount += amount; m.whats.push(what); };
-  (p.items||[]).forEach(it => { const cost = Number(it.a)||0, ym = it.ym || plCur(); if (!cost) return;
+  (p.items||[]).forEach(it => { const cost = itemCost(it), ym = it.ym || plCur(); if (!cost) return;
     if (it.how === 'zilch') {
       const z = zilchPlan(cost, { avail: zs().limit, start: `${ym}-01` }); if (!z) return;
       add({ key: `zbook:${it.id}`, ym, how: 'zilch', kind: 'do', item: it.id, title: `Book ${it.n} on Zilch`, amount: z.pays[0].amount, sub: `${money(cost,0)} in all. Zilch takes ${money(z.pays[0].amount, z.pays[0].amount % 1 ? 2 : 0)} today, the rest over 3 months`, done: !!it.paid, order: 2 });
@@ -2914,7 +3026,7 @@ async function toggleStep(planId, key, itemId) {
 }
 function nextJobs() {
   const cur = plCur(), jobs = [];
-  (S.plans||[]).forEach(p => tripSteps(p).forEach(g => g.steps.forEach(s => { if (s.kind === 'do' && !s.done && g.ym <= ymAdd(cur, 1)) jobs.push({ p, s, ym: g.ym }); })));
+  (S.plans||[]).filter(p => p.kind !== 'christmas').forEach(p => tripSteps(p).forEach(g => g.steps.forEach(s => { if (s.kind === 'do' && !s.done && g.ym <= ymAdd(cur, 1)) jobs.push({ p, s, ym: g.ym }); })));
   [cur, ymAdd(cur, 1)].forEach(ym => { const j = potJob(ym); if (j && !j.done) jobs.push({ p: { id: '__pot' }, s: j, ym }); });
   jobs.sort((a, b) => a.ym < b.ym ? -1 : a.ym > b.ym ? 1 : a.s.order - b.s.order);
   if (!jobs.length) return '';
@@ -3706,6 +3818,9 @@ document.addEventListener('click', async e => {
   if (a==='tspend') return tripSpendForm(el.dataset.plan, el.dataset.id);
   if (a==='yearadd') { const p = await ensureYearPlan(); return planItemForm(p.id, null, el.dataset.name); }
   if (a==='plstep') { el.disabled = true; return toggleStep(el.dataset.plan, el.dataset.key, el.dataset.item); }
+  if (a==='xopen') { UI.xopen = UI.xopen === el.dataset.id ? null : el.dataset.id; render(); if (UI.xopen) { const f = document.querySelector(`form.xadd[data-id="${UI.xopen}"]`); if (f) f.closest('.xp').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } return; }
+  if (a==='xgot') { el.disabled = true; return xSaveItem(el.dataset.plan, el.dataset.item, it => ({ ...it, gifts: giftsOf(it).map(g => g.id === el.dataset.g ? (g.got ? (({ got, ...r }) => r)(g) : { ...g, got: true }) : g) })); }
+  if (a==='xgift') return xGiftForm(el.dataset.plan, el.dataset.item, el.dataset.g);
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
@@ -3748,6 +3863,8 @@ document.addEventListener('change', async e => {
 document.addEventListener('submit', async e => {
   if (e.target.id === 'authForm') { e.preventDefault(); return handleAuth(e.target); }
   if (e.target.id === 'listAdd') { e.preventDefault(); const i = $('#listText'); const text = (i.value||'').trim(); if (!text) return; i.value = ''; await put(`list/${uid('l')}`, { text, list: UI.list||'shopping', done:false, by: me(), at: Date.now() }); setTimeout(() => { const n = $('#listText'); if (n) n.focus(); }, 30); return; }
+  if (e.target.classList.contains('xadd')) { e.preventDefault(); return xAddGift(e.target); }
+  if (e.target.classList.contains('xperson')) { e.preventDefault(); return xAddPerson(e.target); }
   if (e.target.id !== 'sheetForm') return; e.preventDefault();
   const fn = sheetSave; if (!fn) return;
   const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true;
@@ -3756,6 +3873,7 @@ document.addEventListener('submit', async e => {
 let sTimer;
 document.addEventListener('input', e => {
   if (e.target.dataset && e.target.dataset.bs && e.target.dataset.bs !== 'on' && e.target.dataset.bs !== 'vikion') return bsInput(e.target);
+  if (e.target.name === 'a' && e.target.closest('form.xadd')) return xRunPreview(e.target);
   if (e.target.id === 'zAmt') { const raw = e.target.value.replace(/[^0-9.]/g,''); UI.zamt = raw; const z = zs(); const p = zilchPlan(raw, UI.zpartner ? { feePct: z.partnerFee } : {}); const o = $('#zOut'); if (o) o.innerHTML = zilchOut(p);
     const needToggle = Number(raw) >= z.threshold, has = !!document.querySelector('[data-act="zpartner"]'); if (needToggle !== has) { render(); const i = $('#zAmt'); if (i) { i.focus(); i.setSelectionRange(raw.length, raw.length); } } return; }
   if (e.target.id !== 'sSearch') return; clearTimeout(sTimer); const val = e.target.value; sTimer = setTimeout(() => { UI.sq = val; UI.slimit = 40; render(); const i = $('#sSearch'); if (i) { i.focus(); i.setSelectionRange(val.length, val.length); } }, 250); });
