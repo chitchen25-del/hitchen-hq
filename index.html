@@ -674,6 +674,7 @@ body:has(.xbar:not([hidden])) .fab{display:none}
 .cohrs span{flex:1 1 100%;font-weight:550}
 .cohrs button{border:0;background:var(--sheet);border-radius:999px;padding:6px 12px;font:inherit;font-weight:650;cursor:pointer;color:var(--ink)}
 .cohrs button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.cnote{font-size:.78rem;color:var(--ink-2);min-width:120px;white-space:normal}
 </style>
 </head>
 <body>
@@ -1327,7 +1328,7 @@ const otMult = d => d.otMult ? Number(d.otMult) : (parse(d.date).getDay()===0 ||
 const bhRate = () => { const r = vk(); return r.bhUplift != null ? Number(r.bhUplift) : r.base * 0.5; };
 function vikiDay(d) {
   const r = vk(); const o = { hrs: shiftHours(d), ocH: ocHours(d), oc:0, h15:0, h2:0, co:0, otH:0, ot:0, bhH:0, bh:0 };
-  o.oc = o.ocH * ocRate(d);
+  o.oc = o.ocH * ocRate(d); if (d.exg && d.oncall) o.oc += o.ocH * Number(d.exg); /* ex gratia top-up per on-call hour */
   (d.callouts||[]).forEach(c => { const h = coPaid(c), m = coMult(d,c); if (m===2) o.h2 += h; else o.h15 += h; o.co += h * r.base * m; });
   if (d.ot) { o.otH = Number(d.ot)||0; o.ot = o.otH * r.base * otMult(d); }
   if ((d.bh || isBH(d.date)) && d.status==='shift') { o.bhH = o.hrs; o.bh = o.hrs * bhRate(); }
@@ -1444,13 +1445,13 @@ function claimTable(ym, m) {
   const ds = s => { const d = parse(s); return `${d.getDate()}/${d.getMonth()+1}/${String(d.getFullYear()).slice(2)}`; };
   const body = rows.map(r => `<tr class="${r.cont?'cont':''}" data-act="day" data-date="${r.date}">
     <td>${esc(r.day)}${r.second?' <span class="chip cat">2nd</span>':''}</td><td>${r.cont?'':ds(r.date)}</td><td>${esc(r.start)}</td><td>${esc(r.end)}</td><td class="r">${esc(r.hrs)}</td><td class="r">${r.amt!=null?money(r.amt,2):''}</td>
-    <td class="co-col">${esc(r.from||'')}</td><td class="co-col">${esc(r.to||'')}</td><td class="co-col r">${r.ch?esc(r.ch)+(r.mult===2?' <small>(2×)</small>':''):''}</td></tr>`).join('');
+    <td class="co-col">${esc(r.from||'')}</td><td class="co-col">${esc(r.to||'')}</td><td class="co-col r">${r.ch?esc(r.ch)+(r.mult===2?' <small>(2×)</small>':''):''}</td><td class="co-col cnote">${esc(r.note||'')}</td></tr>`).join('');
   return `<section class="panel"><h2>On-call claim, ${esc(MONTHS[parse(`${ym}-01`).getMonth()])} <span class="sub">${esc(rangeLabel(ym))}</span></h2>
     ${rows.length ? `<div class="tbl"><table>
-      <thead><tr><th class="grp" colspan="6">Period of on call</th><th class="grp co-col" colspan="3">Duration of call-out</th></tr>
-      <tr><th>Day</th><th>Date</th><th>Start</th><th>Finish</th><th class="r">Hours</th><th class="r">Amount £</th><th class="co-col">From</th><th class="co-col">To</th><th class="co-col r">Hours</th></tr></thead>
+      <thead><tr><th class="grp" colspan="6">Period of on call</th><th class="grp co-col" colspan="4">Duration of call-out</th></tr>
+      <tr><th>Day</th><th>Date</th><th>Start</th><th>Finish</th><th class="r">Hours</th><th class="r">Amount £</th><th class="co-col">From</th><th class="co-col">To</th><th class="co-col r">Hours</th><th class="co-col">Notes</th></tr></thead>
       <tbody>${body}</tbody>
-      <tfoot><tr><td colspan="4">Total</td><td class="r">${fh(m.ocH)}</td><td class="r">${money(m.oc,2)}</td><td class="co-col" colspan="2">${fh(m.h15)}h 1.5× · ${fh(m.h2)}h 2×</td><td class="co-col r">${fh(m.h15+m.h2)}</td></tr></tfoot>
+      <tfoot><tr><td colspan="4">Total</td><td class="r">${fh(m.ocH)}</td><td class="r">${money(m.oc,2)}</td><td class="co-col" colspan="2">${fh(m.h15)}h 1.5× · ${fh(m.h2)}h 2×</td><td class="co-col r">${fh(m.h15+m.h2)}</td><td class="co-col"></td></tr></tfoot>
     </table></div><div class="btnrow"><button class="btn small" data-act="vprint">${icon('print')}Print or save as PDF</button><button class="btn small ghost" data-act="vcopy">Copy as text</button></div><p class="note">Laid out like her MPTC claim form. Tap a row to change it.</p>`
     : `<p class="empty">No on call logged for ${esc(rangeLabel(ym))} yet. Tap a day on the calendar to add one.</p>`}
   </section>`;
@@ -1706,6 +1707,7 @@ function vikiDayForm(date) {
     if (draft.note) data.note = draft.note;
     if (draft.status==='shift' && draft.ot) data.ot = draft.ot;
     if (draft.status==='holiday' && draft.leaveHours) data.leaveHours = draft.leaveHours;
+    if (rec && rec.exg && data.oncall) data.exg = rec.exg; if (rec && rec.src) data.src = rec.src;
     if (data.status==='off' && !data.oncall && !data.callouts && !data.note) { if (rec) await remove(`days/${key}`); return; }
     await put(`days/${key}`, data);
   }, rec ? { onDelete: () => remove(`days/${key}`) } : {});
