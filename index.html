@@ -77,7 +77,7 @@ main{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-lef
   padding-block:6px calc(96px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--sheet);border-top:1px solid var(--rule-2);
   padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));padding-bottom:env(safe-area-inset-bottom,0px);
-  display:grid;grid-template-columns:repeat(4,1fr)}
+  display:grid;grid-template-columns:repeat(5,1fr)}
 nav.tabs button{position:relative;border:0;background:none;padding:10px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.76rem;font-stretch:87%;font-weight:600;color:var(--muted);cursor:pointer}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button[aria-current="page"]{color:var(--ink);font-weight:750}
@@ -539,6 +539,8 @@ nav.tabs button[aria-current="page"] svg{color:var(--brass)}
 .zinput input{border:0;background:transparent;font-size:2.6rem;font-weight:600;letter-spacing:-.03em;width:100%;min-width:0;padding:0;outline:none;color:var(--ink)}
 .zinput:focus-within{border-bottom-color:var(--brass)}
 .zchips{display:flex;gap:6px;flex-wrap:wrap}
+.seg.pltabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg.pltabs button{white-space:normal;text-align:center;line-height:1.2;padding:8px 6px}
 .plmonths{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
 .plmonths span{background:var(--sheet-2);border-radius:12px;padding:7px 8px;display:flex;flex-direction:column;gap:1px}
 .plmonths small{font-size:.72rem;color:var(--muted);font-weight:600}
@@ -704,6 +706,7 @@ body:has(.xbar:not([hidden])) .fab{display:none}
   <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Home</button>
   <button data-tab="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Work</button>
   <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16v11H4z"/><path d="M4 8l2-4h12l2 4"/><circle cx="12" cy="13.5" r="2.5"/></svg>Money</button>
+  <button data-tab="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/><path d="M4 12h16"/></svg>Trips</button>
   <button data-tab="car"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="8" cy="17" r="2"/><circle cx="16" cy="17" r="2"/><path d="M5 12h14"/></svg>Car</button>
 </nav>
 
@@ -898,10 +901,10 @@ function render() {
   $('[data-act="settings"]').hidden = !session;
   $('.fab').hidden = !session;
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
-  const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Work','Rotas, on call and pay'], money:['Money','Bills, budget and savings'], car:['The Evoque','Service, checks, fuel and trips']};
+  const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Work','Rotas, on call and pay'], money:['Money','Bills, budget and savings'], trips:['Trips','Holidays, family visits and city breaks'], car:['The Evoque','Service, checks, fuel and trips']};
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
-  const views = { home: viewHome, work: viewWork, money: viewMoney, car: viewCar };
+  const views = { home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
   if (render.lastTab !== UI.tab) { app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); render.lastTab = UI.tab; }
 }
@@ -1883,10 +1886,10 @@ function viewMoney() {
     cells: [ tbCell('Bills', money(P.bills,0), '#3F51B5'), tbCell('Budget', money(P.budget,0), '#0B8043'), tbCell(P.save ? 'Savings' : 'Owed', money(P.save || P.owed,0), P.save ? '#039BE5' : '#D50000') ],
     after: P.inc.total ? `<div style="padding:12px 0 2px">${flow}</div>` : '',
     foot: P.inc.total ? `<span>${(() => { const l = ['bills', 'the spending budget', ...(P.owed?['money owed']:[]), ...(P.save?['savings']:[]), ...(P.trips?['trip savings']:[])]; return `What's left once ${l.slice(0,-1).join(', ')} and ${l[l.length-1]} are covered.`; })()}</span>` : `<span><button class="linkbtn" data-act="mseg" data-v="plan">Add your pay to see what's spare each month</button></span>` });
-  const segs = [['plan','Plan'],['sheet','Sheet'],['planner','Planner'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
+  const segs = [['plan','Plan'],['sheet','Sheet'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
   if (!segs.some(x => x[0]===UI.money)) UI.money = 'bills';
   const seg = `<div class="seg" role="group" aria-label="Money section">${segs.map(([k,l]) => `<button data-act="mseg" data-v="${k}" aria-pressed="${UI.money===k}">${l}</button>`).join('')}</div>`;
-  const body = {plan:viewPlan, sheet:viewSheet, planner:viewPlanner, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
+  const body = {plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
   return hero + seg + body;
 }
 /* ----- bank statements: transactions loaded from the Nationwide statements (stmt/<yyyy-mm> docs) ----- */
@@ -2026,7 +2029,7 @@ function viewPlan() {
       ${row('#0B8043','Spending budget', 'Food, fuel, kids and the rest', P.budget, 'mseg" data-v="budget')}
       ${P.owed ? row('#D50000','Money owed', 'Payments not already in bills', P.owed, 'mseg" data-v="owed') : ''}
       ${row('#039BE5','Savings', P.save ? 'Straight into savings on payday' : 'Tap to set an amount', P.save, 'planform')}
-      ${P.trips ? row('#8E24AA','Trips and holidays', [...S.trips.map(t => esc(t.name)), ...plannerMonth(ym).rows.map(r => esc(r.p.name))].join(', '), P.trips, 'mseg" data-v="planner') : ''}
+      ${P.trips ? row('#8E24AA','Trips and holidays', [...S.trips.map(t => esc(t.name)), ...plannerMonth(ym).rows.map(r => esc(r.p.name))].join(', '), P.trips, 'tab" data-v="trips') : ''}
       <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow"><div class="t">${P.left >= 0 ? 'Left over' : 'Short by'}</div><div class="m">${P.left >= 0 ? 'Room for the unexpected, or more savings' : 'Plans add up to more than comes in'}</div></div><div class="amt" style="color:${P.left<0?'var(--red)':'var(--good)'}">${money(Math.abs(P.left),0)}</div></div>
     </div>
   </section>
@@ -2170,7 +2173,7 @@ function bsPlannerSection(ym) {
   const pm = plannerMonth(ym); if (!pm.total) return '';
   return `<section class="xsec extra"><div class="xh static"><span class="xt">Holiday planner</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
     <div class="xrows">${pm.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.p.name)}</span><small>${esc((PL_KINDS.find(k => k[0]===(r.p.kind||'summer'))||[])[1]||'')}</small></div><span class="xd"></span><output class="xc xa">${money(r.amount,2)}</output><span class="xm"></span></div>`).join('')}</div>
-    <div class="xadd"><button type="button" class="linkbtn" data-act="mseg" data-v="planner">Change in the planner</button></div></section>`;
+    <div class="xadd"><button type="button" class="linkbtn" data-act="tab" data-v="trips">Change in Trips</button></div></section>`;
 }
 function bsVikiBlock(doc, t) {
   const vk = doc.viki; if (!vk) return '';
@@ -2406,14 +2409,14 @@ function plOverview() {
   const cur = plCur(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, i));
   const per = months.map(ym => { const parts = PL_KINDS.map(([k,l]) => ({ v: (S.plans||[]).filter(p => (p.kind||'summer')===k).reduce((s,p) => s + (plPays(p)[ym]||0), 0), c: PL_COL[k], name: l })); return { ym, parts, total: parts.reduce((s,x) => s + x.v, 0) }; });
   const any = per.some(x => x.total > 0);
-  if (!any) return `<section class="panel"><h2>Paying for it</h2><p class="note">Add a trip below and cost it up. Each thing you add gets a month and a way to pay, and the planner works out what to put aside each month. It then shows up in that month's Budget Sheet under Monthly extras, so you can see whether the month still adds up.</p></section>`;
+  if (!any) return `<section class="panel"><h2>Paying for it</h2><p class="note">Add a trip below and cost it up. Each thing you add gets a month and a way to pay, and the planner works out what to put aside each month. It then shows up in that month's Budget Sheet in Money, so you can see whether the month still adds up.</p></section>`;
   const peak = Math.max(...per.map(x => x.total)), list = per.filter(x => x.total > 0).slice(0, 6).map(x => { const sh = S.bsheet[x.ym], t = sh ? bsTotals(sh, x.ym) : null;
     return `<button class="rowbtn" data-act="plsheet" data-v="${x.ym}"><span class="sw" style="background:${x.parts.find(p => p.v)?.c || 'var(--rule-2)'}"></span><div class="grow"><div class="t">${monthName(x.ym)}</div><div class="m">${t ? (t.left >= 0 ? `Sheet still ${money(t.left,0)} spare after this` : `Sheet ${money(-t.left,0)} short with this`) : 'No budget sheet for this month yet'}</div></div><div class="amt" ${t && t.left < 0 ? 'style="color:var(--red)"' : ''}>${money(x.total,0)}</div></button>`; }).join('');
   return `<section class="panel"><h2>Paying for it <span class="sub">next 12 months</span></h2>
     <div class="cleg">${PL_KINDS.map(([k,l]) => `<span><i style="background:${PL_COL[k]}"></i>${l}</span>`).join('')}</div>
     ${barChart(per.map(x => ({ label: mon3(x.ym), parts: x.parts })), { label: 'Planner money to put aside each month', fmt: v => v === peak ? `Most ${money(v,0)}` : '' })}
     <div class="list">${list}</div>
-    <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Budget Sheet, and these amounts are already counted in each month's sheet. Tap a month to open it.</p></section>`;
+    <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Budget Sheet, and these amounts are already counted in each month's Budget Sheet in Money. Tap a month to open it.</p></section>`;
 }
 function plPanel(p) {
   const st = plStats(p), items = p.items||[], cur = plCur();
@@ -2431,9 +2434,9 @@ function plPanel(p) {
 }
 function viewPlanner() {
   const k = PL_KINDS.some(x => x[0]===UI.pltab) ? UI.pltab : 'summer', label = PL_KINDS.find(x => x[0]===k)[1];
-  const tabs = `<div class="seg" role="group" aria-label="Which kind of trip" style="margin-top:14px">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => (p.kind||'summer')===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}">${l}${n ? ` (${n})` : ''}</button>`; }).join('')}</div>`;
+  const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of trip">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => (p.kind||'summer')===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}">${l}${n ? ` (${n})` : ''}</button>`; }).join('')}</div>`;
   const list = (S.plans||[]).filter(p => (p.kind||'summer')===k).sort((a,b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
-  return plOverview() + tabs + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add a ${esc(label.toLowerCase().replace(/s$/,''))}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>`;
+  return tabs + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add a ${esc(label.toLowerCase().replace(/s$/,''))}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plOverview();
 }
 function tripPlanForm(id, kind) {
   const p = (S.plans||[]).find(x => x.id===id) || { kind: kind || UI.pltab || 'summer', saveFrom: plCur() };
@@ -3069,7 +3072,7 @@ document.addEventListener('click', async e => {
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
   if (a==='plspread') return planSpread(el.dataset.id);
-  if (a==='plsheet') { if (bsDirty()) { toast('Save or undo your sheet changes first'); return; } UI.bym = el.dataset.v; UI.bs = null; UI.money = 'sheet'; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='plsheet') { if (bsDirty()) { toast('Save or undo your sheet changes first'); return; } UI.bym = el.dataset.v; UI.bs = null; UI.tab = 'money'; UI.money = 'sheet'; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='import') return importForm();
   if (a==='pushon') { el.disabled = true; try { await pushOn(); } catch(err) { toast('Couldn\'t turn on notifications'); pushPanel(); } return; }
   if (a==='pushoff') { el.disabled = true; return pushOff(); }
