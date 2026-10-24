@@ -538,6 +538,72 @@ nav.tabs button[aria-current="page"] svg{color:var(--brass)}
 .zinput span{font-size:2rem;font-weight:500;color:var(--muted)}
 .zinput input{border:0;background:transparent;font-size:2.6rem;font-weight:600;letter-spacing:-.03em;width:100%;min-width:0;padding:0;outline:none;color:var(--ink)}
 .zinput:focus-within{border-bottom-color:var(--brass)}
+/* trips: hero cards, photos, groups */
+.trip-hero{position:relative;display:block;width:100%;min-height:236px;border-radius:24px;overflow:hidden;color:#fff;isolation:isolate;box-shadow:var(--shadow-lg);border:0;padding:0;text-align:left;font:inherit;background:#1B1650}
+.trip-hero.mini{min-height:150px;border-radius:20px;cursor:pointer}
+.trip-hero .th-art,.trip-hero .th-photo,.trip-hero .th-shade{position:absolute;inset:0;z-index:-1}
+.trip-hero .th-art svg{width:100%;height:100%;display:block}
+.trip-hero .th-photo{background-size:cover;background-position:center;opacity:0;transition:opacity .5s ease}
+.trip-hero .th-photo.on{opacity:1}
+.trip-hero .th-shade{background:linear-gradient(180deg,rgba(10,8,30,.35) 0%,rgba(10,8,30,0) 30%,rgba(10,8,30,.15) 55%,rgba(10,8,30,.78) 100%)}
+.th-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 14px 0}
+.th-kind{font-size:.78rem;font-weight:700;letter-spacing:.02em;background:rgba(255,255,255,.18);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:5px 10px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-btn{border:0;background:rgba(255,255,255,.22);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#fff;font-weight:700;font-size:.85rem;padding:6px 12px;border-radius:999px;cursor:pointer}
+.th-body{padding:52px 16px 6px}
+.trip-hero.mini .th-body{padding:22px 14px 4px}
+.th-name{font-size:1.65rem;font-weight:850;line-height:1.08;letter-spacing:-.01em;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.trip-hero.mini .th-name{font-size:1.2rem}
+.th-count{margin-top:4px;font-size:1.05rem;font-weight:750;color:#FFE08A;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.th-small{font-size:.85rem;opacity:.9}
+.th-foot{display:flex;align-items:center;gap:12px;padding:10px 14px 14px}
+.th-prog{flex:1;min-width:0}
+.th-pt{font-size:.85rem;font-weight:650;margin-bottom:6px;opacity:.95}
+.th-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.25);overflow:hidden}
+.th-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#FFD36B,#FF9AC1)}
+.tripcards{display:grid;gap:10px}
+.ti-gallery{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(70%,1fr);gap:10px;overflow-x:auto;scrollbar-width:none;margin-top:-2px}
+.ti-gimg{position:relative;height:150px;border-radius:18px;border:0;background:var(--sheet-2) center/cover no-repeat;cursor:pointer;padding:0;overflow:hidden}
+.ti-gimg span{position:absolute;left:10px;bottom:10px;color:#fff;font-weight:750;font-size:.9rem;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+.ti-gimg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.55))}
+.ti-gimg span{z-index:1}
+.ti-group+.ti-group{margin-top:6px}
+.ti-gh{display:flex;align-items:center;gap:8px;font-weight:750;font-size:.86rem;color:var(--ink-2);padding:6px 0 2px}
+.ti-gh i{width:10px;height:10px;border-radius:3px}
+.ti-gh span{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:650}
+.ti-ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none}
+.ti-ico svg{width:20px;height:20px}
+.ti-thumb{width:38px;height:38px;border-radius:12px;flex:none;background:var(--sheet-2) center/cover no-repeat}
+.dn-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.donut{flex:none}
+.dn-big{font-size:17px;font-weight:850;fill:var(--ink)}
+.dn-sub{font-size:11px;fill:var(--muted);font-weight:600}
+.dn-leg{flex:1;min-width:140px;display:grid;gap:7px}
+.dn-leg div{display:flex;align-items:center;gap:8px;font-size:.86rem;min-width:0}
+.dn-leg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dn-leg i{width:10px;height:10px;border-radius:3px;flex:none}
+.dn-leg b{margin-left:auto;font-variant-numeric:tabular-nums}
+.phpick{display:flex;align-items:center;gap:12px}
+.phprev{width:86px;height:64px;border-radius:12px;background:var(--sheet-2) center/cover no-repeat;flex:none;border:1px dashed var(--rule-2)}
+.phprev.on{border-style:solid}
+.phbtns{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+/* money: flow, month strip */
+.chart.flow{width:100%;height:auto}
+.fl-n{font-size:11.5px;font-weight:700;fill:var(--ink)}
+.fl-n.good{fill:var(--good)}
+.fl-v{font-size:11px;fill:var(--muted);font-variant-numeric:tabular-nums}
+h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
+.mstrip{display:grid;gap:4px}
+.ms-row{all:unset;display:grid;grid-template-columns:34px minmax(0,1fr) 104px;align-items:center;gap:8px;padding:6px 0;cursor:pointer}
+.seg.mchips{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+.seg.mchips button{padding:8px 4px;text-align:center}
+.ms-m{font-weight:700;font-size:.86rem;color:var(--ink-2)}
+.ms-bar{position:relative;display:flex;height:18px;border-radius:6px;background:var(--sheet-2);overflow:visible}
+.ms-bar i{display:block;height:100%}
+.ms-bar i:first-child{border-radius:6px 0 0 6px}
+.ms-bar i:last-of-type{border-radius:0 6px 6px 0}
+.ms-inc{position:absolute;top:-4px;bottom:-4px;width:2.5px;background:var(--ink);border-radius:2px;transform:translateX(-1px)}
+.ms-l{font-size:.8rem;white-space:nowrap;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.ms-l.good{color:var(--good)} .ms-l.find{color:var(--gold)}
 .zchips{display:flex;gap:6px;flex-wrap:wrap}
 .seg.pltabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
 .seg.pltabs button{white-space:normal;text-align:center;line-height:1.2;padding:8px 6px}
@@ -907,6 +973,7 @@ function render() {
   const views = { home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
   if (render.lastTab !== UI.tab) { app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); render.lastTab = UI.tab; }
+  hydratePhotos();
 }
 
 /* ----- title block: the grid of labelled boxes that opens each page ----- */
@@ -1886,11 +1953,20 @@ function viewMoney() {
     cells: [ tbCell('Bills', money(P.bills,0), '#3F51B5'), tbCell('Budget', money(P.budget,0), '#0B8043'), tbCell(P.save ? 'Savings' : 'Owed', money(P.save || P.owed,0), P.save ? '#039BE5' : '#D50000') ],
     after: P.inc.total ? `<div style="padding:12px 0 2px">${flow}</div>` : '',
     foot: P.inc.total ? `<span>${(() => { const l = ['bills', 'the spending budget', ...(P.owed?['money owed']:[]), ...(P.save?['savings']:[]), ...(P.trips?['trip savings']:[])]; return `What's left once ${l.slice(0,-1).join(', ')} and ${l[l.length-1]} are covered.`; })()}</span>` : `<span><button class="linkbtn" data-act="mseg" data-v="plan">Add your pay to see what's spare each month</button></span>` });
-  const segs = [['plan','Plan'],['sheet','Sheet'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
-  if (!segs.some(x => x[0]===UI.money)) UI.money = 'bills';
+  const segs = [['overview','Overview'],['plan','Plan'],['sheet','Sheet'],['spending','Spending'],['bills','Bills'],['budget','Budget'],['goals','Goals'],['owed','Owed'],['save','Tips']];
+  if (!segs.some(x => x[0]===UI.money)) UI.money = 'overview';
   const seg = `<div class="seg" role="group" aria-label="Money section">${segs.map(([k,l]) => `<button data-act="mseg" data-v="${k}" aria-pressed="${UI.money===k}">${l}</button>`).join('')}</div>`;
-  const body = {plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
-  return hero + seg + body;
+  const body = {overview:viewMoneyOverview, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave}[UI.money]();
+  return (S.bsheet[ym] ? sheetHero(ym) : hero) + seg + body;
+}
+function sheetHero(ym) {
+  const f = sheetFlow(ym), t = f.t, spare = t.left, g = k => f.outs.filter(o => k.includes(o.k)).reduce((s, o) => s + o.v, 0);
+  const all = [...f.outs, ...(spare > 0 ? [{ v: spare, c: FLOW_COL.spare, name: 'To spare' }] : [])], base = Math.max(t.inc, t.base + t.extra, 1);
+  return tblock({ kicker: `${MONTHS[Number(ym.slice(5,7))-1]} pay`, title: spare >= 0 ? `${money(spare,0)} to spare` : `${money(-spare,0)} to find`,
+    side: `<span class="tb-kicker">Coming in</span><span class="big" style="font-size:1.35rem">${money(t.inc,0)}</span>`,
+    cells: [ tbCell('Bills', money(g(['dd']),0), FLOW_COL.dd), tbCell('Day to day', money(g(['ex1','ex2']),0), FLOW_COL.ex2), tbCell('Extras', money(g(['mex','trips']),0), FLOW_COL.trips) ],
+    after: `<div style="padding:12px 0 2px"><div class="mix" aria-hidden="true">${all.map(o => `<i title="${esc(o.name)}" style="width:${o.v/base*100}%;background:${o.c}"></i>`).join('')}</div></div>`,
+    foot: `<span>${spare >= 0 ? 'Bills paid, kids sorted, treats planned, and some left over.' : 'Everything is planned. This bit just needs finding before payday.'} From the ${esc(monthName(ym))} Budget Sheet.</span>` });
 }
 /* ----- bank statements: transactions loaded from the Nationwide statements (stmt/<yyyy-mm> docs) ----- */
 const GROUP = {
@@ -2418,20 +2494,6 @@ function plOverview() {
     <div class="list">${list}</div>
     <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Budget Sheet, and these amounts are already counted in each month's Budget Sheet in Money. Tap a month to open it.</p></section>`;
 }
-function plPanel(p) {
-  const st = plStats(p), items = p.items||[], cur = plCur();
-  const dates = p.from ? `${shortDate(p.from)}${p.to ? ` to ${shortDate(p.to)}` : ''}` : 'No dates yet';
-  const days = p.from ? daysBetween(today(), p.from) : null;
-  const next = st.future.slice(0, 8);
-  return `<section class="panel"><h2>${esc(p.name)} <button class="btn small ghost" data-act="plan" data-id="${esc(p.id)}">Edit</button></h2>
-    <div class="gauge" style="padding-top:0"><div class="gh"><span class="t" style="font-stretch:125%;font-weight:800;font-size:1.5rem">${money(st.cost,0)}</span><span class="amt"><small>${money(st.paid,0)} paid</small></span></div>${gauge(st.cost ? st.paid/st.cost : 0,'lg')}
-    <div class="m">${esc(dates)}${days !== null && days > 0 ? `, ${days} days to go` : ''}.${p.note ? ` ${esc(p.note)}.` : ''}${st.fees ? ` Includes about ${money(st.fees,0)} of Zilch fees on top.` : ''}</div></div>
-    ${items.length ? `<div class="list">${items.map(it => `<button class="rowbtn" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}"><span class="sw" style="background:${it.paid ? 'var(--good)' : it.how==='zilch' ? 'var(--g3)' : PL_COL[p.kind||'summer']}"></span><div class="grow"><div class="t">${esc(it.n)}${it.paid ? ' <span class="chip ok">Paid</span>' : ''}</div><div class="m">${esc(plWhen(it, p))}${it.note ? ` · ${esc(it.note)}` : ''}</div></div><div class="amt">${money(it.a||0,0)}</div></button>`).join('')}</div>` : `<p class="empty">Nothing costed yet. Tap an idea below or add your own.</p>`}
-    <div class="zchips" style="margin-top:10px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
-    ${next.length ? `<h3 class="eyebrow" style="margin-top:16px">How it gets paid, ${money(st.toPay,0)} still to find</h3><div class="plmonths">${next.map(([ym,a]) => `<span><small>${mon3(ym)} ${ym.slice(2,4)}</small><b>${money(a,0)}</b></span>`).join('')}</div>${st.future.length > next.length ? `<p class="note">And ${st.future.length - next.length} more month${st.future.length - next.length === 1 ? '' : 's'} after that.</p>` : ''}` : ''}
-    ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
-  </section>`;
-}
 function viewPlanner() {
   const k = PL_KINDS.some(x => x[0]===UI.pltab) ? UI.pltab : 'summer', label = PL_KINDS.find(x => x[0]===k)[1];
   const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of trip">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => (p.kind||'summer')===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}">${l}${n ? ` (${n})` : ''}</button>`; }).join('')}</div>`;
@@ -2442,12 +2504,14 @@ function tripPlanForm(id, kind) {
   const p = (S.plans||[]).find(x => x.id===id) || { kind: kind || UI.pltab || 'summer', saveFrom: plCur() };
   openSheet(id ? p.name : 'New trip', fld('plN','Name', p.name||'', 'text','placeholder="e.g. Spain, August 2027"') + sel('plK','Type', p.kind||'summer', PL_KINDS) +
     `<div class="fields2">${fld('plF','Leave', p.from||'', 'date')}${fld('plT','Back', p.to||'', 'date')}</div>` +
-    fld('plS','Start saving from (pay month)', p.saveFrom || plCur(), 'month') + fld('plNote','Note', p.note||'', 'text','placeholder="Who\'s going, where you\'re staying"'), async () => {
+    fld('plS','Start saving from (pay month)', p.saveFrom || plCur(), 'month') + fld('plNote','Note', p.note||'', 'text','placeholder="Who\'s going, where you\'re staying"') + photoField('plPh', 'Cover photo', p.cover), async () => {
     const name = v('plN').trim(); if (!name) throw new Error('Give the trip a name');
     const data = { ...p, name, kind: v('plK'), saveFrom: v('plS') || plCur(), items: p.items || [] }; delete data.id;
     ['from','to','note'].forEach(f => delete data[f]); if (v('plF')) data.from = v('plF'); if (v('plT')) data.to = v('plT'); if (v('plNote').trim()) data.note = v('plNote').trim();
+    const ph = getPh(); if (ph) data.cover = await uploadPhoto(ph); else if ($('#plPhDel') && $('#plPhDel').checked) delete data.cover;
     UI.pltab = data.kind; await put(`plans/${id || uid('pl')}`, data);
   }, id ? { onDelete: () => remove(`plans/${id}`) } : {});
+  const getPh = photoWatch('plPh');
 }
 function planItemForm(planId, itemId, name) {
   const p = (S.plans||[]).find(x => x.id===planId); if (!p) return;
@@ -2458,23 +2522,218 @@ function planItemForm(planId, itemId, name) {
     const pays = plItemPays(tmp, p); return how === 'once' ? `${money(a,2)} out of the ${monthName(ym)} pay.` : pays.length > 1 ? `Put aside ${money(pays[0].amount,2)} a month for ${pays.length} months, ${monthName(pays[0].ym)} to ${monthName(ym)}.` : `${money(a,2)} out of the ${monthName(ym)} pay.`; };
   openSheet(itemId ? it.n : `Add to ${p.name}`, fld('pliN','What', it.n||'', 'text','placeholder="e.g. Flights"') +
     `<div class="fields2">${fld('pliA','Cost (£)', it.a ?? '', 'number','step="0.01" min="0" inputmode="decimal"')}${fld('pliM','Pay by (pay month)', it.ym || '', 'month')}</div>` +
-    sel('pliH','How you\'ll pay for it', it.how || 'save', PL_HOW) +
+    sel('pliH','How you\'ll pay for it', it.how || 'save', PL_HOW) + sel('pliC','Type', itemCat(it), TCAT.map(c => [c[0], c[1]])) +
     `<div id="pliFromBox" ${(it.how||'save')==='save' ? '' : 'hidden'}>${fld('pliF','Start saving from', it.from || p.saveFrom || plCur(), 'month')}</div>
     <p class="note" id="pliHint"></p>` + fld('pliNote','Note', it.note||'', 'text','placeholder="e.g. Jet2, booked ref ABC123"') +
-    `<label class="toggle"><input type="checkbox" id="pliP" ${it.paid ? 'checked' : ''}> Booked and paid${it.how==='zilch' ? ' (Zilch payments still count)' : ''}</label>`, async () => {
+    `<label class="toggle"><input type="checkbox" id="pliP" ${it.paid ? 'checked' : ''}> Booked and paid${it.how==='zilch' ? ' (Zilch payments still count)' : ''}</label>` + photoField('pliPh', 'Photo (optional)', it.img), async () => {
     const n = v('pliN').trim(), a = num(v('pliA')); if (!n) throw new Error('Say what it is'); if (a === null || a < 0) throw new Error('Enter what it costs, roughly is fine');
     const ym = v('pliM'); if (!/^\d{4}-\d\d$/.test(ym)) throw new Error('Pick the month it needs paying by');
     const x = { id: it.id || uid('pi'), n, a, how: v('pliH'), ym }; if (x.how === 'save' && v('pliF') && v('pliF') !== (p.saveFrom || '')) x.from = v('pliF');
     if (v('pliNote').trim()) x.note = v('pliNote').trim(); if ($('#pliP').checked) x.paid = true;
+    x.cat = v('pliC'); const ph = getPh(); if (ph) x.img = await uploadPhoto(ph); else if (it.img && !($('#pliPhDel') && $('#pliPhDel').checked)) x.img = it.img;
     const items = [...(p.items||[])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
     const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items });
   }, itemId ? { onDelete: async () => { const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items: (p.items||[]).filter(y => y.id !== itemId) }); } } : {});
   $('#sheetForm').addEventListener('input', showFrom); $('#sheetForm').addEventListener('change', showFrom); showFrom();
+  const getPh = photoWatch('pliPh');
 }
 async function planSpread(id) {
   const p = (S.plans||[]).find(x => x.id===id); if (!p) return; const from = p.saveFrom || plCur();
   const items = (p.items||[]).map(it => { if (it.paid) return it; const { from: _f, ...r } = it; return { ...r, how: 'save' }; });
   const { id: _, ...rest } = p; await put(`plans/${id}`, { ...rest, items }); toast(`Everything not yet paid is now saved for from ${monthName(from)}`);
+}
+
+/* ----- photos for trips: stored privately in family-files (or a small data URL), shown as backgrounds ----- */
+const PHOTO_MEM = {};
+async function photoURL(ref) {
+  if (!ref) return ''; if (String(ref).startsWith('data:')) return ref; if (PHOTO_MEM[ref]) return PHOTO_MEM[ref];
+  try { const blob = await fileBlob({ path: ref, type: 'image/jpeg' }); return PHOTO_MEM[ref] = URL.createObjectURL(blob); } catch(e) { return ''; }
+}
+function hydratePhotos() {
+  document.querySelectorAll('[data-photo]').forEach(async el => { const ref = el.dataset.photo; if (!ref || el.dataset.shown === ref) return;
+    const u = await photoURL(ref); if (!u || el.dataset.photo !== ref) return; el.style.backgroundImage = `url("${u}")`; el.dataset.shown = ref; el.classList.add('on'); });
+}
+async function shrinkImage(file, max = 1600, q = 0.82) {
+  const bmp = await createImageBitmap(file), s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas'); c.width = Math.round(bmp.width*s); c.height = Math.round(bmp.height*s); c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  return await new Promise(r => c.toBlob(r, 'image/jpeg', q));
+}
+async function uploadPhoto(file) {
+  const blob = await shrinkImage(file), path = `trips/${uid('ph')}.jpg`;
+  const { error } = await sb.storage.from('family-files').upload(path, blob, { contentType: 'image/jpeg', upsert: false }); if (error) throw new Error('The photo didn\'t upload. Try again');
+  try { const c = await caches.open(FILE_CACHE); await c.put(`/hhq-file/${path}`, new Response(blob, { headers: { 'Content-Type': 'image/jpeg' } })); } catch(e) {}
+  return path;
+}
+const photoField = (id, label, cur) => `<div class="field"><label>${label}</label><div class="phpick"><div class="phprev" id="${id}Prev" ${cur ? `data-photo="${esc(cur)}"` : ''}></div><div class="phbtns"><label class="btn small ghost">${cur ? 'Change photo' : 'Choose a photo'}<input type="file" id="${id}" accept="image/*" hidden></label>${cur ? `<label class="toggle"><input type="checkbox" id="${id}Del"> Remove it</label>` : ''}</div></div></div>`;
+function photoWatch(id) { let file = null; const inp = $('#'+id); if (!inp) return () => null;
+  inp.addEventListener('change', () => { file = inp.files[0] || null; const pv = $('#'+id+'Prev'); if (file && pv) { pv.style.backgroundImage = `url("${URL.createObjectURL(file)}")`; pv.classList.add('on'); } });
+  setTimeout(hydratePhotos, 0); return () => file; }
+
+/* ----- trip artwork when there's no photo: original illustrations, one per kind ----- */
+function tripArt(kind, seed = 1) {
+  const rnd = (n => () => (n = (n * 9301 + 49297) % 233280) / 233280)(seed * 977 + 13);
+  if (kind === 'summer') return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="su1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A5A"/><stop offset=".55" stop-color="#FFC27A"/><stop offset="1" stop-color="#FFE3A6"/></linearGradient><linearGradient id="su2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA8C9"/><stop offset="1" stop-color="#136E9A"/></linearGradient></defs>
+    <rect width="400" height="220" fill="url(#su1)"/><circle cx="300" cy="96" r="44" fill="#FFF2C4"/><circle cx="300" cy="96" r="62" fill="#FFF2C4" opacity=".25"/>
+    <path d="M0 140 Q50 128 100 140 T200 140 T300 140 T400 140 V220 H0Z" fill="url(#su2)"/><path d="M0 158 Q50 148 100 158 T200 158 T300 158 T400 158 V220 H0Z" fill="#0F5F86" opacity=".55"/>
+    <path d="M0 182 Q50 174 100 182 T200 182 T300 182 T400 182 V220 H0Z" fill="#F4D9A6"/>
+    <path d="M70 182 C72 150 78 120 92 96" stroke="#5B3A1E" stroke-width="5" fill="none" stroke-linecap="round"/><g fill="#2E7D4F"><path d="M92 96 c-26 -6 -40 6 -46 14 c16 -10 30 -10 46 -14z"/><path d="M92 96 c-4 -24 -22 -30 -32 -30 c14 8 24 18 32 30z"/><path d="M92 96 c18 -18 36 -16 44 -10 c-16 0 -30 4 -44 10z"/><path d="M92 96 c24 2 34 16 36 26 c-10 -12 -22 -20 -36 -26z"/></g>
+    <g stroke="#7a4b2a" stroke-width="1.5" fill="none" opacity=".5"><path d="M190 60 q6 -5 12 0 q6 -5 12 0"/><path d="M226 44 q5 -4 10 0 q5 -4 10 0"/></g></svg>`;
+  if (kind === 'family') return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="fa1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9ED5F2"/><stop offset="1" stop-color="#E3F3FB"/></linearGradient></defs>
+    <rect width="400" height="220" fill="url(#fa1)"/><circle cx="80" cy="60" r="26" fill="#FFE59A"/>
+    <g fill="#fff" opacity=".9"><ellipse cx="250" cy="50" rx="34" ry="12"/><ellipse cx="275" cy="42" rx="22" ry="12"/><ellipse cx="330" cy="72" rx="26" ry="9"/></g>
+    <path d="M0 150 Q100 105 200 140 T400 128 V220 H0Z" fill="#8BC97A"/><path d="M0 175 Q120 140 240 170 T400 160 V220 H0Z" fill="#5DAE5F"/>
+    <g transform="translate(232 112)"><rect x="0" y="22" width="56" height="40" fill="#FFF7EC"/><path d="M-6 24 L28 -4 L62 24Z" fill="#D9604A"/><rect x="22" y="38" width="12" height="24" fill="#8A5A3B"/><rect x="6" y="30" width="11" height="10" fill="#9ED5F2"/><rect x="39" y="30" width="11" height="10" fill="#9ED5F2"/><rect x="40" y="2" width="8" height="14" fill="#B5503E"/></g>
+    <g fill="#E5577A"><path d="M150 70 c0-8 12-8 12 0 c0-8 12-8 12 0 c0 9-12 15-12 18 c0-3-12-9-12-18z"/><path d="M118 98 c0-5 8-5 8 0 c0-5 8-5 8 0 c0 6-8 10-8 12 c0-2-8-6-8-12z" opacity=".7"/></g></svg>`;
+  const stars = Array.from({ length: 26 }, () => `<circle cx="${(rnd()*400).toFixed(0)}" cy="${(rnd()*130).toFixed(0)}" r="${(rnd()*1.3+.4).toFixed(1)}" fill="#fff" opacity="${(rnd()*.6+.3).toFixed(2)}"/>`).join('');
+  const burst = (cx, cy, r, col) => `<g stroke="${col}" stroke-width="2" stroke-linecap="round" opacity=".95">${Array.from({ length: 14 }, (_, i) => { const a = i / 14 * Math.PI * 2, x1 = cx + Math.cos(a) * r * .35, y1 = cy + Math.sin(a) * r * .35, x2 = cx + Math.cos(a) * r, y2 = cy + Math.sin(a) * r; return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`; }).join('')}<circle cx="${cx}" cy="${cy}" r="${(r*.12).toFixed(1)}" fill="${col}" stroke="none"/></g>`;
+  const towers = [[18,60],[46,92],[70,74],[104,118],[134,84],[160,104],[196,140],[226,96],[256,122],[290,82],[318,110],[350,76],[376,98]];
+  return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="ci1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B1650"/><stop offset=".6" stop-color="#4B2A86"/><stop offset="1" stop-color="#C2457F"/></linearGradient></defs>
+    <rect width="400" height="220" fill="url(#ci1)"/>${stars}${burst(96, 62, 34, '#FFD36B')}${burst(300, 48, 28, '#7EE0E6')}${burst(214, 86, 22, '#FF8FB6')}${burst(352, 112, 16, '#FFD36B')}
+    <g fill="#140F33">${towers.map(([x, h]) => `<rect x="${x-12}" y="${220-h}" width="${24}" height="${h}" rx="2"/>`).join('')}</g>
+    <g fill="#FFD36B" opacity=".7">${towers.flatMap(([x, h]) => Array.from({ length: Math.floor(h/26) }, (_, j) => rnd() > .45 ? `<rect x="${x-6}" y="${220-h+10+j*24}" width="4" height="6"/><rect x="${x+2}" y="${220-h+10+j*24}" width="4" height="6"/>` : '')).join('')}</g>
+    <g fill="#FFF3C4">${Array.from({ length: 6 }, () => { const x = rnd()*400, y = rnd()*120 + 10, s = rnd()*3 + 2; return `<path d="M${x} ${y-s} L${x+s*.3} ${y-s*.3} L${x+s} ${y} L${x+s*.3} ${y+s*.3} L${x} ${y+s} L${x-s*.3} ${y+s*.3} L${x-s} ${y} L${x-s*.3} ${y-s*.3}Z"/>`; }).join('')}</g></svg>`;
+}
+
+/* ----- trip categories ----- */
+const TCAT = [['travel','Travel','#3F7BEA'],['stay','Stays','#8E5BD8'],['fun','Days out','#F2A33A'],['food','Food and treats','#E5577A'],['prep','Getting ready','#2BA59A'],['other','Other','#7C8796']];
+const TCATI = Object.fromEntries(TCAT.map(c => [c[0], c]));
+function itemCat(it) {
+  if (it.cat && TCATI[it.cat]) return it.cat; const n = String(it.n||'').toLowerCase();
+  if (/passport|insurance|kit|breakdown|visa|etias|esta|sticker|vaccin|luggage|suitcase/.test(n)) return 'prep';
+  if (/hotel|inn\b|villa|apartment|airbnb|lodge|campsite|caravan|room|cabin(?! ferry)/.test(n) && !/steam|ferry|packet/.test(n)) return 'stay';
+  if (/ticket|disney|attraction|excursion|\bpark\b|show|days? out|zoo|museum|tour/.test(n)) return 'fun';
+  if (/food|spending|meal|restaurant|drink|gift|souvenir|money|snack/.test(n)) return 'food';
+  if (/ferry|steam|packet|flight|fuel|toll|car hire|transfer|parking|train|shuttle|taxi|transport|boat/.test(n)) return 'travel';
+  return 'other';
+}
+const TCAT_ICON = { travel:'<path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/>', stay:'<path d="M3 20V8l9-5 9 5v12"/><path d="M8 20v-6h8v6"/>', fun:'<path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.8z"/>', food:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 3c-2 0-3 3-3 6s1 4 3 4v8"/>', prep:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>', other:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/>' };
+const tcatIcon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${TCAT_ICON[k]||TCAT_ICON.other}</svg>`;
+
+/* ----- small charts ----- */
+function donut(parts, { size = 150, thick = 22, center = '', sub = '' } = {}) {
+  const tot = parts.reduce((s, p) => s + p.v, 0) || 1, r = (size - thick) / 2, c = 2 * Math.PI * r; let off = 0;
+  const segs = parts.filter(p => p.v > 0).map(p => { const len = p.v / tot * c, gap = parts.length > 1 ? Math.min(3, len * .3) : 0, s = `<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${p.c}" stroke-width="${thick}" stroke-dasharray="${Math.max(0, len - gap)} ${c}" stroke-dashoffset="${-off}" transform="rotate(-90 ${size/2} ${size/2})"><title>${esc(p.name)}: ${money(p.v,0)}</title></circle>`; off += len; return s; }).join('');
+  return `<svg class="donut" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" role="img" aria-label="${esc(center)} ${esc(sub)}"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--sheet-2)" stroke-width="${thick}"/>${segs}<text x="${size/2}" y="${size/2 - 2}" text-anchor="middle" class="dn-big">${esc(center)}</text><text x="${size/2}" y="${size/2 + 16}" text-anchor="middle" class="dn-sub">${esc(sub)}</text></svg>`;
+}
+const ring = (pct, size = 64, col = '#fff') => { const r = size/2 - 5, c = 2*Math.PI*r, p = Math.max(0, Math.min(1, pct||0)); return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="6"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${p*c} ${c}" transform="rotate(-90 ${size/2} ${size/2})"/><text x="${size/2}" y="${size/2+5}" text-anchor="middle" fill="#fff" font-size="14" font-weight="800">${Math.round(p*100)}%</text></svg>`; };
+
+/* ----- trip page ----- */
+function sleepsTo(p) {
+  if (!p.from) return { big: 'Dates to pick', small: '' };
+  const d = daysBetween(today(), p.from), back = p.to ? daysBetween(today(), p.to) : d;
+  if (d > 1) return { big: `${d} sleeps to go`, small: d > 60 ? `About ${Math.round(d/7)} weeks` : d <= 14 ? 'Nearly time to pack' : '' };
+  if (d === 1) return { big: 'Tomorrow!', small: 'Last sleep before the adventure' };
+  if (back >= 0) return { big: 'Happening now', small: 'Have the best time' };
+  return { big: 'Back home', small: 'Hope it was magic' };
+}
+function tripHero(p, st, opts = {}) {
+  const k = p.kind || 'summer', lbl = (PL_KINDS.find(x => x[0]===k)||[])[1] || '', sl = sleepsTo(p);
+  const dates = p.from ? `${shortDate(p.from).replace(/ \d{4}$/,'')}${p.to ? ` – ${shortDate(p.to).replace(/ \d{4}$/,'')}` : ''}` : '';
+  const sorted = st.cost ? st.paid / st.cost : 0, seed = [...String(p.id||p.name)].reduce((s, ch) => s + ch.charCodeAt(0), 0);
+  return `<${opts.tag||'section'} class="trip-hero k-${k}${opts.mini ? ' mini' : ''}" ${opts.attrs||''}><div class="th-art">${tripArt(k, seed)}</div><div class="th-photo" ${p.cover ? `data-photo="${esc(p.cover)}"` : ''}></div><div class="th-shade"></div>
+    <div class="th-top"><span class="th-kind">${esc(lbl)}${dates ? ` · ${esc(dates)}` : ''}</span>${opts.mini ? '' : `<button type="button" class="th-btn" data-act="plan" data-id="${esc(p.id)}" aria-label="Edit trip and photo">${p.cover ? 'Edit' : 'Add photo'}</button>`}</div>
+    <div class="th-body"><div class="th-name">${esc(p.name)}</div><div class="th-count">${esc(sl.big)}</div>${sl.small && !opts.mini ? `<div class="th-small">${esc(sl.small)}</div>` : ''}</div>
+    <div class="th-foot"><div class="th-prog"><div class="th-pt">${money(st.paid,0)} of ${money(st.cost + st.fees,0)} sorted</div><div class="th-bar"><i style="width:${Math.round(Math.min(1, sorted)*100)}%"></i></div></div>${opts.mini ? '' : ring(sorted, 58, '#FFD36B')}</div></${opts.tag||'section'}>`;
+}
+function tripCatParts(p) {
+  const by = {}; (p.items||[]).forEach(it => { const c = itemCat(it); by[c] = (by[c]||0) + (Number(it.a)||0); });
+  const parts = TCAT.filter(c => by[c[0]]).map(c => ({ k: c[0], name: c[1], c: c[2], v: by[c[0]] }));
+  const fees = plStats(p).fees; if (fees > 0.5) parts.push({ k: 'fees', name: 'Zilch fees', c: '#A9B1BF', v: fees });
+  return parts;
+}
+function tripPayChart(p) {
+  const cur = plCur(), by = {}; (p.items||[]).forEach(it => plItemPays(it, p).forEach(x => { if (x.ym < cur) return; const k = it.how === 'zilch' ? 'zilch' : it.how === 'save' ? 'save' : 'once'; by[x.ym] = by[x.ym] || { once:0, zilch:0, save:0 }; by[x.ym][k] += x.amount; }));
+  const months = Object.keys(by).sort(); if (!months.length) return '';
+  const peak = Math.max(...months.map(m => by[m].once + by[m].zilch + by[m].save)), tripYm = p.from ? payYm(p.from) : null;
+  const rows = months.map(m => ({ label: mon3(m) + (m === tripYm ? ' ✦' : ''), parts: [{ v: by[m].save, c: '#2BA59A', name: 'Saving up' }, { v: by[m].once, c: '#3F7BEA', name: 'Paying outright' }, { v: by[m].zilch, c: '#F2A33A', name: 'Zilch' }] }));
+  return `<div class="cleg">${[['#2BA59A','Saving up'],['#3F7BEA','Paying outright'],['#F2A33A','Zilch']].filter(([c,n]) => rows.some(r => r.parts.some(x => x.name===n && x.v > 0))).map(([c,n]) => `<span><i style="background:${c}"></i>${n}</span>`).join('')}${tripYm ? '<span>✦ the trip</span>' : ''}</div>${barChart(rows, { label: `When ${p.name} gets paid`, fmt: v => Math.abs(v - peak) < .01 ? money(v,0) : '' })}`;
+}
+function plPanel(p) {
+  const st = plStats(p), items = p.items||[], cur = plCur(), parts = tripCatParts(p);
+  const groups = TCAT.map(c => [c, items.filter(it => itemCat(it) === c[0])]).filter(([, l]) => l.length);
+  const row = it => { const k = itemCat(it), col = TCATI[k][2];
+    return `<button class="rowbtn tripitem" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}">${it.img ? `<span class="ti-thumb" data-photo="${esc(it.img)}"></span>` : `<span class="ti-ico" style="background:color-mix(in srgb,${col} 16%,transparent);color:${col}">${tcatIcon(k)}</span>`}<div class="grow"><div class="t">${esc(it.n)}${it.paid ? ' <span class="chip ok">Sorted</span>' : ''}</div><div class="m">${esc(plWhen(it, p))}${it.note ? ` · ${esc(it.note)}` : ''}</div></div><div class="amt">${money(it.a||0,0)}</div></button>`; };
+  const hero = items.filter(it => it.img).slice(0, 3);
+  return `${tripHero(p, st)}
+    ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
+    ${parts.length ? `<section class="panel"><h2>Where the trip money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
+    ${st.future.length ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
+    <section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
+    ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
+    <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
+    ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
+  </section>`;
+}
+
+/* ----- money: where it goes ----- */
+const FLOW_COL = { dd:'#4C6FE0', ex1:'#2BA59A', ex2:'#E8A33D', mex:'#E5577A', trips:'#8E5BD8', spare:'#33B679', short:'#F0B429', other:'#7C8796' };
+const FLOW_NAME = { dd:'Home and bills', ex1:'Kids', ex2:'Food and fuel', mex:'One-offs' };
+const INC_COL = ['#3F8EDB', '#9B5BD3', '#33B679', '#E8A33D'];
+function sheetFlow(ym) {
+  const doc = S.bsheet[ym]; if (!doc) return null; const t = bsTotals(doc, ym), inc = [];
+  (doc.inc||[]).filter(bsOn).forEach(x => inc.push({ name: String(x.n||'').replace(/['’]s? wages|\s*wages/i,'').trim() || x.n, v: Number(x.a)||0 }));
+  if (doc.viki && !doc.viki.off) inc.splice(/chris/i.test(inc[0]?.name||'') ? 1 : 0, 0, { name: 'Viki', v: t.viki });
+  inc.forEach((x, i) => x.c = /chris/i.test(x.name) ? INC_COL[0] : /viki/i.test(x.name) ? INC_COL[1] : INC_COL[2 + (i % 2)]);
+  const outs = doc.secs.filter(s => s.kind === 'base' || s.kind === 'extra').map(s => ({ k: s.k, name: FLOW_NAME[s.k] || s.t, v: t.sec[s.k]||0, c: FLOW_COL[s.k] || FLOW_COL.other })).filter(o => o.v > 0.5);
+  if (t.plan) outs.push({ k: 'trips', name: 'Trips', v: t.plan, c: FLOW_COL.trips });
+  return { ym, t, inc: inc.filter(x => x.v > 0), outs };
+}
+function flowChart(f) {
+  const W = 360, rights = [...f.outs], lefts = [...f.inc];
+  if (f.t.left >= 0.5) rights.push({ k: 'spare', name: 'To spare', v: f.t.left, c: FLOW_COL.spare }); else if (f.t.left < -0.5) lefts.push({ name: 'To find', v: -f.t.left, c: FLOW_COL.short });
+  const total = rights.reduce((s, x) => s + x.v, 0) || 1, k = 300 / total, minH = 28, gR = 7, gL = 12;
+  rights.forEach(x => x.h = Math.max(minH, x.v * k)); const trunkH = rights.reduce((s, x) => s + x.h, 0), lt = lefts.reduce((s, x) => s + x.v, 0) || 1;
+  lefts.forEach(x => x.h = x.v / lt * trunkH);
+  const spanR = trunkH + gR * (rights.length - 1), spanL = trunkH + gL * (lefts.length - 1), H = Math.max(spanR, spanL) + 56, y0 = 40;
+  const xL = 6, xT = 150, xR = 214, bw = 10, tY = y0 + (Math.max(spanR, spanL) - trunkH) / 2;
+  let y = y0 + (Math.max(spanR, spanL) - spanR) / 2; rights.forEach(x => { x.y = y; y += x.h + gR; });
+  y = y0 + (Math.max(spanR, spanL) - spanL) / 2; lefts.forEach(x => { x.y = y; y += x.h + gL; });
+  const band = (x1, ya, ha, x2, yb, hb, col) => { const m = (x1 + x2) / 2; return `<path d="M${x1} ${ya} C${m} ${ya} ${m} ${yb} ${x2} ${yb} L${x2} ${yb+hb} C${m} ${yb+hb} ${m} ${ya+ha} ${x1} ${ya+ha}Z" fill="${col}" opacity=".32"/>`; };
+  let g = '', ty = tY;
+  lefts.forEach(x => { g += band(xL + bw, x.y, x.h, xT, ty, x.h, x.c); ty += x.h; });
+  ty = tY; rights.forEach(x => { g += band(xT + bw, ty, x.h, xR, x.y, x.h, x.c); ty += x.h; });
+  lefts.forEach(x => { g += `<rect x="${xL}" y="${x.y}" width="${bw}" height="${x.h}" rx="3" fill="${x.c}"><title>${esc(x.name)}: ${money(x.v,0)}</title></rect><text x="${xL + bw + 7}" y="${x.y + x.h/2 - 3}" class="fl-n">${esc(x.name)}</text><text x="${xL + bw + 7}" y="${x.y + x.h/2 + 12}" class="fl-v">${money(x.v,0)}</text>`; });
+  g += `<rect x="${xT}" y="${tY}" width="${bw}" height="${trunkH}" rx="3" fill="var(--ink)" opacity=".82"/><text x="${xT + bw/2}" y="${y0 - 22}" text-anchor="middle" class="fl-n">Coming in</text><text x="${xT + bw/2}" y="${y0 - 8}" text-anchor="middle" class="fl-v">${money(f.t.inc,0)}</text>`;
+  rights.forEach(x => { const pct = Math.round(x.v / (f.t.inc || total) * 100); g += `<rect x="${xR}" y="${x.y}" width="${bw}" height="${x.h}" rx="3" fill="${x.c}"><title>${esc(x.name)}: ${money(x.v,0)}</title></rect><text x="${xR + bw + 7}" y="${x.y + x.h/2 - 3}" class="fl-n${x.k==='spare' ? ' good' : ''}">${esc(x.name)}</text><text x="${xR + bw + 7}" y="${x.y + x.h/2 + 12}" class="fl-v">${money(x.v,0)}${pct ? ` · ${pct}%` : ''}</text>`; });
+  return `<svg class="chart flow" viewBox="0 0 ${W} ${H}" role="img" aria-label="Where ${monthName(f.ym)}'s money goes">${g}</svg>`;
+}
+function monthStrip(start, n = 6) {
+  const months = Array.from({ length: n }, (_, i) => ymAdd(start, i)).filter(ym => S.bsheet[ym]); if (!months.length) return '';
+  const fl = months.map(sheetFlow), max = Math.max(...fl.map(f => Math.max(f.t.inc, f.t.base + f.t.extra))) || 1;
+  const keys = []; fl.forEach(f => f.outs.forEach(o => { if (!keys.find(k => k.k === o.k)) keys.push({ k: o.k, name: o.name, c: o.c }); }));
+  return `<div class="cleg">${keys.map(k => `<span><i style="background:${k.c}"></i>${esc(k.name)}</span>`).join('')}<span><i style="background:${FLOW_COL.spare}"></i>To spare</span></div>
+    <div class="mstrip">${fl.map(f => { const out = f.t.base + f.t.extra, spare = f.t.left;
+      return `<button type="button" class="ms-row" data-act="plsheet" data-v="${f.ym}"><span class="ms-m">${mon3(f.ym)}</span><span class="ms-bar">${f.outs.map(o => `<i style="width:${o.v/max*100}%;background:${o.c}" title="${esc(o.name)} ${money(o.v,0)}"></i>`).join('')}${spare > 0 ? `<i style="width:${spare/max*100}%;background:${FLOW_COL.spare}"></i>` : ''}<b class="ms-inc" style="left:${f.t.inc/max*100}%"></b></span><span class="ms-l ${spare >= 0 ? 'good' : 'find'}">${spare >= 0 ? `${money(spare,0)} spare` : `${money(-spare,0)} to find`}</span></button>`; }).join('')}</div>
+    <p class="note">Each bar is a month's outgoings. The thin line is what comes in, so anything past it needs finding. Tap a month to open its sheet.</p>`;
+}
+function potChart(start, n = 6) {
+  const months = Array.from({ length: n }, (_, i) => ymAdd(start, i)).filter(ym => S.bsheet[ym]); if (months.length < 2) return '';
+  let run = 0; const pts = months.map(ym => { run += bsTotals(S.bsheet[ym], ym).left; return { ym, v: run }; });
+  const W = 340, H = 150, pl = 8, pr = 8, pt = 26, pb = 22, lo = Math.min(0, ...pts.map(p => p.v)), hi = Math.max(1, ...pts.map(p => p.v));
+  const X = i => pl + (W - pl - pr) * (i / (pts.length - 1)), Y = v => pt + (H - pt - pb) * (1 - (v - lo) / (hi - lo || 1));
+  const line = pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ');
+  const area = `${line} L${X(pts.length-1)} ${Y(Math.max(lo,0))} L${X(0)} ${Y(Math.max(lo,0))}Z`, end = pts.at(-1), minP = pts.reduce((m, p) => p.v < m.v ? p : m, pts[0]);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Spare money added up month by month"><defs><linearGradient id="potg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33B679" stop-opacity=".35"/><stop offset="1" stop-color="#33B679" stop-opacity="0"/></linearGradient></defs>
+    <line x1="${pl}" x2="${W-pr}" y1="${Y(0)}" y2="${Y(0)}" class="axis"/><path d="${area}" fill="url(#potg)"/><path d="${line}" fill="none" stroke="#2E9E62" stroke-width="2.5" stroke-linejoin="round"/>
+    ${pts.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p.v)}" r="${p === end || p === minP ? 4.5 : 3}" fill="${p.v < 0 ? '#F0B429' : '#2E9E62'}"><title>End of ${monthName(p.ym)}: ${money(p.v,0)}</title></circle><text x="${X(i)}" y="${H-6}" class="lbl" text-anchor="middle">${mon3(p.ym)}</text>`).join('')}
+    <text x="${X(pts.length-1)}" y="${Y(end.v) - 10}" class="val" text-anchor="end">${money(end.v,0)}</text>${minP !== end && minP.v < 0 ? `<text x="${X(pts.indexOf(minP)) + 8}" y="${Y(minP.v) - 8}" class="val">${money(minP.v,0)}</text>` : ''}</svg>`;
+}
+function upcomingTrips() {
+  const list = (S.plans||[]).filter(p => !p.to || p.to >= today()).sort((a, b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
+  if (!list.length) return '';
+  return `<section class="panel"><h2>Treats on the way <button class="btn small ghost" data-act="tab" data-v="trips">All trips</button></h2><div class="tripcards">${list.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="opentrip" data-kind="${esc(p.kind||'summer')}"` })).join('')}</div></section>`;
+}
+function viewMoneyOverview() {
+  const cur = plCur(), months = Object.keys(S.bsheet).filter(m => m >= cur).sort().slice(0, 6);
+  if (!months.length) return `<section class="panel"><h2>Where the money goes</h2><p class="empty">Start a Budget Sheet for this month and the pictures fill in here.</p><div class="btnrow"><button class="btn small" data-act="mseg" data-v="sheet">Open the sheet</button></div></section>` + upcomingTrips();
+  const sel = months.includes(UI.ovm) ? UI.ovm : (months.includes(cur) ? cur : months[0]), f = sheetFlow(sel);
+  const chips = `<div class="seg mchips" role="group" aria-label="Which month">${months.map(m => `<button data-act="ovm" data-v="${m}" aria-pressed="${m===sel}">${mon3(m)}</button>`).join('')}</div>`;
+  const spare = f.t.left, msg = spare >= 0 ? `${money(spare,0)} to spare` : `${money(-spare,0)} to find`;
+  return `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
+      <p class="note">Pay comes in on the left and goes out to the right, from the ${esc(monthName(sel))} Budget Sheet${f.t.plan ? ', including trips from Trips' : ''}. ${spare >= 0 ? 'Whatever is spare can go to the holiday pot or savings.' : 'The yellow band is the gap to cover this month.'}</p></section>
+    <section class="panel"><h2>The months ahead</h2>${monthStrip(cur)}</section>
+    ${potChart(cur) ? `<section class="panel"><h2>Spare money, added up</h2>${potChart(cur)}<p class="note">Spare money from each month added up, with any short months taken off. It shows how the months help each other.</p></section>` : ''}
+    ${upcomingTrips()}`;
 }
 
 /* ----- renewals ----- */
@@ -3069,6 +3328,8 @@ document.addEventListener('click', async e => {
   if (a==='debt') return debtForm(el.dataset.id);
   if (a==='trip') return tripForm(el.dataset.id);
   if (a==='pltab') { UI.pltab = el.dataset.v; return render(); }
+  if (a==='ovm') { UI.ovm = el.dataset.v; return render(); }
+  if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
   if (a==='plspread') { if (!el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again: this turns Zilch and one-off payments into monthly saving'; return; } return planSpread(el.dataset.id); }
