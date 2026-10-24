@@ -624,6 +624,32 @@ body:has(.xbar:not([hidden])) .fab{display:none}
 :root[data-user="viki"][data-theme="dark"]{ --midnight:#26103A; --midnight-2:#43205F; --brass:#C49BE8; --brass-2:#E2C9F7; --brass-soft:#2A1A38; }
 :root[data-user="viki"] .tblock{--brass:#E7CCFA;--gold:#F0CF86}
 :root[data-user="viki"] .fab{color:#fff}
+
+/* ===== Annual leave ===== */
+:root{--lv-al:#7B3FB0;--lv-al-soft:#F1E7FA;--lv-part:#C29BE3;--lv-oc:#3F51B5;--lv-do:#2E9E6A;--lv-other:#E8A33D}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--lv-al:#B98AE6;--lv-al-soft:#2A1A38;--lv-part:#7E5AA3;--lv-oc:#8C9EFF;--lv-do:#5FD39B;--lv-other:#F0B860}}
+:root[data-theme="dark"]{--lv-al:#B98AE6;--lv-al-soft:#2A1A38;--lv-part:#7E5AA3;--lv-oc:#8C9EFF;--lv-do:#5FD39B;--lv-other:#F0B860}
+.seg.who button[data-who="leave"][aria-pressed="true"]{color:var(--lv-al)}
+.lvys{overflow-x:auto}
+.lvbig{font-weight:650;font-size:1.4rem;letter-spacing:-.02em}
+.lvyear{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}
+@media (min-width:560px){.lvyear{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.lvm b{display:block;font-size:.82rem;font-weight:650;margin-bottom:4px}
+.lvg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.lvg span{font-size:.6rem;color:var(--muted);text-align:center;font-weight:600}
+.lvd{border:0;background:transparent;font:inherit;font-size:.68rem;font-variant-numeric:tabular-nums;color:var(--ink-2);aspect-ratio:1;border-radius:6px;padding:0;cursor:pointer;position:relative}
+.lvd.we{color:var(--muted);background:var(--sheet-2)}
+.lvd.k-al{background:var(--lv-al);color:#fff;font-weight:650}
+.lvd.k-part{background:var(--lv-part);color:#fff;font-weight:650}
+.lvd.k-oc{box-shadow:inset 0 0 0 1.5px var(--lv-oc);color:var(--lv-oc);font-weight:650}
+.lvd.k-do{box-shadow:inset 0 0 0 1.5px var(--lv-do);color:var(--lv-do);font-weight:650}
+.lvd.k-other{box-shadow:inset 0 0 0 1.5px var(--lv-other)}
+.lvd.bh::after{content:"";position:absolute;top:2px;right:2px;width:4px;height:4px;border-radius:50%;background:var(--gold,#E8A33D)}
+.lvd.ch::before{content:"";position:absolute;left:20%;right:20%;bottom:2px;height:2px;border-radius:2px;background:var(--chris)}
+.lvd.today{outline:2px solid var(--brass);outline-offset:-1px}
+.lvsw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.lvsw.bhsw{background:var(--gold,#E8A33D);border-radius:50%;width:6px;height:6px}
+.lvsw.chsw{background:var(--chris);height:3px;width:12px;border-radius:2px}
 </style>
 </head>
 <body>
@@ -679,7 +705,7 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg})); } catch(e) {} };
@@ -738,6 +764,7 @@ function applyLocal(path, data) {
   else if (c === 'budget') S.budget = data || {cats:[]};
   else if (c === 'car') S.car = data || {};
   else if (c === 'stmt') { if (id==='meta') S.stmtMeta = data; else if (data) S.stmt[id] = data; else delete S.stmt[id]; }
+  else if (c === 'leave') S.leave = data || null;
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; }
@@ -746,11 +773,11 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{} });
+  Object.assign(S, { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d]));
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
   return rows;
@@ -926,7 +953,7 @@ function deriveDays() {
   });
   CAL.days = out;
 }
-const dayRec = (who, date) => S.days[`${who}_${date}`] || (CAL.days||{})[`${who}_${date}`];
+const dayRec = (who, date) => S.days[`${who}_${date}`] || (CAL.days||{})[`${who}_${date}`] || (who==='viki' && S.leave && leaveDay(date)==='al' && !isWeekend(date) ? { who, date, status:'holiday', fromLeave:true } : undefined);
 
 /* everything happening on each day: calendar events (coloured) plus on call logged only in the app */
 function agenda(from, to) {
@@ -1204,9 +1231,11 @@ function viewWork() {
   const whoSeg = `<div class="seg who" role="group" aria-label="Whose work">
     <button data-act="who" data-who="chris" aria-pressed="${who==='chris'}">Chris</button>
     <button data-act="who" data-who="viki" aria-pressed="${who==='viki'}">Viki</button>
+    <button data-act="who" data-who="leave" aria-pressed="${who==='leave'}">Leave</button>
   </div>`;
   fetchCal();
   if (who==='viki') return whoSeg + viewViki();
+  if (who==='leave') return whoSeg + viewLeave();
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
   const lead = (first.getDay()+6)%7;
   const monthDays = daysFor(who, `${ym}-01`, `${ym}-${pad(daysIn)}`);
@@ -1356,7 +1385,7 @@ function viewViki() {
     const date = `${ym}-${pad(d)}`, rec = dayRec('viki', date);
     let lab = '', cls = '';
     if (rec) {
-      if (rec.status==='shift') { lab = `${fh(shiftHours(rec))}h`; cls = rec.oncall ? 'st-oncall' : 'st-shift'; }
+      if (rec.status==='shift') { lab = rec.oncall ? 'On call' : `${fh(shiftHours(rec))}h`; cls = rec.oncall ? 'st-oncall' : 'st-shift'; }
       else if (rec.status==='off') { lab = rec.oncall ? 'On call' : 'Off'; cls = rec.oncall ? 'st-oncall' : 'st-off'; }
       else { lab = SHORT[rec.status] || ''; cls = `st-${rec.status}`; }
     }
@@ -1435,7 +1464,102 @@ function earningsPanel(ym) {
 }
 function leaveYearViki() { const r = vk(), startMM = Number(r.leaveStart || 4), t = parse(today()); let y = t.getFullYear(); if (t.getMonth()+1 < startMM) y--; const from = `${y}-${pad(startMM)}-01`; return { from, to: addDays(addMonths(from,12),-1) }; }
 const usualHours = date => { const w = parse(date).getDay(); return w===0||w===6 ? 0 : 9.5; };
+/* ----- annual leave: Viki's leave card from her AL balances spreadsheet (leave/main), Chris's from his work calendar ----- */
+const LV_KIND = { al:['Annual leave','var(--lv-al)'], part:['Part day','var(--lv-part)'], oc:['On call request','var(--lv-oc)'], do:['Day off request','var(--lv-do)'], other:['Other','var(--lv-other)'] };
+const lvYears = () => S.leave ? Object.values(S.leave.years||{}).sort((a,b) => a.from < b.from ? -1 : 1) : [];
+function lvYearFor(date) { return lvYears().find(y => date >= y.from && date <= y.to) || null; }
+const leaveDay = (date) => { const y = lvYearFor(date); return y && y.days ? y.days[date] : null; };
+function lvStats(y) {
+  const t = today(), wk = y.weeks || [];
+  const booked = wk.reduce((s,w) => s + (Number(w.h)||0), 0);
+  const taken = wk.filter(w => addDays(w.wc, 6) < t).reduce((s,w) => s + (Number(w.h)||0), 0);
+  const avail = (Number(y.ent)||0) + (Number(y.carried)||0);
+  return { booked, taken, coming: booked - taken, avail, left: avail - booked, bh: wk.reduce((s,w) => s + (Number(w.bh)||0), 0) };
+}
+function lvBlocks(y) {
+  // runs of leave days (weekends and bank holidays in between join them up)
+  const ds = Object.entries(y.days||{}).filter(([,k]) => k==='al' || k==='part').map(([d]) => d).sort();
+  const blocks = [];
+  ds.forEach(d => { const b = blocks[blocks.length-1]; if (b) { let gap = addDays(b.to,1), ok = true; while (gap < d) { if (!isWeekend(gap) && !isBH(gap)) { ok = false; break; } gap = addDays(gap,1); } if (ok) { b.to = d; b.days.push(d); return; } } blocks.push({ from:d, to:d, days:[d] }); });
+  blocks.forEach(b => { const ws = (y.weeks||[]).filter(w => w.wc <= b.to && addDays(w.wc,6) >= b.from); b.note = ws.map(w => w.note).filter(Boolean)[0] || ''; b.n = b.days.filter(d => (y.days[d]==='al')).length; b.part = b.days.length - b.n; });
+  return blocks;
+}
+function lvMiniMonth(ym, y, who) {
+  const first = parse(`${ym}-01`), daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate(), lead = (first.getDay()+6)%7, t = today();
+  let c = ''; for (let i=0;i<lead;i++) c += '<i></i>';
+  for (let d=1; d<=daysIn; d++) {
+    const date = `${ym}-${pad(d)}`, k = y && y.days ? y.days[date] : null, bh = isBH(date);
+    const chris = who !== 'viki' && dayRec('chris', date) && dayRec('chris', date).status === 'holiday';
+    c += `<button type="button" class="lvd${k?' k-'+k:''}${bh?' bh':''}${isWeekend(date)?' we':''}${date===t?' today':''}${chris?' ch':''}" data-act="lvday" data-date="${date}" aria-label="${shortDate(date)}${k?', '+LV_KIND[k][0]:''}${bh?', bank holiday':''}">${d}</button>`;
+  }
+  return `<div class="lvm"><b>${MONTHS[first.getMonth()].slice(0,3)} ${String(first.getFullYear()).slice(2)}</b><div class="lvg">${['M','T','W','T','F','S','S'].map(x=>`<span>${x}</span>`).join('')}${c}</div></div>`;
+}
+function viewLeave() {
+  const ys = lvYears();
+  if (!ys.length) return `<section class="panel"><h2>Annual leave</h2><p class="empty">No leave card loaded yet.</p></section>`;
+  const cur = lvYearFor(today()) || ys[ys.length-1];
+  const y = ys.find(x => x.label === UI.lvYear) || cur; UI.lvYear = y.label;
+  const s = lvStats(y), dh = Number(S.leave.dayHours) || 9.5, over = s.left < 0;
+  const yseg = `<div class="seg lvys" role="group" aria-label="Leave year">${ys.filter(x => x.from >= addMonths(cur.from,-12)).map(x => `<button data-act="lvyear" data-v="${esc(x.label)}" aria-pressed="${x.label===y.label}">${esc(x.label)}</button>`).join('')}</div>`;
+  const hero = tblock({ kicker: `Viki · leave year ${esc(y.label)}`, title: over ? `${fh(-s.left)} hours over` : `${fh(s.left)} hours left`,
+    side: `<span class="tb-kicker">About</span><span class="big">${over?'−':''}${Math.round(Math.abs(s.left)/dh*10)/10} <small style="font-size:.9rem">days</small></span>`,
+    cells: [ tbCell('Entitlement', `${fh(y.ent)}h`, 'var(--rule-2)'), tbCell('Carried over', `${Number(y.carried)>0?'+':Number(y.carried)<0?'−':''}${fh(Math.abs(y.carried))}h`, Number(y.carried) < 0 ? 'var(--red)' : 'var(--good)'), tbCell('Booked', `${fh(s.booked)}h`, 'var(--lv-al)') ],
+    after: `<div style="padding:12px 0 2px">${gauge(s.avail ? s.booked/s.avail : 0, 'lg')}</div>`,
+    foot: `<span>${fh(s.taken)}h taken so far, ${fh(s.coming)}h still to come, out of ${fh(s.avail)}h available. ${fh(s.bh)} bank holidays.</span>` });
+  const blocks = lvBlocks(y), t = today();
+  const next = blocks.filter(b => b.to >= t), past = blocks.filter(b => b.to < t);
+  const bl = b => { const same = b.from === b.to; return `<button class="rowbtn" data-act="lvday" data-date="${b.from}"><span class="evb" style="background:var(--lv-al-soft);color:var(--lv-al)">${icon('sun')}</span><span class="grow"><span class="t" style="display:block">${same ? esc(dayShort(b.from)) : `${esc(dayShort(b.from))} – ${esc(dayShort(b.to))}`}</span><span class="m" style="display:block">${b.n ? `${b.n} day${b.n===1?'':'s'}` : ''}${b.part ? `${b.n?', ':''}${b.part} part day${b.part===1?'':'s'}` : ''}${b.note ? ` · ${esc(b.note)}` : ''}</span></span>${b.from > t ? `<span class="chip cat">${daysBetween(t, b.from)}d</span>` : b.to >= t ? '<span class="chip st-holiday">Now</span>' : ''}</button>`; };
+  const months = []; for (let i=0;i<12;i++) months.push(ymOf(addMonths(y.from, i)));
+  const legend = `<div class="legend">${['al','part','oc','do'].map(k => `<span class="chip"><i class="lvsw" style="background:${LV_KIND[k][1]}"></i>${LV_KIND[k][0]}</span>`).join('')}<span class="chip"><i class="lvsw bhsw"></i>Bank holiday</span><span class="chip"><i class="lvsw chsw"></i>Chris off</span></div>`;
+  const weeks = (y.weeks||[]).filter(w => w.h).map(w => `<tr data-act="lvweek" data-wc="${w.wc}"><td>${esc(dayShort(w.wc))}</td><td>${esc(w.note||'')}</td><td class="r">${w.bh ? fh(w.bh) : ''}</td><td class="r">${fh(w.h)}</td></tr>`).join('');
+  // Chris
+  const ly = leaveYear(), cAllow = Number(S.settings.chrisAllowance) || (S.leave.chris && S.leave.chris.allowance) || 0, cBH = (S.leave.chris && S.leave.chris.bh) || 0;
+  const cDays = daysFor('chris', ly.from, ly.to).filter(d => d.status==='holiday'), cTaken = cDays.filter(d => d.date <= t).length;
+  const chris = `<section class="panel"><h2>Chris <span class="sub">leave year from ${esc(shortDate(ly.from))}</span><button class="btn small ghost" data-act="lvchris">Edit</button></h2>
+    <div class="gauge" style="padding-top:0"><div class="gh"><span class="t lvbig">${cAllow ? `${fh(cAllow - cDays.length)} days left` : 'Set his allowance'}</span><span class="amt"><small>${cAllow ? `of ${fh(cAllow)}${cBH ? ` + ${cBH} bank holidays` : ''}` : ''}</small></span></div>${gauge(cAllow ? cDays.length/cAllow : 0,'lg')}
+    <div class="m">${cTaken} taken, ${cDays.length - cTaken} booked. Days marked Holiday on his Work calendar count here.</div></div></section>`;
+  return `${yseg}${hero}
+    <section class="panel"><h2>Coming up</h2>${next.length ? `<div class="list">${next.map(bl).join('')}</div>` : '<p class="empty">Nothing else booked this leave year.</p>'}</section>
+    <section class="panel"><h2>Year planner <span class="sub">${esc(y.label)}</span></h2>${legend}<div class="lvyear">${months.map(m => lvMiniMonth(m, y)).join('')}</div><p class="note">From Viki's AL balances card. Tap a day to change it.</p></section>
+    ${chris}
+    <section class="panel"><h2>Week by week <span class="sub">${fh(s.booked)}h booked</span><button class="btn small ghost" data-act="lvedit">Entitlement</button></h2>
+      ${weeks ? `<div class="tbl"><table><thead><tr><th>Week of</th><th>Note</th><th class="r">BH</th><th class="r">AL hours</th></tr></thead><tbody>${weeks}</tbody><tfoot><tr><td colspan="2">Total</td><td class="r">${fh(s.bh)}</td><td class="r">${fh(s.booked)}</td></tr></tfoot></table></div>` : '<p class="empty">No leave booked.</p>'}
+      ${past.length ? `<details><summary>Already taken (${past.length})</summary><div class="list">${past.map(bl).join('')}</div></details>` : ''}
+    </section>`;
+}
+async function lvSave(y) { const doc = JSON.parse(JSON.stringify(S.leave)); doc.years[y.label] = y; await put('leave/main', doc); }
+function lvDayForm(date) {
+  const y0 = lvYearFor(date); if (!y0) { toast('That date is outside the leave years on the card'); return; }
+  const y = JSON.parse(JSON.stringify(y0)), k = (y.days||{})[date] || '', wc = addDays(date, -((parse(date).getDay()+6)%7));
+  const w = (y.weeks||[]).find(x => x.wc === wc) || { wc };
+  openSheet(dayShort(date), `${sel('lvK','This day', k, [['','Nothing'],['al','Annual leave'],['part','Part day of leave'],['oc','On call request'],['do','Day off request'],['other','Other']])}
+    <div class="fields2">${fld('lvH','AL hours that week', w.h ?? '', 'number','step="0.5" min="0" inputmode="decimal"')}${fld('lvN','Note for that week', w.note || '', 'text','placeholder="e.g. Kids off"')}</div>
+    <p class="note">The card counts leave by the week, like her AL balances sheet. ${isBH(date) ? 'This is a bank holiday.' : ''}</p>`, async () => {
+    y.days = y.days || {}; const nk = v('lvK'); if (nk) y.days[date] = nk; else delete y.days[date];
+    const h = num(v('lvH')), n = v('lvN').trim(); const i = (y.weeks||[]).findIndex(x => x.wc === wc);
+    const nw = { ...w, ...(h ? { h } : {}), ...(n ? { note:n } : {}) }; if (!h) delete nw.h; if (!n) delete nw.note;
+    y.weeks = y.weeks || []; if (i >= 0) { if (Object.keys(nw).length > 1) y.weeks[i] = nw; else y.weeks.splice(i,1); } else if (Object.keys(nw).length > 1) { y.weeks.push(nw); y.weeks.sort((a,b) => a.wc < b.wc ? -1 : 1); }
+    await lvSave(y);
+  });
+}
+function lvEditForm() {
+  const y = JSON.parse(JSON.stringify(lvYears().find(x => x.label === UI.lvYear)));
+  openSheet(`Leave year ${y.label}`, `<div class="fields2">${fld('lvE','Entitlement (hours)', y.ent, 'number','step="0.5" inputmode="decimal"')}${fld('lvC','Carried over (hours, minus for a shortfall)', y.carried, 'number','step="0.5" inputmode="decimal"')}</div>
+    ${fld('lvDh','Hours in a usual leave day', S.leave.dayHours || 9.5, 'number','step="0.25" inputmode="decimal"')}`, async () => {
+    y.ent = num(v('lvE')) || 0; y.carried = num(v('lvC')) || 0; const doc = JSON.parse(JSON.stringify(S.leave)); doc.years[y.label] = y; doc.dayHours = num(v('lvDh')) || 9.5; await put('leave/main', doc);
+  });
+}
+function lvChrisForm() {
+  const c = (S.leave && S.leave.chris) || {};
+  openSheet("Chris's leave", `<div class="fields2">${fld('lcA','Holiday allowance (days)', S.settings.chrisAllowance ?? c.allowance ?? '', 'number','step="0.5" inputmode="decimal"')}${fld('lcB','Bank holidays on top', c.bh ?? '', 'number','step="1" inputmode="numeric"')}</div>`, async () => {
+    const a = num(v('lcA')), b = num(v('lcB'));
+    await put('settings/main', { ...S.settings, chrisAllowance: a || 0 });
+    const doc = JSON.parse(JSON.stringify(S.leave)); doc.chris = { allowance: a || 0, bh: b || 0 }; await put('leave/main', doc);
+  });
+}
+
 function leavePanel() {
+  if (S.leave && lvYearFor(today())) { const y = lvYearFor(today()), st = lvStats(y); return `<section class="panel"><h2>Annual leave <span class="sub">${esc(y.label)}</span><button class="btn small ghost" data-act="who" data-who="leave">Open</button></h2><div class="gauge" style="padding-top:0"><div class="gh"><span class="t lvbig">${st.left < 0 ? `${fh(-st.left)} hours over` : `${fh(st.left)} hours left`}</span><span class="amt"><small>${fh(st.booked)} of ${fh(st.avail)}h booked</small></span></div>${gauge(st.avail ? st.booked/st.avail : 0,'lg')}<div class="m">From her AL balances card: ${fh(st.taken)}h taken, ${fh(st.coming)}h still to come.</div></div></section>`; }
   const r = vk(); if (!r.leaveHours) return `<section class="panel"><h2>Annual leave</h2><p class="note">Add her yearly leave entitlement in hours to track what's left.</p><div class="btnrow"><button class="btn small ghost" data-act="vrates">Add entitlement</button></div></section>`;
   const ly = leaveYearViki(), days = daysFor('viki', ly.from, ly.to).filter(d => d.status==='holiday');
   const used = days.reduce((s,d) => s + (Number(d.leaveHours) || usualHours(d.date)), 0), past = days.filter(d => d.date <= today()).reduce((s,d) => s + (Number(d.leaveHours) || usualHours(d.date)), 0);
@@ -2611,6 +2735,11 @@ document.addEventListener('click', async e => {
   if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; closeSheet(); if (fn) { await fn(); toast('Deleted'); } } else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
   if (a==='settings') return settingsForm();
   if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='lvyear') { UI.lvYear = el.dataset.v; return render(); }
+  if (a==='lvday') return lvDayForm(el.dataset.date);
+  if (a==='lvweek') return lvDayForm(el.dataset.wc);
+  if (a==='lvedit') return lvEditForm();
+  if (a==='lvchris') return lvChrisForm();
   if (a==='who') { UI.who = el.dataset.who; keepUI(); return render(); }
   if (a==='hday') { UI.hday = el.dataset.date; return render(); }
   if (a==='cal') { UI.cal = ymOf(addMonths(`${UI.cal}-01`, Number(el.dataset.v))); return render(); }
