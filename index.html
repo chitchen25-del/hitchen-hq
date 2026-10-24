@@ -1266,7 +1266,7 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 
 <nav class="tabs" aria-label="Sections">
   <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Home</button>
-  <button data-tab="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Work</button>
+  <button data-tab="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.2c3 .3 5.4 2.7 5.4 5.8"/></svg>Family</button>
   <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16v11H4z"/><path d="M4 8l2-4h12l2 4"/><circle cx="12" cy="13.5" r="2.5"/></svg>Money</button>
   <button data-tab="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12"/><path d="M12 9c-2-4-6-4-6-1.5S10 9 12 9c2 0 6 1 6-1.5S14 5 12 9z"/></svg>Treats</button>
   <button data-tab="car"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="8" cy="17" r="2"/><circle cx="16" cy="17" r="2"/><path d="M5 12h14"/></svg>Car</button>
@@ -1470,7 +1470,7 @@ function render() {
   $('.fab').hidden = !session;
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
   if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('#title').textContent = 'Wish list'; $('#subtitle').textContent = 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
-  const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Work','Rotas, on call and pay'], money:['Money','Bills, budget and savings'], trips:['Treats','Holidays, visits, Christmas and birthdays'], car:['The Evoque','Service, checks, fuel and trips']};
+  const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Holidays, visits, Christmas and birthdays'], car:['The Evoque','Service, checks, fuel and trips']};
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
   const views = { home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
@@ -3162,7 +3162,7 @@ function bsVikiBlock(doc, t) {
       <div class="seg" role="group" aria-label="How Viki's wages are set"><button type="button" data-act="bsvmode" data-v="calc" aria-pressed="${vk.mode==='calc'}">Work it out</button><button type="button" data-act="bsvmode" data-v="fixed" aria-pressed="${vk.mode!=='calc'}">Type it in</button></div>
       ${vk.mode==='calc' ? `<div class="xhead vi"><span>On call worked</span><span>Rate</span><span>How many</span><span>£</span></div>${items}
       <div class="xr vi"><span class="xn">Salary</span><span class="xd"></span><span class="xd"></span>${bsMoneyIn('vbase', vk.base, 'aria-label="Salary"')}</div>
-      ${(() => { const p = bsVikiSlip(doc, UI.bs.ym); return `<p class="note">Total pay ${money(p.gross,2)}. Pension ${money(p.pension,2)} (on ${money(p.pensionable,2)}, call-out hours don't count), NI ${money(p.ni,2)}, tax ${money(p.tax,2)}, so take-home is <b>${money(p.net,2)}</b>. Worked out with the real Isle of Man rules, the same as the Work tab. On call worked in the claim month before is paid this month.</p>`; })()}
+      ${(() => { const p = bsVikiSlip(doc, UI.bs.ym); return `<p class="note">Total pay ${money(p.gross,2)}. Pension ${money(p.pension,2)} (on ${money(p.pensionable,2)}, call-out hours don't count), NI ${money(p.ni,2)}, tax ${money(p.tax,2)}, so take-home is <b>${money(p.net,2)}</b>. Worked out with the real Isle of Man rules, the same as Viki's page on the Family tab. On call worked in the claim month before is paid this month.</p>`; })()}
       <div class="btnrow"><button type="button" class="btn small ghost" data-act="bsvfill">Fill in from her logged on call</button></div>` : ''}
     </div>` : ''}`;
 }
@@ -4683,9 +4683,9 @@ function mediaSlots() {
     ['home-morning', 'Home, morning', '5am to 11am'], ['home-day', 'Home, daytime', '11am to 5pm'], ['home-evening', 'Home, evening', '5pm to 9pm'], ['home-night', 'Home, night', '9pm to 5am'],
     ['paris-night', 'Paris countdown', 'Until the last week'], ['paris-day', 'Paris, final week', 'The last 7 days'],
     ['holiday-pot', 'Holiday pot', 'Fills with colour as you save'],
-    ['viki-work', 'Viki at work', 'Top of her Work page'], ['face-viki', 'Viki\'s face', 'The little round picture by her name'],
-    ['chris-work', 'Chris at work', 'Top of his Work page'], ['face-chris', 'Chris\'s face', 'The little round picture by his name'],
-    ...kidNames().flatMap(n => [[`kid-${wishKey(n)}`, `${n}'s wish list`, 'Her Work page, wish list and birthday'], [faceSlot(n), `${n}'s face`, 'Her little round picture']]),
+    ['viki-work', 'Viki at work', 'Top of her Family page'], ['face-viki', 'Viki\'s face', 'The little round picture by her name'],
+    ['chris-work', 'Chris at work', 'Top of his Family page'], ['face-chris', 'Chris\'s face', 'The little round picture by his name'],
+    ...kidNames().flatMap(n => [[`kid-${wishKey(n)}`, `${n}'s wish list`, 'Her Family page, wish list and birthday'], [faceSlot(n), `${n}'s face`, 'Her little round picture']]),
     ['celebrate', 'Celebrations', 'When you hit a milestone'],
   ];
 }
