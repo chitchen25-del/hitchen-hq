@@ -1914,20 +1914,19 @@ function personHero(who) {
 }
 function viewWork() {
   const kids = kidsDob(), ki = kids.findIndex(k => wishKey(k.name) === UI.who), ym = UI.cal;
-  const who = ki >= 0 || ['chris','viki','co','leave'].includes(UI.who) ? UI.who : 'chris';
+  if (UI.who === 'co') { UI.who = 'viki'; UI.vsub = 'co'; keepUI(); } /* call-outs now live on Viki's page */
+  const who = ki >= 0 || ['chris','viki','leave'].includes(UI.who) ? UI.who : 'chris';
   const whoSeg = `<div class="seg who${kids.length ? ' many' : ''}" role="group" aria-label="Whose page">
     <button data-act="who" data-who="chris" aria-pressed="${who==='chris'}">Chris</button>
     <button data-act="who" data-who="viki" aria-pressed="${who==='viki'}">Viki</button>
     ${kids.map((k, i) => { const key = wishKey(k.name); return `<button class="kidb" style="--kc:${KIDCOL[i % KIDCOL.length]}" data-act="who" data-who="${esc(key)}" aria-pressed="${who===key}">${esc(k.name)}</button>`; }).join('')}
-    <button data-act="who" data-who="co" aria-pressed="${who==='co'}">Call-outs</button>
     <button data-act="who" data-who="leave" aria-pressed="${who==='leave'}">Leave</button>
   </div>`;
   fetchCal();
   if (ki >= 0) return whoSeg + viewKidWork(kids[ki], ki);
-  if (who==='viki') { const sub = UI.vsub === 'contract' ? 'contract' : 'pay';
-    return whoSeg + personHero('viki') + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Rota and claims</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Pay and contract</button></div>` + (sub==='contract' ? viewVikiContract() : viewViki()); }
+  if (who==='viki') { const sub = ['contract','co'].includes(UI.vsub) ? UI.vsub : 'pay';
+    return whoSeg + personHero('viki') + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Rota &amp; claims</button><button role="tab" data-act="vsub" data-v="co" aria-selected="${sub==='co'}">Call-outs</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Pay &amp; contract</button></div>` + (sub==='contract' ? viewVikiContract() : sub==='co' ? `<div class="co-wrap">${viewCallouts()}</div>` : viewViki()); }
   if (who==='leave') return whoSeg + viewLeave();
-  if (who==='co') return whoSeg + viewCallouts();
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
   const lead = (first.getDay()+6)%7;
   const monthDays = daysFor(who, `${ym}-01`, `${ym}-${pad(daysIn)}`);
