@@ -1172,6 +1172,41 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .ch-gv small{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.75)}
 .ch-gs{font-size:.7rem;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ch-foot{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:12px;font-size:.72rem;color:rgba(255,255,255,.62)}
+
+/* hero pictures */
+.mbg{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;opacity:0;transition:opacity .5s ease}
+.mbg.on{opacity:1}
+.pic-btn{position:absolute;top:12px;right:12px;z-index:3;width:36px;height:36px;border-radius:999px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.28);color:#fff;cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.ch-acts{display:flex;gap:8px;align-items:center;flex:none}
+.ch-acts .pic-btn{position:static}
+.ch-img{z-index:-2}
+.tblock.tb-photo{background:#15161a;overflow:hidden}
+.tblock.tb-photo .tb-bg{z-index:-2}
+.tblock.tb-photo .tb-shade{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(8,10,16,.62) 0%,rgba(8,10,16,.25) 38%,rgba(8,10,16,.35) 62%,rgba(8,10,16,.82) 100%)}
+.tblock.tb-photo .tb-cells,.tblock.tb-photo .tb-foot{background:rgba(10,12,18,.28);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.tblock.tb-photo .tb-head{padding-top:22px;padding-right:58px;min-height:150px;align-items:flex-start}
+.hcard.hc-photo{position:relative;isolation:isolate;overflow:hidden;background:#123}
+.hcard.hc-photo .pp-grey{filter:grayscale(1) brightness(.9);z-index:-3}
+.hcard.hc-photo .pp-col{position:absolute;inset:0;z-index:-2;transition:clip-path 1.2s cubic-bezier(.2,.8,.2,1)}
+.hcard.hc-photo .pp-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(6,20,26,.55) 0%,rgba(6,20,26,.2) 40%,rgba(6,20,26,.7) 100%)}
+.pp-goal{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;font-size:.8rem;line-height:1.3}
+.pp-goal b{font-size:1.15rem}
+.pp-goal .linkbtn{color:#fff;opacity:.85;margin-left:auto}
+.kid-hero{position:relative;isolation:isolate;overflow:hidden}
+.kid-hero .kid-bg{z-index:-1}
+.kid-hero.has-pic::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,8,30,.15),rgba(10,8,30,.7))}
+.cele-card.pic{background-size:cover;background-position:center;color:#fff}
+.th-fx{position:absolute;inset:0;pointer-events:none;z-index:1}
+.th-fx i{position:absolute;left:var(--x);top:var(--y);width:6px;height:6px;border-radius:50%;background:var(--c);opacity:0;box-shadow:0 0 0 0 var(--c)}
+@media (prefers-reduced-motion:no-preference){.th-fx i{animation:thBurst 5.2s ease-out infinite;animation-delay:var(--d)}
+@keyframes thBurst{0%{opacity:0;transform:scale(.2);box-shadow:0 0 0 0 var(--c)}8%{opacity:1}30%{opacity:.9;transform:scale(1);box-shadow:0 -18px 0 -2px var(--c),13px -13px 0 -2px var(--c),18px 0 0 -2px var(--c),13px 13px 0 -2px var(--c),0 18px 0 -2px var(--c),-13px 13px 0 -2px var(--c),-18px 0 0 -2px var(--c),-13px -13px 0 -2px var(--c)}55%{opacity:0;transform:scale(1.4)}100%{opacity:0}}}
+.pic-list{display:flex;flex-direction:column}
+.pic-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--rule)}
+.pic-row:first-child{border-top:0}
+.pic-row b{display:block;font-size:.95rem}
+.pic-row small{color:var(--muted);font-size:.8rem}
+.pic-th{position:relative;width:56px;height:56px;flex:none;border-radius:12px;overflow:hidden;background:var(--sheet-2);display:grid;place-items:center}
+.pic-th span{font-size:.62rem;color:var(--muted);text-align:center;line-height:1.1;padding:4px}
 </style>
 </head>
 <body>
@@ -1399,8 +1434,8 @@ function render() {
 
 /* ----- title block: the grid of labelled boxes that opens each page ----- */
 const tbCell = (lb, vl, color) => `<div class="tb-cell"><span class="lb">${color ? `<i style="background:${color}"></i>` : ''}${lb}</span><span class="vl">${vl}</span></div>`;
-function tblock({ kicker='', title='', side='', cells=[], two=false, after='', foot='', cls='' }) {
-  return `<section class="tblock ${cls}"><div class="tb-head"><div style="min-width:0"><div class="tb-kicker">${kicker}</div><div class="tb-title">${title}</div></div>${side ? `<div class="tb-side">${side}</div>` : ''}</div>
+function tblock({ kicker='', title='', side='', cells=[], two=false, after='', foot='', cls='', bg='' }) {
+  return `<section class="tblock ${cls}${bg ? ' tb-photo' : ''}">${bg ? `${bg}<div class="tb-shade" aria-hidden="true"></div>` : ''}<div class="tb-head"><div style="min-width:0"><div class="tb-kicker">${kicker}</div><div class="tb-title">${title}</div></div>${side ? `<div class="tb-side">${side}</div>` : ''}</div>
     ${cells.length ? `<div class="tb-cells${two?' two':''}" style="--n:${two?2:cells.length}">${cells.join('')}</div>` : ''}${after}${foot ? `<div class="tb-foot">${foot}</div>` : ''}</section>`;
 }
 const gauge = (pct, cls='') => `<div class="bar ${cls}"><i class="${pct>1?'over':''}" style="width:${Math.max(0,Math.min(100,Math.round((pct||0)*100)))}%"></i></div>`;
@@ -1718,9 +1753,10 @@ function viewHome() {
     limit ? `<span><b>${money(Math.max(0,limit-spent),0)}</b> left to spend this month</span>` : '',
     binsTomorrow ? `<span class="hint">${icon('bin')} Bins out tonight</span>` : '',
   ].filter(Boolean).join('');
+  const hs = homeSlot(), hpic = media(hs) ? mediaBg(hs, 'tb-bg') + photoBtn(hs) : '';
   const hero = tblock({ kicker: greet, title: `${DOWS[td.getDay()]} ${td.getDate()} ${MONTHS[td.getMonth()]}`,
     cells: [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), payCell ],
-    foot });
+    foot, bg: hpic });
   setTimeout(runCountUp, 30); updateBadge();
   /* calm by default: today, payday and the week first; other panels only when there's something in them */
   return hero + yearlyUpdateNudge() + checkinCard() + pushNudge() + glanceCard(true) + countRibbon('Treats on the way') + week + listPanel() + tiles + (bills.length ? billsPanel : '') + carPanel;
@@ -3248,7 +3284,9 @@ function tripHero(p, st, opts = {}) {
   const k = p.kind || 'summer', lbl = kindLabel(k), sl = sleepsTo(p);
   const dates = p.from ? `${shortDate(p.from).replace(/ \d{4}$/,'')}${p.to && !isGift(p) ? ` – ${shortDate(p.to).replace(/ \d{4}$/,'')}` : ''}` : '';
   const sorted = st.cost ? st.paid / st.cost : 0, seed = [...String(p.id||p.name)].reduce((s, ch) => s + ch.charCodeAt(0), 0);
-  return `<${opts.tag||'section'} class="trip-hero k-${k}${opts.mini ? ' mini' : ''}" ${opts.attrs||''}><div class="th-art">${tripArt(k, seed)}</div><div class="th-photo" ${p.cover ? `data-photo="${esc(p.cover)}"` : ''}></div><div class="th-shade"></div>
+  const paris = /disney|paris/i.test(p.name || ''), ps = paris && !p.cover ? (p.from && daysBetween(today(), p.from) <= 7 && media('paris-day') ? 'paris-day' : media('paris-night') ? 'paris-night' : '') : '';
+  const fx = paris && ps !== 'paris-day' ? `<div class="th-fx" aria-hidden="true">${[0,1,2,3].map(i => `<i style="--x:${[22,70,45,84][i]}%;--y:${[18,12,30,24][i]}%;--c:${['#FFD36B','#FF8FB6','#7EE0E6','#C9A7FF'][i]};--d:${i*1.3}s"></i>`).join('')}</div>` : '';
+  return `<${opts.tag||'section'} class="trip-hero k-${k}${opts.mini ? ' mini' : ''}" ${opts.attrs||''}><div class="th-art">${tripArt(k, seed)}</div>${ps ? mediaBg(ps, 'th-photo') : `<div class="th-photo" ${p.cover ? `data-photo="${esc(p.cover)}"` : ''}></div>`}${fx}<div class="th-shade"></div>
     <div class="th-top"><span class="th-kind">${esc(lbl)}${dates ? ` · ${esc(dates)}` : ''}</span>${opts.mini ? '' : `<button type="button" class="th-btn" data-act="plan" data-id="${esc(p.id)}" aria-label="Edit trip and photo">${p.cover ? 'Edit' : 'Add photo'}</button>`}</div>
     <div class="th-body"><div class="th-name">${esc(p.name)}</div><div class="th-count">${esc(sl.big)}</div>${sl.small && !opts.mini ? `<div class="th-small">${esc(sl.small)}</div>` : ''}</div>
     <div class="th-foot"><div class="th-prog"><div class="th-pt">${money(st.paid,0)} of ${money(st.cost + st.fees,0)} sorted</div><div class="th-bar"><i style="width:${Math.round(Math.min(1, sorted)*100)}%"></i></div></div>${opts.mini ? '' : ring(sorted, 58, '#FFD36B')}</div></${opts.tag||'section'}>`;
@@ -3599,7 +3637,8 @@ function wishPanel(p) {
 function viewKid() {
   const name = UI.kid, l = wishList(name), xm = (S.plans || []).filter(p => p.kind === 'christmas' && p.from >= today()).sort((a, b) => a.from < b.from ? -1 : 1)[0];
   const n = xm ? sleepsN(xm.from) : null, stars = Array.from({ length: 18 }, (_, i) => `<i style="left:${(i * 53) % 100}%;top:${(i * 37) % 100}%;animation-delay:${(i % 6) * .4}s"></i>`).join('');
-  return `<section class="kid"><div class="kid-hero"><div class="kid-stars">${stars}</div><div class="kid-k">✨ Wish list</div><div class="kid-t">${esc(name)}'s wishes</div>${n !== null && n >= 0 ? `<div class="kid-s">${n === 0 ? 'It\'s Christmas!' : `${n} sleep${n === 1 ? '' : 's'} till Christmas`} 🎄</div>` : ''}</div>
+  const kslot = `kid-${wishKey(name)}`;
+  return `<section class="kid"><div class="kid-hero${media(kslot) ? ' has-pic' : ''}">${mediaBg(kslot, 'kid-bg')}<div class="kid-stars">${stars}</div><div class="kid-k">✨ Wish list</div><div class="kid-t">${esc(name)}'s wishes</div>${n !== null && n >= 0 ? `<div class="kid-s">${n === 0 ? 'It\'s Christmas!' : `${n} sleep${n === 1 ? '' : 's'} till Christmas`} 🎄</div>` : ''}</div>
     <form class="kidadd" autocomplete="off"><input name="n" aria-label="Your wish" placeholder="What would you love?" enterkeyhint="done"><input name="link" aria-label="Link, if you have one" placeholder="Link to it (if you have one)" inputmode="url"><button class="btn" type="submit">Add my wish 🎁</button></form>
     <div class="kid-list">${l.items.length ? l.items.map((w, i) => `<div class="kw" style="--d:${i * .04}s"><span class="kw-star">${['⭐','🌟','💫','✨'][i % 4]}</span><div class="grow"><b>${esc(w.n)}</b>${w.link ? `<a href="${esc(/^https?:/i.test(w.link) ? w.link : 'https://' + w.link)}" target="_blank" rel="noopener">See it</a>` : ''}</div><button type="button" class="kw-del" data-act="kwdel" data-id="${esc(w.id)}" aria-label="Remove ${esc(w.n)}">✕</button></div>`).join('') : `<p class="kid-empty">Nothing here yet. Add your first wish!</p>`}</div>
     <button type="button" class="kid-exit" data-hold="kidexit">Grown-ups: press and hold to finish</button></section>`;
@@ -3748,6 +3787,7 @@ function celebrate(title, sub = '') {
   const el = document.createElement('div'); el.className = 'cele'; el.setAttribute('role', 'alertdialog'); el.setAttribute('aria-label', title);
   el.innerHTML = `<canvas></canvas><div class="cele-card"><div class="cele-big">🎉</div><b>${esc(title)}</b><span>${esc(sub)}</span><button type="button" class="btn">Yay!</button></div>`;
   document.body.appendChild(el); const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 300); };
+  if (media('celebrate')) mediaURL('celebrate').then(u => { const c = el.querySelector('.cele-card'); if (u && c) { c.style.backgroundImage = `linear-gradient(rgba(10,12,30,.45),rgba(10,12,30,.65)),url("${u}")`; c.classList.add('pic'); } });
   el.addEventListener('click', close); setTimeout(close, 6000);
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const cv = el.querySelector('canvas'), ctx = cv.getContext('2d'), W = cv.width = innerWidth * devicePixelRatio, H = cv.height = innerHeight * devicePixelRatio, cols = ['#FF5A5F', '#FFB347', '#FFD36B', '#7ED957', '#36C5F0', '#A23BEC', '#FF6B9A'];
@@ -3875,7 +3915,7 @@ function shopDoneForm(ym, slot) {
 }
 
 /* ===== headed cards: the bold gradient card style ===== */
-const headCard = ({ kicker, title, meta = '', tone = 'magic', body = '', actions = '', cls = '' }) => `<div class="hcard t-${tone} ${cls}"><div class="st-nk">${kicker}</div><div class="st-nt">${title}</div>${meta ? `<div class="st-nm">${meta}</div>` : ''}${body}${actions ? `<div class="hc-act">${actions}</div>` : ''}</div>`;
+const headCard = ({ kicker, title, meta = '', tone = 'magic', body = '', actions = '', cls = '', bg = '' }) => `<div class="hcard t-${tone} ${cls}${bg ? ' hc-photo' : ''}">${bg}<div class="st-nk">${kicker}</div><div class="st-nt">${title}</div>${meta ? `<div class="st-nm">${meta}</div>` : ''}${body}${actions ? `<div class="hc-act">${actions}</div>` : ''}</div>`;
 const hcBtn = (label, act, extra = '') => `<button type="button" class="hc-btn" data-act="${act}" ${extra}>${label}</button>`;
 const monShort = ym => MONTHS[Number(ym.slice(5,7))-1];
 
@@ -3890,7 +3930,7 @@ function potJob(ym) {
   return left > 0 ? { key: k, ym, how: 'pot', kind: 'do', order: 8, title: `Put ${money(left,0)} in the holiday pot`, amount: Math.round(left), sub: `What's spare from the ${monShort(ym)} pay. Move it on payday so it doesn't get spent`, done: potPlanDone(ym) }
     : { key: k, ym, how: 'pot', kind: 'do', order: 8, title: `Take ${money(-left,0)} from the holiday pot`, amount: Math.round(-left), sub: `${monShort(ym)} needs a bit more than comes in. The pot covers it`, done: potPlanDone(ym) };
 }
-async function savePot(entries) { await put('pot/main', { entries }); }
+async function savePot(entries) { await put('pot/main', { ...(S.pot || {}), entries }); }
 async function togglePotJob(ym) {
   const es = potEntries(); if (potPlanDone(ym)) return savePot(es.filter(e => !(e.plan && e.ym === ym)));
   const left = sheetLeft(ym); if (left === null) return; await savePot([...es, { id: uid('pe'), d: today(), a: left, n: left > 0 ? `Spare from the ${monShort(ym)} pay` : `Covering ${monShort(ym)}`, ym, plan: true }]);
@@ -3908,6 +3948,18 @@ function potEntryForm(id) {
     const a = num(v('peA')); if (a === null) throw new Error('Enter an amount'); await savePot(potEntries().map(x => x.id === id ? { ...x, a, n: v('peN').trim(), d: v('peD') } : x));
   }, { onDelete: () => savePot(potEntries().filter(x => x.id !== id)) });
 }
+/* the pot's goal: one you set, otherwise what's still to pay for the next holiday */
+function potGoal() {
+  if (S.pot && Number(S.pot.target) > 0) return { amount: Number(S.pot.target), label: `the ${money(Number(S.pot.target),0)} goal` };
+  const t = today(), next = (S.plans || []).filter(p => !isGift(p) && p.kind !== 'year' && p.from && p.from >= t).sort((a, b) => a.from < b.from ? -1 : 1)[0];
+  if (next) { const st = plStats(next), left = Math.max(0, st.cost + st.fees - st.paid); if (left > 0) return { amount: left, label: `what's left for ${next.name} (${money(left,0)})` }; }
+  return { amount: 1000, label: 'a £1,000 goal' };
+}
+function potGoalForm() {
+  openSheet('Holiday pot goal', fld('pgA', 'Goal (£, leave empty to follow the next holiday)', (S.pot && S.pot.target) || '', 'number', 'step="1" min="0" inputmode="numeric"'), async () => {
+    const a = num(v('pgA')), d = { ...(S.pot || { entries: [] }) }; if (a && a > 0) d.target = a; else delete d.target; await put('pot/main', d);
+  });
+}
 function potPanel() {
   const cur = plCur(), bal = potBal(), months = Array.from({ length: 6 }, (_, i) => ymAdd(cur, i)).filter(ym => S.bsheet[ym]);
   let run = bal; const pts = months.map(ym => { if (!potPlanDone(ym)) run += sheetLeft(ym) || 0; return { ym, v: Math.round(run) }; });
@@ -3917,7 +3969,14 @@ function potPanel() {
   const X = i => pl + (W - pl - pr) * (pts.length > 1 ? i / (pts.length - 1) : .5), Y = val => pt + (H - pt - pb) * (1 - (val - lo) / ((hi - lo) || 1));
   const chart = pts.length > 1 ? `<svg class="hc-chart" viewBox="0 0 ${W} ${H}" aria-hidden="true"><line x1="${pl}" x2="${W-pr}" y1="${Y(0)}" y2="${Y(0)}" stroke="rgba(255,255,255,.35)" stroke-dasharray="3 4"/><path d="${pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ')}" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>${pts.map((p, i) => `<circle cx="${X(i)}" cy="${Y(p.v)}" r="3.5" fill="${p.v < 0 ? '#FFD36B' : '#fff'}"/><text x="${X(i)}" y="${H - 5}" text-anchor="middle" font-size="10" fill="rgba(255,255,255,.85)" font-weight="700">${mon3(p.ym)}</text>`).join('')}<text x="${X(pts.length-1)}" y="${Y(end.v) - 9}" text-anchor="end" font-size="11" font-weight="800" fill="#fff">${money(end.v,0)}</text></svg>` : '';
   const recent = potEntries().slice().sort((a, b) => (a.d < b.d ? 1 : -1)).slice(0, 4);
-  return `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Holiday pot', title: `${money(bal,0)} saved`, meta, body: chart + `<div class="hc-note">${end ? (low.v < 0 ? `On this plan the pot dips to ${money(low.v,0)} in ${monShort(low.ym)}, so anything extra you add now helps` : `On this plan it reaches ${money(end.v,0)} by ${monShort(end.ym)}`) : ''}</div>`, actions: hcBtn('Add money', 'potadd') + hcBtn('Take out', 'pottake') })}
+  /* with a picture: it starts black and white and fills with colour from the bottom as the pot grows towards its goal */
+  let potBg = '', goalNote = '';
+  if (media('holiday-pot')) {
+    const g = potGoal(), pct = g.amount ? Math.max(0, Math.min(1, bal / g.amount)) : 0;
+    potBg = `${mediaBg('holiday-pot', 'pp-grey')}<div class="pp-col" style="clip-path:inset(${(100 - pct * 100).toFixed(1)}% 0 0 0)">${mediaBg('holiday-pot', 'pp-color')}</div><div class="pp-shade" aria-hidden="true"></div>${photoBtn('holiday-pot')}`;
+    goalNote = `<div class="pp-goal"><b>${Math.round(pct * 100)}%</b> of ${esc(g.label)}<button type="button" class="linkbtn" data-act="potgoal">Goal</button></div>`;
+  }
+  return `<section class="panel nopad">${headCard({ tone: 'sea', bg: potBg, kicker: 'Holiday pot', title: `${money(bal,0)} saved`, meta: goalNote + meta, body: chart + `<div class="hc-note">${end ? (low.v < 0 ? `On this plan the pot dips to ${money(low.v,0)} in ${monShort(low.ym)}, so anything extra you add now helps` : `On this plan it reaches ${money(end.v,0)} by ${monShort(end.ym)}`) : ''}</div>`, actions: hcBtn('Add money', 'potadd') + hcBtn('Take out', 'pottake') })}
     ${recent.length ? `<div class="list" style="padding:4px 14px 10px">${recent.map(e => `<button class="rowbtn" data-act="potedit" data-id="${esc(e.id)}"><span class="ti-ico" style="background:color-mix(in srgb,${e.a >= 0 ? '#2BA59A' : '#E8902A'} 16%,transparent);color:${e.a >= 0 ? '#2BA59A' : '#E8902A'}">${stepIcon('pot')}</span><div class="grow"><div class="t">${esc(e.n || (e.a >= 0 ? 'Added' : 'Taken out'))}</div><div class="m">${shortDate(e.d)}</div></div><div class="amt" style="color:${e.a >= 0 ? 'var(--good)' : 'var(--gold)'}">${e.a >= 0 ? '+' : '−'}${money(Math.abs(e.a),0).replace('−','')}</div></button>`).join('')}</div>` : ''}</section>`;
 }
 
@@ -4320,17 +4379,55 @@ function fuelChart() {
   return `<section class="panel"><h2>Fuel by month</h2>${barChart(rows, { label:'Fuel spending by month' })}</section>`;
 }
 
-/* the car photo lives in the private database (media/car-hero) as base64; turned into a blob URL once */
-const CAR_IMG = { key:'', url:'' };
-function carPhoto() {
-  const m = (S.media || {})['car-hero']; if (!m || !m.b64) return null;
-  const key = `${m.b64.length}:${m.b64.slice(-24)}`;
-  if (CAR_IMG.key !== key) {
-    try { const bin = atob(m.b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-      if (CAR_IMG.url) URL.revokeObjectURL(CAR_IMG.url); CAR_IMG.url = URL.createObjectURL(new Blob([u8], { type: m.mime || 'image/webp' })); CAR_IMG.key = key; }
-    catch (e) { return null; }
-  }
-  return { url: CAR_IMG.url, focus: m.focus || '72% 55%' };
+/* ===== hero pictures: media/<slot> = { path (private family-files storage) | b64, mime, focus } =====
+   Chosen in Settings → Pictures or with the camera button on each picture card; kept on the phone for offline use. */
+const media = slot => { const m = (S.media || {})[slot]; return m && (m.path || m.b64) ? m : null; };
+const B64_URL = {};
+function b64URL(m) {
+  const key = `${m.b64.length}:${m.b64.slice(-24)}`; if (B64_URL[key]) return B64_URL[key];
+  try { const bin = atob(m.b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return B64_URL[key] = URL.createObjectURL(new Blob([u8], { type: m.mime || 'image/jpeg' })); } catch (e) { return ''; }
+}
+/* a background layer for a slot: stored photos fill in straight away, uploaded ones load (and fade in) after render */
+function mediaBg(slot, cls = 'mbg', extra = '') {
+  const m = media(slot); if (!m) return '';
+  const pos = `background-position:${esc(m.focus || '50% 50%')}`;
+  if (m.b64) return `<div class="mbg ${cls} on" style="${pos};background-image:url('${b64URL(m)}')" ${extra} aria-hidden="true"></div>`;
+  return `<div class="mbg ${cls}" data-photo="${esc(m.path)}" style="${pos}" ${extra} aria-hidden="true"></div>`;
+}
+async function mediaURL(slot) { const m = media(slot); if (!m) return ''; return m.b64 ? b64URL(m) : await photoURL(m.path); }
+const photoBtn = (slot, label = 'Change picture') => `<button type="button" class="pic-btn" data-act="setphoto" data-slot="${esc(slot)}" aria-label="${esc(label)}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>`;
+function kidNames() { const t = today(), xm = (S.plans || []).filter(p => p.kind === 'christmas').sort((a, b) => (a.from || '9') < (b.from || '9') ? -1 : 1); const p = xm.find(x => (x.from || '9') >= t) || xm[xm.length - 1]; return p ? wishKids(p) : []; }
+function mediaSlots() {
+  return [
+    ['car-hero', 'Car', 'Top of the Car tab'],
+    ['home-morning', 'Home, morning', '5am to 11am'], ['home-day', 'Home, daytime', '11am to 5pm'], ['home-evening', 'Home, evening', '5pm to 9pm'], ['home-night', 'Home, night', '9pm to 5am'],
+    ['paris-night', 'Paris countdown', 'Until the last week'], ['paris-day', 'Paris, final week', 'The last 7 days'],
+    ['holiday-pot', 'Holiday pot', 'Fills with colour as you save'],
+    ...kidNames().map(n => [`kid-${wishKey(n)}`, `${n}'s wish list`, 'Her own picture']),
+    ['celebrate', 'Celebrations', 'When you hit a milestone'],
+  ];
+}
+const homeSlot = (h = new Date().getHours()) => h < 5 || h >= 21 ? 'home-night' : h < 11 ? 'home-morning' : h < 17 ? 'home-day' : 'home-evening';
+function picturesForm() {
+  const rows = mediaSlots().map(([slot, name, when]) => { const m = media(slot);
+    return `<div class="pic-row"><div class="pic-th">${m ? mediaBg(slot, 'pic-thimg') : '<span>No picture</span>'}</div><div class="grow"><b>${esc(name)}</b><small>${esc(when)}</small></div><button type="button" class="btn small ${m ? 'ghost' : ''}" data-act="setphoto" data-slot="${esc(slot)}">${m ? 'Change' : 'Choose'}</button></div>`; }).join('');
+  openSheet('Pictures', `<p class="note">Choose a picture from your phone for each spot. It saves for both phones and works offline.</p><div class="pic-list">${rows}</div>`, null, { noSave: true });
+  setTimeout(hydratePhotos, 0);
+}
+function pickMediaPhoto(slot) {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+  inp.addEventListener('change', async () => {
+    const f = inp.files && inp.files[0]; if (!f) return; toast('Saving the picture…');
+    try {
+      const blob = await shrinkImage(f, 1600, .84), path = `heroes/${slot}-${uid('m')}.jpg`;
+      const { error } = await sb.storage.from('family-files').upload(path, blob, { contentType: 'image/jpeg', upsert: false }); if (error) throw error;
+      try { const c = await caches.open(FILE_CACHE); await c.put(`/hhq-file/${path}`, new Response(blob, { headers: { 'Content-Type': 'image/jpeg' } })); } catch (e) {}
+      await put(`media/${slot}`, { path, focus: '50% 50%', at: today() });
+      if (document.querySelector('.pic-list')) picturesForm();
+      toast('Picture saved');
+    } catch (e) { toast('The picture didn\'t save. Check you\'re online and try again'); }
+  });
+  inp.click();
 }
 let milesCounted = false;
 function milesCountUp() {
@@ -4356,13 +4453,13 @@ function viewCar() {
              tbCell('Running cost', cc.ppm ? `${(cc.ppm*100).toFixed(1)}p <small>a mile</small>` : mpgs.length ? `${(mpgs.reduce((a,b)=>a+b,0)/mpgs.length).toFixed(1)} <small>mpg</small>` : '<small>Log fill-ups</small>', 'var(--gold-bar)'),
              tbCell('Next date', nextRem ? `${esc(dayShort(nextRem.date).slice(4))}<small class="sub">${esc(nextRem.name)}</small>` : nextJob ? `${esc(dayShort(nextJob.date).slice(4))}<small class="sub">Booked job</small>` : '<small>Add renewals</small>', remDue.length ? 'var(--gold-bar)' : 'var(--chris-bar)') ],
     foot: `<span>Oil 0W-30 to STJLR.03.5007</span><span>No software updates on the engine module (remapped)</span>` });
-  const ph = carPhoto(), miles = Number(S.car.mileage) || 0;
+  const ph = media('car-hero'), miles = Number(S.car.mileage) || 0;
   const avgMpg = mpgs.length ? mpgs.reduce((a,b)=>a+b,0)/mpgs.length : 0;
   const glass = (lb, vl, sub, tone='') => `<div class="ch-g ${tone}"><span class="ch-gl">${lb}</span><span class="ch-gv">${vl}</span>${sub ? `<span class="ch-gs">${sub}</span>` : ''}</div>`;
   const hero = !ph ? heroPlain : `<section class="carhero" aria-label="The car">
-    <img class="ch-img" src="${ph.url}" alt="Grey Range Rover Evoque on a clifftop at sunset" style="object-position:${esc(ph.focus)}" decoding="async">
+    ${mediaBg('car-hero', 'ch-img')}
     <div class="ch-shade" aria-hidden="true"></div>
-    <div class="ch-top"><span class="ch-badge">2018 · Landmark · TD4 180</span><button class="ch-btn" data-act="mileage" aria-label="Update mileage"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Mileage</button></div>
+    <div class="ch-top"><span class="ch-badge">2018 · Landmark · TD4 180</span><span class="ch-acts">${photoBtn('car-hero')}<button class="ch-btn" data-act="mileage" aria-label="Update mileage"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Mileage</button></span></div>
     <div class="ch-body">
       <span class="ch-k">Range Rover Evoque</span>
       <span class="ch-miles">${miles ? `<b data-miles="${miles}">${miles.toLocaleString('en-GB')}</b> miles` : '<b>Add the mileage</b>'}</span>
@@ -4528,6 +4625,7 @@ function settingsForm() {
     <p class="eyebrow">Viki</p>${fld('vAllow','Holiday allowance (days)', s.vikiAllowance??'', 'number','min="0" step="0.5"')}
     <div class="btnrow"><button class="btn ghost small" type="button" data-act="vrates">Viki's pay rates</button></div>
     <p class="eyebrow">Family calendar</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="calset">Google Calendar links</button></div>
+    <p class="eyebrow">Pictures</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="pictures">Pictures for Home, Car, Paris and more</button></div>
     <p class="eyebrow">Backup</p><div class="btnrow"><button class="btn ghost small" type="button" data-act="backup">Download a backup</button></div><p class="note">Everything in the app as one file. Save it somewhere safe, like iCloud Drive or Google Drive.</p>
     <p class="eyebrow">Notifications on this phone</p><div id="pushBox"><div class="skel" style="height:40px"></div></div>
     <p class="eyebrow">Account</p><p class="note">Signed in as <strong>${esc(userName())}</strong></p>
@@ -4754,6 +4852,9 @@ document.addEventListener('click', async e => {
   if (a==='plspread') { if (!el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again: this turns Zilch and one-off payments into monthly saving'; return; } return planSpread(el.dataset.id); }
   if (a==='plsheet') { if (bsDirty()) { toast('Save or undo your sheet changes first'); return; } UI.bym = el.dataset.v; UI.bs = null; UI.tab = 'money'; UI.money = 'sheet'; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='import') return importForm();
+  if (a==='potgoal') { potGoalForm(); return; }
+  if (a==='setphoto') { pickMediaPhoto(el.dataset.slot); return; }
+  if (a==='pictures') { closeSheet(); picturesForm(); return; }
   if (a==='backup') { el.disabled = true; try { await downloadBackup(); } catch (err) { toast('Couldn\'t make the backup. Check you\'re online'); } el.disabled = false; return; }
   if (a==='pushlater') { try { localStorage.setItem('hhq-pushlater', String(Date.now() + 14*86400000)); } catch (e) {} render(); return; }
   if (a==='pushon') { el.disabled = true; try { await pushOn(); } catch(err) { toast('Couldn\'t turn on notifications'); pushPanel(); } return; }
