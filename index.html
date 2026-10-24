@@ -3071,7 +3071,7 @@ document.addEventListener('click', async e => {
   if (a==='pltab') { UI.pltab = el.dataset.v; return render(); }
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
-  if (a==='plspread') return planSpread(el.dataset.id);
+  if (a==='plspread') { if (!el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again: this turns Zilch and one-off payments into monthly saving'; return; } return planSpread(el.dataset.id); }
   if (a==='plsheet') { if (bsDirty()) { toast('Save or undo your sheet changes first'); return; } UI.bym = el.dataset.v; UI.bs = null; UI.tab = 'money'; UI.money = 'sheet'; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='import') return importForm();
   if (a==='pushon') { el.disabled = true; try { await pushOn(); } catch(err) { toast('Couldn\'t turn on notifications'); pushPanel(); } return; }
