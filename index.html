@@ -1720,53 +1720,57 @@ function planForm() {
 
 /* ----- money owed: pay-later plans, loans, cards ----- */
 /* ----- Zilch calculator: how a purchase splits into payments ----- */
-const ZILCH_DEFAULT = { limit:2250, threshold:75, upfront:25, feeOnce:1.07, shortFee:0 };
+const ZILCH_DEFAULT = { limit:2250, threshold:75, upfront:25, feePct:1.8, partnerFee:1.6, shortFee:0 };
 const zs = () => ({ ...ZILCH_DEFAULT, ...(S.settings.zilch||{}) });
 const zAvail = () => { const z = zs(), zd = zilchDebt(); return Math.max(0, z.limit - (zd ? Number(zd.balance)||0 : 0)); };
-/* Zilch: four equal quarters. Under the threshold: every 2 weeks over 6 weeks. From the threshold: a quarter today plus a one-off fee,
-   then a quarter each month for 3 months. Anything above the available limit isn't refused: it's added to today's payment. */
+/* Zilch (help.zilch.com, Pay monthly and Boost): the credit part is split into four equal payments. Under £75: every 2 weeks over 6 weeks.
+   From £75: a quarter at checkout, then a quarter on the same date each month for 3 months, each with a monthly fee of a % of the
+   total purchase (up to 1.6% enabling the card at a partner shop, 1.8% Zilch Anywhere). Boost: anything above the available limit
+   is taken from the debit card at checkout, with the first quarter. */
 function zilchPlan(amount, opts) {
   const z = { ...zs(), ...(opts||{}) }, a = Math.max(0, Number(amount)||0), t = today(), avail = opts && opts.avail != null ? opts.avail : zAvail();
   const r2 = x => Math.round(x*100)/100;
   if (a <= 0) return null;
   const onPlan = Math.min(a, avail), excess = r2(a - onPlan), q = r2(onPlan * z.upfront/100), last = r2(onPlan - q*3);
-  const long = a >= z.threshold, fee = long ? r2(onPlan * z.feeOnce/100) : r2(z.shortFee);
-  const dates = long ? [t, addMonths(t,1), addMonths(t,2), addMonths(t,3)] : [0,14,28,42].map(d => addDays(t,d));
-  const pays = dates.map((date,i) => ({ date, amount: i===3 ? last : q, fee:0, excess:0 }));
-  pays[0] = { ...pays[0], amount: r2(q + excess + fee), fee, excess, share: q };
-  return { kind: long ? '3m' : '6w', label: long ? 'Pay over 3 months' : 'Pay over 6 weeks', a, onPlan, excess, upfront: pays[0].amount, pays, fee, total: r2(a + fee), credit: r2(onPlan - q), avail };
+  const long = a >= z.threshold, mfee = long ? r2(a * z.feePct/100) : 0, start = (opts && opts.start) || t;
+  const dates = long ? [start, addMonths(start,1), addMonths(start,2), addMonths(start,3)] : [0,14,28,42].map(d => addDays(start,d));
+  const pays = dates.map((date,i) => ({ date, amount: r2((i===3 ? last : q) + (i ? mfee : 0)), fee: i ? mfee : 0, share: i===3 ? last : q, excess:0 }));
+  pays[0] = { ...pays[0], amount: r2(q + excess + (long ? 0 : z.shortFee)), excess };
+  const fee = r2(mfee*3 + (long ? 0 : z.shortFee));
+  return { kind: long ? '3m' : '6w', label: long ? 'Pay over 3 months' : 'Pay over 6 weeks', a, onPlan, excess, upfront: pays[0].amount, pays, fee, mfee, total: r2(a + fee), credit: r2(onPlan - q), avail };
 }
 function zilchCalcPanel() {
   const z = zs(), zd = zilchDebt(), owed = zd ? Number(zd.balance)||0 : 0, avail = zAvail();
-  const amt = UI.zamt ?? '', p = zilchPlan(amt, UI.zpartner ? { feeOnce:0 } : {});
+  const amt = UI.zamt ?? '', p = zilchPlan(amt, UI.zpartner ? { feePct: z.partnerFee } : {});
   return `<section class="panel zcalc"><h2>Zilch calculator <button class="btn small ghost" data-act="zset">Limits and fees</button></h2>
     <div class="zrow"><label for="zAmt" class="zl">I want to spend</label><div class="zinput"><span>£</span><input id="zAmt" inputmode="decimal" placeholder="0" value="${esc(amt)}" aria-label="Amount to spend"></div></div>
     <div class="zchips">${[50,150,300,600,1000].map(x => `<button type="button" data-act="zquick" data-v="${x}">£${x}</button>`).join('')}</div>
-    ${amt && Number(amt) >= z.threshold ? `<label class="toggle"><input type="checkbox" data-act="zpartner" ${UI.zpartner?'checked':''}> Zilch partner shop (no fee)</label>` : ''}
+    ${amt && Number(amt) >= z.threshold ? `<label class="toggle"><input type="checkbox" data-act="zpartner" ${UI.zpartner?'checked':''}> Card enabled at a Zilch partner shop first (fee up to ${z.partnerFee}% instead of ${z.feePct}%)</label>` : ''}
     <div id="zOut">${zilchOut(p)}</div>
     <p class="note">Your limit is ${money(z.limit,0)}${zd ? `, with ${money(owed,0)} still owed on Zilch, so ${money(avail,0)} is available` : ''}. Zilch shows the exact fee before you confirm, and it can differ by shop.</p>
   </section>`;
 }
 function zilchOut(p) {
   if (!p) return `<p class="empty">Type an amount to see what you'd pay today and after.</p>`;
-  const first = p.pays[0], bits = [`${zs().upfront}% (${money(first.share,2)})`]; if (p.excess) bits.push(`${money(p.excess,2)} over your limit`); if (p.fee) bits.push(`${money(p.fee,2)} fee`);
-  return `<div class="zsum"><div><span>Today</span><b>${money(p.upfront,2)}</b></div><div><span>${p.kind==='3m' ? 'Then 3 monthly' : 'Then 3 fortnightly'}</span><b>${money(p.pays[1].amount,2)}</b></div><div><span>Fee</span><b>${money(p.fee,2)}</b></div></div>
-    <div class="ztimeline">${p.pays.map((x,i) => `<div class="zstep${i===0?' now':''}"><i></i><div class="grow"><div class="t">${i===0 ? 'Today' : dayShort(x.date)}</div><div class="m">${i===0 ? esc(bits.join(' + ')) : `Payment ${i+1} of 4`}</div></div><div class="amt">${money(x.amount,2)}</div></div>`).join('')}</div>
+  const first = p.pays[0], bits = [`${zs().upfront}% of the credit (${money(first.share,2)})`]; if (p.excess) bits.push(`${money(p.excess,2)} over your limit`);
+  return `<div class="zsum"><div><span>Today</span><b>${money(p.upfront,2)}</b></div><div><span>${p.kind==='3m' ? 'Then 3 monthly' : 'Then 3 fortnightly'}</span><b>${money(p.pays[1].amount,2)}</b></div><div><span>Fees in total</span><b>${money(p.fee,2)}</b></div></div>
+    <div class="ztimeline">${p.pays.map((x,i) => `<div class="zstep${i===0?' now':''}"><i></i><div class="grow"><div class="t">${i===0 ? 'Today' : dayShort(x.date)}</div><div class="m">${i===0 ? esc(bits.join(' + ')) : x.fee ? `${money(x.share,2)} + ${money(x.fee,2)} fee` : `Payment ${i+1} of 4`}</div></div><div class="amt">${money(x.amount,2)}</div></div>`).join('')}</div>
     <div class="zfoot"><span>${esc(p.label)}. Total ${money(p.total,2)}</span>${p.excess ? `<span class="alert">${money(p.excess,2)} is over your available limit of ${money(p.avail,0)}, so it's added to today's payment</span>` : `<span>${money(Math.max(0, p.avail - p.credit),0)} of your limit left after</span>`}</div>
     <div class="btnrow"><button class="btn small" data-act="zadd">Add to what's owed</button></div>`;
 }
 function zilchSettingsForm() {
   const z = zs();
   openSheet('Zilch limits and fees', `<div class="fields2">${fld('zLim','Credit limit (£)', z.limit, 'number','step="1" inputmode="numeric"')}${fld('zThr','3-month plan from (£)', z.threshold, 'number','step="1" inputmode="numeric"')}</div>
-    <div class="fields2">${fld('zUp','Upfront payment (%)', z.upfront, 'number','step="1" inputmode="numeric"')}${fld('zFee','Fee, added to first payment (% of price)', z.feeOnce, 'number','step="0.01" inputmode="decimal"')}</div>
+    <div class="fields2">${fld('zUp','Upfront payment (%)', z.upfront, 'number','step="1" inputmode="numeric"')}${fld('zFee','Monthly fee, Zilch Anywhere (% of price)', z.feePct, 'number','step="0.1" inputmode="decimal"')}</div>
     ${fld('zSf','Fee on 6-week purchases (£)', z.shortFee, 'number','step="0.01" inputmode="decimal"')}
-    <p class="note">Zilch splits a purchase into four equal payments. From £75 it's one today, with the fee added, then one a month for three months; under £75 it's every two weeks. Partner shops have no fee. Anything over your available limit is added to today's payment.</p>`, async () => {
-    const out = { limit: num(v('zLim'))||0, threshold: num(v('zThr'))||75, upfront: num(v('zUp')) ?? 25, feeOnce: num(v('zFee')) ?? 1.07, shortFee: num(v('zSf')) || 0 };
+    ${fld('zPf','Monthly fee, card enabled at a partner shop (%)', z.partnerFee, 'number','step="0.1" inputmode="decimal"')}
+    <p class="note">From Zilch's help pages: the part on credit is split into four equal payments. From £75 it's one at checkout, then one a month on the same date for three months, each with a fee of a percentage of the whole purchase (0 to 1.6% if you enable the card at a partner shop first, 1.8% with Zilch Anywhere). Under £75 it's every two weeks. With Boost, anything over your available limit is taken from your debit card at checkout.</p>`, async () => {
+    const out = { limit: num(v('zLim'))||0, threshold: num(v('zThr'))||75, upfront: num(v('zUp')) ?? 25, feePct: num(v('zFee')) ?? 1.8, partnerFee: num(v('zPf')) ?? 1.6, shortFee: num(v('zSf')) || 0 };
     await put('settings/main', { ...S.settings, zilch: out });
   });
 }
 async function zilchAddOwed() {
-  const p = zilchPlan(UI.zamt, UI.zpartner ? { feeOnce:0 } : {}); if (!p) return;
+  const p = zilchPlan(UI.zamt, UI.zpartner ? { feePct: zs().partnerFee } : {}); if (!p) return;
   const zd = zilchDebt(), owedAdd = Math.round((p.total - p.upfront)*100)/100;
   if (zd) { const { id, ...rest } = zd; await put(`debts/${id}`, { ...rest, balance: Math.round(((Number(zd.balance)||0) + owedAdd)*100)/100, original: Math.max(Number(zd.original)||0, (Number(zd.balance)||0) + owedAdd), monthly: Math.max(Number(zd.monthly)||0, p.pays[1].amount) }); }
   else await put(`debts/${uid('d')}`, { name:'Zilch', kind:'bnpl', balance: owedAdd, original: owedAdd, monthly: p.pays[1].amount, next: p.pays[1].date });
@@ -2420,7 +2424,7 @@ document.addEventListener('submit', async e => {
 });
 let sTimer;
 document.addEventListener('input', e => {
-  if (e.target.id === 'zAmt') { const raw = e.target.value.replace(/[^0-9.]/g,''); UI.zamt = raw; const z = zs(); const p = zilchPlan(raw, UI.zpartner ? { feeOnce:0 } : {}); const o = $('#zOut'); if (o) o.innerHTML = zilchOut(p);
+  if (e.target.id === 'zAmt') { const raw = e.target.value.replace(/[^0-9.]/g,''); UI.zamt = raw; const z = zs(); const p = zilchPlan(raw, UI.zpartner ? { feePct: z.partnerFee } : {}); const o = $('#zOut'); if (o) o.innerHTML = zilchOut(p);
     const needToggle = Number(raw) >= z.threshold, has = !!document.querySelector('[data-act="zpartner"]'); if (needToggle !== has) { render(); const i = $('#zAmt'); if (i) { i.focus(); i.setSelectionRange(raw.length, raw.length); } } return; }
   if (e.target.id !== 'sSearch') return; clearTimeout(sTimer); const val = e.target.value; sTimer = setTimeout(() => { UI.sq = val; UI.slimit = 40; render(); const i = $('#sSearch'); if (i) { i.focus(); i.setSelectionRange(val.length, val.length); } }, 250); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#sheetRoot').innerHTML) closeSheet(); });
