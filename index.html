@@ -675,6 +675,16 @@ body:has(.xbar:not([hidden])) .fab{display:none}
 .cohrs button{border:0;background:var(--sheet);border-radius:999px;padding:6px 12px;font:inherit;font-weight:650;cursor:pointer;color:var(--ink)}
 .cohrs button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
 .cnote{font-size:.78rem;color:var(--ink-2);min-width:120px;white-space:normal}
+
+.seg.who button[data-who="co"][aria-pressed="true"]{color:var(--gold)}
+.seg.who button{font-size:.92rem!important;padding:10px 0!important}
+.corsn{display:flex;flex-direction:column;gap:9px}
+.corow{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;align-items:center;gap:10px;font-size:.9rem}
+.corow .cn{font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.corow .cbar{height:8px;border-radius:999px;background:var(--sheet-2);overflow:hidden}
+.corow .cbar i{display:block;height:100%;border-radius:999px;background:var(--g1)}
+.corow .cv{font-weight:650;font-variant-numeric:tabular-nums;min-width:4.5em;text-align:right}
+.corow .cv small{color:var(--muted);font-weight:500}
 </style>
 </head>
 <body>
@@ -1251,16 +1261,75 @@ const STATUS = {
   viki: [['shift','Shift'],['holiday','Holiday'],['sick','Sick'],['off','Off']],
 };
 const SHORT = {work:'Work', callout:'Call', holiday:'Hol', sick:'Sick', off:'Off', shift:'Shift'};
+/* ----- Viki's call-out metrics, built from her logged on-call days ----- */
+const CO_REASONS = [
+  ['MET calls', /\bmet\b|arrest|crash/i], ['Trauma', /trauma|\btr\b/i], ['Emergency cases', /case|theatre|clavicle|bone|ortho|ward/i],
+  ['A&E', /a\s*&\s*e|a\+e|\bed\b/i], ['ITU / CCU', /itu|ccu|mau/i], ['Checks and stock', /check|stock|equip|resus/i],
+  ['Lines and procedures', /line|poe/i], ['Racing cover', /racing|tt\b/i], ['Recovery', /recovery/i], ['Paeds', /paed/i]];
+function coAll(from, to) {
+  const r = vk(), out = [];
+  daysFor('viki', from, to).forEach(d => (d.callouts||[]).forEach(c => {
+    if (!c.from || !c.to) return;
+    const when = coDate(d, c), worked = coHours(c), paid = coPaid(c), mult = coMult(d, c);
+    out.push({ day:d.date, when, from:c.from, to:c.to, worked, paid, mult, pay: paid * r.base * mult, note: c.note || '', hour: Math.floor(toMin(c.from)/60), dow: (parse(when).getDay()+6)%7 });
+  }));
+  return out.sort((a,b) => (a.when + a.from) < (b.when + b.from) ? 1 : -1);
+}
+function viewCallouts() {
+  const range = UI.coRange || '12m', t = today();
+  const from = range === '3m' ? addMonths(t,-3) : range === '12m' ? addMonths(t,-12) : '2000-01-01';
+  const cos = coAll(from, t), shifts = daysFor('viki', from, t).filter(d => d.oncall && d.date <= t);
+  const rseg = `<div class="seg" role="group" aria-label="Time range">${[['3m','3 months'],['12m','12 months'],['all','All time']].map(([k,l]) => `<button data-act="corange" data-v="${k}" aria-pressed="${range===k}">${l}</button>`).join('')}</div>`;
+  if (!cos.length) return rseg + `<section class="panel"><h2>Call-outs</h2><p class="empty">No call-outs logged in this period yet.</p></section>`;
+  const sum = (a, f) => a.reduce((s,x) => s + f(x), 0);
+  const worked = sum(cos, x => x.worked), paid = sum(cos, x => x.paid), pay = sum(cos, x => x.pay);
+  const withCo = shifts.filter(d => (d.callouts||[]).length).length, rate = shifts.length ? withCo / shifts.length : 0;
+  const nights = cos.filter(x => x.hour >= 22 || x.hour < 6).length, dbl = cos.filter(x => x.mult === 2);
+  const topUp = sum(cos, x => (x.paid - x.worked) * vk().base * x.mult);
+  const hero = tblock({ kicker: `Viki · call-outs, ${range==='all' ? 'all time' : range==='3m' ? 'last 3 months' : 'last 12 months'}`, title: `${cos.length} call-out${cos.length===1?'':'s'}`,
+    side: `<span class="tb-kicker">Earned</span><span class="big">${money(pay,0)}</span>`,
+    cells: [ tbCell('Hours paid', `${fh(paid)}${paid > worked ? ` <small>${fh(worked)} worked</small>` : ''}`, 'var(--g2)'), tbCell('Called in', `${Math.round(rate*100)}% <small>of ${shifts.length} on calls</small>`, 'var(--g1)'), tbCell('Overnight', `${nights} <small>10pm–6am</small>`, 'var(--g3)') ],
+    foot: `<span>Average ${fh(worked/cos.length)} hours each, ${money(pay/cos.length,0)} a call-out. ${dbl.length} at double time.</span>` });
+  // by claim month
+  const months = []; for (let i = (range==='3m'?3:11); i >= 0; i--) months.push(ymOf(addMonths(`${claimYM(t)}-01`, -i)));
+  const byM = months.map(ym => { const xs = cos.filter(x => claimYM(x.day) === ym); return { label: MONTHS[parse(`${ym}-01`).getMonth()].slice(0,3), parts: [ { v: sum(xs.filter(x => x.mult !== 2), x => x.paid), c:'var(--g2)', name:'Time and a half' }, { v: sum(xs.filter(x => x.mult === 2), x => x.paid), c:'var(--g3)', name:'Double time' } ] }; });
+  const hrs = v => `${fh(v)}h`;
+  const bins = [0,3,6,9,12,15,18,21].map(h => ({ label: `${h}`.padStart(2,'0'), parts: [{ v: cos.filter(x => x.hour >= h && x.hour < h+3).length, c:'var(--g1)', name:'Call-outs' }] }));
+  const dows = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((l,i) => ({ label:l, parts:[{ v: cos.filter(x => x.dow === i).length, c: i>=5 ? 'var(--g4)' : 'var(--g1)', name:'Call-outs' }] }));
+  const busiest = dows.reduce((a,b) => b.parts[0].v > a.parts[0].v ? b : a);
+  const reasons = CO_REASONS.map(([n,re]) => { const xs = cos.filter(x => re.test(x.note)); return { n, k: xs.length, h: sum(xs, x => x.worked) }; }).filter(x => x.k).sort((a,b) => b.k - a.k);
+  const noNote = cos.filter(x => !x.note).length, rmax = Math.max(1, ...reasons.map(x => x.k));
+  const longest = cos.slice().sort((a,b) => b.worked - a.worked).slice(0,5);
+  const row = x => `<button class="rowbtn" data-act="vday" data-date="${x.day}"><span class="evb" style="background:var(--gold-soft);color:var(--gold)">${icon('moon')}</span><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.when))} · ${esc(hm(x.from))}–${esc(hm(x.to))}</span><span class="m" style="display:block">${x.note ? esc(x.note) : 'No note'}${x.paid > x.worked ? ` · paid as ${fh(x.paid)}h` : ''}</span></span><span class="amt">${money(x.pay,0)}<small style="display:block;text-align:right">${fh(x.worked)}h${x.mult===2?' · 2×':''}</small></span></button>`;
+  return `${rseg}${hero}
+    <div class="tiles">
+      <div class="tile"><span class="tl">Busiest day</span><span class="tv">${busiest.label}</span><span class="ts">${busiest.parts[0].v} call-outs</span></div>
+      <div class="tile"><span class="tl">Longest</span><span class="tv">${fh(longest[0].worked)}h</span><span class="ts">${esc(dayShort(longest[0].when))}</span></div>
+      <div class="tile"><span class="tl">2-hour minimum</span><span class="tv">${money(topUp,0)}</span><span class="ts">extra from short call-outs</span></div>
+      <div class="tile"><span class="tl">Double time</span><span class="tv">${Math.round(sum(dbl, x => x.paid) / (paid||1) * 100)}%</span><span class="ts">of hours paid</span></div>
+    </div>
+    <section class="panel"><h2>Hours by claim month</h2><div class="cleg"><span><i style="background:var(--g2)"></i>Time and a half</span><span><i style="background:var(--g3)"></i>Double time</span></div>${barChart(byM, { label:'Call-out hours by claim month', fmt: hrs })}<p class="note">Each claim month runs from the 25th to the 24th.</p></section>
+    <section class="panel"><h2>When she gets called</h2>${barChart(bins, { label:'Call-outs by start time', fmt: v => String(v) })}<p class="note">Call-outs by the hour they started, in 3-hour blocks (00 = midnight to 3am).</p></section>
+    <section class="panel"><h2>By day of the week</h2>${barChart(dows, { label:'Call-outs by day of the week', fmt: v => String(v) })}</section>
+    <section class="panel"><h2>What for <span class="sub">from her notes</span></h2>
+      <div class="corsn">${reasons.map(x => `<div class="corow"><span class="cn">${esc(x.n)}</span><span class="cbar"><i style="width:${x.k/rmax*100}%"></i></span><span class="cv">${x.k} <small>${fh(x.h)}h</small></span></div>`).join('')}</div>
+      <p class="note">A call-out can count under more than one heading.${noNote ? ` ${noNote} have no note.` : ''}</p></section>
+    <section class="panel"><h2>Longest call-outs</h2><div class="list">${longest.map(row).join('')}</div></section>
+    <section class="panel"><h2>Most recent</h2><div class="list">${cos.slice(0,8).map(row).join('')}</div></section>`;
+}
+
 function viewWork() {
   const who = UI.who, ym = UI.cal;
   const whoSeg = `<div class="seg who" role="group" aria-label="Whose work">
     <button data-act="who" data-who="chris" aria-pressed="${who==='chris'}">Chris</button>
     <button data-act="who" data-who="viki" aria-pressed="${who==='viki'}">Viki</button>
+    <button data-act="who" data-who="co" aria-pressed="${who==='co'}">Call-outs</button>
     <button data-act="who" data-who="leave" aria-pressed="${who==='leave'}">Leave</button>
   </div>`;
   fetchCal();
   if (who==='viki') return whoSeg + viewViki();
   if (who==='leave') return whoSeg + viewLeave();
+  if (who==='co') return whoSeg + viewCallouts();
   const first = parse(`${ym}-01`); const daysIn = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
   const lead = (first.getDay()+6)%7;
   const monthDays = daysFor(who, `${ym}-01`, `${ym}-${pad(daysIn)}`);
@@ -2805,6 +2874,8 @@ document.addEventListener('click', async e => {
   if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; closeSheet(); if (fn) { await fn(); toast('Deleted'); } } else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
   if (a==='settings') return settingsForm();
   if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='corange') { UI.coRange = el.dataset.v; return render(); }
+  if (a==='vday') return vikiDayForm(el.dataset.date);
   if (a==='lvwho') { UI.lvWho = el.dataset.v; return render(); }
   if (a==='lvcyear') { UI.lvcOff = Number(el.dataset.v); return render(); }
   if (a==='lvcday') { const prev = UI.who; UI.who = 'chris'; dayForm(el.dataset.date); UI.who = prev; return; }
