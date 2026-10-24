@@ -1582,7 +1582,7 @@ function viewHome() {
   const r = vk();
   let pd = payday(ym); if (t > pd) pd = payday(ymOf(addMonths(`${ym}-01`,1)));
   const extrasYM = r.arrears ? ymOf(addMonths(`${ymOf(pd)}-01`,-1)) : ymOf(pd);
-  const vm = vikiMonth(extrasYM), vp0 = slipFor(vm), vp = { ...vp0, net: vp0.net + slipAdjust().adj }, toPay = daysBetween(t, pd);
+  const vm = vikiMonth(extrasYM), vp0 = slipFor(vm, ymOf(pd)), vp = { ...vp0, net: vp0.net + slipAdjust().adj }, toPay = daysBetween(t, pd);
 
   const vtom = dayRec('viki', addDays(t,1)), cym = claimYM(t), vNow = vikiMonth(cym);
   const binsTomorrow = ((agenda(addDays(t,1), addDays(t,1))[addDays(t,1)]) || []).some(x => x.ic==='bin');
@@ -1794,7 +1794,7 @@ function viewWork() {
    Her actual rates live in the private database (settings/main → viki), never in this public code.
    Model: salary + on-call standing hours × rate + call-out hours × basic × 1.5 (Mon–Sat) or 2 (Sun and bank holidays).
    Pension is a % of salary + on call; NI is a fixed monthly part + a % of gross; tax is a rate above the tax-code allowance. */
-const VIKI_DEFAULT = { salary:0, base:0, standby:0, secondWD:0, secondWE:0, pension:0, niFixed:0, niPct:0, taxCode:0, taxRate:20, arrears:true, cutoff:25 };
+const VIKI_DEFAULT = { salary:0, base:0, standby:0, secondWD:0, secondWE:0, pension:0, enh:0, taxCode:0, arrears:true, cutoff:25 };
 const vk = () => ({...VIKI_DEFAULT, ...(S.settings.viki||{})});
 const BANK_HOLS = new Set(['2026-01-01','2026-04-03','2026-04-06','2026-05-04','2026-05-25','2026-06-05','2026-07-05','2026-07-06','2026-08-31','2026-12-25','2026-12-26','2026-12-28',
   '2027-01-01','2027-03-26','2027-03-29','2027-05-03','2027-05-31','2027-06-11','2027-07-05','2027-08-30','2027-12-25','2027-12-26','2027-12-27','2027-12-28']);
@@ -1839,18 +1839,42 @@ function vikiMonth(ym) {
   days.forEach(d => { const x = vikiDay(d); ['oc','ocH','co','h15','h2','hrs','otH','ot','bhH','bh'].forEach(k => t[k] += x[k]); });
   return t;
 }
-function payslip(oc, co, bh=0, ot=0) {
-  const r = vk(); const gross = r.salary + oc + co + bh + ot;
-  const pension = (r.salary + oc + bh) * r.pension/100;
-  const ni = r.niFixed + gross * r.niPct/100;
-  const tax = Math.max(0, (gross - pension - r.taxCode*10/12) * r.taxRate/100);
-  return { gross, pension, ni, tax, net: gross - pension - ni - tax };
+/* ----- Isle of Man take-home engine: one calculation used everywhere Viki's pay is predicted -----
+   Checked against her Aug and Sep 2026 payslips (within 6p).
+   Pension: % of pensionable pay only (salary, on call, enhancements). Call-outs and overtime are not pensionable.
+   NI (Class 1): 11% between the primary threshold and the upper earnings limit, 1% above, on all gross pay
+   (monthly limits = weekly × 52 ÷ 12). Pension does not reduce NI.
+   Tax: allowance = tax code × 10 + 9, a year, after pension comes off; 10% on the first band, 21% above.
+   Add a new line here each April after the Manx budget. */
+const IOM_YEARS = {
+  2025: { band:6500, lo:10, hi:21, pt:168, uel:1032, ni:11, niHi:1 },
+  2026: { band:6500, lo:10, hi:21, pt:176, uel:1082, ni:11, niHi:1 },
+};
+const r2 = x => Math.round(x*100)/100;
+function iomYear(date) {
+  const d = parse(date || today()), y = d.getFullYear(), start = (d.getMonth() > 3 || (d.getMonth() === 3 && d.getDate() >= 6)) ? y : y - 1;
+  const ks = Object.keys(IOM_YEARS).map(Number).sort((a,b) => a-b), k = ks.filter(x => x <= start).pop() ?? ks[0];
+  return { ...IOM_YEARS[k], year:k, start, guessed: k !== start };
 }
-const slipFor = m => payslip(m.oc, m.co, m.bh, m.ot);
+function takeHome(pensionable, other, payDate) {
+  const r = vk(), t = iomYear(payDate), gross = r2(pensionable + other);
+  const pension = r2(pensionable * (Number(r.pension)||0)/100);
+  const pt = t.pt*52/12, uel = t.uel*52/12;
+  const ni = r2(Math.max(0, Math.min(gross, uel) - pt) * t.ni/100 + Math.max(0, gross - uel) * t.niHi/100);
+  const allow = r.taxCode ? (Number(r.taxCode)*10 + 9)/12 : 0, band = t.band/12;
+  const taxable = Math.max(0, gross - pension - allow);
+  const tax = r2(Math.min(taxable, band) * t.lo/100 + Math.max(0, taxable - band) * t.hi/100);
+  return { gross, pensionable: r2(pensionable), pension, ni, tax, net: r2(gross - pension - ni - tax), taxYear: t };
+}
+function payslip(oc, co, bh=0, ot=0, payYM) {
+  const r = vk(), enh = Number(r.enh)||0;
+  return takeHome(r.salary + oc + bh + enh, co + ot, payday(payYM || ymOf(today())));
+}
+const slipFor = (m, payYM) => payslip(m.oc, m.co, m.bh, m.ot, payYM);
 /* learn from real payslips: average difference between her actual take-home and the estimate, last three */
 function slipAdjust() {
   const r = vk(); const diffs = S.payslips.filter(x => x.net).sort((a,b) => a.id < b.id ? 1 : -1).slice(0,3).map(x => {
-    const extrasYM = r.arrears ? ymOf(addMonths(`${x.id}-01`,-1)) : x.id; return x.net - slipFor(vikiMonth(extrasYM)).net; });
+    const extrasYM = r.arrears ? ymOf(addMonths(`${x.id}-01`,-1)) : x.id; return x.net - slipFor(vikiMonth(extrasYM), x.id).net; });
   return diffs.length ? { adj: diffs.reduce((a,b)=>a+b,0)/diffs.length, n: diffs.length } : { adj:0, n:0 };
 }
 function payday(ym) { let d = `${ym}-25`; const w = parse(d).getDay(); if (w===6) d = addDays(d,-1); if (w===0) d = addDays(d,-2); return d; }
@@ -1859,7 +1883,7 @@ const dayShort = s => { const d = parse(s); return `${DOWS[d.getDay()].slice(0,3
 function viewViki() {
   const ym = UI.cal, r = vk(), m = vikiMonth(ym);
   const payYM = r.arrears ? ymOf(addMonths(`${ym}-01`,1)) : ym;
-  const pd = payday(payYM), p = slipFor(m), tot = p.gross || 1;
+  const pd = payday(payYM), p = slipFor(m, payYM), tot = p.gross || 1;
   const sa = slipAdjust(), netAdj = p.net + sa.adj, real = S.payslips.find(x => x.id===payYM);
   const mName = MONTHS[parse(`${ym}-01`).getMonth()];
   const stack = `<div class="stack" aria-hidden="true" style="margin-top:12px"><i style="width:${r.salary/tot*100}%;background:var(--rule-2)"></i><i style="width:${m.oc/tot*100}%;background:var(--oc)"></i><i style="width:${m.co/tot*100}%;background:var(--gold-bar)"></i></div>`;
@@ -1869,12 +1893,14 @@ function viewViki() {
       <dt>Call-outs, ${fh(m.h15)}h at 1.5× and ${fh(m.h2)}h at 2×</dt><dd>${money(m.co,2)}</dd>
       ${m.ot ? `<dt>Overtime, ${fh(m.otH)} hours</dt><dd>${money(m.ot,2)}</dd>` : ''}
       ${m.bh ? `<dt>Bank holiday uplift, ${fh(m.bhH)} hours</dt><dd>${money(m.bh,2)}</dd>` : ''}
-      <dt>Pension ${r.pension}%</dt><dd>−${money(p.pension,2)}</dd>
-      <dt>National Insurance</dt><dd>−${money(p.ni,2)}</dd>
-      <dt>Income tax</dt><dd>−${money(p.tax,2)}</dd>
+      ${Number(r.enh) ? `<dt>Special duty enhancement</dt><dd>${money(Number(r.enh),2)}</dd>` : ''}
+      <dt>Total pay</dt><dd>${money(p.gross,2)}</dd>
+      <dt>Pension ${r.pension}% of ${money(p.pensionable,2)} <small>(call-outs and overtime don't count)</small></dt><dd>−${money(p.pension,2)}</dd>
+      <dt>National Insurance <small>(11%, then 1% on pay above ${money(p.taxYear.uel*52/12,0)})</small></dt><dd>−${money(p.ni,2)}</dd>
+      <dt>Income tax <small>(code ${esc(String(r.taxCode))}, 10% then 21%)</small></dt><dd>−${money(p.tax,2)}</dd>
       ${sa.n ? `<dt>Adjustment from her last ${sa.n} payslip${sa.n>1?'s':''}</dt><dd>${sa.adj<0?'−':'+'}${money(Math.abs(sa.adj),2)}</dd>` : ''}
       <dt class="tot">Take-home</dt><dd class="tot">${money(netAdj,2)}</dd>
-    </dl><p class="note" style="margin:6px 0 0">${r.arrears ? `On call, call-outs and overtime from ${esc(rangeLabel(ym))} are paid on ${esc(dayShort(pd))}. ` : ''}Checked against her real payslips: within about £10.</p></details>`;
+    </dl><p class="note" style="margin:6px 0 0">${r.arrears ? `On call, call-outs and overtime from ${esc(rangeLabel(ym))} are paid on ${esc(dayShort(pd))}. ` : ''}Worked out with the real Isle of Man tax and NI rules for ${p.taxYear.start}/${String(p.taxYear.start+1).slice(2)}${p.taxYear.guessed ? ` (using ${p.taxYear.year}/${String(p.taxYear.year+1).slice(2)} rates until this year's are added)` : ''}. It matched her August and September payslips to within 6p.</p></details>`;
   const hero = tblock({ cls:'vslip', kicker: `Payslip estimate${ym >= claimYM(today()) ? ', so far' : ''} · ${esc(rangeLabel(ym))}`, title: esc(dayShort(pd)),
     side: `<span class="tb-kicker">${real ? 'Actual take-home' : 'Take-home'}</span><span class="big" style="color:var(--viki)">${money(real ? real.net : netAdj,0)}</span>`,
     cells: [ tbCell('Salary', money(r.salary + m.bh,0), 'var(--rule-2)'), tbCell('On call', `${money(m.oc,0)} <small>${fh(m.ocH)}h</small>`, 'var(--oc)'), tbCell('Call-outs', `${money(m.co + m.ot,0)} <small>${fh(m.h15+m.h2+m.otH)}h</small>`, 'var(--gold-bar)') ],
@@ -2242,12 +2268,14 @@ function vikiRatesForm() {
     <div class="fields2">${fld('rSb','On call per hour (£)', r.standby, 'number','step="0.01" inputmode="decimal"')}${fld('rPen','Pension (%)', r.pension, 'number','step="0.1" inputmode="decimal"')}</div>
     <div class="fields2">${fld('rS2','2nd on call, weekday (£/h)', r.secondWD, 'number','step="0.001" inputmode="decimal"')}${fld('rS2w','2nd on call, weekend (£/h)', r.secondWE, 'number','step="0.01" inputmode="decimal"')}</div>
     <div class="fields2">${fld('rTax','Tax code number', r.taxCode, 'number','step="1" inputmode="numeric"')}${sel('rArr','On call is paid', r.arrears?'1':'0', [['1','The month after'],['0','The same month']])}</div>
-    ${fld('rCut','Claim month starts on day (0 = calendar month)', r.cutoff ?? 25, 'number','step="1" min="0" max="28" inputmode="numeric"')}
+    <div class="fields2">${fld('rCut','Claim month starts on day (0 = calendar month)', r.cutoff ?? 25, 'number','step="1" min="0" max="28" inputmode="numeric"')}${fld('rEnh','Special duty enhancement (£/month)', r.enh ?? 0, 'number','step="0.01" inputmode="decimal"')}</div>
     <div class="fields2">${fld('rBh','Bank holiday uplift (£/h)', r.bhUplift ?? (r.base*0.5).toFixed(2), 'number','step="0.01" inputmode="decimal"')}${fld('rLh','Annual leave (hours a year)', r.leaveHours ?? '', 'number','step="0.5" inputmode="decimal"')}</div>
     ${sel('rLs','Leave year starts', r.leaveStart || 4, MONTHS.map((x,i)=>[i+1,x]))}
-    <p class="note">Call-outs are worked out from the basic rate: ${money(r.base*1.5,2)}/h Monday to Saturday and ${money(r.base*2,2)}/h on Sundays and bank holidays, and each one is paid as at least ${r.coMin ?? CO_BASE} hours.</p>`, async () => {
+    <p class="note">Call-outs are worked out from the basic rate: ${money(r.base*1.5,2)}/h Monday to Saturday and ${money(r.base*2,2)}/h on Sundays and bank holidays, and each one is paid as at least ${r.coMin ?? CO_BASE} hours.</p>
+    <p class="note">Tax and NI are worked out from the Isle of Man rules, so only the tax code is needed. Use the number from her payslip, such as 1711 for 1711F.</p>`, async () => {
     const out = {...(S.settings.viki||{})};
     const map = { salary:'rSal', base:'rBase', standby:'rSb', pension:'rPen', secondWD:'rS2', secondWE:'rS2w', taxCode:'rTax' };
+    const enh = num(v('rEnh')); out.enh = enh && enh > 0 ? enh : 0; delete out.niFixed; delete out.niPct; delete out.taxRate;
     for (const [k,id] of Object.entries(map)) { const n = num(v(id)); if (n===null || n<0) throw new Error('Each rate needs a number'); out[k] = n; }
     out.arrears = v('rArr')==='1'; const cut = num(v('rCut')); out.cutoff = (cut!==null && cut>=0 && cut<=28) ? Math.round(cut) : 25;
     const bhu = num(v('rBh')); if (bhu!==null) out.bhUplift = bhu; const lh = num(v('rLh')); if (lh) out.leaveHours = lh; else delete out.leaveHours; out.leaveStart = Number(v('rLs')) || 4;
@@ -2268,7 +2296,7 @@ function chrisExtras(ym) {
 function moneyIn(ym) {
   // pay landing in month ym: salaries plus extras worked the month before
   const r = vk(), c = ck(), prev = ymOf(addMonths(`${ym}-01`,-1));
-  const vm = vikiMonth(r.arrears ? prev : ym), vSlip = slipFor(vm), vReal = S.payslips.find(x => x.id===ym);
+  const vm = vikiMonth(r.arrears ? prev : ym), vSlip = slipFor(vm, ym), vReal = S.payslips.find(x => x.id===ym);
   const vNet = r.salary ? (vReal ? vReal.net : vSlip.net + slipAdjust().adj) : 0;
   const ce = chrisExtras(prev);
   const others = (S.settings.income || []).filter(x => x.amount);
@@ -2549,15 +2577,21 @@ async function zilchAddOwed() {
 const bsClone = o => JSON.parse(JSON.stringify(o));
 const bsAmt = x => x.u != null ? (Number(x.q)||0) * (Number(x.u)||0) : (Number(x.a)||0);
 const bsOn = x => !x.off;
-function bsViki(doc) {
+/* call-outs, overtime and cover are not pensionable; on call is. Rows carry pen:true/false, and older rows are guessed from the name */
+const bsPen = i => i.pen != null ? !!i.pen : !/hour|call.?out|1\.5|double|\bbh\b|bh-|overtime|cover/i.test(String(i.n||''));
+function bsVikiSlip(doc, ym) {
+  const sv = doc.viki; let pen = Number(sv.base)||0, other = 0;
+  (sv.items||[]).forEach(i => { const a = (Number(i.r)||0)*(Number(i.q)||0); if (bsPen(i)) pen += a; else other += a; });
+  return takeHome(pen + (Number(vk().enh)||0), other, payday(ym || ymOf(today())));
+}
+function bsViki(doc, ym) {
   const vk = doc.viki; if (!vk) return 0;
   if (vk.actual != null) return Number(vk.actual)||0;
   if (vk.mode !== 'calc') return Number(vk.fixed)||0;
-  const extra = (vk.items||[]).reduce((s,i) => s + (Number(i.r)||0)*(Number(i.q)||0), 0);
-  return (extra + (Number(vk.base)||0)) * (Number(vk.keep)||100)/100 * (Number(vk.net)||1);
+  return bsVikiSlip(doc, ym).net;
 }
 function bsTotals(doc, ym) {
-  const viki = doc.viki && !doc.viki.off ? bsViki(doc) : 0, plan = ym ? plannerMonth(ym).total : 0;
+  const viki = doc.viki && !doc.viki.off ? bsViki(doc, ym) : 0, plan = ym ? plannerMonth(ym).total : 0;
   const inc = viki + (doc.inc||[]).filter(bsOn).reduce((s,x) => s + (Number(x.a)||0), 0);
   const sec = {}; let base = 0, extra = 0;
   (doc.secs||[]).forEach(s => { const t = s.rows.filter(bsOn).reduce((a,x) => a + bsAmt(x), 0); sec[s.k] = t; if (s.kind==='base') base += t; else if (s.kind==='extra') extra += t; });
@@ -2619,7 +2653,7 @@ function bsVikiBlock(doc, t) {
       <div class="seg" role="group" aria-label="How Viki's wages are set"><button type="button" data-act="bsvmode" data-v="calc" aria-pressed="${vk.mode==='calc'}">Work it out</button><button type="button" data-act="bsvmode" data-v="fixed" aria-pressed="${vk.mode!=='calc'}">Type it in</button></div>
       ${vk.mode==='calc' ? `<div class="xhead vi"><span>On call worked</span><span>Rate</span><span>How many</span><span>£</span></div>${items}
       <div class="xr vi"><span class="xn">Salary</span><span class="xd"></span><span class="xd"></span>${bsMoneyIn('vbase', vk.base, 'aria-label="Salary"')}</div>
-      <p class="note">Take-home = (on call + salary) × ${esc(vk.keep)}% × ${esc(vk.net)}, the same sum as the spreadsheet. On call worked in the claim month before is paid this month.</p>
+      ${(() => { const p = bsVikiSlip(doc, UI.bs.ym); return `<p class="note">Total pay ${money(p.gross,2)}. Pension ${money(p.pension,2)} (on ${money(p.pensionable,2)}, call-out hours don't count), NI ${money(p.ni,2)}, tax ${money(p.tax,2)}, so take-home is <b>${money(p.net,2)}</b>. Worked out with the real Isle of Man rules, the same as the Work tab. On call worked in the claim month before is paid this month.</p>`; })()}
       <div class="btnrow"><button type="button" class="btn small ghost" data-act="bsvfill">Fill in from her logged on call</button></div>` : ''}
     </div>` : ''}`;
 }
@@ -3695,7 +3729,7 @@ function vikiForecast(payYM) {
   const map = [[/weekday/i, q.wd], [/weekend/i, q.we], [/^1\.5/i, q.h15], [/double/i, q.h2]];
   const items = (doc.viki.items||[]).map(i => { const hit = map.find(([re]) => re.test(i.n) && !/2nd/i.test(i.n)); return hit ? { ...i, q: hit[1] } : { ...i, q: /2nd|bh/i.test(i.n) ? 0 : i.q }; });
   const vdoc = { ...doc, viki: { ...doc.viki, mode: 'calc', items } };
-  return { net: bsViki(vdoc), items, known, future, guessOc, addH: Math.round(addH), loggedH: Math.round(m.h15 + m.h2), claim, end, real: false };
+  return { net: bsViki(vdoc, payYM), items, known, future, guessOc, addH: Math.round(addH), loggedH: Math.round(m.h15 + m.h2), claim, end, real: false };
 }
 function forecastPanel() {
   const cur = plCur(), rows = [1, 2, 3].map(i => ymAdd(cur, i)).map(ym => { const f = vikiForecast(ym), sh = S.bsheet[ym]; if (!f || !sh || !sh.viki) return null; const sheetV = bsTotals(sh, ym).viki; return { ym, f, sheetV, diff: f.net - sheetV }; }).filter(Boolean);
@@ -3710,7 +3744,7 @@ function forecastPanel() {
         <div class="fc-bar"><i style="width:${Math.min(100, r.sheetV / Math.max(r.sheetV, f.net) * 100)}%"></i><em style="left:${Math.min(100, f.net / Math.max(r.sheetV, f.net) * 100)}%"></em></div>
         <div class="m">${esc(why)}. The sheet has ${money(r.sheetV,0)}, so this looks <b style="color:${up ? 'var(--good)' : 'var(--gold)'}">${money(Math.abs(r.diff),0)} ${up ? 'better' : 'lower'}</b>.</div>
         ${Math.abs(r.diff) >= 50 ? `<div class="btnrow" style="margin-top:6px"><button class="btn small ghost" data-act="vfcast" data-v="${r.ym}">Use ${money(f.net,0)} in the ${monShort(r.ym)} sheet</button></div>` : ''}</div>`; }).join('')}
-    <p class="note">Worked out the same way as her spreadsheet, from on call on her rota${rows[0].f.end ? ` (known up to ${shortDate(rows[0].f.end).replace(/ \d{4}$/,'')})` : ''} and her average call-out hours. Updating a sheet fills in its on call counts, so you can see the workings. ${big ? '' : 'The sheets are close enough, nothing to change.'}</p></section>`;
+    <p class="note">Worked out with the real Isle of Man pension, tax and NI rules, from on call on her rota${rows[0].f.end ? ` (known up to ${shortDate(rows[0].f.end).replace(/ \d{4}$/,'')})` : ''} and her average call-out hours. Updating a sheet fills in its on call counts, so you can see the workings. ${big ? '' : 'The sheets are close enough, nothing to change.'}</p></section>`;
 }
 
 /* ===== Zilch: everything owed, by month ===== */
@@ -4360,7 +4394,7 @@ document.addEventListener('click', async e => {
   if (a==='bssec') return bsSecMenu(Number(el.dataset.s));
   if (a==='bsnewsec') { UI.bs.doc.secs.push({ k: uid('s'), t:'New section', kind:'base', rows:[{n:'',a:0}] }); render(); return bsSecMenu(UI.bs.doc.secs.length-1); }
   if (a==='bsviki') { UI.bsViki = !UI.bsViki; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
-  if (a==='bsvmode') { const vk = UI.bs.doc.viki; if (el.dataset.v==='fixed' && vk.mode==='calc') vk.fixed = Math.round(bsViki(UI.bs.doc)*100)/100; vk.mode = el.dataset.v; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  if (a==='bsvmode') { const vk = UI.bs.doc.viki; if (el.dataset.v==='fixed' && vk.mode==='calc') vk.fixed = Math.round(bsViki(UI.bs.doc, UI.bs.ym)*100)/100; vk.mode = el.dataset.v; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
   if (a==='bsvfill') return bsVikiFill();
   if (a==='bsundo') { UI.bs = null; render(); toast('Back to the saved sheet'); return; }
   if (a==='bssave') return bsSave();
