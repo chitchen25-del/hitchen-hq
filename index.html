@@ -1771,6 +1771,44 @@ nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 .me-br button{min-height:36px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-good{color:#4CC38A}}
 :root[data-theme="dark"] .me-good{color:#4CC38A}
+
+.me-trends{display:flex;flex-direction:column;gap:10px}
+.me-rng{margin:0}
+.me-sub{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:8px}.me-sub b{font-size:1rem}.me-sub small{color:var(--muted);font-size:.78rem;text-align:right}
+.me-moves{display:flex;flex-direction:column;gap:6px}
+.me-mv{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:12px;background:var(--sheet-2);font-size:.88rem;line-height:1.35}
+.me-mv small{display:block;color:var(--muted);font-size:.76rem}.me-mvi{font-size:.8rem;margin-top:2px}
+.me-mv.good{background:var(--good-soft)}.me-mv.good .me-mvi{color:var(--good)}.me-mv.bad{background:var(--bad-soft)}.me-mv.bad .me-mvi{color:var(--bad)}
+.me-gh{margin:10px 0 0;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.me-tc{border:1px solid var(--rule);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.me-tch{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.me-tch span{font-weight:650}.me-tch b{font-size:1.2rem}
+.me-tcs{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.76rem;color:var(--muted)}
+.me-dl.good{color:var(--good);font-weight:650}.me-dl.bad{color:var(--bad);font-weight:650}
+.me-tc svg{width:100%;height:auto;display:block;overflow:visible}
+.me-td{fill:var(--me-data);opacity:.3}
+:root{--me-data:#2F6FDE}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--me-data:#6EA0FF}}
+:root[data-theme="dark"]{--me-data:#6EA0FF}
+.me-trends .me-ln{stroke:var(--me-data)}.me-trends .me-dot{fill:var(--me-data)}
+.me-fine{margin:0;font-size:.78rem;color:var(--muted);line-height:1.4}
+.me-stages{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px}.me-stages i{display:block;height:100%}
+.me-quiet{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border-radius:12px;background:var(--gold-soft);font-size:.84rem}.me-quiet small{color:var(--muted)}
+.me-cal{overflow:hidden}
+.me-calm{display:flex;gap:2px;font-size:.6rem;color:var(--muted);height:12px}.me-calm span{flex:1;min-width:0;overflow:visible;white-space:nowrap}
+.me-calg{display:flex;gap:2px}.me-cw{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.me-cl{display:block;width:100%;aspect-ratio:1;border-radius:2px;background:var(--sheet-2)}
+.me-cl.l0{background:color-mix(in srgb,var(--good-bar) 18%,var(--sheet))}.me-cl.l1{background:color-mix(in srgb,var(--good-bar) 38%,var(--sheet))}.me-cl.l2{background:color-mix(in srgb,var(--good-bar) 58%,var(--sheet))}.me-cl.l3{background:color-mix(in srgb,var(--good-bar) 80%,var(--sheet))}.me-cl.l4{background:var(--good)}
+.me-c0.off{display:block;width:100%;aspect-ratio:1;background:none}
+.me-calk{display:flex;align-items:center;gap:3px;font-size:.7rem;color:var(--muted)}.me-calk .me-cl{width:10px;height:10px}.me-calk-r{margin-left:auto}
+.me-wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.me-wk>div{display:flex;flex-direction:column;align-items:center;gap:2px}.me-wk small{font-size:.7rem;color:var(--muted)}.me-wk b{font-size:.74rem}
+.me-wkb{display:flex;align-items:flex-end;width:100%;height:64px;background:var(--sheet-2);border-radius:6px;overflow:hidden}.me-wkb i{display:block;width:100%;background:color-mix(in srgb,var(--me-data) 45%,var(--sheet));border-radius:6px 6px 0 0}.me-wkb i.best{background:var(--me-data)}
+.me-recs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.me-recs div{background:var(--sheet-2);border-radius:12px;padding:9px 10px;display:flex;flex-direction:column;gap:1px}.me-recs span{font-size:.74rem;color:var(--muted)}.me-recs b{font-size:1.02rem}.me-recs small{font-size:.72rem;color:var(--muted)}
+.me-ytw{overflow-x:auto}.me-yt{width:100%;border-collapse:collapse;font-size:.8rem;font-variant-numeric:tabular-nums}
+.me-yt th,.me-yt td{padding:6px 5px;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}.me-yt th:first-child{text-align:left}.me-yt thead th{color:var(--muted);font-weight:600;font-size:.72rem}.me-yt small{color:var(--muted);font-weight:400}
+.me-imp{display:flex;flex-direction:column;gap:4px;margin:4px 0}
+.me-impb{position:relative;overflow:hidden;align-self:flex-start}.me-impb input{position:absolute;inset:0;opacity:0;cursor:pointer}
 </style>
 </head>
 <body>
@@ -5215,12 +5253,12 @@ async function meLoad(force) {
   try {
     const [d, m, w] = await Promise.all([
       sb.from('me_docs').select('path,data'),
-      sb.from('me_metrics').select('day,metric,qty,units,data').gte('day', addDays(today(), -120)).order('day').limit(10000),
-      sb.from('me_workouts').select('start_at,name,data').order('start_at', { ascending: false }).limit(20)]);
+      meFetchMetrics(),
+      sb.from('me_workouts').select('start_at,name,data').order('start_at', { ascending: false }).limit(500)]);
     const bad = d.error || m.error || w.error; if (bad) throw new Error(bad.message);
     ME.docs = {}; (d.data || []).forEach(r => { ME.docs[r.path] = r.data || {}; });
     ME.by = {}; ME.units = {}; (m.data || []).forEach(r => { (ME.by[r.day] = ME.by[r.day] || {})[r.metric] = r; if (r.units) ME.units[r.metric] = r.units; });
-    ME.workouts = w.data || []; if (!ME.busy) ME.chat = (ME.docs.chat || {}).msgs || []; ME.err = ''; ME.loaded = true;
+    ME.ser = {}; ME.workouts = w.data || []; if (!ME.busy) ME.chat = (ME.docs.chat || {}).msgs || []; ME.err = ''; ME.loaded = true;
   } catch (e) { ME.err = e.message || 'Couldn\'t load'; }
   ME.loading = false;
   if (UI.tab === 'me' && !(document.activeElement && document.activeElement.id === 'meQ')) render(); else mePaint();
@@ -5325,20 +5363,7 @@ function viewMe() {
     ${jabs.length ? `<div class="list">${jabs.slice(-4).reverse().map(j => `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(shortDate(j.date))}</span>${j.text ? `<span class="m" style="display:block">${esc(j.text)}</span>` : ''}</span><span class="amt">${esc(String(j.value ?? ''))}${/^\d+(\.\d+)?$/.test(String(j.value ?? '')) ? ' mg' : ''}</span></div>`).join('')}</div>` : ''}
     <p class="note">Dose changes are for your prescriber. Tell the coach about side effects and it'll keep an eye on them.</p></section>` : '';
 
-  // trends
-  const d14 = Array.from({ length: 14 }, (_, i) => addDays(t, i - 13));
-  const goalSteps = Number(String((prof.facts || {}).step_goal || '').replace(/\D/g, '')) || 10000;
-  const wts = Object.keys(ME.by).sort().filter(d => d >= addDays(t, -90)).map(d => ({ d, q: meQ(d, 'body_mass') })).filter(p => p.q !== null).map(p => ({ d: p.d, q: meKg(p.q) }));
-  const rhr = Object.keys(ME.by).sort().filter(d => d >= addDays(t, -30)).map(d => ({ d, q: meQ(d, 'resting_heart_rate') })).filter(p => p.q !== null);
-  const hrv = Object.keys(ME.by).sort().filter(d => d >= addDays(t, -30)).map(d => ({ d, q: meQ(d, 'heart_rate_variability') })).filter(p => p.q !== null);
-  const charts = [];
-  const ch = (title, now, svg) => { if (svg) charts.push(`<div class="me-ch"><div class="me-ch-h"><span>${title}</span><b>${now}</b></div>${svg}</div>`); };
-  ch('Steps, last 14 days', `goal ${meN(goalSteps)}`, meBars(d14, 'step_count', q => q, q => `${meN(q)} steps`, goalSteps));
-  ch('Sleep', sl ? `last night ${meHrs(sl)}` : '', meBars(d14, 'sleep_analysis', q => q, meHrs, 0));
-  if (wts.length) { const a = wts[0].q, b = wts[wts.length - 1].q, diff = b - a; ch('Weight, 90 days', `${meSt(b)}${wts.length > 1 && Math.abs(diff) >= 0.2 ? ` <span class="${diff < 0 ? 'me-good' : ''}">${diff < 0 ? '↓' : '↑'} ${meSt(Math.abs(diff)).replace(/^0st /, '')}</span>` : ''}`, meLine(wts, meSt)); }
-  ch('Resting heart rate', rhr.length ? `${Math.round(rhr[rhr.length - 1].q)} bpm` : '', meLine(rhr, q => `${Math.round(q)} bpm`));
-  ch('Heart rate variability', hrv.length ? `${Math.round(hrv[hrv.length - 1].q)} ms` : '', meLine(hrv, q => `${Math.round(q)} ms`));
-  const trends = charts.length ? `<section class="panel"><h2>Trends</h2>${charts.join('')}<p class="note">From your Apple Watch and iPhone. Good for trends, not a medical test.</p></section>` : '';
+  const trends = meTrendsHtml();
 
   // commitments
   const cm = (ME.docs.commits || {}).items || [], open = cm.filter(c => !c.done && !c.missed), wkC = cm.filter(c => (c.done || c.missed || '') >= wk0), kept = wkC.filter(c => c.done).length;
@@ -5358,6 +5383,7 @@ function viewMe() {
     ${stale ? `<p class="note" style="margin-top:0">${sync.at ? `The last numbers came in ${esc(meAgo(sync.at))}. Open Health Auto Export and check the automation is still on.` : 'Health Auto Export sends your numbers here through the day, whenever your phone is unlocked.'}</p>
     <ol class="me-steps"><li>In Health Auto Export, tap <b>Automated</b>, then add a new automation and choose <b>REST API</b>.</li><li>Paste your private link in the URL box (copy it below). Keep it to yourself, it works like a password.</li><li>Data type: <b>Health Metrics</b>. Select all metrics. Format: <b>JSON</b>.</li><li>Turn on <b>Summarize data</b> and set time grouping to <b>Day</b>. Date range: <b>Today</b> (for the first run, pick the longest range offered to bring your history in).</li><li>Sync cadence: every hour. Turn the automation on, then tap <b>Manual export</b> or <b>Sync now</b> to test it.</li><li>Add a second automation the same way for <b>Workouts</b>.</li></ol>` : `<p class="note" style="margin-top:0">${esc(String(sync.readings || 0))} readings in the last delivery, ${esc(meAgo(sync.at))}.</p>`}
     ${ME.showLink && ME.link ? `<input class="me-link" readonly value="${esc(ME.link)}" aria-label="Your private link" onfocus="this.select()">` : ''}
+    <div class="me-imp">${ME.importing ? `<p class="note" id="meImpTxt">Bringing in your history: ${Math.round(ME.importing.done / Math.max(1, ME.importing.total) * 100)}%</p>` : `<label class="btn small ghost me-impb">Import Apple Health history<input type="file" id="meImp" accept=".json,application/json"></label>`}${(ME.docs.imported || {}).from ? `<p class="note">History imported: ${esc(shortDate(ME.docs.imported.from))} to ${esc(shortDate(ME.docs.imported.to))}, ${meN(ME.docs.imported.readings || 0)} readings.</p>` : ''}</div>
     <div class="btnrow"><button class="btn${stale ? '' : ' ghost'} small" data-act="mxlink">${ME.link ? 'Copy your private link' : 'Show your private link'}</button></div></section>`;
   const knows = `<section class="panel"><h2>What your coach knows</h2>
     ${prof.focus ? `<p><b>This month:</b> ${esc(prof.focus)}</p>` : ''}${(prof.goals || []).length ? `<p><b>Goals:</b> ${(prof.goals || []).map(esc).join(' · ')}</p>` : ''}
@@ -5366,6 +5392,217 @@ function viewMe() {
     <p class="note">They come through the same notifications as the rest of the app, so they need those switched on in Settings.</p></section>`;
   const err = ME.err ? `<div class="banner">Couldn't load your coach: ${esc(ME.err)}</div>` : '';
   return err + hero + coach + (stale ? setup : '') + mjPanel + trends + commits + workouts + knows + (stale ? '' : setup);
+}
+
+/* ----- Me: trends. Every reading back to the start, a rolling average, how it compares, what's changed, records ----- */
+const ME_TR = [
+  // metric, label, how to show a value, which way is better, group
+  ['step_count', 'Steps', q => `${meN(q)}`, 'up', 'move'],
+  ['apple_exercise_time', 'Exercise', q => `${Math.round(q)} min`, 'up', 'move'],
+  ['active_energy', 'Active energy', q => `${meN(q)} kcal`, 'up', 'move'],
+  ['flights_climbed', 'Flights climbed', q => `${Math.round(q)}`, 'up', 'move'],
+  ['time_in_daylight', 'Time in daylight', q => `${Math.round(q)} min`, 'up', 'move'],
+  ['resting_heart_rate', 'Resting heart rate', q => `${Math.round(q)} bpm`, 'down', 'heart'],
+  ['heart_rate_variability', 'Heart rate variability', q => `${Math.round(q)} ms`, 'up', 'heart'],
+  ['walking_heart_rate_average', 'Walking heart rate', q => `${Math.round(q)} bpm`, 'down', 'heart'],
+  ['vo2_max', 'Cardio fitness (VO2 max)', q => q.toFixed(1), 'up', 'heart'],
+  ['walking_speed', 'Walking speed', q => `${q.toFixed(1)} mph`, 'up', 'heart'],
+  ['blood_oxygen_saturation', 'Blood oxygen', q => `${q.toFixed(0)}%`, null, 'heart'],
+  ['respiratory_rate', 'Breathing rate at night', q => `${q.toFixed(1)} a min`, null, 'heart'],
+  ['sleep_analysis', 'Sleep', q => meHrs(q), 'up', 'sleep'],
+  ['body_mass', 'Weight', q => meSt(q), 'down', 'body'],
+  ['body_fat_percentage', 'Body fat', q => `${q.toFixed(1)}%`, 'down', 'body'],
+  ['blood_glucose', 'Glucose', q => `${q.toFixed(1)} mmol/L`, null, 'body'],
+  ['dietary_energy', 'Calories eaten', q => `${meN(q)} kcal`, null, 'food'],
+  ['protein', 'Protein', q => `${Math.round(q)} g`, 'up', 'food'],
+  ['carbohydrates', 'Carbs', q => `${Math.round(q)} g`, null, 'food'],
+  ['dietary_sugar', 'Sugar', q => `${Math.round(q)} g`, 'down', 'food'],
+  ['fiber', 'Fibre', q => `${Math.round(q)} g`, 'up', 'food'],
+];
+const ME_GROUPS = [['move', 'Moving'], ['heart', 'Heart and fitness'], ['sleep', 'Sleep'], ['body', 'Body'], ['food', 'Food (days you logged it)']];
+const ME_RANGES = [[30, '30 days'], [90, '90 days'], [365, '1 year'], ['all', 'All']];
+/* one measure's readings, oldest first, in the units the app shows (weight in kg, energy in kcal); half-tracked nights left out */
+function meSer(k) {
+  ME.ser = ME.ser || {}; if (ME.ser[k]) return ME.ser[k];
+  const out = [];
+  for (const d of Object.keys(ME.by).sort()) { const r = ME.by[d][k]; if (!r || r.qty === null || r.qty === undefined || r.qty === '') continue; let q = Number(r.qty); if (!isFinite(q)) continue;
+    if (k === 'body_mass' && /lb/i.test(r.units || '')) q /= 2.20462;
+    if (/energy/.test(k) && /kj/i.test(r.units || '')) q /= 4.184;
+    if (k === 'blood_glucose' && /mg/i.test(r.units || '')) q /= 18.016;
+    if (k === 'sleep_analysis' && q < 1.5) continue;
+    if (/^(dietary_energy|protein|carbohydrates|dietary_sugar|fiber)$/.test(k) && q <= 0) continue;
+    out.push({ d, q, x: r.data || null }); }
+  return ME.ser[k] = out;
+}
+const meIn = (s, a, b) => s.filter(p => p.d >= a && p.d <= b);
+const meMean = a => a.length ? a.reduce((s, p) => s + p.q, 0) / a.length : null;
+function meRolling(s, from, to, win) {
+  const out = []; let j = 0; const pts = s.filter(p => p.d >= addDays(from, -win + 1) && p.d <= to);
+  for (let d = from; d <= to; d = addDays(d, 1)) { const lo = addDays(d, -win + 1), w = pts.filter(p => p.d >= lo && p.d <= d); if (w.length >= Math.min(3, win)) out.push({ d, q: meMean(w) }); }
+  return out;
+}
+/* a single-series chart: each reading as a faint dot, the rolling average as the line, a hover label on both */
+function meTrendChart(s, from, to, fmt, win) {
+  const raw = meIn(s, from, to); if (raw.length < 2) return '';
+  const days = Math.max(1, (parse(to) - parse(from)) / 864e5), step = days > 400 ? 7 : 1;
+  const line = meRolling(s, from, to, win).filter((p, i) => step === 1 || i % step === 0);
+  const vals = [...raw.map(p => p.q), ...line.map(p => p.q)], lo0 = Math.min(...vals), hi0 = Math.max(...vals), pad = (hi0 - lo0) * 0.08 || 1, lo = lo0 - pad, hi = hi0 + pad;
+  const W = 340, H = 110, X = d => 4 + (W - 8) * ((parse(d) - parse(from)) / 864e5) / days, Y = q => 6 + (H - 12) * (1 - (q - lo) / (hi - lo));
+  const dots = (raw.length > 500 ? raw.filter((p, i) => i % Math.ceil(raw.length / 500) === 0) : raw).map(p => `<circle cx="${X(p.d).toFixed(1)}" cy="${Y(p.q).toFixed(1)}" r="${raw.length > 200 ? 1.4 : 2}" class="me-td"><title>${esc(shortDate(p.d))}: ${esc(fmt(p.q))}</title></circle>`).join('');
+  const path = line.map((p, i) => `${i ? 'L' : 'M'}${X(p.d).toFixed(1)},${Y(p.q).toFixed(1)}`).join('');
+  const last = line[line.length - 1];
+  const ticks = [lo0, hi0].map(q => `<text x="${W - 2}" y="${(Y(q) + (q === hi0 ? -3 : 11)).toFixed(1)}" text-anchor="end" class="me-ax">${esc(fmt(q))}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H + 16}" role="img" aria-label="${esc(`From ${shortDate(from)} to ${shortDate(to)}`)}">${dots}${path ? `<path d="${path}" class="me-ln"/>` : ''}${last ? `<circle cx="${X(last.d).toFixed(1)}" cy="${Y(last.q).toFixed(1)}" r="4" class="me-dot"><title>${win}-day average ${esc(fmt(last.q))}</title></circle>` : ''}${ticks}
+    <text x="0" y="${H + 13}" class="me-ax">${esc(shortDate(from))}</text><text x="${W}" y="${H + 13}" text-anchor="end" class="me-ax">${esc(shortDate(to))}</text></svg>`;
+}
+const meDelta = (now, then, better, k) => {
+  if (now === null || then === null || !then) return null;
+  const d = now - then, pct = d / then * 100, abs = /heart_rate$|heart_rate_average/.test(k) ? Math.abs(d) >= 2 : Math.abs(pct) >= 3;
+  const tone = !abs ? 'flat' : !better ? 'flat' : (d > 0) === (better === 'up') ? 'good' : 'bad';
+  return { d, pct, tone };
+};
+function meDeltaTxt(x, k, fmtAbs) {
+  if (!x) return '';
+  if (x.tone === 'flat' && Math.abs(x.pct) < 3) return 'about the same';
+  const unitish = /heart_rate|heart_rate_variability|body_mass|sleep|vo2|oxygen|respiratory|glucose|body_fat|walking_speed/.test(k);
+  return `${x.d > 0 ? '▲' : '▼'} ${unitish ? fmtAbs(Math.abs(x.d)) : `${Math.abs(Math.round(x.pct))}%`}`;
+}
+const meAbs = k => k === 'body_mass' ? (q => { const lb = Math.round(q * 2.20462); return lb >= 14 ? `${Math.floor(lb / 14)}st ${lb % 14}lb` : `${lb}lb`; }) : k === 'sleep_analysis' ? (q => `${Math.round(q * 60)} min`) : /heart_rate|resting/.test(k) && k !== 'heart_rate_variability' ? (q => `${Math.round(q)} bpm`) : k === 'heart_rate_variability' ? (q => `${Math.round(q)} ms`) : (q => q.toFixed(1));
+
+function meTrendsHtml() {
+  const t = today(), R = ME_RANGES.some(r => r[0] === UI.meRange) ? UI.meRange : 90;
+  const firstDay = Object.keys(ME.by).sort()[0]; if (!firstDay) return '';
+  const from = R === 'all' ? firstDay : addDays(t, -(R - 1)), span = R === 'all' ? Math.round((parse(t) - parse(firstDay)) / 864e5) + 1 : R;
+  const prevFrom = addDays(from, -span), prevTo = addDays(from, -1), lyFrom = addDays(from, -365), lyTo = addDays(t, -365);
+  const win = R === 30 ? 7 : R === 90 ? 7 : R === 365 ? 14 : 30;
+  const chips = `<div class="zchips me-rng" role="group" aria-label="Time range">${ME_RANGES.map(([v, l]) => `<button type="button" data-act="mxrange" data-v="${v}" aria-pressed="${R === v}">${l}</button>`).join('')}</div>`;
+  const stats = ME_TR.map(([k, label, fmt, better, grp]) => { const s = meSer(k); if (!s.length) return null; const cur = meIn(s, from, t), last = s[s.length - 1];
+    const now = meMean(cur), prev = R === 'all' ? null : meMean(meIn(s, prevFrom, prevTo)), ly = R === 'all' ? null : meMean(meIn(s, lyFrom, lyTo));
+    return { k, label, fmt, better, grp, s, cur, last, now, prev, ly, dPrev: meDelta(now, prev, better, k), dLy: meDelta(now, ly, better, k) }; }).filter(Boolean);
+  const live = stats.filter(x => x.cur.length >= 2), quiet = stats.filter(x => x.cur.length < 2);
+
+  // what's changed: the biggest moves against this time last year (or the period before)
+  const WT = { resting_heart_rate: 3, heart_rate_variability: 2.5, walking_heart_rate_average: 2, body_mass: 2.5, vo2_max: 2, sleep_analysis: 2, step_count: 1.5, apple_exercise_time: 1.5, blood_glucose: 2, active_energy: 1, flights_climbed: 0.6, time_in_daylight: 0.5, protein: 1.5, dietary_energy: 1, walking_speed: 1.2, fiber: 0.8, dietary_sugar: 0.8, carbohydrates: 0.6 };
+  const firstYear = x => { const a = x.s[0].d; return meMean(meIn(x.s, a, addDays(a, 364))); }, lastYear = x => meMean(meIn(x.s, addDays(t, -364), t));
+  const moves = live.map(x => { let ref = null;
+      if (R === 'all') { const f = firstYear(x), l = lastYear(x), dd = meDelta(l, f, x.better, x.k); if (dd && x.s[0].d <= addDays(t, -540)) ref = [`your first year (from ${shortDate(x.s[0].d)})`, f, dd, l]; }
+      else ref = x.dLy ? ['this time last year', x.ly, x.dLy, x.now] : x.dPrev ? [`the ${R} days before`, x.prev, x.dPrev, x.now] : null;
+      return ref && ref[2].tone !== 'flat' ? { x, ref, size: Math.min(60, Math.abs(ref[2].pct)) * (WT[x.k] || 1) } : null; })
+    .filter(Boolean).sort((a, b) => b.size - a.size).slice(0, 6);
+  const changed = moves.length ? `<div class="me-moves">${moves.map(({ x, ref }) => `<div class="me-mv ${ref[2].tone}"><span class="me-mvi" aria-hidden="true">${ref[2].d > 0 ? '▲' : '▼'}</span><div><b>${esc(x.label)}</b> ${ref[2].d > 0 ? 'up' : 'down'} ${esc(meDeltaTxt(ref[2], x.k, meAbs(x.k)).replace(/^[▲▼] /, ''))} on ${esc(ref[0])}<small>${esc(x.fmt(ref[3]))} ${R === 'all' ? 'over the last year' : 'now'}, ${esc(x.fmt(ref[1]))} then</small></div></div>`).join('')}</div>` : '<p class="note">Nothing has moved much. Steady as she goes.</p>';
+
+  const card = x => { const fmtA = meAbs(x.k), chart = meTrendChart(x.s, from, t, x.fmt, win);
+    const extra = x.k === 'sleep_analysis' ? meSleepExtra(x, from, t, span) : x.k === 'blood_glucose' ? meGluExtra(x) : '';
+    return `<div class="me-tc"><div class="me-tch"><span>${esc(x.label)}</span><b>${esc(x.fmt(x.now))}</b></div>
+      <div class="me-tcs">${R === 'all' ? `<span>${esc(`Average since ${shortDate(from)}`)}</span>` : `<span>${x.k === 'sleep_analysis' ? 'A night' : /step|exercise|energy|flights|daylight/.test(x.k) ? 'A day' : 'Average'}, last ${R} days</span>`}${x.dPrev ? `<span class="me-dl ${x.dPrev.tone}">${esc(meDeltaTxt(x.dPrev, x.k, fmtA))} on the ${R} days before</span>` : ''}${x.dLy ? `<span class="me-dl ${x.dLy.tone}">${esc(meDeltaTxt(x.dLy, x.k, fmtA))} on a year ago</span>` : ''}</div>
+      ${chart}${extra}</div>`; };
+  const groups = ME_GROUPS.map(([g, gl]) => { const l = live.filter(x => x.grp === g); return l.length ? `<h3 class="me-gh">${gl}</h3>${l.map(card).join('')}` : ''; }).join('');
+  const quietBox = quiet.length ? `<div class="me-quiet"><b>Not tracked lately</b>${quiet.map(x => `<span>${esc(x.label)}: last ${esc(x.fmt(x.last.q))} on ${esc(shortDate(x.last.d))}</span>`).join('')}<small>${quiet.some(x => x.k === 'body_mass') ? 'Weigh in on smart scales or tell the coach your weight. ' : ''}${quiet.some(x => x.k === 'sleep_analysis') ? 'Wear the watch to bed so sleep gets counted. ' : ''}${quiet.some(x => x.grp === 'food') ? 'Food shows up again when you log meals in your food app.' : ''}</small></div>` : '';
+
+  return `<section class="panel me-trends"><h2>Trends</h2>${chips}
+    <div class="me-sub"><b>What's changed</b></div>${changed}
+    ${meStepCal()}
+    ${meWeekdays(from, t)}
+    ${groups}${quietBox}
+    ${meRecords()}${meYears()}${meWorkoutSum(from, t)}
+    <p class="note">From your Apple Watch, iPhone and anything else that writes to Apple Health. The line is a ${win}-day average and each dot is a day. Good for trends, not a medical test.</p></section>`;
+}
+function meSleepExtra(x, from, to, span) {
+  const n = x.cur.length, st = { core: 0, deep: 0, rem: 0 }; let c = 0;
+  x.cur.forEach(p => { if (p.x && (p.x.core || p.x.deep || p.x.rem)) { st.core += p.x.core || 0; st.deep += p.x.deep || 0; st.rem += p.x.rem || 0; c++; } });
+  const bar = c ? (() => { const a = { core: st.core / c, deep: st.deep / c, rem: st.rem / c }, tot = a.core + a.deep + a.rem || 1;
+    return `<div class="me-stages" role="img" aria-label="${esc(`Deep ${meHrs(a.deep)}, REM ${meHrs(a.rem)}, core ${meHrs(a.core)}`)}"><i style="width:${a.deep / tot * 100}%;background:#3A3F9E"></i><i style="width:${a.rem / tot * 100}%;background:#7E57C2"></i><i style="width:${a.core / tot * 100}%;background:#B39DDB"></i></div>
+      <div class="cleg"><span><i style="background:#3A3F9E"></i>Deep ${meHrs(a.deep)}</span><span><i style="background:#7E57C2"></i>REM ${meHrs(a.rem)}</span><span><i style="background:#B39DDB"></i>Core ${meHrs(a.core)}</span></div>`; })() : '';
+  return `${bar}<p class="me-fine">${n} night${n === 1 ? '' : 's'} tracked out of ${Math.min(span, Math.round((parse(to) - parse(from)) / 864e5) + 1)}.${n < span * 0.6 ? ' Wear the watch to bed more often and this gets a lot more useful.' : ''}</p>`;
+}
+function meGluExtra(x) {
+  const hi = x.cur.filter(p => p.x && p.x.high != null), lo = hi;
+  if (!hi.length) return '';
+  const h = hi.reduce((s, p) => s + (p.x.high || 0), 0) / hi.length, l = lo.reduce((s, p) => s + (p.x.low || 0), 0) / lo.length;
+  return `<p class="me-fine">Time above 10 mmol/L: ${h.toFixed(1)}%. Below 3.9: ${l.toFixed(1)}%. Lowest ${Math.min(...hi.map(p => p.x.min)).toFixed(1)}, highest ${Math.max(...hi.map(p => p.x.max)).toFixed(1)}.</p>`;
+}
+/* a year of steps, one square a day, darker for more */
+function meStepCal() {
+  const s = meSer('step_count'); if (s.length < 14) return '';
+  const t = today(), end = t, start = addDays(weekOf(t), -52 * 7), by = {}; s.forEach(p => { if (p.d >= start) by[p.d] = p.q; });
+  const vals = Object.values(by).sort((a, b) => a - b); if (!vals.length) return '';
+  const qt = f => vals[Math.min(vals.length - 1, Math.floor(vals.length * f))], cuts = [qt(0.2), qt(0.4), qt(0.6), qt(0.8)];
+  const lvl = q => q == null ? -1 : cuts.filter(c => q > c).length;
+  let cols = '', mon = '', lastM = '';
+  for (let w = 0; w <= 52; w++) { const ws = addDays(start, w * 7); let cells = '';
+    for (let i = 0; i < 7; i++) { const d = addDays(ws, i); if (d > end) { cells += '<i class="me-c0 off"></i>'; continue; } const q = by[d], L = lvl(q);
+      cells += `<i class="me-cl l${L}" title="${esc(`${dayShort(d)}: ${q == null ? 'no data' : `${meN(q)} steps`}`)}"></i>`; }
+    const m = ws.slice(0, 7); mon += `<span>${m !== lastM && parse(ws).getDate() <= 7 ? MONTHS[parse(ws).getMonth()].slice(0, 1) : ''}</span>`; lastM = m;
+    cols += `<div class="me-cw">${cells}</div>`; }
+  const best = Object.entries(by).sort((a, b) => b[1] - a[1])[0];
+  return `<div class="me-sub"><b>A year of steps</b><small>${best ? `Best day ${esc(dayShort(best[0]))}, ${meN(best[1])}` : ''}</small></div>
+    <div class="me-cal" role="img" aria-label="Steps each day for the last year"><div class="me-calm">${mon}</div><div class="me-calg">${cols}</div></div>
+    <div class="me-calk"><span>Fewer</span>${[0, 1, 2, 3, 4].map(l => `<i class="me-cl l${l}"></i>`).join('')}<span>More</span><span class="me-calk-r">${meN(cuts[0])} to ${meN(cuts[3])}+</span></div>`;
+}
+function meWeekdays(from, to) {
+  const s = meIn(meSer('step_count'), from, to); if (s.length < 14) return '';
+  const by = [[], [], [], [], [], [], []]; s.forEach(p => by[(parse(p.d).getDay() + 6) % 7].push(p.q));
+  const av = by.map(a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0), mx = Math.max(...av, 1), best = av.indexOf(Math.max(...av)), worst = av.indexOf(Math.min(...av.filter(Boolean)));
+  const lbl = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  return `<div class="me-sub"><b>Your week</b><small>${lbl[best]} is your best day, ${lbl[worst]} your quietest</small></div>
+    <div class="me-wk">${av.map((a, i) => `<div title="${esc(`${lbl[i]}: ${meN(a)} steps on average`)}"><span class="me-wkb"><i style="height:${Math.round(a / mx * 100)}%" class="${i === best ? 'best' : ''}"></i></span><small>${lbl[i].slice(0, 1)}</small><b>${a >= 1000 ? (a / 1000).toFixed(1) + 'k' : Math.round(a)}</b></div>`).join('')}</div>`;
+}
+function meMonthly(k) { const by = {}; meSer(k).forEach(p => { (by[p.d.slice(0, 7)] = by[p.d.slice(0, 7)] || []).push(p.q); }); return Object.entries(by).filter(([, v]) => v.length >= 10 || k === 'body_mass' || k === 'vo2_max').map(([m, v]) => ({ m, q: v.reduce((a, b) => a + b, 0) / v.length })); }
+function meRecords() {
+  const rec = [];
+  const top = (k, hi) => { const s = meSer(k); if (!s.length) return null; return s.reduce((b, p) => (!b || (hi ? p.q > b.q : p.q < b.q)) ? p : b, null); };
+  const mtop = (k, hi) => { const m = meMonthly(k); if (!m.length) return null; return m.reduce((b, p) => (!b || (hi ? p.q > b.q : p.q < b.q)) ? p : b, null); };
+  const ml = m => `${MONTHS[Number(m.slice(5)) - 1]} ${m.slice(0, 4)}`;
+  let x;
+  if ((x = top('step_count', true))) rec.push(['Most steps in a day', `${meN(x.q)}`, dayShort(x.d) + ' ' + x.d.slice(0, 4)]);
+  if ((x = mtop('step_count', true))) rec.push(['Best month for steps', `${meN(x.q)} a day`, ml(x.m)]);
+  if ((x = top('apple_exercise_time', true))) rec.push(['Most exercise in a day', `${Math.round(x.q)} min`, dayShort(x.d) + ' ' + x.d.slice(0, 4)]);
+  if ((x = mtop('resting_heart_rate', false))) rec.push(['Lowest resting heart rate (month)', `${Math.round(x.q)} bpm`, ml(x.m)]);
+  if ((x = mtop('heart_rate_variability', true))) rec.push(['Highest HRV (month)', `${Math.round(x.q)} ms`, ml(x.m)]);
+  if ((x = top('vo2_max', true))) rec.push(['Best cardio fitness', x.q.toFixed(1), shortDate(x.d)]);
+  if ((x = top('body_mass', false))) rec.push(['Lightest', meSt(x.q), shortDate(x.d)]);
+  if ((x = top('sleep_analysis', true))) rec.push(['Longest sleep', meHrs(x.q), shortDate(x.d)]);
+  return rec.length ? `<div class="me-sub"><b>Personal records</b><small>Past-Chris to beat</small></div><div class="me-recs">${rec.map(([a, b, c]) => `<div><span>${esc(a)}</span><b>${esc(b)}</b><small>${esc(c)}</small></div>`).join('')}</div>` : '';
+}
+function meYears() {
+  const ks = [['step_count', 'Steps', q => meN(q)], ['apple_exercise_time', 'Exercise', q => `${Math.round(q)}m`], ['resting_heart_rate', 'Rest HR', q => Math.round(q)], ['heart_rate_variability', 'HRV', q => Math.round(q)], ['body_mass', 'Weight', q => meSt(q).replace('lb', '')], ['sleep_analysis', 'Sleep', q => meHrs(q).replace(' ', '')]];
+  const yrs = [...new Set(Object.keys(ME.by).map(d => d.slice(0, 4)))].sort().reverse(); if (yrs.length < 2) return '';
+  const cell = (k, y) => { const v = meSer(k).filter(p => p.d.startsWith(y)); return v.length >= (k === 'body_mass' ? 1 : 10) ? meMean(v) : null; };
+  const cols = ks.filter(([k]) => yrs.some(y => cell(k, y) !== null));
+  return `<div class="me-sub"><b>Year by year</b><small>Daily averages</small></div><div class="me-ytw"><table class="me-yt"><thead><tr><th>Year</th>${cols.map(c => `<th>${c[1]}</th>`).join('')}</tr></thead><tbody>${yrs.map(y => `<tr><th>${y}${y === today().slice(0, 4) ? '<small> so far</small>' : ''}</th>${cols.map(([k, , f]) => { const v = cell(k, y); return `<td>${v === null ? '–' : esc(String(f(v)))}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function meWorkoutSum(from, to) {
+  const w = (ME.allWorkouts || ME.workouts || []).filter(x => x.start_at && ymd(new Date(x.start_at)) >= from && ymd(new Date(x.start_at)) <= to); if (!w.length) return '';
+  const by = {}; let mins = 0; w.forEach(x => { by[x.name || 'Workout'] = (by[x.name || 'Workout'] || 0) + 1; mins += ((x.data || {}).duration || 0) / 60; });
+  return `<div class="me-sub"><b>Workouts</b><small>${w.length} in this time, ${Math.round(mins)} minutes</small></div><div class="zchips">${Object.entries(by).sort((a, b) => b[1] - a[1]).map(([n, c]) => `<span class="chip">${esc(n)} ×${c}</span>`).join('')}</div>`;
+}
+/* bring in the history from an Apple Health export, made into a small file by Claude */
+async function meImport(file) {
+  let J; try { J = JSON.parse(await file.text()); } catch (e) { toast('That isn\'t a health history file'); return; }
+  if (!J || J.kind !== 'hhq-health' || !Array.isArray(J.rows)) { toast('That isn\'t a health history file'); return; }
+  const owner = session.user.id, at = new Date().toISOString();
+  const rows = J.rows.filter(r => Array.isArray(r) && /^\d{4}-\d\d-\d\d$/.test(r[0]) && r[1] && isFinite(Number(r[2]))).map(r => ({ owner, day: r[0], metric: String(r[1]).slice(0, 60), qty: Number(r[2]), units: r[3] || null, data: r[4] || null, updated_at: at }));
+  const wks = (J.workouts || []).filter(w => w && w.id && w.start_at).map(w => ({ owner, id: String(w.id).slice(0, 200), start_at: w.start_at, end_at: w.end_at || null, name: w.name || null, data: w.data || null, updated_at: at }));
+  ME.importing = { done: 0, total: rows.length }; render();
+  try {
+    for (let i = 0; i < rows.length; i += 500) {
+      const { error } = await sb.from('me_metrics').upsert(rows.slice(i, i + 500), { onConflict: 'owner,day,metric', ignoreDuplicates: true }); if (error) throw new Error(error.message);
+      ME.importing.done = Math.min(rows.length, i + 500); const el = $('#meImpTxt'); if (el) el.textContent = `Bringing in your history: ${Math.round(ME.importing.done / rows.length * 100)}%`;
+    }
+    for (let i = 0; i < wks.length; i += 200) { const { error } = await sb.from('me_workouts').upsert(wks.slice(i, i + 200), { onConflict: 'owner,id', ignoreDuplicates: true }); if (error) throw new Error(error.message); }
+    await meSaveDoc('imported', { at, from: J.from || null, to: J.to || null, readings: rows.length, workouts: wks.length });
+    toast(`History imported: ${meN(rows.length)} readings from ${shortDate(J.from)}`);
+  } catch (e) { toast(`Import stopped: ${e.message}`); }
+  ME.importing = null; ME.ser = {}; await meLoad(true);
+}
+async function meFetchMetrics() {
+  const all = [];
+  for (let from = 0; from < 60000; from += 1000) {
+    const r = await sb.from('me_metrics').select('day,metric,qty,units,data').order('day').order('metric').range(from, from + 999);
+    if (r.error) return { data: null, error: r.error };
+    all.push(...(r.data || [])); if ((r.data || []).length < 1000) break;
+  }
+  return { data: all, error: null };
 }
 
 function meJabForm() {
@@ -5386,6 +5623,7 @@ async function meAct(a, el) {
   if (a === 'mxquick') { if (el.dataset.m === 'send') meSend(el.dataset.q); else { const i = $('#meQ'); if (i) { i.value = el.dataset.q; ME.draft = i.value; i.focus(); i.setSelectionRange(i.value.length, i.value.length); } } return true; }
   if (a === 'mxbrief') { if (ME.busy) return true; ME.busy = true; mePaint(); try { const r = await meCall({ action: 'brief', kind: new Date().getHours() >= 17 ? 'evening' : 'morning' }); ME.chat = r.msgs || ME.chat; } catch (e) { ME.chat.push({ r: 'a', t: `Couldn't reach the coach: ${e.message}` }); } ME.busy = false; mePaint(); return true; }
   if (a === 'mxjab') { meJabForm(); return true; }
+  if (a === 'mxrange') { UI.meRange = el.dataset.v === 'all' ? 'all' : Number(el.dataset.v); render(); return true; }
   if (a === 'mxcm') { const C = { ...(ME.docs.commits || {}) }; C.items = (C.items || []).map(c => c.id === el.dataset.id ? { ...c, done: el.dataset.v === 'done' ? today() : undefined, missed: el.dataset.v === 'missed' ? today() : undefined } : c);
     try { await meSaveDoc('commits', C); toast(el.dataset.v === 'done' ? 'Nice one' : 'Noted. Go again tomorrow'); } catch (e) { toast('Couldn\'t save'); } render(); return true; }
   if (a === 'mxbr') { const P = { ...(ME.docs.profile || {}) }; P.briefs = { ...(P.briefs || {}), [el.dataset.k]: (P.briefs || {})[el.dataset.k] === false }; try { await meSaveDoc('profile', P); } catch (e) { toast('Couldn\'t save'); } render(); return true; }
@@ -5395,6 +5633,7 @@ async function meAct(a, el) {
     render(); return true; }
   return false;
 }
+document.addEventListener('change', e => { if (e.target && e.target.id === 'meImp' && e.target.files && e.target.files[0]) meImport(e.target.files[0]); });
 document.addEventListener('input', e => { if (e.target && e.target.id === 'meQ') { ME.draft = e.target.value; e.target.style.height = ''; e.target.style.height = Math.min(140, e.target.scrollHeight) + 'px'; } });
 document.addEventListener('keydown', e => { if (e.target && e.target.id === 'meQ' && e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); meSend(); } });
 

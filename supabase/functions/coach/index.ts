@@ -27,23 +27,33 @@ async function getDoc(owner: string, path: string) { const r = await (await rest
 async function putDoc(owner: string, path: string, data: unknown) {
   await rest('me_docs?on_conflict=owner,path', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify([{ owner, path, data, updated_at: new Date().toISOString() }]) });
 }
+/* the database hands back at most 1,000 rows at a time, so read the last 400 days in pages */
+async function recentMetrics(owner: string, today: string) {
+  const out: any[] = [];
+  for (let off = 0; off < 40000; off += 1000) {
+    const r = await rest(`me_metrics?select=day,metric,qty,units,data&owner=eq.${owner}&day=gte.${addDays(today, -400)}&order=day.desc,metric.asc&limit=1000&offset=${off}`);
+    const rows = r.ok ? await r.json() : []; out.push(...rows); if (rows.length < 1000) break;
+  }
+  return out.reverse();
+}
 async function loadAll(owner: string, today: string) {
-  const [docs, metrics, workouts] = await Promise.all([
+  const [docs, metrics, workouts, monthly] = await Promise.all([
     rest(`me_docs?select=path,data&owner=eq.${owner}`).then(r => r.json()),
-    rest(`me_metrics?select=day,metric,qty,units,data&owner=eq.${owner}&day=gte.${addDays(today, -400)}&order=day.asc&limit=20000`).then(r => r.json()),
+    recentMetrics(owner, today),
     rest(`me_workouts?select=start_at,name,data&owner=eq.${owner}&start_at=gte.${addDays(today, -60)}T00:00:00Z&order=start_at.desc&limit=200`).then(r => r.json()),
+    rest('rpc/me_monthly', { method: 'POST', body: JSON.stringify({ p_owner: owner }) }).then(r => r.ok ? r.json() : []).catch(() => []),
   ]);
   const D: any = { profile: {}, log: { entries: [] }, chat: { msgs: [] }, commits: { items: [] }, sync: null };
   for (const d of docs) { if (d.path === 'profile') D.profile = d.data || {}; else if (d.path === 'log') D.log = d.data || { entries: [] }; else if (d.path === 'chat') D.chat = d.data || { msgs: [] }; else if (d.path === 'commits') D.commits = d.data || { items: [] }; else if (d.path === 'sync') D.sync = d.data; }
   D.log.entries = D.log.entries || []; D.chat.msgs = D.chat.msgs || []; D.commits.items = D.commits.items || [];
-  D.metrics = metrics; D.workouts = workouts; return D;
+  D.metrics = metrics; D.workouts = workouts; D.monthly = Array.isArray(monthly) ? monthly : []; return D;
 }
 
 // headline metrics in the order a coach looks at them: [Health Auto Export name, label, decimals]
 const KEY: [string, string, number][] = [['step_count', 'steps', 0], ['active_energy', 'active kcal', 0], ['apple_exercise_time', 'exercise min', 0], ['apple_stand_hour', 'stand hrs', 0],
   ['sleep_analysis', 'sleep h', 1], ['resting_heart_rate', 'resting HR', 0], ['heart_rate_variability', 'HRV ms', 0], ['body_mass', 'weight', 1], ['body_fat_percentage', 'body fat %', 1],
   ['walking_heart_rate_average', 'walking HR', 0], ['vo2_max', 'VO2 max', 1], ['respiratory_rate', 'breaths/min', 1], ['blood_oxygen_saturation', 'SpO2 %', 0],
-  ['dietary_water', 'water', 1], ['protein', 'protein g', 0], ['dietary_energy', 'food kcal', 0], ['walking_running_distance', 'distance', 1], ['flights_climbed', 'flights', 0], ['time_in_daylight', 'daylight min', 0]];
+  ['dietary_water', 'water', 1], ['protein', 'protein g', 0], ['dietary_energy', 'food kcal', 0], ['walking_running_distance', 'distance', 1], ['flights_climbed', 'flights', 0], ['time_in_daylight', 'daylight min', 0], ['blood_glucose', 'glucose mmol/L', 1]];
 
 function metricText(D: any, today: string) {
   const by: Record<string, Record<string, any>> = {}, units: Record<string, string> = {};
@@ -74,6 +84,14 @@ function metricText(D: any, today: string) {
   return out.join('\n');
 }
 
+/* every month since the data began, for the long view: is he better or worse than a year ago, two years ago? */
+function monthlyText(D: any) {
+  const COLS: [string, string, number][] = [['step_count', 'steps', 0], ['apple_exercise_time', 'exercise min', 0], ['resting_heart_rate', 'resting HR', 0], ['heart_rate_variability', 'HRV', 0], ['walking_heart_rate_average', 'walking HR', 0], ['sleep_analysis', 'sleep h', 1], ['body_mass', 'weight kg', 1], ['vo2_max', 'VO2 max', 1], ['blood_glucose', 'glucose', 1]];
+  const by: Record<string, Record<string, number>> = {}; (D.monthly || []).forEach((r: any) => { (by[r.month] = by[r.month] || {})[r.metric] = Number(r.avg); });
+  const ms = Object.keys(by).sort(); if (ms.length < 2) return '';
+  const cols = COLS.filter(([k]) => ms.some(m => by[m][k] !== undefined));
+  return `## Monthly averages since the data began (from his Apple Health history)\nmonth | ${cols.map(c => c[1]).join(' | ')}\n${ms.map(m => `${m} | ${cols.map(([k, , dp]) => by[m][k] === undefined ? '-' : by[m][k].toFixed(dp)).join(' | ')}`).join('\n')}`;
+}
 function contextText(D: any, n: ReturnType<typeof localNow>) {
   const s = D.sync;
   const w = D.workouts.slice(0, 40).map((x: any) => { const d = x.data || {}; const kcal = d.activeEnergyBurned?.qty ?? d.activeEnergy?.qty; const dist = d.distance?.qty;
@@ -84,6 +102,7 @@ function contextText(D: any, n: ReturnType<typeof localNow>) {
     `## Profile (what he's told you)\n${JSON.stringify(D.profile)}`,
     `## Apple Health sync\n${s && s.at ? `Last delivery ${s.at} UTC: ${s.readings} readings, ${s.workouts} workouts, days ${s.from || '?'} to ${s.to || '?'}` : 'Not connected yet. He is setting up the Health Auto Export app.'}`,
     `## Apple Health numbers\n${metricText(D, n.date)}`,
+    monthlyText(D),
     `## Workouts, last 60 days (newest first)\n${w.length ? w.join('\n') : 'None recorded.'}`,
     `## His log (injections, weigh-ins, mood, side effects, wins; newest last)\n${D.log.entries.slice(-60).map((e: any) => `${e.date} ${e.type}${e.value !== undefined && e.value !== null && e.value !== '' ? ` ${e.value}` : ''}${e.text ? `: ${e.text}` : ''}`).join('\n') || 'Nothing yet.'}`,
     `## Commitments he's made\nOpen:\n${open.map((c: any) => `[${c.id}] ${c.text}${c.due ? ` (by ${c.due})` : ''}, set ${c.set}`).join('\n') || 'none'}\nRecent:\n${recent.map((c: any) => `[${c.id}] ${c.text}: ${c.done ? 'DONE ' + c.done : 'MISSED ' + c.missed}`).join('\n') || 'none'}`,
@@ -132,7 +151,7 @@ If the profile says onboarded is false, you're meeting him. Introduce yourself i
 
 # Care
 If he mentions not eating at all, making himself sick, bingeing and feeling out of control, or feeling hopeless or worthless, drop the banter, be kind and human, and encourage him to talk to his GP; Samaritans are on 116 123 any time. Never shame him about his body or food.
-The numbers come from an Apple Watch and iPhone: good for trends, not medical-grade. If no Apple Health data has arrived yet, say so honestly and work from what he tells you.`;
+Use the monthly averages for the long view (this month against the same month last year, his best months, how things moved since starting Mounjaro if his log or profile says when). The numbers come from an Apple Watch, iPhone and a glucose sensor he wore for a while: good for trends, not medical-grade. If no Apple Health data has arrived yet, say so honestly and work from what he tells you.`;
 
 const BRIEF: Record<string, string> = {
   morning: 'Write his morning brief for today, to arrive as a phone notification and in this chat. Look at last night\'s sleep and recovery and yesterday\'s numbers against his goals and commitments. Then one clear plan for today, one honest call-out if yesterday slipped, and one line of fire. 3 to 5 short sentences, first sentence must work on its own as the notification.',

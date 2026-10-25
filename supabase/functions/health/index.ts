@@ -12,6 +12,8 @@ const secret = async (name: string) => { const r = await (await rest(`app_secret
 const SUM = new Set(['step_count', 'active_energy', 'basal_energy_burned', 'apple_exercise_time', 'apple_stand_time', 'apple_stand_hour', 'walking_running_distance',
   'cycling_distance', 'swimming_distance', 'swimming_stroke_count', 'flights_climbed', 'dietary_energy', 'protein', 'carbohydrates', 'total_fat', 'fiber', 'dietary_sugar',
   'dietary_water', 'dietary_caffeine', 'alcohol_consumption', 'number_of_times_fallen', 'mindful_minutes', 'time_in_daylight', 'push_count', 'wheelchair_distance', 'handwashing', 'toothbrushing']);
+// names Health Auto Export uses that the app knows by another name
+const ALIAS: Record<string, string> = { weight_body_mass: 'body_mass' };
 const num = (v: unknown) => (typeof v === 'number' && isFinite(v) ? v : typeof v === 'string' && v.trim() !== '' && isFinite(+v) ? +v : null);
 const dayOf = (s: unknown) => { const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(s || '')); return m ? m[1] : null; };
 
@@ -31,12 +33,13 @@ function reading(name: string, p: any) {
 function metricRows(owner: string, metrics: any[]) {
   const by = new Map<string, any>();
   for (const m of metrics || []) {
-    const name = String(m && m.name || '').trim(); if (!name || !Array.isArray(m.data)) continue;
+    const raw = String(m && m.name || '').trim(), name = ALIAS[raw] || raw; if (!name || !Array.isArray(m.data)) continue;
+    const mgdl = name === 'blood_glucose' && /mg/i.test(String(m.units || '')), units = mgdl ? 'mmol/L' : (m.units || null);   // glucose kept in mmol/L, the UK unit
     for (const p of m.data) {
       const day = dayOf(p && p.date); if (!day) continue;
-      const { qty, extra } = reading(name, p); if (qty === null && !extra) continue;
+      const rd = reading(name, p), qty = rd.qty !== null && mgdl ? Math.round(rd.qty / 18.016 * 100) / 100 : rd.qty, extra = rd.extra; if (qty === null && !extra) continue;
       const key = `${day}|${name}`, cur = by.get(key);
-      if (!cur) { by.set(key, { owner, day, metric: name, qty, units: m.units || null, data: { ...(extra || {}), n: 1, src: p.source || null }, updated_at: new Date().toISOString() }); continue; }
+      if (!cur) { by.set(key, { owner, day, metric: name, qty, units, data: { ...(extra || {}), n: 1, src: p.source || null }, updated_at: new Date().toISOString() }); continue; }
       const n = cur.data.n + 1;
       if (name === 'sleep_analysis') { cur.qty = (cur.qty || 0) + (qty || 0); for (const f of ['core', 'deep', 'rem', 'awake', 'inBed']) cur.data[f] = (cur.data[f] || 0) + ((extra as any)?.[f] || 0); const e: any = extra || {}; if (e.start && (!cur.data.start || e.start < cur.data.start)) cur.data.start = e.start; if (e.end && (!cur.data.end || e.end > cur.data.end)) cur.data.end = e.end; }
       else if (SUM.has(name)) cur.qty = (cur.qty || 0) + (qty || 0);
