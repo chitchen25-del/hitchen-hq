@@ -1833,6 +1833,17 @@ nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 .bdl .bd-av{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:1.1rem;background:color-mix(in srgb,#C2457F 16%,transparent);background-size:cover;background-position:center}
 .bdl .amt small{display:block;font-size:.72rem;font-weight:600;color:var(--muted);text-align:right}
 .bdl .plan-it{color:var(--acc);font-weight:700;font-size:.85rem}
+
+.bd-four{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.bd-sq{position:relative;overflow:hidden;aspect-ratio:1;border:0;border-radius:22px;padding:0;cursor:pointer;color:#fff;text-align:left;font:inherit;background:var(--bdc);box-shadow:0 14px 26px -16px rgba(0,0,0,.6);transition:transform .15s}
+.bd-sq:active{transform:scale(.97)}
+.bd-sq.on{box-shadow:0 0 0 3px var(--acc),0 14px 26px -16px rgba(0,0,0,.6)}
+.bd-sq .bd-face{position:absolute;inset:0;background-size:cover;background-position:center 30%;display:grid;place-items:center;font-size:3.2rem;font-weight:800;color:rgba(255,255,255,.9)}
+.bd-sq .bd-shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.72))}
+.bd-sq .bd-txt{position:absolute;left:12px;right:12px;bottom:10px;display:flex;flex-direction:column;gap:1px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.bd-sq .bd-txt b{font-size:1.2rem;font-weight:800;letter-spacing:-.01em}
+.bd-sq .bd-txt small{font-size:.8rem;font-weight:600;opacity:.95}
+.bd-sq .bd-bud{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:750}
 </style>
 </head>
 <body>
@@ -5847,23 +5858,31 @@ function viewPlanner() {
 
 /* Birthdays: everyone's, from the family calendar and the girls' dates, soonest first; tap one to plan it or open its list */
 function birthdayView(all) {
-  const tl = plTimeline(all);
+  const tl = plTimeline(all), fam = famBdays(), isFam = n => fam.some(f => wishKey(f.name) === wishKey(n));
+  const planOf = (name, d) => tl.up.find(p => wishKey(occName(p).replace(/['’]s birthday.*$/i, '')) === wishKey(name) && p.from === d);
   const rows = [...tl.up.map(p => ({ p, name: occName(p).replace(/['’]s birthday.*$/i, ''), d: p.from })), ...calBirthdays().map(b => ({ name: b.name, d: b.d }))]
-    .sort((a, b) => (a.d || '9') < (b.d || '9') ? -1 : 1);
-  const sel = [...tl.up, ...tl.past].find(p => p.id === UI.occ) || tl.up[0] || null;
+    .filter(r => !isFam(r.name)).sort((a, b) => (a.d || '9') < (b.d || '9') ? -1 : 1);
+  const sel = [...tl.up, ...tl.past].find(p => p.id === UI.occ) || null;
+  const sq = (f, i) => {
+    const p = planOf(f.name, f.b.date), fa = faceAttr(faceSlot(f.name)), n = sleepsN(f.b.date);
+    const attrs = p ? `data-act="occ" data-id="${esc(p.id)}"` : `data-act="bday" data-name="${esc(f.name)}" data-date="${esc(f.b.date)}"`;
+    return `<button type="button" class="bd-sq${p && sel && sel.id === p.id ? ' on' : ''}" ${attrs} style="--bdc:${XAV[(i + 4) % XAV.length]}"><span class="bd-face"${fa}>${fa ? '' : esc(f.name.charAt(0))}</span><span class="bd-shade"></span>
+      ${p ? `<span class="bd-bud">${money(plStats(p).cost, 0)}</span>` : ''}<span class="bd-txt"><b>${esc(f.name)}</b><small>${esc(shortDate(f.b.date).replace(/ \d{4}$/, ''))} · ${n === 0 ? 'today 🎂' : n === 1 ? 'tomorrow' : `${n} sleeps`}</small><small>${n === 0 ? `${f.b.age} today` : `turns ${f.b.age}`}</small></span></button>`;
+  };
+  const top = fam.length ? `<div class="bd-four">${fam.map(sq).join('')}</div>` : '';
   const row = r => {
-    const kb = kidBday(r.name), age = kb && kb.date === r.d ? kb.age : null, fa = faceAttr(faceSlot(r.name)), n = sleepsN(r.d);
+    const kb = (knownBdays().find(f => wishKey(f.name) === wishKey(r.name)) || {}).b, age = kb && kb.date === r.d ? kb.age : null, fa = faceAttr(faceSlot(r.name)), n = sleepsN(r.d);
     const when = r.d ? `${shortDate(r.d).replace(/ \d{4}$/, '')} · ${n === 0 ? 'today 🎂' : n === 1 ? 'tomorrow' : `${n} sleeps`}${age ? ` · turns ${age}` : ''}` : 'No date yet';
     const right = r.p ? `<div class="amt">${money(plStats(r.p).cost, 0)}<small>budget</small></div>` : `<div class="amt"><span class="plan-it">Plan it</span></div>`;
     const attrs = r.p ? `data-act="occ" data-id="${esc(r.p.id)}"` : `data-act="bday" data-name="${esc(r.name)}" data-date="${esc(r.d)}"`;
     return `<button type="button" class="rowbtn${r.p && sel && sel.id === r.p.id ? ' on' : ''}" ${attrs}><span class="bd-av"${fa}>${fa ? '' : '🎈'}</span><div class="grow"><div class="t">${esc(r.name)}</div><div class="m">${esc(when)}</div></div>${right}</button>`;
   };
   const list = rows.length
-    ? `<section class="panel"><h2>Everyone's birthdays <span class="sub">${nOf(rows.length, 'birthday')}</span></h2><div class="list bdl">${rows.map(row).join('')}</div>
-      <p class="note">From the family calendar and the girls' dates. Tap one that says "Plan it" to give it a budget: it saves a little each month until the day.</p>
+    ? `<section class="panel"><h2>Everyone else <span class="sub">${nOf(rows.length, 'birthday')}</span></h2><div class="list bdl">${rows.map(row).join('')}</div>
+      <p class="note">From the family calendar, soonest first. Tap one that says "Plan it" (or one of us four) to give it a budget: it saves a little each month until the day.</p>
       <div class="btnrow"><button class="btn small ghost" data-act="bday">Add a birthday</button></div></section>`
-    : `<section class="panel"><p class="empty">No birthdays found yet. Add them to the family calendar, or add one here.</p><div class="btnrow"><button class="btn small" data-act="bday">Add a birthday</button></div></section>`;
-  return list + (sel ? plPanel(sel) + giftReview(sel) : '') + plPastPanel(tl.past);
+    : `<section class="panel"><p class="empty">${fam.length ? 'No one else\'s birthday found yet.' : 'No birthdays found yet.'} Add them to the family calendar, or add one here.</p><div class="btnrow"><button class="btn small" data-act="bday">Add a birthday</button></div></section>`;
+  return top + (sel ? plPanel(sel) + giftReview(sel) : '') + list + plPastPanel(tl.past);
 }
 
 /* Celebrations: Valentine's, Mother's Day, Easter, Father's Day, Halloween, Bonfire Night, New Year's Eve, anniversaries and anything else */
@@ -5883,6 +5902,9 @@ function celebDates() {
   add('Halloween', '🎃', yy => `${yy}-10-31`);
   add('Bonfire Night', '🎆', yy => `${yy}-11-05`);
   add("New Year's Eve", '🥂', yy => `${yy}-12-31`);
+  const wa = String(S.settings.anniversary || '');   /* settings/main → anniversary "MM-DD" or "YYYY-MM-DD" (private) */
+  if (/^(\d{4}-)?\d\d-\d\d$/.test(wa)) { const md = wa.slice(-5), y0 = wa.length === 10 ? +wa.slice(0, 4) : 0;
+    for (const yy of [y, y + 1]) { const d = `${yy}-${md}`; if (d >= t) { out.push({ n: y0 ? `${ordinal(yy - y0)} wedding anniversary` : 'Wedding anniversary', ic: '💍', d }); break; } } }
   const seen = new Set();
   (CAL.calendars || []).forEach(c => (c.events || []).forEach(e => {
     if (!/anniversary/i.test(e.title || '')) return; const d = evDate(e); if (d < t) return;
@@ -6413,15 +6435,29 @@ const sleepsN = d => d ? daysBetween(today(), d) : null;
 const sleepsTxt = d => { const n = sleepsN(d); return n === null ? '' : n > 1 ? `${n} sleeps` : n === 1 ? 'Tomorrow' : n === 0 ? 'Today' : 'Been'; };
 const OCC_ICON = { christmas: '🎄', birthday: '🎈', celebration: '🎉', summer: '☀️', family: '🏡', city: '🏰' };
 
+/* the four of us, oldest first: settings/main → adults [{ name, dob }] plus the girls (private, never in this code) */
+function famBdays() {
+  const ok = k => k && k.name && /^\d{4}-\d\d-\d\d$/.test(k.dob || '');
+  return [...(S.settings.adults || []).filter(ok), ...kidsDob()].sort((a, b) => a.dob < b.dob ? -1 : 1).map(k => ({ ...k, b: nextBday(k.dob) }));
+}
+/* other people's dates we know: settings/main → bdays [{ name, dob, aka:[] }] (private), e.g. a calendar entry "Mums birthday" */
+const knownBdays = () => [...famBdays(), ...(S.settings.bdays || []).filter(k => k && k.name && /^\d{4}-\d\d-\d\d$/.test(k.dob || '')).map(k => ({ ...k, b: nextBday(k.dob) }))];
+function bdName(title) {
+  let n = String(title || '').replace(/\(.*?\)/g, '').replace(/\b(19|20)\d\d\b/g, '').replace(/['’]s\b/g, '').replace(/birthday|bday|🎈|🎉|🎂/ig, '').replace(/[^\p{L}\s'’-]/gu, '').replace(/\s+/g, ' ').trim().replace(/['’]+$/, '').trim();
+  if (!n || /^(my|me|mine)$/i.test(n)) return '';
+  if (!/['’]/.test(String(title)) && /^\p{L}{3,}s$/u.test(n) && new RegExp(`${n}\\s+(birthday|bday)`, 'i').test(String(title))) n = n.slice(0, -1);   /* "Mums birthday" → Mum */
+  const hit = knownBdays().find(f => [f.name, ...(f.aka || [])].some(x => wishKey(x) === wishKey(n) || wishKey(x + 's') === wishKey(n)));
+  return hit ? hit.name : n;
+}
 /* birthdays in the family calendar, next 12 months */
 function calBirthdays() {
   const t = today(), out = [], seen = new Set();
   (CAL.calendars || []).forEach(c => (c.events || []).forEach(e => {
     if (!/birthday|bday/i.test(e.title || '')) return; const d = evDate(e); if (d < t) return;
-    const name = String(e.title).replace(/\(.*?\)/g, '').replace(/\b(19|20)\d\d\b/g, '').replace(/['’]s\b/g, '').replace(/birthday|bday|🎈|🎉|🎂/ig, '').replace(/[^\p{L}\s'-]/gu, '').replace(/\s+/g, ' ').trim();
+    const name = bdName(e.title);
     if (!name || seen.has(name.toLowerCase())) return; seen.add(name.toLowerCase()); out.push({ name, d });
   }));
-  kidsDob().forEach(k => { if (!seen.has(k.name.toLowerCase())) { seen.add(k.name.toLowerCase()); out.push({ name: k.name, d: nextBday(k.dob).date }); } });
+  knownBdays().forEach(f => { if (!seen.has(f.name.toLowerCase())) { seen.add(f.name.toLowerCase()); out.push({ name: f.name, d: f.b.date }); } });
   const have = new Set((S.plans || []).filter(p => p.kind === 'birthday').map(p => `${xName(String(p.name).replace(/['’]s birthday.*$/i, '')).toLowerCase()}|${p.from}`));
   return out.filter(b => !have.has(`${b.name.toLowerCase()}|${b.d}`)).sort((a, b) => a.d < b.d ? -1 : 1);
 }
