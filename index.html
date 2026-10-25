@@ -1844,6 +1844,8 @@ nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 .bd-sq .bd-txt b{font-size:1.2rem;font-weight:800;letter-spacing:-.01em}
 .bd-sq .bd-txt small{font-size:.8rem;font-weight:600;opacity:.95}
 .bd-sq .bd-bud{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:750}
+.ask-msg.me-flash{animation:meFlash 1.2s ease}
+@keyframes meFlash{0%,40%{box-shadow:0 0 0 3px var(--acc)}100%{box-shadow:0 0 0 0 transparent}}
 </style>
 </head>
 <body>
@@ -5665,7 +5667,10 @@ function meJabForm() {
 async function meAct(a, el) {
   if (a === 'mxsend') { meSend(); return true; }
   if (a === 'mxquick') { if (el.dataset.m === 'send') meSend(el.dataset.q); else { const i = $('#meQ'); if (i) { i.value = el.dataset.q; ME.draft = i.value; i.focus(); i.setSelectionRange(i.value.length, i.value.length); } } return true; }
-  if (a === 'mxbrief') { if (ME.busy) return true; ME.busy = true; mePaint(); try { const r = await meCall({ action: 'brief', kind: new Date().getHours() >= 17 ? 'evening' : 'morning' }); ME.chat = r.msgs || ME.chat; } catch (e) { ME.chat.push({ r: 'a', t: `Couldn't reach the coach: ${e.message}` }); } ME.busy = false; mePaint(); return true; }
+  if (a === 'mxbrief') { if (ME.busy) return true;
+    { const k = new Date().getHours() >= 17 ? 'evening' : 'morning', i = ME.chat.slice(-40).findIndex(m => m.kind === k && m.day === today());
+      const l = $('#meLog'), el = i >= 0 && l ? l.querySelectorAll('.ask-msg')[i] : null;   /* today's brief is already here: take him to it */
+      if (el) { l.scrollTop += el.getBoundingClientRect().top - l.getBoundingClientRect().top - 6; el.classList.remove('me-flash'); void el.offsetWidth; el.classList.add('me-flash'); return true; } } ME.busy = true; mePaint(); try { const r = await meCall({ action: 'brief', kind: new Date().getHours() >= 17 ? 'evening' : 'morning' }); ME.chat = r.msgs || ME.chat; } catch (e) { ME.chat.push({ r: 'a', t: `Couldn't reach the coach: ${e.message}` }); } ME.busy = false; mePaint(); return true; }
   if (a === 'mxjab') { meJabForm(); return true; }
   if (a === 'mxrange') { UI.meRange = el.dataset.v === 'all' ? 'all' : Number(el.dataset.v); render(); return true; }
   if (a === 'mxcm') { const C = { ...(ME.docs.commits || {}) }; C.items = (C.items || []).map(c => c.id === el.dataset.id ? { ...c, done: el.dataset.v === 'done' ? today() : undefined, missed: el.dataset.v === 'missed' ? today() : undefined } : c);

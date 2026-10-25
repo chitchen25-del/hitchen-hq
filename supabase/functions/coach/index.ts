@@ -276,6 +276,9 @@ Deno.serve(async (req: Request) => {
       return json({ msgs: D.chat.msgs.slice(-60) });
     }
     if (body.action === 'brief' && BRIEF[body.kind]) {
+      /* one brief of each kind a day: asking again hands back today's rather than writing another */
+      const had = D.chat.msgs.filter((m: any) => m.kind === body.kind && m.day === n.date).pop();
+      if (had && !body.force) return json({ reply: had.t, msgs: D.chat.msgs.slice(-60), existing: true });
       const { text } = await talk(key, owner, D, n, `[${BRIEF[body.kind]}]`);
       await saveChat(owner, D, [{ r: 'a', t: text, at: new Date().toISOString(), kind: body.kind, day: n.date }]);
       return json({ reply: text, msgs: D.chat.msgs.slice(-60) });
