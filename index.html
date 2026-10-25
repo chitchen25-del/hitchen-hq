@@ -1392,8 +1392,53 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .cl-hero .cl-track{background:rgba(255,255,255,.08)}.cl-hero .cl-track i{background:rgba(255,255,255,.3)}.cl-hero .cl-track b{background:#fff}
 .cl-hero .cl-leg .chip{background:rgba(255,255,255,.14);color:#fff;border-color:transparent}
 .cl-hero .cl-leg .lvsw[style*="--cl-all"]{background:rgba(255,255,255,.35)!important}.cl-hero .cl-leg .lvsw[style*="--cl-work"]{background:#fff!important}
-@media (max-width:520px){.cl-v{display:none}.cl-col:last-child .cl-v,.cl-col.mx .cl-v{display:block}}
+@media (max-width:520px){.cl-v{visibility:hidden}.cl-col:last-child .cl-v,.cl-col.mx .cl-v{visibility:visible}}
 .cl-bars{padding:0 2px}
+
+/* ---- running costs ---- */
+.cr-wrap{padding:4px 18px 14px}
+.cr-stack{display:flex;height:14px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);gap:2px}
+.cr-stack i{display:block;height:100%;min-width:3px}
+.cr-leg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:.8rem;color:rgba(255,255,255,.78)}
+.cr-leg span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.cr-leg i{width:9px;height:9px;border-radius:3px;flex:none}
+.cr-leg b{color:#fff;font-weight:700;font-variant-numeric:tabular-nums}
+.cr-dot{flex:none;width:10px;height:10px;border-radius:3px;align-self:center;margin-right:2px}
+.cr-yr{display:block;font-size:.68rem;font-weight:500;color:var(--muted);text-align:right}
+.cr-off{opacity:.62}
+.cr-h3{font-size:.9rem;margin:16px 0 8px;color:var(--ink-2)}
+.cr-stats{margin-top:12px}
+.cr-stats .stat b small{font-size:.75rem;font-weight:600;color:var(--muted)}
+.cr-stats .stat.good{background:var(--good-soft)}.cr-stats .stat.good b{color:var(--good)}
+.cr-stats .stat.warn{background:var(--gold-soft)}.cr-stats .stat.warn b{color:var(--gold)}
+.mp-bars{display:flex;align-items:flex-end;gap:5px;height:120px;padding:4px 0}
+.mp-col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+.mp-v{font-size:.62rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mp-track{flex:1;width:100%;display:flex;align-items:flex-end;border-radius:6px;background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.mp-track i{display:block;width:100%;border-radius:6px;background:color-mix(in srgb,var(--chris-bar) 55%,transparent);min-height:3px}
+.mp-col.best .mp-track i{background:var(--good-bar)}.mp-col.best .mp-v{color:var(--good);font-weight:800}
+.mp-col.worst .mp-track i{background:var(--gold-bar)}.mp-col.worst .mp-v{color:var(--gold);font-weight:800}
+.mp-m{font-size:.68rem;color:var(--muted)}
+@media (max-width:520px){.mp-v{visibility:hidden}.mp-col.best .mp-v,.mp-col.worst .mp-v{visibility:visible}}
+.fun-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.fun-t{position:relative;background:var(--sheet-2);border-radius:14px;padding:12px 12px 12px;display:flex;flex-direction:column;gap:2px;min-width:0;overflow:hidden}
+.fun-t b{font-stretch:118%;font-weight:800;font-size:1.2rem;line-height:1.15}
+.fun-t span:last-child{font-size:.78rem;color:var(--muted);line-height:1.35}
+.fun-ic{font-size:1.3rem;line-height:1;margin-bottom:4px}
+.dw-bars{display:grid;gap:5px}
+.dw-row{display:grid;grid-template-columns:34px minmax(0,1fr) 52px;align-items:center;gap:8px;font-size:.8rem}
+.dw-row b{text-align:right;font-variant-numeric:tabular-nums;font-weight:650}
+.dw-track{height:10px;border-radius:999px;background:color-mix(in srgb,var(--ink) 6%,transparent);overflow:hidden}
+.dw-track i{display:block;height:100%;border-radius:999px;background:color-mix(in srgb,var(--chris-bar) 50%,transparent)}
+.dw-row.top .dw-track i{background:var(--chris-bar)}.dw-row.top span:first-child{font-weight:800;color:var(--chris)}
+@media (prefers-reduced-motion:no-preference){
+  main.enter .cr-stack i{animation:crIn .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 90ms);transform-origin:left}
+  @keyframes crIn{from{transform:scaleX(0);opacity:0}to{transform:none;opacity:1}}
+  main.enter .mp-track i{animation:growup .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 45ms);transform-origin:bottom}
+  main.enter .dw-track i{animation:crIn .7s cubic-bezier(.2,.8,.2,1) both .1s}
+  main.enter .fun-t{animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+  main.enter .fun-t:nth-child(2){animation-delay:.04s}main.enter .fun-t:nth-child(3){animation-delay:.08s}main.enter .fun-t:nth-child(4){animation-delay:.12s}main.enter .fun-t:nth-child(5){animation-delay:.16s}main.enter .fun-t:nth-child(6){animation-delay:.2s}main.enter .fun-t:nth-child(7){animation-delay:.24s}main.enter .fun-t:nth-child(8){animation-delay:.28s}
+}
 
 /* ---- the girls' week, Ask, price watch ---- */
 .wk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 8px}
@@ -2428,10 +2473,10 @@ function tripsFromCSV(texts) {
   const ll = s => { const p = String(s).split(',').map(Number); return p.length === 2 && p.every(n => !isNaN(n)) ? p : null; };
   texts.forEach(text => { const rows = csvParse(text.replace(/^﻿/, '')); if (!rows.length) return;
     const H = rows[0].map(x => x.trim().toLowerCase()), col = name => H.findIndex(h => h.startsWith(name));
-    const c = { sd: col('start date'), st: col('start time'), ed: col('end date'), et: col('end time'), sl: col('start location'), sc: col('start coord'), el: col('end location'), ec: col('end coord'), mi: col('distance'), mpg: col('efficiency') };
+    const c = { sd: col('start date'), st: col('start time'), ed: col('end date'), et: col('end time'), sl: col('start location'), sc: col('start coord'), el: col('end location'), ec: col('end coord'), mi: col('distance'), mpg: col('efficiency'), du: col('duration') };
     if (c.sd < 0 || c.st < 0 || c.ec < 0) throw new Error('That doesn\'t look like a Land Rover trips file');
     rows.slice(1).forEach(r => { const d = iso(r[c.sd]); if (!d) return; const mi = Number(r[c.mi]) || 0, key = `${d}|${r[c.st]}|${r[c.et]}|${mi}`; if (seen.has(key)) return; seen.add(key);
-      out.push({ d, s: r[c.st], e: r[c.et], ed: iso(r[c.ed]) || d, from: r[c.sl] || '', to: r[c.el] || '', fc: ll(r[c.sc]), tc: ll(r[c.ec]), mi, mpg: Number(r[c.mpg]) || 0 }); });
+      out.push({ d, s: r[c.st], e: r[c.et], ed: iso(r[c.ed]) || d, from: r[c.sl] || '', to: r[c.el] || '', fc: ll(r[c.sc]), tc: ll(r[c.ec]), mi, mpg: Number(r[c.mpg]) || 0, du: (() => { const m = String(c.du >= 0 ? r[c.du] : '').match(/(\d+):(\d\d)/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; })() }); });
   });
   return out.sort((a, b) => a.d + a.s < b.d + b.s ? -1 : 1);
 }
@@ -2462,7 +2507,10 @@ async function tripApply(trips, nFiles) {
   /* the car log */
   const log = JSON.parse(JSON.stringify(S.carlog || { days: {} })); log.days = log.days || {};
   let changedLog = 0; dates.forEach(d => { const L = byDay[d], gal = x => x.mpg > 0 ? x.mi / x.mpg * 4.54609 : 0, w = L.filter(x => near(x.fc, x.from) || near(x.tc, x.to));
-    const row = [+L.reduce((a, x) => a + x.mi, 0).toFixed(1), +L.reduce((a, x) => a + gal(x), 0).toFixed(2), L.length, +w.reduce((a, x) => a + x.mi, 0).toFixed(1), +w.reduce((a, x) => a + gal(x), 0).toFixed(2)];
+    const dur = x => x.du != null ? x.du : Math.max(0, tmin(x.e) - tmin(x.s) + (x.ed > x.d ? 1440 : 0)), sh = L.filter(x => x.mi < 2);
+    /* [miles, litres, trips, work miles, work litres, minutes driving, short trips (<2 mi), their miles, their litres, longest trip] */
+    const row = [+L.reduce((a, x) => a + x.mi, 0).toFixed(1), +L.reduce((a, x) => a + gal(x), 0).toFixed(2), L.length, +w.reduce((a, x) => a + x.mi, 0).toFixed(1), +w.reduce((a, x) => a + gal(x), 0).toFixed(2),
+      L.reduce((a, x) => a + dur(x), 0), sh.length, +sh.reduce((a, x) => a + x.mi, 0).toFixed(1), +sh.reduce((a, x) => a + gal(x), 0).toFixed(2), +Math.max(...L.map(x => x.mi)).toFixed(1)];
     const old = log.days[d]; if (!old || row[2] >= old[2]) { log.days[d] = row; changedLog++; } });
   const all = Object.keys(log.days).sort(); log.from = all[0]; log.upto = all[all.length - 1];
   /* each day: when the car got to work and when it left */
@@ -2525,7 +2573,14 @@ function carlogStats(year) {
   const workDays = days.filter(([, r]) => r[3] > 0).length, wl = sum(4), mi = sum(0), l = sum(1);
   const bike = daysFor('chris', `${y}-01-01`, `${y}-12-31`).filter(d => d.status === 'work' && !d.start && /motorbike/i.test(d.note || '')).length;
   const span = Math.max(1, daysBetween(days[0][0], days[days.length - 1][0]) + 1);
-  return { y, mi, l, mpg: l ? mi / (l / 4.54609) : 0, cost: l * price, price, months, workDays, wl, wcost: wl * price, perDay: workDays ? wl / workDays * price : 0, bike, bikeSave: workDays ? bike * wl / workDays * price : 0, span, perYear: l * price / span * 365, upto: L.upto };
+  const has = days.filter(([, r]) => r.length >= 10), trips = sum(2), dow = [0, 0, 0, 0, 0, 0, 0];
+  days.forEach(([d, r]) => { dow[parse(d).getDay()] += r[0]; });
+  const mpgOf = o => o.l ? o.mi / (o.l / 4.54609) : 0, mlist = Object.entries(months).filter(([, o]) => o.mi > 150).map(([m, o]) => ({ m, mpg: mpgOf(o) }));
+  const ext = has.length ? (() => { const s2 = i => has.reduce((a, [, r]) => a + (Number(r[i]) || 0), 0), smi = s2(7), sl = s2(8), hmi = has.reduce((a, [, r]) => a + r[0], 0), hl = has.reduce((a, [, r]) => a + r[1], 0);
+    const lt = has.reduce((b, x) => x[1][9] > b[1][9] ? x : b), ld = days.reduce((b, x) => x[1][0] > b[1][0] ? x : b), longMpg = hl - sl > 0 ? (hmi - smi) / ((hl - sl) / 4.54609) : 0;
+    return { mins: s2(5), shortN: s2(6), shortMi: smi, shortL: sl, shortMpg: sl ? smi / (sl / 4.54609) : 0, longMpg, shortExtra: longMpg ? Math.max(0, sl - smi / longMpg * 4.54609) * price : 0, longTrip: { d: lt[0], mi: lt[1][9] }, longDay: { d: ld[0], mi: ld[1][0], n: ld[1][2] }, driveMi: hmi }; })() : null;
+  return { y, mi, l, mpg: l ? mi / (l / 4.54609) : 0, cost: l * price, price, months, workDays, wl, wcost: wl * price, perDay: workDays ? wl / workDays * price : 0, bike, bikeSave: workDays ? bike * wl / workDays * price : 0, span, perYear: l * price / span * 365, upto: L.upto,
+    trips, days: days.length, dow, mlist, best: mlist.length ? mlist.reduce((a, b) => b.mpg > a.mpg ? b : a) : null, worst: mlist.length ? mlist.reduce((a, b) => b.mpg < a.mpg ? b : a) : null, milesYear: mi / span * 365, litresYear: l / span * 365, co2: l * 2.68, ext };
 }
 function carlogPanel() {
   const c = carlogStats(); if (!c) return `<section class="panel"><h2>From the journey log</h2><p class="note" style="margin-top:0">Import your Land Rover trips on Family → Chris → Hours &amp; leave and the real fuel costs show up here.</p></section>`;
@@ -2548,6 +2603,92 @@ function carlogPanel() {
 function fuelPriceForm() {
   openSheet('Diesel price', fld('fpP', 'Price a litre (£)', fuelPrice().toFixed(3), 'number', 'min="0.5" max="4" step="0.001" inputmode="decimal"') + '<p class="note">Used for the journey-log costs. Your fill-ups set it automatically if they include the cost and litres.</p>', async () => {
     const p = Number(v('fpP')); if (!(p > 0.5 && p < 4)) throw new Error('Enter a price like 1.859'); await put('settings/main', { ...S.settings, fuelPrice: p });
+  });
+}
+
+/* ----- the full cost of running the car: car/main.costs = { ins, rac, fin (bill ids), withFin, band, tax } ----- */
+const IOM_DUTY = [['A', 'up to 50', 65], ['B', '51–75', 65], ['C', '76–100', 65], ['D', '101–110', 65], ['E', '111–120', 79], ['F', '121–130', 169], ['G', '131–140', 203], ['H', '141–150', 235], ['I', '151–165', 268], ['J', '166–175', 302], ['K', '176–185', 336], ['L', '186–200', 394], ['M', '201–225', 410], ['N', '226–255', 700], ['O', 'over 255', 724]];
+const TT_LAP = 37.73;
+const perWord = b => ({ weekly: 'a week', quarterly: 'a quarter', annual: 'a year' })[b && b.freq] || 'a month';
+function carRun() {
+  const c = carlogStats(); if (!c) return null;
+  const K = S.car.costs || {}, bill = id => id ? S.bills.find(b => b.id === id) : null, yr = b => b ? perMonth(b) * 12 : 0;
+  const ins = bill(K.ins), rac = bill(K.rac), fin = bill(K.fin), tax = Number(K.tax) || 0;
+  const jobs = S.service.filter(x => String(x.date || '').startsWith(c.y) && Number(x.cost) > 0), repairs = jobs.reduce((a, x) => a + Number(x.cost), 0);
+  const parts = [
+    { k: 'fuel', n: 'Diesel', v: c.perYear, col: '#F6BF26', sub: `About ${Math.round(c.litresYear).toLocaleString('en-GB')} litres a year at ${money(c.price, 2)}` },
+    { k: 'rep', n: 'Repairs and servicing', v: repairs, col: '#E67C73', sub: jobs.length ? jobs.map(j => `${j.work}${j.status === 'booked' ? ' (booked)' : ''}`).join(', ') : `Nothing logged in ${c.y}` },
+    { k: 'ins', n: 'Insurance', v: yr(ins), col: '#33B679', sub: ins ? `${money(ins.amount, 2)} ${perWord(ins)}` : 'Choose the bill in Edit costs' },
+    { k: 'rac', n: 'Breakdown cover', v: yr(rac), col: '#4FC3F7', sub: rac ? `${money(rac.amount, 2)} ${perWord(rac)}` : 'Choose the bill in Edit costs' },
+    { k: 'tax', n: 'Road tax', v: tax, col: '#9FA8DA', sub: K.band ? `Isle of Man band ${K.band}` : 'Pick the band in Edit costs' },
+  ];
+  if (K.withFin && fin) parts.push({ k: 'fin', n: 'Finance', v: yr(fin), col: '#CE93D8', sub: `${money(fin.amount, 2)} ${perWord(fin)}` });
+  const total = parts.reduce((a, p) => a + p.v, 0);
+  return { c, K, parts, total, fin, finYr: yr(fin), ppm: c.milesYear ? total / c.milesYear : 0, perMonth: total / 12, perDay: total / 365, repairs, noRep: total - repairs };
+}
+function carRunHero(R) {
+  const { c, total } = R, stack = R.parts.filter(p => p.v > 0);
+  const bar = `<div class="cr-wrap"><div class="cr-stack" role="img" aria-label="Where the money goes: ${esc(stack.map(p => `${p.n} ${money(p.v, 0)}`).join(', '))}">${stack.map((p, i) => `<i style="width:${(p.v / total * 100).toFixed(2)}%;background:${p.col};--i:${i}"></i>`).join('')}</div>
+    <div class="cr-leg">${stack.map(p => `<span><i style="background:${p.col}"></i>${esc(p.n)} <b>${money(p.v, 0)}</b></span>`).join('')}</div></div>`;
+  return tblock({ cls: 'cr-hero', kicker: `What the Evoque costs to run · ${c.y}`, title: `<span data-cu="${Math.round(total)}" data-cu-fmt="gbp" data-cu-key="crtotal">${money(total, 0)}</span> a year`,
+    side: `<span class="tb-kicker">A mile</span><span class="big">${Math.round(R.ppm * 100)}p</span>`,
+    cells: [tbCell('A month', money(R.perMonth, 0), '#F6BF26'), tbCell('A day', money(R.perDay, 2), '#33B679'), tbCell(R.repairs ? 'Day to day' : 'Miles a year', R.repairs ? `${money(R.noRep, 0)}<small class="sub">${Math.round(R.noRep / c.milesYear * 100)}p a mile</small>` : Math.round(c.milesYear).toLocaleString('en-GB'), '#E67C73')],
+    after: bar,
+    foot: `<span>${R.fin ? (R.K.withFin ? `Includes ${money(R.finYr, 0)} finance` : `Finance not included (${money(R.finYr, 0)} a year)`) : 'No finance bill chosen'}${R.fin ? ` · <button class="linkbtn" data-act="crfin">${R.K.withFin ? 'Leave it out' : 'Include it'}</button>` : ''}</span><span><button class="linkbtn" data-act="carcosts">Edit costs</button></span>` });
+}
+function carCostList(R) {
+  const rows = R.parts.map(p => `<div class="row"><i class="cr-dot" style="background:${p.col}"></i><span class="grow"><span class="t" style="display:block">${esc(p.n)}</span><span class="m" style="display:block">${esc(p.sub)}</span></span><span class="amt">${p.v ? money(p.v, 0) : '–'}<small class="cr-yr">a year</small></span></div>`).join('');
+  const fin = R.fin && !R.K.withFin ? `<div class="row cr-off"><i class="cr-dot" style="background:#CE93D8"></i><span class="grow"><span class="t" style="display:block">Finance</span><span class="m" style="display:block">${esc(R.fin.name)}, ${money(R.fin.amount, 2)} ${perWord(R.fin)}. Not in the running cost</span></span><span class="amt">${money(R.finYr, 0)}<small class="cr-yr">a year</small></span></div>` : '';
+  const band = IOM_DUTY.find(x => x[0] === R.K.band);
+  return `<section class="panel"><h2>Where it goes <button class="btn small ghost" data-act="carcosts">Edit</button></h2><div class="list">${rows}${fin}</div>
+    <p class="note">Diesel is this year's driving carried on to a full year. ${band ? `Road tax is band ${band[0]} (${band[1]} g/km of CO₂). Check the CO₂ figure on the logbook and change the band if it's different.` : ''} Bills update from Money → Bills.</p></section>`;
+}
+function carEffPanel(c) {
+  const e = c.ext, ms = c.mlist; if (!ms.length) return '';
+  const lo = Math.floor(Math.min(...ms.map(x => x.mpg)) - 2), hi = Math.ceil(Math.max(...ms.map(x => x.mpg)) + 1);
+  const bars = `<div class="mp-bars" role="img" aria-label="Miles per gallon each month: ${esc(ms.map(x => `${monShort(x.m)} ${x.mpg.toFixed(1)}`).join(', '))}">${ms.map((x, i) => `<div class="mp-col${c.best && x.m === c.best.m ? ' best' : c.worst && x.m === c.worst.m ? ' worst' : ''}" style="--i:${i}"><span class="mp-v">${x.mpg.toFixed(1)}</span><span class="mp-track"><i style="height:${((x.mpg - lo) / (hi - lo) * 100).toFixed(1)}%"></i></span><span class="mp-m">${monShort(x.m).slice(0, 3)}</span></div>`).join('')}</div>`;
+  const stat = (lb, val, sub, cls = '') => `<div class="stat ${cls}"><span>${lb}</span><b>${val}</b><span>${sub}</span></div>`;
+  return `<section class="panel"><h2>How efficiently it's driven <span class="sub">${c.mpg.toFixed(1)} mpg this year</span></h2>${bars}
+    <div class="stats cr-stats">
+      ${c.best ? stat('Best month', `${c.best.mpg.toFixed(1)} <small>mpg</small>`, MONTHS[Number(c.best.m.slice(5)) - 1], 'good') : ''}
+      ${c.worst ? stat('Thirstiest month', `${c.worst.mpg.toFixed(1)} <small>mpg</small>`, MONTHS[Number(c.worst.m.slice(5)) - 1], 'warn') : ''}
+      ${e ? stat('Short hops', `${e.shortMpg.toFixed(1)} <small>mpg</small>`, `${Math.round(e.shortN)} trips under 2 miles, against ${e.longMpg.toFixed(1)} mpg on longer ones`) : ''}
+      ${e && e.shortExtra >= 1 ? stat('What short hops cost', money(e.shortExtra, 0), 'Extra diesel this year compared with longer drives') : ''}
+      ${e ? stat('Average trip', `${(c.mi / c.trips).toFixed(1)} <small>miles</small>`, `${(e.driveMi / (e.mins / 60)).toFixed(0)} mph on average, stops included`) : ''}
+      ${stat('Every 10p on diesel', money(c.litresYear * 0.1, 0), 'Extra a year at this much driving')}
+      ${c.l ? stat('Work share', `${Math.round(c.wl / c.l * 100)}%`, 'Of the diesel goes on getting to work') : ''}
+    </div></section>`;
+}
+function carFunPanel(c) {
+  const e = c.ext, DN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], order = [1, 2, 3, 4, 5, 6, 0];
+  const top = c.dow.indexOf(Math.max(...c.dow)), dmax = Math.max(...c.dow) || 1;
+  const m = Number(S.car.mileage) || 0, rate = c.mi / c.span, goal = m ? Math.ceil((m + 1) / 10000) * 10000 : 0, when = m && rate > 0 ? addDays(S.car.mileageDate || today(), Math.round((goal - m) / rate)) : '';
+  const tile = (ic, big, sub) => `<div class="fun-t"><span class="fun-ic" aria-hidden="true">${ic}</span><b>${big}</b><span>${sub}</span></div>`;
+  const tiles = [
+    e ? tile('⏱️', `${Math.round(e.mins / 60).toLocaleString('en-GB')} hours`, `Behind the wheel, about ${(e.mins / 1440).toFixed(1)} whole days`) : '',
+    tile('🏁', `${Math.round(c.mi / TT_LAP).toLocaleString('en-GB')} laps`, `Of the TT Mountain Course, ${TT_LAP} miles each`),
+    tile('🚗', `${c.trips.toLocaleString('en-GB')} trips`, `About ${(c.trips / c.days).toFixed(1)} a day when the car moved`),
+    e ? tile('🛣️', `${Math.round(e.longDay.mi)} miles`, `Biggest day: ${esc(dayShort(e.longDay.d))}, ${e.longDay.n} trips`) : '',
+    e ? tile('➡️', `${Math.round(e.longTrip.mi)} miles`, `Longest single drive, ${esc(dayShort(e.longTrip.d))}`) : '',
+    tile('📅', `${DN[top]}s`, `The busiest day: ${Math.round(c.dow[top]).toLocaleString('en-GB')} miles on ${DN[top]}s this year`),
+    tile('🌍', `${(c.co2 / 1000).toFixed(1)} tonnes`, `Of CO₂, roughly what ${Math.round(c.co2 / 21)} trees soak up in a year`),
+    goal && when ? tile('🎯', esc(shortDate(when)), `When it should pass ${goal.toLocaleString('en-GB')} miles, at ${Math.round(rate * 7)} miles a week`) : '',
+  ].join('');
+  const week = `<div class="dw-bars" role="img" aria-label="Miles by day of the week">${order.map(i => `<div class="dw-row${i === top ? ' top' : ''}"><span>${DN[i].slice(0, 3)}</span><span class="dw-track"><i style="width:${(c.dow[i] / dmax * 100).toFixed(1)}%"></i></span><b>${Math.round(c.dow[i]).toLocaleString('en-GB')}</b></div>`).join('')}</div>`;
+  return `<section class="panel"><h2>The year behind the wheel <span class="sub">${Math.round(c.mi).toLocaleString('en-GB')} miles</span></h2><div class="fun-grid">${tiles}</div><h3 class="cr-h3">Miles by day of the week</h3>${week}</section>`;
+}
+function viewCosts() {
+  const R = carRun(); if (!R) return carlogPanel();
+  return carRunHero(R) + carCostList(R) + carlogPanel() + carEffPanel(R.c) + carFunPanel(R.c);
+}
+function carCostsForm() {
+  const K = S.car.costs || {}, opts = [['', 'None'], ...S.bills.slice().sort((a, b) => a.name < b.name ? -1 : 1).map(b => [b.id, `${b.name} (${money(b.amount, 2)} ${perWord(b)})`])];
+  openSheet('Car costs', sel('ccIns', 'Insurance', K.ins || '', opts) + sel('ccRac', 'Breakdown cover', K.rac || '', opts) + sel('ccFin', 'Finance', K.fin || '', opts)
+    + `<label class="check"><input type="checkbox" id="ccWith" ${K.withFin ? 'checked' : ''}><span>Count the finance in the running cost</span></label>`
+    + sel('ccBand', 'Road tax band (Isle of Man)', K.band || '', [['', 'Not set'], ...IOM_DUTY.map(([b, r, n]) => [b, `Band ${b}: ${r} g/km, £${n} a year`])])
+    + '<p class="note">The CO₂ figure (g/km) is on the logbook. Rates are from the Isle of Man vehicle duty table. The bills come from Money → Bills, so a new price there shows up here too.</p>', async () => {
+    const band = v('ccBand'), row = IOM_DUTY.find(x => x[0] === band);
+    await put('car/main', { ...S.car, costs: { ins: v('ccIns'), rac: v('ccRac'), fin: v('ccFin'), withFin: !!($('#ccWith') || {}).checked, band, tax: row ? row[2] : 0 } });
   });
 }
 
@@ -5707,7 +5848,7 @@ function milesCountUp() {
   requestAnimationFrame(step);
 }
 function viewCar() {
-  const segs = [['service','Service log'],['checks','Checks and dates'],['fuel','Fuel and costs'],['docs','Documents'],['trip','Paris trip']];
+  const segs = [['service','Service log'],['costs','Running costs'],['checks','Checks and dates'],['fuel','Fuel log'],['docs','Documents'],['trip','Paris trip']];
   const seg = `<div class="seg" role="group" aria-label="Car section">${segs.map(([k,l]) => `<button data-act="cseg" data-v="${k}" aria-pressed="${UI.carSeg===k}">${l}</button>`).join('')}</div>`;
   const due = CHECKS.map(c => ({c, s: checkStatus(c)})).filter(x => x.s.cls!=='ok');
   const fills = S.fuel.slice().sort((a,b) => (Number(a.mileage)||0) - (Number(b.mileage)||0)); let mpgs = [];
@@ -5715,11 +5856,11 @@ function viewCar() {
   const nextJob = S.service.filter(x => x.status==='booked').sort((a,b) => a.date < b.date ? -1 : 1)[0];
   const remDue = S.carrem.map(c => ({ c, st: carRemStatus(c) })).filter(x => x.st.cls!=='ok');
   const nextRem = S.carrem.filter(c => c.date && c.date >= today()).sort((a,b) => a.date < b.date ? -1 : 1)[0];
-  const cc = carCosts();
+  const cc = carCosts(), cr = carRun();
   const heroPlain = tblock({ kicker:'2018 Range Rover Evoque Landmark, TD4 180', title: S.car.mileage ? `${Number(S.car.mileage).toLocaleString('en-GB')} miles` : 'Add the mileage',
     side: `<button class="btn small ghost" data-act="mileage">Update</button>`,
     cells: [ tbCell('Due now', due.length ? `<span style="color:var(--red)">${due.length}</span> <small>check${due.length===1?'':'s'}</small>` : 'Nothing', due.length ? 'var(--red)' : 'var(--good-bar)'),
-             tbCell('Running cost', cc.ppm ? `${(cc.ppm*100).toFixed(1)}p <small>a mile</small>` : mpgs.length ? `${(mpgs.reduce((a,b)=>a+b,0)/mpgs.length).toFixed(1)} <small>mpg</small>` : '<small>Log fill-ups</small>', 'var(--gold-bar)'),
+             tbCell('Running cost', cr ? `${Math.round(cr.ppm*100)}p <small>a mile</small>` : cc.ppm ? `${(cc.ppm*100).toFixed(1)}p <small>a mile</small>` : mpgs.length ? `${(mpgs.reduce((a,b)=>a+b,0)/mpgs.length).toFixed(1)} <small>mpg</small>` : '<small>Log fill-ups</small>', 'var(--gold-bar)'),
              tbCell('Next date', nextRem ? `${esc(dayShort(nextRem.date).slice(4))}<small class="sub">${esc(nextRem.name)}</small>` : nextJob ? `${esc(dayShort(nextJob.date).slice(4))}<small class="sub">Booked job</small>` : '<small>Add renewals</small>', remDue.length ? 'var(--gold-bar)' : 'var(--chris-bar)') ],
     foot: `<span>Oil 0W-30 to STJLR.03.5007</span><span>No software updates on the engine module (remapped)</span>` });
   const ph = media('car-hero'), miles = Number(S.car.mileage) || 0;
@@ -5735,14 +5876,14 @@ function viewCar() {
       ${S.car.mileageDate ? `<span class="ch-asof">as of ${esc(dayShort(S.car.mileageDate))}</span>` : ''}
       <div class="ch-glass">
         ${glass('Due now', due.length ? `${due.length} <small>check${due.length===1?'':'s'}</small>` : 'All clear', due.length ? 'See Checks' : 'Nothing overdue', due.length ? 'warn' : 'ok')}
-        ${glass('Running cost', cc.ppm ? `${(cc.ppm*100).toFixed(1)}p <small>/mile</small>` : avgMpg ? `${avgMpg.toFixed(1)} <small>mpg</small>` : '–', cc.ppm || avgMpg ? (avgMpg && cc.ppm ? `${avgMpg.toFixed(1)} mpg` : '') : 'Log a fill-up')}
+        ${cr ? glass('Running cost', `${Math.round(cr.ppm*100)}p <small>/mile</small>`, `${money(cr.perMonth,0)} a month`) : glass('Running cost', cc.ppm ? `${(cc.ppm*100).toFixed(1)}p <small>/mile</small>` : avgMpg ? `${avgMpg.toFixed(1)} <small>mpg</small>` : '–', cc.ppm || avgMpg ? (avgMpg && cc.ppm ? `${avgMpg.toFixed(1)} mpg` : '') : 'Log a fill-up')}
         ${glass('Next date', nextRem ? esc(dayShort(nextRem.date).slice(4)) : nextJob ? esc(dayShort(nextJob.date).slice(4)) : '–', nextRem ? esc(nextRem.name) : nextJob ? 'Booked job' : 'Add renewals', remDue.length ? 'warn' : '')}
       </div>
       <div class="ch-foot"><span>Oil 0W-30 · STJLR.03.5007</span><span>Remapped: no ECU updates</span></div>
     </div>
   </section>`;
   if (ph && miles) setTimeout(milesCountUp, 30);
-  return hero + seg + ({service:viewService, checks:viewChecks, fuel:viewFuel, docs:() => docsPanel('car'), trip:viewTrip}[UI.carSeg] || viewService)();
+  return hero + seg + ({service:viewService, checks:viewChecks, fuel:viewFuel, costs:viewCosts, docs:() => docsPanel('car'), trip:viewTrip}[UI.carSeg] || viewService)();
 }
 function viewService() {
   const list = S.service.slice().sort((a,b) => (b.sort||'') < (a.sort||'') ? -1 : 1);
@@ -5765,7 +5906,7 @@ function viewFuel() {
   const cc = carCosts();
   const costs = cc.miles ? `<section class="panel"><h2>Running costs <span class="sub">over ${cc.miles.toLocaleString('en-GB')} miles</span></h2>
     <div class="stats"><div class="stat"><span>Fuel</span><b>${(cc.fuelPpm*100).toFixed(1)}p</b><span>a mile, ${money(cc.fuelCost,0)}</span></div><div class="stat"><span>Fuel and servicing</span><b>${(cc.ppm*100).toFixed(1)}p</b><span>a mile, ${money(cc.fuelCost+cc.serviceCost,0)}</span></div></div></section>` : '';
-  return carlogPanel() + costs + fuelChart() + `<section class="panel"><h2>Fuel <button class="btn small" data-act="fuel">Add fill-up</button></h2>
+  return costs + fuelChart() + `<section class="panel"><h2>Fuel <button class="btn small" data-act="fuel">Add fill-up</button></h2>
     <div class="stats"><div class="stat"><span>Average</span><b>${avg?avg.toFixed(1):'—'}</b><span>mpg</span></div><div class="stat"><span>Fuel this month</span><b>${money(monthCost,0)}</b><span>${MONTHS[parse(today()).getMonth()]}</span></div></div>
     ${rows.length ? `<div class="list">${rows.map(r => `<button class="rowbtn" data-act="fuel" data-id="${esc(r.id)}"><div class="grow"><div class="t">${shortDate(r.date)}</div><div class="m">${Number(r.mileage).toLocaleString('en-GB')} miles · ${r.litres} L${r.mpg?` · ${r.mpg.toFixed(1)} mpg`:''}${r.ppm?` · ${(r.ppm*100).toFixed(1)}p a mile`:''}</div></div><div class="amt">${money(r.cost)}</div></button>`).join('')}</div>` : `<p class="empty">Log fill-ups with the mileage and litres to see your real mpg. Fill to full each time for accurate figures.</p>`}
   </section>`;
@@ -6074,6 +6215,8 @@ document.addEventListener('click', async e => {
   if (a==='hrsadd') return hrsForm();
   if (a==='tripimport') return tripImport();
   if (a==='fuelprice') return fuelPriceForm();
+  if (a==='carcosts') return carCostsForm();
+  if (a==='crfin') { const K = S.car.costs || {}; put('car/main', { ...S.car, costs: { ...K, withFin: !K.withFin } }).then(render); return; }
   if (a==='lpbook') return leavePlanBook(el.dataset.id);
   if (a==='hrsedit') return hrsForm(el.dataset.id);
   if (a==='vsub') { UI.vsub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
