@@ -5841,7 +5841,7 @@ function viewPlanner() {
   if (k === 'christmas' || k === 'celebration') return head + occasionView(all, k);
   if (k === 'birthday') return head + birthdayView(all);
   const { up, past } = plTimeline(all);
-  return head + (k === 'summer' ? priceWatchPanel() : '') + up.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August, or three nights in Dublin: add the travel, where you\'re staying, car hire and spending money, and pick when each gets paid.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + plPastPanel(past) + plOverview();
+  return head + up.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday or city break' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August, or three nights in Dublin: add the travel, where you\'re staying, car hire and spending money, and pick when each gets paid.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + (k === 'summer' ? priceWatchPanel() : '') + plPastPanel(past) + plOverview();
 }
 
 /* Birthdays: everyone's, from the family calendar and the girls' dates, soonest first; tap one to plan it or open its list */
