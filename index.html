@@ -1728,6 +1728,11 @@ header.top .askbtn + .iconbtn{margin-left:6px}
 .dv-lb .grow{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
 .dv-ed{flex:none;width:18px;height:18px;color:var(--muted);opacity:.7;margin-top:2px}.dv-ed svg{width:16px;height:16px}
 .dv-cost{font-size:.82rem;font-weight:700;color:var(--good)}
+
+.zl-lims{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.zl-lims .zl-box{margin:0}.zl-lims .zl-leg{flex-direction:column;align-items:flex-start;gap:2px}
+.zl-row{align-items:flex-start}.zl-row .plmonths{margin-top:6px}
+.zl-done{margin-top:10px}.zl-done summary{cursor:pointer;font-weight:650;color:var(--muted);padding:6px 0}.zl-done summary span{font-weight:500}
 </style>
 </head>
 <body>
@@ -1853,7 +1858,7 @@ function applyLocal(path, data) {
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; }
+  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
@@ -4572,7 +4577,7 @@ function planForm() {
 /* ----- Zilch calculator: how a purchase splits into payments ----- */
 const ZILCH_DEFAULT = { limit:2250, threshold:75, upfront:25, feePct:1.8, partnerFee:1.6, shortFee:0 };
 const zs = () => ({ ...ZILCH_DEFAULT, ...(S.settings.zilch||{}) });
-const zAvail = () => { const z = zs(), zd = zilchDebt(); return Math.max(0, z.limit - (zd ? Number(zd.balance)||0 : 0)); };
+const zAvail = () => zlFree('chris', ymAdd(plCur(), -1));
 /* Zilch (help.zilch.com, Pay monthly and Boost): the credit part is split into four equal payments. Under £75: every 2 weeks over 6 weeks.
    From £75: a quarter at checkout, then a quarter on the same date each month for 3 months, each with a monthly fee of a % of the
    total purchase (up to 1.6% enabling the card at a partner shop, 1.8% Zilch Anywhere). Boost: anything above the available limit
@@ -4597,7 +4602,7 @@ function zilchCalcPanel() {
     <div class="zchips">${[50,150,300,600,1000].map(x => `<button type="button" data-act="zquick" data-v="${x}">£${x}</button>`).join('')}</div>
     ${amt && Number(amt) >= z.threshold ? `<label class="toggle"><input type="checkbox" data-act="zpartner" ${UI.zpartner?'checked':''}> Card enabled at a Zilch partner shop first (fee up to ${z.partnerFee}% instead of ${z.feePct}%)</label>` : ''}
     <div id="zOut">${zilchOut(p)}</div>
-    <p class="note">Your limit is ${money(z.limit,0)}${zd ? `, with ${money(owed,0)} still owed on Zilch, so ${money(avail,0)} is available` : ''}. Zilch shows the exact fee before you confirm, and it can differ by shop.</p>
+    <p class="note">Chris's limit is ${money(zLimit('chris'),0)}, with ${money(avail,0)} free right now after what's on Zilch. Zilch shows the exact fee before you confirm, and it can differ by shop.</p>
   </section>`;
 }
 function zilchOut(p) {
@@ -4606,20 +4611,22 @@ function zilchOut(p) {
   return `<div class="zsum"><div><span>Today</span><b>${money(p.upfront,2)}</b></div><div><span>${p.kind==='3m' ? 'Then 3 monthly' : 'Then 3 fortnightly'}</span><b>${money(p.pays[1].amount,2)}</b></div><div><span>Fees in total</span><b>${money(p.fee,2)}</b></div></div>
     <div class="ztimeline">${p.pays.map((x,i) => `<div class="zstep${i===0?' now':''}"><i></i><div class="grow"><div class="t">${i===0 ? 'Today' : dayShort(x.date)}</div><div class="m">${i===0 ? esc(bits.join(' + ')) : x.fee ? `${money(x.share,2)} + ${money(x.fee,2)} fee` : `Payment ${i+1} of 4`}</div></div><div class="amt">${money(x.amount,2)}</div></div>`).join('')}</div>
     <div class="zfoot"><span>${esc(p.label)}. Total ${money(p.total,2)}</span>${p.excess ? `<span class="alert">${money(p.excess,2)} is over your available limit of ${money(p.avail,0)}, so it's added to today's payment</span>` : `<span>${money(Math.max(0, p.avail - p.credit),0)} of your limit left after</span>`}</div>
-    <div class="btnrow"><button class="btn small" data-act="zadd">Add to what's owed</button></div>`;
+    <div class="btnrow"><button class="btn small" data-act="zadd">Add to what's on Zilch</button></div>`;
 }
 function zilchSettingsForm() {
   const z = zs();
-  openSheet('Zilch limits and fees', `<div class="fields2">${fld('zLim','Credit limit (£)', z.limit, 'number','step="1" inputmode="numeric"')}${fld('zThr','3-month plan from (£)', z.threshold, 'number','step="1" inputmode="numeric"')}</div>
+  openSheet('Zilch limits and fees', `<div class="fields2">${fld('zLim','Chris\'s credit limit (£)', z.limit, 'number','step="1" inputmode="numeric"')}${fld('zLimV','Viki\'s credit limit (£)', zLimit('viki'), 'number','step="1" inputmode="numeric"')}</div>${fld('zThr','3-month plan from (£)', z.threshold, 'number','step="1" inputmode="numeric"')}
     <div class="fields2">${fld('zUp','Upfront payment (%)', z.upfront, 'number','step="1" inputmode="numeric"')}${fld('zFee','Monthly fee, Zilch Anywhere (% of price)', z.feePct, 'number','step="0.1" inputmode="decimal"')}</div>
     ${fld('zSf','Fee on 6-week purchases (£)', z.shortFee, 'number','step="0.01" inputmode="decimal"')}
     ${fld('zPf','Monthly fee, card enabled at a partner shop (%)', z.partnerFee, 'number','step="0.1" inputmode="decimal"')}
     <p class="note">From Zilch's help pages: the part on credit is split into four equal payments. From £75 it's one at checkout, then one a month on the same date for three months, each with a fee of a percentage of the whole purchase (0 to 1.6% if you enable the card at a partner shop first, 1.8% with Zilch Anywhere). Under £75 it's every two weeks. With Boost, anything over your available limit is taken from your debit card at checkout.</p>`, async () => {
     const out = { limit: num(v('zLim'))||0, threshold: num(v('zThr'))||75, upfront: num(v('zUp')) ?? 25, feePct: num(v('zFee')) ?? 1.8, partnerFee: num(v('zPf')) ?? 1.6, shortFee: num(v('zSf')) || 0 };
     await put('settings/main', { ...S.settings, zilch: out });
+    const lv = num(v('zLimV')), Z = ZL(); if (lv !== null) await put('state/zilch', { ...Z, items: Z.items || [], limits: { ...(Z.limits || {}), viki: lv } });
   });
 }
 async function zilchAddOwed() {
+  const a = Number(UI.zamt) || 0; if (!a) return; zlForm(null, { a, mode: 'auto', d: today(), ...(UI.zpartner ? { fee: zs().partnerFee } : {}) }); UI.zamt = ''; return;
   const p = zilchPlan(UI.zamt, UI.zpartner ? { feePct: zs().partnerFee } : {}); if (!p) return;
   const zd = zilchDebt(), owedAdd = Math.round((p.total - p.upfront)*100)/100;
   if (zd) { const { id, ...rest } = zd; await put(`debts/${id}`, { ...rest, balance: Math.round(((Number(zd.balance)||0) + owedAdd)*100)/100, original: Math.max(Number(zd.original)||0, (Number(zd.balance)||0) + owedAdd), monthly: Math.max(Number(zd.monthly)||0, p.pays[1].amount) }); }
@@ -4653,9 +4660,9 @@ function bsTotals(doc, ym) {
   const inc = viki + (doc.inc||[]).filter(bsOn).reduce((s,x) => s + (Number(x.a)||0), 0);
   const sec = {}; let base = 0, extra = 0;
   (doc.secs||[]).forEach(s => { const t = s.rows.filter(bsOn).reduce((a,x) => a + bsAmt(x), 0); sec[s.k] = t; if (s.kind==='base') base += t; else if (s.kind==='extra') extra += t; });
-  const buys = ym ? buysNet(ym) : 0; extra += plan + buys;
+  const buys = ym ? buysNet(ym) : 0, zil = ym ? zlMonth(ym).total : 0; extra += plan + buys + zil;
   const left = inc - base - extra, split = Number(doc.split ?? 50);
-  return { viki, inc, base, extra, plan, buys, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
+  return { viki, inc, base, extra, plan, buys, zil, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
 }
 function bsState() {
   const ym = UI.bym || (UI.bym = ymOf(today()));
@@ -4745,7 +4752,7 @@ function viewSheet() {
   return `<section class="panel xpanel">${nav}${bsSummary(t, doc)}</section>
     <div class="xsheet" id="bsSheet">
       <div class="xhead"><span></span><span>Item</span><span>Date</span><span>£</span><span></span></div>
-      ${income}${main.map(([s,si]) => bsSection(s, si, t)).join('')}${bsPlannerSection(ym)}${bsBuysSection(ym)}
+      ${income}${main.map(([s,si]) => bsSection(s, si, t)).join('')}${bsPlannerSection(ym)}${bsZilchSection(ym)}${bsBuysSection(ym)}
       ${lists.length ? `<h3 class="xlh">Lists</h3>${lists.map(([s,si]) => bsSection(s, si, t)).join('')}` : ''}
       <div class="xadd" style="padding:10px 2px"><button type="button" class="linkbtn" data-act="bsnewsec">+ Add a section</button></div>
     </div>
@@ -4847,7 +4854,7 @@ function viewOwed() {
   const list = S.debts.slice().sort((a,b) => (Number(b.balance)||0) - (Number(a.balance)||0));
   const total = list.reduce((s,d)=>s+(Number(d.balance)||0),0), monthly = list.reduce((s,d)=>s+(Number(d.monthly)||0),0);
   const lastPay = list.reduce((m,d) => { const n = d.monthly ? Math.ceil((Number(d.balance)||0)/d.monthly) : 0; return Math.max(m,n); }, 0);
-  return zilchPage() + zilchCalcPanel() + `<section class="panel"><h2>Money owed <button class="btn small" data-act="debt">Add</button></h2>
+  return zilchPage() + zlPanel() + zilchCalcPanel() + `<section class="panel"><h2>Money owed <button class="btn small" data-act="debt">Add</button></h2>
     ${list.length ? `<div class="gauge" style="padding-top:0"><div class="gh"><span class="t" style="font-stretch:125%;font-weight:800;font-size:1.6rem">${money(total,0)}</span><span class="amt">${money(monthly,0)} a month</span></div><div class="m">${lastPay ? `All cleared by about ${MONTHS[parse(addMonths(today(), lastPay)).getMonth()]} ${parse(addMonths(today(), lastPay)).getFullYear()} at these payments` : ''}</div></div>
       <div class="list">${list.map(d => { const orig = Number(d.original)||Number(d.balance)||0, paid = orig ? 1 - (Number(d.balance)||0)/orig : 0, n = d.monthly ? Math.ceil((Number(d.balance)||0)/d.monthly) : null;
         return `<button class="rowbtn" data-act="debt" data-id="${esc(d.id)}" style="flex-direction:column;align-items:stretch;gap:6px"><div style="display:flex;align-items:baseline;gap:8px"><span class="t" style="flex:1">${esc(d.name)} <span class="chip cat">${esc({bnpl:'Pay later',loan:'Loan',card:'Card',finance:'Finance'}[d.kind]||'Other')}</span></span><span class="amt">${money(d.balance||0,0)}</span></div>${gauge(paid)}<div class="m">${d.monthly ? `${money(d.monthly,2)} a month${n ? `, ${n} payment${n===1?'':'s'} left` : ''}` : 'No monthly payment set'}${d.next ? `, next ${shortDate(d.next)}` : ''}</div></button>`; }).join('')}</div>`
@@ -4920,8 +4927,8 @@ function ppBase(ym) {
   const keys = Object.keys(S.bsheet || {}).sort(); if (!keys.length) return null;
   const own = S.bsheet[ym], k = own ? ym : (keys.filter(x => x <= ym).pop() || keys[0]), doc = S.bsheet[k], t = bsTotals(doc, k);
   const year = (S.plans || []).filter(p => p.kind === 'year').reduce((s, p) => s + (plPays(p)[ym] || 0), 0);
-  const buys = own ? t.buys : 0, other = t.extra - t.plan - t.buys + buys;
-  return { ym, from: k, est: !own, inc: t.inc, base: t.base, other, year, spare: t.inc - t.base - other - year };
+  const buys = own ? t.buys : 0, zil = zlMonth(ym).total, other = t.extra - t.plan - t.buys - (t.zil || 0) + buys;
+  return { ym, from: k, est: !own, inc: t.inc, base: t.base, other, year, zil, spare: t.inc - t.base - other - year };
 }
 
 function viewPlanner2() {
@@ -4934,10 +4941,10 @@ function viewPlanner2() {
   const pays = months.map(() => []);
   on.forEach(x => { const sch = ppSchedule(x.p, x.items, x.ppTouched || x.p.payplan ? x.pp : null), bk = ppBooked(x.p, x.items);
     months.forEach((ym, i) => { const a = (sch[ym] || 0) + (bk[ym] || 0); if (a > 0.5) pays[i].push({ x, a }); }); });
-  const outs = pays.map(ps => ps.reduce((s, y) => s + y.a, 0)), rests = months.map((_, i) => bases[i].spare - outs[i]);
+  const outs = pays.map(ps => ps.reduce((s, y) => s + y.a, 0)), rests = months.map((_, i) => bases[i].spare - bases[i].zil - outs[i]);
   const short = rests.map((r, i) => [r, i]).filter(([r]) => r < -0.5), minI = rests.indexOf(Math.min(...rests));
   const verdict = short.length ? 'no' : rests[minI] < 250 ? 'tight' : 'yes';
-  const tripTot = on.reduce((s, x) => s + x.items.reduce((a, it) => a + itemCost(it), 0), 0), spareTot = bases.reduce((s, b) => s + Math.max(0, b.spare), 0);
+  const tripTot = on.reduce((s, x) => s + x.items.reduce((a, it) => a + itemCost(it), 0), 0), spareTot = bases.reduce((s, b) => s + Math.max(0, b.spare - b.zil), 0);
   const mon = ym => `${mon3(ym)} ${ym.slice(2, 4)}`;
 
   // what comes in, and the budget, from this month's sheet
@@ -4945,17 +4952,18 @@ function viewPlanner2() {
   const incRows = [...(doc.inc || []).filter(bsOn).map(x => [String(x.n || '').replace(/['’]s? wages|\s*wages/i, '').trim() || x.n, Number(x.a) || 0]), ...(t0.viki ? [['Viki', t0.viki]] : [])];
   const incomeCard = `<section class="panel nopad">${headCard({ tone: 'good', kicker: 'Predicted income a month', title: money(b0.inc, 0),
     meta: `<span>From the ${esc(monthName(b0.from))} Budget Sheet</span>`,
-    body: `<div class="pp-inc">${incRows.map(([n, a]) => `<div><span>${esc(n)}</span><b>${money(a, 0)}</b></div>`).join('')}</div><div class="pp-spare"><span>After the budget${b0.year ? ' and yearly costs' : ''}, spare each month</span><b>${money(b0.spare, 0)}</b></div>` })}</section>`;
+    body: `<div class="pp-inc">${incRows.map(([n, a]) => `<div><span>${esc(n)}</span><b>${money(a, 0)}</b></div>`).join('')}</div><div class="pp-spare"><span>Spare this month, after the budget${b0.zil > 0.5 ? ', Zilch' : ''}${b0.year ? ' and yearly costs' : ''}</span><b>${money(b0.spare - b0.zil, 0)}</b></div>` })}</section>`;
   const vTitle = verdict === 'no' ? `Not yet: ${short.length} month${short.length === 1 ? '' : 's'} come${short.length === 1 ? 's' : ''} up short` : verdict === 'tight' ? 'Yes, but it\'s tight' : 'Yes, it all fits';
-  const vText = verdict === 'no' ? `${monthName(months[short[0][1]])} is ${money(-short[0][0], 0)} short. Start saving earlier, spread a trip over more months, or move some of it to a quieter month.` : verdict === 'tight' ? `Every month fits, but ${monthName(months[minI])} only has ${money(rests[minI], 0)} left for anything unexpected.` : `Every month still has at least ${money(rests[minI], 0)} left after the trips.`;
+  const vText = verdict === 'no' ? `${monthName(months[short[0][1]])} is ${money(-short[0][0], 0)} short${bases[short[0][1]].zil > 0.5 ? `, with ${money(bases[short[0][1]].zil, 0)} going to Zilch` : ''}. Start saving earlier, spread a trip over more months, or move some of it to a quieter month.` : verdict === 'tight' ? `Every month fits, but ${monthName(months[minI])} only has ${money(rests[minI], 0)} left for anything unexpected.` : `Every month still has at least ${money(rests[minI], 0)} left after the trips.`;
   const verdictCard = `<section class="pp-verdict v-${verdict}"><span class="pp-k">Can we afford it?</span><b class="pp-vt">${esc(vTitle)}</b><span>${esc(vText)}</span>
     <div class="pp-stats"><div><span>Trips in the plan</span><b>${money(tripTot, 0)}</b></div><div><span>Of spare money</span><b>${spareTot ? Math.round(tripTot / spareTot * 100) : 0}%</b></div><div><span>Tightest month</span><b>${esc(mon(months[minI]))}</b></div></div>
     <p class="pp-fine">Over the next ${PP_N} months, using predicted income${bases.some(b => b.est) ? ' (months without a Budget Sheet copy the latest one)' : ''}.</p></section>`;
 
   const secs = (doc.secs || []).filter(s => s.kind !== 'list').map(s => [s.t, t0.sec[s.k] || 0]).filter(x => x[1] > 0);
+  if (b0.zil > 0.5) secs.push(['Zilch payments', b0.zil]);
   if (b0.year) secs.push(['Yearly costs', b0.year]);
   const bTot = secs.reduce((s, x) => s + x[1], 0), bMax = Math.max(1, ...secs.map(x => x[1]));
-  const budgetCol = `<section class="panel pp-col"><div class="pp-ch"><span class="pp-k g">Our budget</span><b>${money(bTot, 0)}</b><small>a month</small></div>
+  const budgetCol = `<section class="panel pp-col"><div class="pp-ch"><span class="pp-k g">Our budget</span><b>${money(bTot, 0)}</b><small>${b0.zil > 0.5 ? 'this month, with Zilch' : 'a month'}</small></div>
     ${secs.map(([n, a]) => `<div class="pp-b"><div><span>${esc(n)}</span><b>${money(a, 0)}</b></div><i><em style="width:${Math.round(a / bMax * 100)}%"></em></i></div>`).join('')}
     <button type="button" class="linkbtn pp-link" data-act="mseg" data-v="sheet">Change in the Budget Sheet</button></section>`;
   const tripsCol = `<section class="panel pp-col"><div class="pp-ch"><span class="pp-k p">Trips we're planning</span><b>${money(tripTot, 0)}</b><small>tap one to plan it</small></div>
@@ -4964,12 +4972,12 @@ function viewPlanner2() {
         <button type="button" class="pp-chip${x.on ? ' in' : ''}" data-act="pptog" data-id="${esc(x.p.id)}" aria-pressed="${x.on}">${x.on ? '✓ In the plan' : 'Just an idea'}</button></div>`; }).join('') : '<p class="empty">No trips coming up. Add one in Treats.</p>'}</section>`;
 
   // the year at a glance
-  const top = Math.max(1, ...bases.map(b => b.spare * 1.15), ...outs), H = 160;
+  const top = Math.max(1, ...bases.map(b => b.spare * 1.15), ...outs.map((o, i) => o + bases[i].zil)), H = 160;
   const clashes = pays.map((ps, i) => ps.length > 1 ? `${monthName(months[i])}: ${ps.map(y => `${y.x.p.name} ${money(y.a, 0)}`).join(' and ')}, ${money(outs[i], 0)} in all${rests[i] < -0.5 ? `, ${money(-rests[i], 0)} more than is spare` : ''}.` : '').filter(Boolean);
   const yearCard = `<section class="panel"><h2>The year at a glance</h2><p class="note" style="margin-top:-4px">When each trip gets paid, month by month.</p>
-    <div class="cleg">${on.map(x => `<span><i style="background:${col[x.p.id]}"></i>${esc(x.p.name)}</span>`).join('')}<span><i class="pp-dash"></i>Spare that month</span><span><b class="pp-flag-k">2</b>Trips that month</span><span><b class="pp-flag-k bad">!</b>Short</span></div>
-    <div class="pp-chart" role="img" aria-label="${esc(months.map((ym, i) => `${monthName(ym)}: ${money(outs[i], 0)} of ${money(bases[i].spare, 0)} spare`).join('; '))}">
-      ${months.map((ym, i) => `<div class="pp-colm">${rests[i] < -0.5 || pays[i].length > 1 ? `<span class="pp-flag${rests[i] < -0.5 ? ' bad' : ''}" title="${rests[i] < -0.5 ? 'Short this month' : `${pays[i].length} trips this month`}">${rests[i] < -0.5 ? '!' : pays[i].length}</span>` : ''}<span class="pp-line" style="bottom:${Math.round(Math.max(0, bases[i].spare) / top * H)}px"></span>${pays[i].slice().reverse().map(y => `<i title="${esc(`${y.x.p.name}: ${money(y.a, 0)} in ${monthName(ym)}`)}" style="height:${Math.max(3, Math.round(y.a / top * H))}px;background:${col[y.x.p.id]}"></i>`).join('')}</div>`).join('')}
+    <div class="cleg">${on.map(x => `<span><i style="background:${col[x.p.id]}"></i>${esc(x.p.name)}</span>`).join('')}${bases.some(b => b.zil > 0.5) ? '<span><i style="background:var(--muted)"></i>Zilch payments</span>' : ''}<span><i class="pp-dash"></i>Spare before Zilch and trips</span><span><b class="pp-flag-k">2</b>Trips that month</span><span><b class="pp-flag-k bad">!</b>Short</span></div>
+    <div class="pp-chart" role="img" aria-label="${esc(months.map((ym, i) => `${monthName(ym)}: trips ${money(outs[i], 0)}, Zilch ${money(bases[i].zil, 0)}, of ${money(bases[i].spare, 0)} spare`).join('; '))}">
+      ${months.map((ym, i) => `<div class="pp-colm">${rests[i] < -0.5 || pays[i].length > 1 ? `<span class="pp-flag${rests[i] < -0.5 ? ' bad' : ''}" title="${rests[i] < -0.5 ? 'Short this month' : `${pays[i].length} trips this month`}">${rests[i] < -0.5 ? '!' : pays[i].length}</span>` : ''}<span class="pp-line" style="bottom:${Math.round(Math.max(0, bases[i].spare) / top * H)}px"></span>${pays[i].slice().reverse().map(y => `<i title="${esc(`${y.x.p.name}: ${money(y.a, 0)} in ${monthName(ym)}`)}" style="height:${Math.max(3, Math.round(y.a / top * H))}px;background:${col[y.x.p.id]}"></i>`).join('')}${bases[i].zil > 0.5 ? `<i title="${esc(`Zilch: ${money(bases[i].zil, 0)} in ${monthName(ym)}`)}" style="height:${Math.max(3, Math.round(bases[i].zil / top * H))}px;background:var(--muted)"></i>` : ''}</div>`).join('')}
     </div>
     <div class="pp-axis">${months.map(ym => `<span>${mon3(ym)}<br>${ym.slice(2, 4)}</span>`).join('')}</div>
     ${clashes.length ? `<div class="pp-clash"><b>Trips landing in the same month</b>${clashes.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}</section>`;
@@ -4992,7 +5000,7 @@ function viewPlanner2() {
         <div><span>Starting</span><div class="pp-step"><button type="button" class="pp-sb" data-act="ppst" data-id="${esc(p.id)}" data-v="-1" aria-label="Start a month earlier">‹</button><b>${esc(mon(pp.start))}</b><button type="button" class="pp-sb" data-act="ppst" data-id="${esc(p.id)}" data-v="1" aria-label="Start a month later">›</button></div></div>
       </div>
       <div class="pp-mode"><span>Plan it in</span><div class="pp-seg" role="group" aria-label="Plan in percentages or pounds"><button type="button" data-act="ppmode" data-id="${esc(p.id)}" data-v="pct" aria-pressed="${pp.mode === 'pct'}">Percentages</button><button type="button" data-act="ppmode" data-id="${esc(p.id)}" data-v="gbp" aria-pressed="${pp.mode === 'gbp'}">Pounds</button></div></div>
-      <div class="pp-rows">${pp.v.map((x, i) => { const ym = ymAdd(pp.start, i), after = tripYm && ym > tripYm, mi = months.indexOf(ym), others = mi >= 0 ? pays[mi].filter(y => y.x.p.id !== p.id) : [];
+      <div class="pp-rows">${pp.v.map((x, i) => { const ym = ymAdd(pp.start, i), after = tripYm && ym > tripYm, mi = months.indexOf(ym), others = mi >= 0 ? [...pays[mi].filter(y => y.x.p.id !== p.id), ...(bases[mi].zil > 0.5 ? [{ x: { p: { name: 'Zilch' } }, a: bases[mi].zil }] : [])] : [];
         return `<div class="pp-row${after ? ' after' : ''}"><div class="grow"><b>${esc(monthName(ym))} pay</b><small class="${others.length && !after ? 'warn' : ''}">${after ? 'After the trip, so only on Zilch or a card' : others.length ? `Also ${esc(others.map(y => `${y.x.p.name} ${money(y.a, 0)}`).join(', '))}` : `Month ${i + 1} of ${pp.n}`}</small></div>
           <button type="button" class="pp-sb" data-act="ppstep" data-id="${esc(p.id)}" data-i="${i}" data-v="-1" aria-label="Less in ${esc(monthName(ym))}">−</button><span class="pp-val"><b>${pp.mode === 'pct' ? `${x}%` : money(Number(x) || 0, 0)}</b><small>${pp.mode === 'pct' ? money(amts[i], 0) : `${left ? Math.round(amts[i] / left * 100) : 0}%`}</small></span><button type="button" class="pp-sb" data-act="ppstep" data-id="${esc(p.id)}" data-i="${i}" data-v="1" aria-label="More in ${esc(monthName(ym))}">+</button></div>`; }).join('')}</div>
       <div class="pp-alloc${Math.abs(diff) < 0.5 ? ' ok' : ''}"><span>${Math.abs(diff) < 0.5 ? `All planned: ${money(left, 0)}` : diff > 0 ? `${money(diff, 0)} still to plan (${pct}%)` : `${money(-diff, 0)} too much (${pct}%)`}</span><button type="button" class="btn small ghost" data-act="ppeven" data-id="${esc(p.id)}">Split evenly</button></div>
@@ -5000,7 +5008,7 @@ function viewPlanner2() {
     </section>`;
   }
 
-  const monthCard = `<section class="panel"><h2>What's left each month</h2><div class="list">${months.map((ym, i) => `<div class="row"><div class="grow"><div class="t">${esc(monthName(ym))}${bases[i].est ? ' <small class="pp-est">estimate</small>' : ''}</div><div class="m">${pays[i].length ? esc(pays[i].map(y => `${y.x.p.name} ${money(y.a, 0)}`).join(' · ')) : 'No trips to pay'}</div></div><div class="amt ${rests[i] < -0.5 ? 'pp-bad' : 'pp-good'}">${rests[i] < -0.5 ? `${money(-rests[i], 0)} short` : `${money(rests[i], 0)} spare`}</div></div>`).join('')}</div></section>`;
+  const monthCard = `<section class="panel"><h2>What's left each month</h2><div class="list">${months.map((ym, i) => `<div class="row"><div class="grow"><div class="t">${esc(monthName(ym))}${bases[i].est ? ' <small class="pp-est">estimate</small>' : ''}</div><div class="m">${pays[i].length || bases[i].zil > 0.5 ? esc([...(bases[i].zil > 0.5 ? [`Zilch ${money(bases[i].zil, 0)}`] : []), ...pays[i].map(y => `${y.x.p.name} ${money(y.a, 0)}`)].join(' · ')) : 'Nothing extra to pay'}</div></div><div class="amt ${rests[i] < -0.5 ? 'pp-bad' : 'pp-good'}">${rests[i] < -0.5 ? `${money(-rests[i], 0)} short` : `${money(rests[i], 0)} spare`}</div></div>`).join('')}</div></section>`;
   const bar = ppDirty() ? `<div class="xbar" role="region" aria-label="Unsaved plan"><span>Trying out a plan</span><button class="btn small ghost" data-act="ppundo">Undo all</button><button class="btn small" data-act="ppuse">Use this plan</button></div>` : '';
   return incomeCard + verdictCard + `<div class="pp-two">${budgetCol}${tripsCol}</div>` + yearCard + payCard + monthCard
     + `<p class="note" style="padding:0 6px">Nothing here changes the Budget Sheet or the trips until you tap Use this plan.</p>` + bar;
@@ -5075,6 +5083,84 @@ function legForm(planId, di, li) {
     if (p.options && p.sel && p.options[p.sel]) { const o = JSON.parse(JSON.stringify(p.options)); if (o[p.sel].drive && o[p.sel].drive[di] && o[p.sel].drive[di].legs[li]) o[p.sel].drive[di].legs[li] = nl; o[p.sel].items = items.filter(x => !x.gen); out.options = o; }
     await put(`plans/${p.id}`, out);
   });
+}
+
+/* ===== Zilch list: everything on Zilch for both of you, and what it takes out each pay month =====
+   state/zilch = { limits:{chris, viki}, items:[{ id, who:'chris'|'viki', n, mode:'auto'|'set', a, d, fee, pays:[{ym, a}], note }] }
+   'auto' = a purchase the app splits the Zilch way (a quarter on the day, then three monthly with fees; under £75 every two weeks);
+   'set' = payments already known, typed in month by month. Each month's Budget Sheet shows them as "Zilch payments", and they come
+   off what's spare. Trip bookings on Zilch stay with Treats (they're counted there, and shown alongside here). */
+const ZL = () => S.zilch || { items: [] };
+const ZWHO = { chris: 'Chris', viki: 'Viki' };
+const zLimit = who => { const l = (ZL().limits || {})[who]; return l != null && l !== '' ? Number(l) || 0 : zs().limit; };
+function zlPays(it) {
+  if (it.mode === 'set') return (it.pays || []).filter(x => /^\d{4}-\d\d$/.test(x.ym || '') && Number(x.a)).map(x => ({ ym: x.ym, a: Number(x.a) }));
+  const p = zilchPlan(Number(it.a) || 0, { avail: zLimit(it.who), start: it.d || today(), ...(it.fee ? { feePct: Number(it.fee) } : {}) }); if (!p) return [];
+  return p.pays.map(x => ({ ym: payYm(x.date), a: x.amount, d: x.date }));
+}
+function zlMonth(ym) {
+  const rows = []; (ZL().items || []).forEach(it => zlPays(it).forEach(x => { if (x.ym === ym) rows.push({ it, a: x.a, d: x.d || null }); }));
+  return { rows, total: Math.round(rows.reduce((s, r) => s + r.a, 0) * 100) / 100 };
+}
+const zlTripMonth = ym => (S.plans || []).filter(p => !p.idea && !p.payplan).reduce((s, p) => s + (p.items || []).filter(it => it.how === 'zilch').reduce((a, it) => a + plItemPays(it, p).filter(x => x.ym === ym).reduce((b, x) => b + x.amount, 0), 0), 0)
+  + (S.plans || []).filter(p => !p.idea && p.payplan).reduce((s, p) => s + (ppBooked(p, p.items)[ym] || 0), 0);
+/* what each of you still has to pay Zilch after a pay month, and so how much of the limit is free then (trip bookings count on Chris's) */
+function zlOwedAfter(who, ym) {
+  let owed = 0; (ZL().items || []).filter(it => it.who === who).forEach(it => zlPays(it).forEach(x => { if (x.ym > ym) owed += x.a; }));
+  if (who === 'chris') (S.plans || []).filter(p => !p.idea).forEach(p => (p.items || []).filter(it => it.how === 'zilch' && (it.paid || !p.payplan)).forEach(it => plItemPays(it, p).forEach(x => { if (x.ym > ym) owed += x.amount; })));
+  return Math.round(owed * 100) / 100;
+}
+const zlFree = (who, ym) => Math.max(0, zLimit(who) - zlOwedAfter(who, ym));
+const zlLeft = it => zlPays(it).filter(x => x.ym >= plCur()).reduce((s, x) => s + x.a, 0);
+
+function zlPanel() {
+  const items = (ZL().items || []).slice(), cur = plCur();
+  const live = items.filter(it => zlLeft(it) > 0.5), done = items.filter(it => zlLeft(it) <= 0.5);
+  const who = w => { const l = live.filter(it => it.who === w); if (!l.length) return '';
+    return `<div class="ti-group"><div class="ti-gh"><i style="background:${w === 'viki' ? ZCOL.viki : ZCOL.chris}"></i>${ZWHO[w]}<span>${money(l.reduce((s, it) => s + zlLeft(it), 0), 0)} to go</span></div><div class="list">${l.map(zlRow).join('')}</div></div>`; };
+  const freeNow = w => zlFree(w, ymAdd(cur, -1)), clearBy = w => { for (let i = 0; i < 24; i++) { const ym = ymAdd(cur, i); if (zlOwedAfter(w, ym) < 0.5) return ym; } return null; };
+  const lim = ['chris', 'viki'].map(w => { const f = freeNow(w), L = zLimit(w), c = clearBy(w);
+    return `<div class="zl-box"><div class="zl-h">${ZWHO[w]}'s limit</div><div class="zl-bar"><i style="width:${L ? Math.min(100, (L - f) / L * 100) : 0}%;background:${w === 'viki' ? ZCOL.viki : ZCOL.chris}"></i></div><div class="zl-leg"><span><b>${money(L - f, 0)}</b> in use</span><span><b>${money(f, 0)}</b> free of ${money(L, 0)}</span></div><div class="m">${c ? (c === cur ? 'Nothing left to pay after this month.' : `All paid off after the ${monShort(c)} pay.`) : 'Still paying for over two years.'}</div></div>`; }).join('');
+  return `<section class="panel"><h2>What's on Zilch <button class="btn small" data-act="zlitem">Add</button></h2>
+    <div class="zl-lims">${lim}</div>
+    ${live.length ? who('chris') + who('viki') : '<p class="empty">Nothing on Zilch. Add anything you buy on Zilch and each month\'s Budget Sheet will take the payments into account.</p>'}
+    ${done.length ? `<details class="zl-done"><summary>Paid off <span>${done.length}</span></summary><div class="list">${done.map(zlRow).join('')}</div></details>` : ''}
+    <p class="note">Each month's Budget Sheet shows these under Zilch payments, and they come off what's spare. Trip bookings on Zilch are counted with Treats.</p></section>`;
+}
+function zlRow(it) {
+  const cur = plCur(), pays = zlPays(it), next = pays.filter(x => x.ym >= cur), left = next.reduce((s, x) => s + x.a, 0);
+  return `<button class="rowbtn zl-row" data-act="zlitem" data-id="${esc(it.id)}"><div class="grow"><div class="t">${esc(it.n)}</div><div class="m">${it.mode === 'set' ? 'Payments typed in' : `${money(Number(it.a) || 0, 0)} bought ${esc(shortDate(it.d || today()))}`}${it.note ? ` · ${esc(it.note)}` : ''}</div>
+    ${next.length ? `<div class="plmonths">${next.slice(0, 6).map(x => `<span title="${esc(money(x.a, 2))}"><small>${mon3(x.ym)}</small><b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}</div><div class="amt">${left > 0.5 ? money(left, 0) : 'Paid'}</div></button>`;
+}
+function zlForm(id, preset) {
+  const Z = ZL(), it = (Z.items || []).find(x => x.id === id) || { who: 'chris', mode: 'auto', d: today(), ...(preset || {}) };
+  const rows = it.mode === 'set' ? (it.pays || []).slice() : [];
+  while (rows.length < 6) rows.push({ ym: '', a: '' });
+  const setBox = rows.map((x, i) => `<div class="fields2">${fld(`zlM${i}`, i ? '' : 'Pay month', x.ym || '', 'month')}${fld(`zlA${i}`, i ? '' : 'Amount (£)', x.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}</div>`).join('');
+  openSheet(id ? it.n : 'Add something on Zilch', sel('zlW', 'Whose Zilch', it.who, [['chris', 'Chris'], ['viki', 'Viki']]) + fld('zlN', 'What', it.n || '', 'text', 'placeholder="e.g. Car work, sofa, Amazon"')
+    + sel('zlMode', 'Payments', it.mode, [['auto', 'Work them out (a new purchase)'], ['set', 'Type them in (already set)']])
+    + `<div id="zlAuto" ${it.mode === 'set' ? 'hidden' : ''}><div class="fields2">${fld('zlAmt', 'Price (£)', it.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('zlD', 'Bought on', it.d || today(), 'date')}</div>${fld('zlF', 'Monthly fee (% of the price)', it.fee ?? zs().feePct, 'number', 'step="0.1" min="0" inputmode="decimal"')}<p class="note" id="zlHint"></p></div>`
+    + `<div id="zlSet" ${it.mode === 'set' ? '' : 'hidden'}><p class="note" style="margin-top:0">Each payment still to come, and the pay month it comes out of. Leave spare rows empty.</p>${setBox}</div>`
+    + fld('zlNote', 'Note', it.note || '', 'text', 'placeholder="Optional"'), async () => {
+    const n = v('zlN').trim(); if (!n) throw new Error('Say what it was');
+    const x = { id: it.id || uid('zl'), who: v('zlW'), n, mode: v('zlMode') };
+    if (x.mode === 'auto') { const a = num(v('zlAmt')); if (!a) throw new Error('Put in the price'); x.a = a; x.d = v('zlD') || today(); const f = num(v('zlF')); if (f !== null && f !== zs().feePct) x.fee = f; }
+    else { x.pays = rows.map((_, i) => ({ ym: v(`zlM${i}`), a: num(v(`zlA${i}`)) })).filter(p => /^\d{4}-\d\d$/.test(p.ym) && p.a).sort((a, b) => a.ym < b.ym ? -1 : 1); if (!x.pays.length) throw new Error('Add at least one payment'); }
+    if (v('zlNote').trim()) x.note = v('zlNote').trim();
+    const items = [...(Z.items || [])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
+    await put('state/zilch', { ...Z, items });
+  }, id ? { onDelete: async () => { await put('state/zilch', { ...Z, items: (Z.items || []).filter(y => y.id !== id) }); } } : {});
+  const hint = () => { const box = $('#zlHint'); if (!box) return; const p = zilchPlan(num(v('zlAmt')) || 0, { avail: zLimit(v('zlW')), start: v('zlD') || today(), feePct: num(v('zlF')) ?? zs().feePct });
+    box.textContent = p ? `${money(p.upfront, 2)} on the day, then ${p.kind === '3m' ? 'three monthly payments' : 'three payments every two weeks'} of ${money(p.pays[1].amount, 2)}. ${money(p.fee, 2)} in fees${p.excess ? `, and ${money(p.excess, 2)} over the free limit is taken on the day` : ''}.` : ''; };
+  const sw = () => { const m = v('zlMode'); $('#zlAuto').hidden = m === 'set'; $('#zlSet').hidden = m !== 'set'; hint(); };
+  $('#sheetForm').addEventListener('input', hint); $('#zlMode').addEventListener('change', sw); hint();
+}
+function bsZilchSection(ym) {
+  const m = zlMonth(ym), trip = zlTripMonth(ym); if (!m.rows.length && trip < 0.5) return '';
+  return `<section class="xsec extra"><div class="xh static"><span class="xt">Zilch payments</span><span class="xtag">Extras</span><b>${money(m.total, 2)}</b></div>
+    <div class="xrows">${m.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.it.n)}</span><small>${esc(ZWHO[r.it.who] || '')}${r.d ? ` · ${esc(dayShort(r.d))}` : ''}</small></div><span class="xd"></span><output class="xc xa">${money(r.a, 2)}</output><span class="xm"></span></div>`).join('')}
+    ${trip > 0.5 ? `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">Trip bookings on Zilch</span><small>Already counted in Treats above</small></div><span class="xd"></span><output class="xc xa" style="opacity:.6">${money(trip, 2)}</output><span class="xm"></span></div>` : ''}</div>
+    <div class="xadd"><button type="button" class="linkbtn" data-act="mseg" data-v="owed">Change on the Zilch page</button></div></section>`;
 }
 
 function viewOld() {
@@ -5587,6 +5673,7 @@ function sheetFlow(ym) {
   const outs = doc.secs.filter(s => s.kind === 'base' || s.kind === 'extra').map(s => ({ k: s.k, name: FLOW_NAME[s.k] || s.t, v: t.sec[s.k]||0, c: FLOW_COL[s.k] || FLOW_COL.other })).filter(o => o.v > 0.5);
   if (t.plan) outs.push({ k: 'trips', name: 'Treats', v: t.plan, c: FLOW_COL.trips });
   if (t.buys > .5) outs.push({ k: 'buys', name: 'Extra spends', v: t.buys, c: '#E8902A' });
+  if (t.zil > .5) outs.push({ k: 'zilch', name: 'Zilch', v: t.zil, c: '#C2457F' });
   return { ym, t, inc: inc.filter(x => x.v > 0), outs };
 }
 function flowChart(f) {
@@ -6221,6 +6308,7 @@ function zilchMonths(n = 9) {
     if (doc) doc.secs.filter(s => s.kind === 'base' || s.kind === 'extra').forEach(s => s.rows.filter(bsOn).forEach(r => { const nm = String(r.n||''); if (!/zilch/i.test(nm) || /membership/i.test(nm)) return; const a = bsAmt(r), rest = nm.replace(/zilch/ig, '');
       if (/car/i.test(nm)) parts.car += a; else if (/\bv\b|viki/i.test(rest)) parts.viki += a; else parts.chris += a; }));
     (S.plans||[]).forEach(p => (p.items||[]).filter(it => it.how === 'zilch').forEach(it => plItemPays(it, p).forEach(x => { if (x.ym === ym) parts.trips += x.amount; })));
+    zlMonth(ym).rows.forEach(r => { parts[/\bcar\b/i.test(r.it.n) ? 'car' : r.it.who === 'viki' ? 'viki' : 'chris'] += r.a; });
     return { ym, parts, total: Object.values(parts).reduce((s, x) => s + x, 0) };
   });
 }
@@ -6241,7 +6329,7 @@ function zilchPage() {
     <div class="zm-list">${ms.filter(m => m.total > 0.5).map(m => `<div class="zm"><b>${mon3(m.ym)}</b><span class="zm-bar">${keys.map(k => m.parts[k] > 0.5 ? `<i style="width:${m.parts[k] / peak * 100}%;background:${ZCOL[k]}" title="${ZNAME[k]} ${money(m.parts[k],0)}"></i>` : '').join('')}</span><em>${money(m.total,0)}</em></div>`).join('')}</div>
     ${limitTxt}
     ${lines.length ? `<h3 class="eyebrow" style="margin-top:14px">Trip bookings on Zilch</h3>${lines.map(l => `<div class="zline"><div class="t">${esc(l.name)} <span class="m">${money(l.total,2)} with fees</span></div><div class="m">${esc(l.sub)}</div><div class="plmonths">${l.pays.map(x => `<span><small>${mon3(x.ym)}</small><b>${money(x.a, x.a % 1 ? 2 : 0)}</b></span>`).join('')}</div></div>`).join('')}` : ''}
-    <p class="note">Car and other Zilch payments come from the Budget Sheet rows with Zilch in the name. Trip bookings come from Trips. Zilch takes each payment on the same date as the purchase.</p></div></section>`;
+    <p class="note">From the list below, any Budget Sheet rows with Zilch in the name, and trip bookings in Treats. Zilch takes each payment on the same date as the purchase.</p></div></section>`;
 }
 
 /* ===== trip wallet: documents, day by day, holiday money ===== */
@@ -7057,6 +7145,7 @@ document.addEventListener('click', async e => {
   if (a==='quick') return quickAdd();
   if (a==='zquick') { UI.zamt = el.dataset.v; render(); return; }
   if (a==='zset') return zilchSettingsForm();
+  if (a==='zlitem') return zlForm(el.dataset.id);
   if (a==='zadd') { el.disabled = true; return zilchAddOwed(); }
   if (a==='qzilch') { closeSheet(); UI.tab = 'money'; UI.money = 'owed'; keepUI(); render(); setTimeout(() => { const i = $('#zAmt'); if (i) i.focus(); }, 60); return; }
   if (a==='smonth') { UI.smonth = el.dataset.v; UI.scat = null; UI.slimit = 40; return render(); }
