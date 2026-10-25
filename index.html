@@ -1771,6 +1771,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => navigato
 'use strict';
 /* ---------- utilities ---------- */
 const $ = (s, r=document) => r.querySelector(s);
+const nOf = (n, w, ws) => `${n} ${n === 1 ? w : (ws || w + 's')}`;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad = n => String(n).padStart(2,'0');
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -2059,7 +2060,7 @@ function agenda(from, to) {
     const color = evColor(e.title, ci); const r = parseRota(e.title); if (r && r.kind==='oncall') calOncall.add(`${r.who}_${evDate(e)}`);
     const who = r ? r.who : '', ic = evIcon(e.title);
     if (e.allDay) { for (let d = e.start; d < (e.end || addDays(e.start,1)); d = addDays(d,1)) add(d, { sort:'', time:'', title:e.title, color, who, ic }); }
-    else add(evDate(e), { sort:evTime(e), time:evTime(e), title:e.title, where:shortPlace(e.location), color, who, ic });
+    else add(evDate(e), { sort:evTime(e), time:hm(evTime(e)), title:e.title, where:shortPlace(e.location), color, who, ic });
   }));
   Object.values(S.days).forEach(d => { if (d.who==='viki' && d.oncall && !calOncall.has(`viki_${d.date}`)) add(d.date, { sort:d.oncall.start||'', time:hm(d.oncall.start), title: d.oncall.kind==='second' ? 'Viki 2nd on call' : 'Viki on call', color: evColor('V: on call', 0), who:'viki', ic:'moon' }); });
   kidsDob().forEach(k => { const b = nextBday(k.dob, from); if (b.date > to || (byDay[b.date] || []).some(x => /birthday|bday/i.test(x.title) && x.title.toLowerCase().includes(k.name.toLowerCase()))) return;
@@ -2967,7 +2968,7 @@ function loansPanel() {
     <div class="ln-ring" style="--p:${(s.pct * 100).toFixed(1)}" role="img" aria-label="${Math.round(s.pct * 100)}% paid"><span><b>${Math.round(s.pct * 100)}%</b><small>paid</small></span></div>
     <div class="ln-body"><div class="ln-t">${esc(L.name)}</div><div class="ln-m">${s.paid} of ${s.n} payments of ${money(s.pay, 0)}${L.lender ? ` · ${esc(L.lender)}` : ''}${L.holder ? ` · in ${esc(L.holder.split(' (')[0])}’s name` : ''}</div>
       <div class="ln-cells"><span><small>Paid so far</small><b>${money(s.paidAmt, 0)}</b></span><span><small>Still to pay</small><b>${money(s.leftAmt, 0)}</b></span><span><small>Last payment</small><b>${esc(shortDate(s.last))}</b></span></div></div>
-    <p class="ln-note">${s.left ? `${s.left} payments left, about ${s.leftTxt}. Next one ${esc(dayShort(s.next))}.` : 'All paid off. It\'s yours!'}${s.extra != null ? ` Over the whole plan that's ${money(s.total, 0)}, ${money(s.extra, 0)} more than the ${money(L.price, 0)} price.` : ''}${L.note ? ` ${esc(L.note)}` : ''}</p></div>`).join('');
+    <p class="ln-note">${s.left ? `${nOf(s.left, 'payment')} left, about ${s.leftTxt}. Next one ${esc(dayShort(s.next))}.` : 'All paid off. It\'s yours!'}${s.extra != null ? ` Over the whole plan that's ${money(s.total, 0)}, ${money(s.extra, 0)} more than the ${money(L.price, 0)} price.` : ''}${L.note ? ` ${esc(L.note)}` : ''}</p></div>`).join('');
   return `<section class="panel"><h2>Car finance <span class="sub">${money(owed, 0)} still to pay${monthly ? `, ${money(monthly, 0)} a month` : ''}</span></h2><div class="ln-list">${cards}</div></section>`;
 }
 function viewDetails() {
@@ -3022,7 +3023,7 @@ function leavePlanPanel(year) {
   const used = blocks.reduce((a, b) => a + b.leave.length, 0), offDays = blocks.reduce((a, b) => a + b.run.n, 0), left = blocks.filter(b => !b.done);
   return `<section class="panel nopad lp">${headCard({ tone: 'sea', kicker: `Suggested plan · ${esc(String(year))}`, title: `<span data-cu="${offDays}" data-cu-key="lp${year}">${offDays}</span> days off for ${used} days' leave`,
       meta: `<span>${esc(P.note || 'Built around the girls\' school holidays and the bank holidays.')}</span>`,
-      body: yearRibbon(year, blocks.flatMap(b => b.leave)), actions: left.length ? hcBtn(`Book all ${left.reduce((a, b) => a + b.leave.filter(d => !booked(d)).length, 0)} days`, 'lpbook', '') : '' })}
+      body: yearRibbon(year, blocks.flatMap(b => b.leave)), actions: left.length ? hcBtn(`Book all ${nOf(left.reduce((a, b) => a + b.leave.filter(d => !booked(d)).length, 0), 'day')}`, 'lpbook', '') : '' })}
     <div class="list lp-list">${blocks.map(b => `<div class="row lp-row${b.done ? ' done' : ''}"><span class="lp-n"><b>${b.leave.length}</b><small>day${b.leave.length === 1 ? '' : 's'}</small></span><span class="grow"><span class="t" style="display:block">${esc(b.label)}</span>
       <span class="m" style="display:block">Off ${esc(dayShort(b.run.from))} to ${esc(dayShort(b.run.to))}: <b>${b.run.n} days</b> in a row</span>${b.why ? `<span class="m lp-why" style="display:block">${esc(b.why)}</span>` : ''}</span>
       ${b.done ? '<span class="chip ks-now">Booked</span>' : `<button class="btn small ghost" data-act="lpbook" data-id="${esc(b.id)}">Book</button>`}</div>`).join('')}</div>
@@ -3187,13 +3188,13 @@ function kidHero(k, i) {
 function kidGlance(k, i) {
   const key = wishKey(k.name), t = today(), s = schoolDay(t), m = kidMoney(key), bd = nextBday(k.dob), bdn = daysBetween(t, bd.date), col = KIDCOL[i % KIDCOL.length];
   let first;
-  if (s.k === 'school' || s.k === 'wknd') { const nb = nextBreak(t); first = nb ? tbCell('Next holiday', `${daysBetween(t, nb.from)} <small>days · ${esc(brkShort(nb.n))}</small>`, 'var(--good-bar)') : tbCell('Next holiday', '<small>Not known yet</small>', 'var(--good-bar)'); }
-  else { const back = nextSchool(t); first = tbCell('Back to school', back ? `${daysBetween(t, back)} <small>days · ${esc(dayShort(back))}</small>` : '<small>Not known yet</small>', 'var(--good-bar)'); }
+  if (s.k === 'school' || s.k === 'wknd') { const nb = nextBreak(t); first = nb ? tbCell('Next holiday', `${daysBetween(t, nb.from)} <small>${daysBetween(t, nb.from) === 1 ? 'day' : 'days'} · ${esc(brkShort(nb.n))}</small>`, 'var(--good-bar)') : tbCell('Next holiday', '<small>Not known yet</small>', 'var(--good-bar)'); }
+  else { const back = nextSchool(t); first = tbCell('Back to school', back ? `${daysBetween(t, back)} <small>${daysBetween(t, back) === 1 ? 'day' : 'days'} · ${esc(dayShort(back))}</small>` : '<small>Not known yet</small>', 'var(--good-bar)'); }
   const tm = termNow(t), from = (s.k === 'school' && new Date().getHours() < 15) ? t : addDays(t, 1), left = tm ? schoolDaysIn(from > tm.from ? from : tm.from, tm.to) : 0;
   return tblock({ kicker: SCHOOL_YEARS[0].label + ' school year', title: tm ? esc(tm.n) : 'School', two: true, cells: [first,
     tbCell('This term', tm ? `${left} <small>school days left</small>` : '<small>—</small>', col),
     tbCell('Pocket money', m.pa ? `${money(m.pa)} <small>${DOWS[m.day].slice(0, 3)}days</small>` : '<small>Tap Money to set up</small>', 'var(--gold-bar)'),
-    tbCell('Birthday', bdn === 0 ? 'Today 🎂' : `${bdn} <small>days · ${ordinal(bd.age)}</small>`, 'var(--viki-bar)')] });
+    tbCell('Birthday', bdn === 0 ? 'Today 🎂' : `${bdn} <small>${bdn === 1 ? 'day' : 'days'} · ${ordinal(bd.age)}</small>`, 'var(--viki-bar)')] });
 }
 function kidCalendar() {
   const ym = UI.cal, first = parse(`${ym}-01`), dim = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate(), lead = (first.getDay() + 6) % 7;
@@ -3351,7 +3352,7 @@ function coverForm(date) {
 }
 
 /* ----- the girls' activities: kids/<key>.acts = [{ id, n, day, from, to, where, drop, pick, term }] ----- */
-const actsOf = key => (kidDoc(key).acts || []).slice().sort((a, b) => ((Number(a.day) + 6) % 7) - ((Number(b.day) + 6) % 7) || (a.from || '') < (b.from || '') ? -1 : 1);
+const actsOf = key => (kidDoc(key).acts || []).slice().sort((a, b) => (((Number(a.day) + 6) % 7) - ((Number(b.day) + 6) % 7)) || (a.from || '').localeCompare(b.from || '') || String(a.n || '').localeCompare(String(b.n || '')));
 function actsOn(key, date) {
   const w = parse(date).getDay(), s = schoolDay(date), off = ['hol', 'bh', 'inset'].includes(s.k);
   return actsOf(key).filter(a => Number(a.day) === w && !(a.term !== false && off)).sort((a, b) => (a.from || '') < (b.from || '') ? -1 : 1);
@@ -3463,7 +3464,7 @@ function starRateForm(key) {
 }
 function payoutForm(key) {
   const k = kidByKey(key); if (!k) return; const st = starsOf(key);
-  openSheet(`Pay ${k.name} for her stars`, `<p class="note" style="margin-top:0">${st.bal} stars at ${st.rate}p each.</p>` + fld('poS', 'Stars to pay', st.bal, 'number', 'step="1" min="1" inputmode="numeric"'), async () => {
+  openSheet(`Pay ${k.name} for her stars`, `<p class="note" style="margin-top:0">${nOf(st.bal, 'star')} at ${st.rate}p each.</p>` + fld('poS', 'Stars to pay', st.bal, 'number', 'step="1" min="1" inputmode="numeric"'), async () => {
     const n = Math.round(num(v('poS')) || 0); if (n < 1 || n > st.bal) throw new Error(`Pick between 1 and ${st.bal} stars`); const a = Math.round(n * st.rate) / 100;
     await saveKid(key, x => ({ ...x, payouts: [...(x.payouts || []), { id: uid('sp'), d: today(), stars: n, a }] })); window.__toastAfter = `Paid. Add ${m2(a)} to ${k.name}'s ${kidDoc(key).pocket.via || 'account'}`;
   }, { saveLabel: 'Paid' });
@@ -3588,7 +3589,7 @@ function yearCards(st) {
   const cards = [], y = st.y, part = st.to < `${y}-12-31`;
   cards.push({ c: 'yc-a', e: '✨', k: part ? 'So far this year' : 'Year in review', big: `${y}`, t: `The Hitchens' year`, s: 'Swipe to see how it went.' });
   if (st.co.n || st.oncall) cards.push({ c: 'yc-b', e: '🩺', k: 'Viki at work', big: `${st.co.n}`, t: `call-out${st.co.n === 1 ? '' : 's'}`, s: `${fh(Math.round(st.co.h))} hours in the middle of the night (and day), ${st.oncall} on-call shifts, and ${money(st.co.pay, 0)} earned for it.` });
-  if (st.cWork || st.cHol) cards.push({ c: 'yc-c', e: '🛠️', k: 'Chris at work', big: `${st.cWork}`, t: 'days at work', s: `${st.cHol} days of holiday taken.${st.vHol ? ` Viki had ${st.vHol} days of leave.` : ''}` });
+  if (st.cWork || st.cHol) cards.push({ c: 'yc-c', e: '🛠️', k: 'Chris at work', big: `${st.cWork}`, t: 'days at work', s: `${nOf(st.cHol, 'day')} of holiday taken.${st.vHol ? ` Viki had ${st.vHol} days of leave.` : ''}` });
   st.kids.forEach((x, i) => { if (x.grew === null && !x.wins && !x.stars) return; cards.push({ c: i % 2 ? 'yc-e' : 'yc-d', e: '🌟', k: x.k.name, big: x.grew !== null ? `${sgn(x.grew)} cm` : `${x.wins}`, t: x.grew !== null ? 'taller' : `achievement${x.wins === 1 ? '' : 's'}`, s: [x.grew !== null && x.wins ? `${x.wins} achievement${x.wins === 1 ? '' : 's'} logged` : '', x.stars ? `${x.stars} stars earned for jobs` : '', `${x.age} years old now`].filter(Boolean).join(', ') + '.', face: faceSlot(x.k.name) }); });
   if (st.trips.length || st.pot) cards.push({ c: 'yc-f', e: '🏖️', k: 'Treats', big: st.trips.length ? `${st.trips.length}` : money(st.pot, 0), t: st.trips.length ? `trip${st.trips.length === 1 ? '' : 's'}` : 'saved in the pot', s: [st.trips.length ? st.trips.map(p => occName(p)).join(', ') : '', st.pot && st.trips.length ? `${money(st.pot, 0)} saved into the holiday pot` : ''].filter(Boolean).join('. ') + '.' });
   if (st.miles || st.services) cards.push({ c: 'yc-g', e: '🚙', k: 'The Evoque', big: st.miles ? Math.round(st.miles).toLocaleString('en-GB') : `${st.services}`, t: st.miles ? 'miles driven' : `service job${st.services === 1 ? '' : 's'}`, s: [st.fuelCost ? `${money(st.fuelCost, 0)} on fuel` : '', st.services && st.miles ? `${st.services} service job${st.services === 1 ? '' : 's'}` : ''].filter(Boolean).join(', ') + (st.fuelCost || st.services ? '.' : 'Keep logging fuel to see miles here.') });
@@ -4117,7 +4118,7 @@ function viewLeaveChris() {
   const days = daysFor('chris', ly.from, ly.to).filter(d => d.status==='holiday' && !isWeekend(d.date)).map(d => d.date).sort();
   const taken = days.filter(d => d <= t).length, left = allow - days.length;
   const yseg = `<div class="seg lvys" role="group" aria-label="Leave year">${[-1,0,1].map(o => { const x = chrisLeaveYear(o); return `<button data-act="lvcyear" data-v="${o}" aria-pressed="${o===off}">${esc(x.label)}</button>`; }).join('')}</div>`;
-  const hero = tblock({ cls:'lv-chris', kicker: `Chris · leave year ${esc(ly.label)}`, title: allow ? (left < 0 ? `${fh(-left)} days over` : `${fh(left)} days left`) : 'Set your allowance',
+  const hero = tblock({ cls:'lv-chris', kicker: `Chris · leave year ${esc(ly.label)}`, title: allow ? (left < 0 ? `${fh(-left)} day${-left === 1 ? '' : 's'} over` : `${fh(left)} day${left === 1 ? '' : 's'} left`) : 'Set your allowance',
     side: allow ? `<span class="tb-kicker">Booked</span><span class="big">${days.length} <small style="font-size:.9rem">of ${fh(allow)}</small></span>` : '',
     cells: [ tbCell('Allowance', allow ? `${fh(allow)} days` : '–', 'var(--rule-2)'), tbCell('Bank holidays', bh ? `+${bh}` : '–', 'var(--gold,#E8A33D)'), tbCell('Taken', `${taken} <small>${days.length - taken} to come</small>`, 'var(--chris)') ],
     after: allow ? `<div style="padding:12px 0 2px">${gauge(days.length/allow, 'lg')}</div>` : '',
@@ -4131,7 +4132,7 @@ function viewLeaveChris() {
   return `${yseg}${hero}${lp ? leavePlanPanel(ly.label) : ''}${nextLp ? `<button class="panel rowbtn lp-tease" data-act="lvcyear" data-v="1"><span class="lp-n"><b>${nextLp.year}</b></span><span class="grow"><span class="t" style="display:block">Your ${nextLp.year} holiday plan is ready</span><span class="m" style="display:block">Built around the girls' school holidays. Tap to see it.</span></span><span aria-hidden="true">›</span></button>` : ''}
     <section class="panel"><h2>Coming up</h2>${next.length ? `<div class="list">${next.map(b => lvBlockRow(b, 'lvcday', 'var(--lv-ch)', 'var(--lv-ch-soft)')).join('')}</div>` : '<p class="empty">No holiday booked yet. Tap days on the calendar below to add some.</p>'}</section>
     <section class="panel"><h2>Chris's calendar <span class="sub">${esc(ly.label)}</span></h2>${legend}<div class="lvyear">${months.map(m => lvMiniMonth(m, cls, 'lvcday', date => chrisOff(date) ? ', holiday' : '')).join('')}</div><p class="note">Tap a day to book it as holiday or change it.</p></section>
-    ${past.length ? `<section class="panel"><h2>Already taken <span class="sub">${taken} days</span></h2><div class="list">${past.map(b => lvBlockRow(b, 'lvcday', 'var(--lv-ch)', 'var(--lv-ch-soft)')).join('')}</div></section>` : ''}`;
+    ${past.length ? `<section class="panel"><h2>Already taken <span class="sub">${nOf(taken, 'day')}</span></h2><div class="list">${past.map(b => lvBlockRow(b, 'lvcday', 'var(--lv-ch)', 'var(--lv-ch-soft)')).join('')}</div></section>` : ''}`;
 }
 async function lvSave(y) { const doc = JSON.parse(JSON.stringify(S.leave)); doc.years[y.label] = y; await put('leave/main', doc); }
 function lvDayForm(date) {
@@ -4236,7 +4237,7 @@ function vikiDayForm(date) {
         <div class="fields3">${fld(`vCf${i}`,'From', c.from||'', 'time')}${fld(`vCt${i}`,'To', c.to||'', 'time')}${fld(`vCh${i}`,'Hours', c.from && c.to ? fh(coHours(c)) : CO_BASE, 'number','min="0.25" step="0.25" inputmode="decimal"')}</div>
         <div class="cohrs"><span id="vCp${i}">${c.from && c.to && coHours(c) < coPaid(c) ? `Worked ${coHours(c) < 1 ? Math.round(coHours(c)*60)+' min' : fh(coHours(c))+'h'}, paid as ${fh(coPaid(c))} hours (her minimum)` : c.isNew ? `Set to her usual ${CO_BASE} hours. Different?` : 'Quick pick'}</span>${[1,2,3,4].map(h => `<button type="button" data-vh="${i}" data-v="${h}" aria-pressed="${c.from && c.to && coHours(c)===h}">${h}h</button>`).join('')}</div>
         ${fld(`vCn${i}`,'Note (optional)', c.note||'', 'text','placeholder="e.g. emergency theatre"')}</div>`).join('')}
-      <button type="button" class="btn ghost small" data-vadd="1">+ Add call-out</button>
+      <button type="button" class="btn ghost small" data-vadd="1">+ Add a call-out</button>
     </div>
     ${fld('vNote','Note', draft.note||'')}
     <div class="vsum"><span>Extra pay for this day</span><b id="vTotal">${money(x.extra,2)}</b></div>`;
@@ -4539,7 +4540,7 @@ function viewPlan() {
   <section class="panel"><h2>Payday plan</h2>
     <p class="note">When pay lands, this is where it goes. Move the amounts for savings and spending to their own pots on payday so they aren't spent by accident.</p>
     <div class="list">
-      ${row('#3F51B5','Bills and direct debits', `${S.bills.length} bills`, P.bills, 'mseg" data-v="bills')}
+      ${row('#3F51B5','Bills and direct debits', `${nOf(S.bills.length, 'bill')}`, P.bills, 'mseg" data-v="bills')}
       ${row('#0B8043','Spending budget', 'Food, fuel, kids and the rest', P.budget, 'mseg" data-v="budget')}
       ${P.owed ? row('#D50000','Money owed', 'Payments not already in bills', P.owed, 'mseg" data-v="owed') : ''}
       ${row('#039BE5','Savings', P.save ? 'Straight into savings on payday' : 'Tap to set an amount', P.save, 'planform')}
@@ -5115,7 +5116,7 @@ const zlLeft = it => zlPays(it).filter(x => x.ym >= plCur()).reduce((s, x) => s 
 
 function zlPanel() {
   const items = (ZL().items || []).slice(), cur = plCur();
-  const live = items.filter(it => zlLeft(it) > 0.5), done = items.filter(it => zlLeft(it) <= 0.5);
+  const nextYm = it => (zlPays(it).find(x => x.ym >= cur) || {}).ym || '9999', live = items.filter(it => zlLeft(it) > 0.5).sort((a, b) => nextYm(a).localeCompare(nextYm(b)) || String(a.n).localeCompare(String(b.n))), done = items.filter(it => zlLeft(it) <= 0.5);
   const who = w => { const l = live.filter(it => it.who === w); if (!l.length) return '';
     return `<div class="ti-group"><div class="ti-gh"><i style="background:${w === 'viki' ? ZCOL.viki : ZCOL.chris}"></i>${ZWHO[w]}<span>${money(l.reduce((s, it) => s + zlLeft(it), 0), 0)} to go</span></div><div class="list">${l.map(zlRow).join('')}</div></div>`; };
   const freeNow = w => zlFree(w, ymAdd(cur, -1)), clearBy = w => { for (let i = 0; i < 24; i++) { const ym = ymAdd(cur, i); if (zlOwedAfter(w, ym) < 0.5) return ym; } return null; };
@@ -5229,7 +5230,7 @@ function tripPanels() {
     const days = tp.from ? daysBetween(today(), tp.from) : null;
     return `<section class="panel"><h2>${esc(tp.name)} <button class="btn small ghost" data-act="trip" data-id="${esc(tp.id)}">Edit</button></h2>
       <div class="gauge" style="padding-top:0"><div class="gh"><span class="t" style="font-stretch:125%;font-weight:800;font-size:1.5rem">${money(Math.max(0,b-spent),0)} left</span><span class="amt"><small>${money(spent,0)} of ${money(b,0)}</small></span></div>${gauge(b ? spent/b : 0,'lg')}
-      <div class="m">${days!==null && days>0 ? `${days} days to go. ` : ''}${tp.monthly ? `Saving ${money(tp.monthly,0)} a month towards it. ` : ''}Log trip spending under “${esc(tp.name)}” when adding spending.</div></div>
+      <div class="m">${days!==null && days>0 ? `${nOf(days, 'day')} to go. ` : ''}${tp.monthly ? `Saving ${money(tp.monthly,0)} a month towards it. ` : ''}Log trip spending under “${esc(tp.name)}” when adding spending.</div></div>
       ${sp.length ? `<div class="list">${sp.sort((a,b)=>a.date<b.date?1:-1).slice(0,6).map(x => `<button class="rowbtn" data-act="spend" data-id="${esc(x.id)}"><div class="grow"><div class="t">${esc(x.note||'Trip spending')}</div><div class="m">${shortDate(x.date)}</div></div><div class="amt">${money(x.amount)}</div></button>`).join('')}</div>` : ''}
     </section>`; }).join('');
 }
@@ -5244,7 +5245,7 @@ function tripForm(id) {
 }
 
 /* ----- holiday planner: plans/<id> = { kind, name, from, to, note, saveFrom, items:[{id,n,a,how,ym,from,paid,note}] } ----- */
-const PL_KINDS = [['summer','Holidays'],['family','Family visits'],['city','City breaks'],['christmas','Christmas & birthdays']];
+const PL_KINDS = [['summer','Holidays'],['family','Visits'],['city','City breaks'],['christmas','Celebrations']];
 const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5', christmas:'#C62828', birthday:'#E5577A', year:'#2E9E62' };
 const PL_IDEAS = {
   summer: ['Flights','Hotel or villa','Car hire','Airport parking','Transfers','Travel insurance','Excursions','Spending money'],
@@ -5573,7 +5574,7 @@ function plPanel(p) {
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
     ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">${p.payplan ? 'Following your plan from the Planner. ' : ''}Already counted in each month's Budget Sheet in Money. <button type="button" class="linkbtn" data-act="tab" data-v="money" data-seg="planner">${p.payplan ? 'Change the plan' : 'Plan it on the Planner'}</button></p></section>` : ''}
     ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>${blcBanner(items.filter(it => !it.paid).map(it => [`${it.n} ${it.note || ''}`, it.a]), 'in this plan')}
-    ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
+    ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.slice().sort((a, b) => (a.ym || '').localeCompare(b.ym || '') || String(a.n || '').localeCompare(String(b.n || ''))).map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
     <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
     ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
   </section>${tripDocs(p)}`}`;
@@ -5717,7 +5718,7 @@ function potChart(start, n = 6) {
     <text x="${X(pts.length-1)}" y="${Y(end.v) - 10}" class="val" text-anchor="end">${money(end.v,0)}</text>${minP !== end && minP.v < 0 ? `<text x="${X(pts.indexOf(minP)) + 8}" y="${Y(minP.v) - 8}" class="val">${money(minP.v,0)}</text>` : ''}</svg>`;
 }
 function upcomingTrips() {
-  const list = (S.plans||[]).filter(p => p.kind !== 'year' && (!p.to || p.to >= today())).sort((a, b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
+  const list = plTimeline((S.plans||[]).filter(p => p.kind !== 'year')).up;
   if (!list.length) return '';
   return `<section class="panel"><h2>Treats on the way <button class="btn small ghost" data-act="tab" data-v="trips">All treats</button></h2><div class="tripcards">${list.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="opentrip" data-kind="${esc(p.kind||'summer')}"` })).join('')}</div></section>`;
 }
@@ -5871,7 +5872,7 @@ function giftReview(p) {
   return `<section class="panel"><h2>How it went <span class="sub ${ta <= tb ? 'good' : 'find'}">${ta <= tb ? `${m2(tb - ta)} under budget` : `${m2(ta - tb)} over budget`}</span></h2>
     <div class="rv-leg"><span><i class="rv-b"></i>Budget</span><span><i class="rv-a"></i>Spent</span></div>
     <div class="rv-rows">${rows.map(r => `<div class="rv-r"><span class="rv-n">${esc(r.name)}</span><div class="rv-bars"><i class="rv-b" style="width:${r.bud / peak * 100}%"></i><i class="rv-a ${r.act > r.bud + .5 ? 'over' : ''}" style="width:${r.act / peak * 100}%"></i></div><b>${m2(r.act)}</b></div>`).join('')}</div>
-    <p class="note">${m2(ta)} spent of ${m2(tb)} planned.${next ? ` Spending the same next time is about ${money(sugg,0)}, which is ${money(sugg / months, 0)} a month over ${months} months.` : ''}</p>
+    <p class="note">${m2(ta)} spent of ${m2(tb)} planned.${next ? ` Spending the same next time is about ${money(sugg,0)}, which is ${money(sugg / months, 0)} a month over ${nOf(months, 'month')}.` : ''}</p>
     ${next ? `<div class="btnrow"><button class="btn small" data-act="xnext" data-plan="${esc(p.id)}" data-next="${esc(next.id)}">Set ${esc(occName(next))} from this</button></div>` : ''}</section>`;
 }
 async function xApplyNext(fromId, nextId) {
@@ -6359,7 +6360,7 @@ function tripMoney(p) {
   const from = (p.days||[]).find(d => /calais|france|disney/i.test(d.t + ' ' + (d.places||[]).join(' ')))?.d || p.from, to = (p.days||[]).filter(d => /calais|france|disney|dover/i.test(d.t + ' ' + (d.places||[]).join(' '))).map(d => d.d).sort().pop() || p.to || from;
   const days = from && to ? Math.max(1, daysBetween(from, to) + 1) : 5, perDay = eur / days, t = today();
   let meta; if (from && t >= from && t <= to) { const dayN = daysBetween(from, t) + 1, todayLeft = perDay * dayN - spent; meta = `<span class="st-pill" style="background:${todayLeft >= 0 ? '#33B679' : '#E8902A'}">Today</span>${todayLeft >= 0 ? `€${Math.round(todayLeft)} left to spend today` : `€${Math.round(-todayLeft)} over so far, easy tomorrow`}`; }
-  else meta = `<span class="st-pill" style="background:rgba(0,0,0,.25)">€${Math.round(perDay)} a day</span>for ${days} days in France`;
+  else meta = `<span class="st-pill" style="background:rgba(0,0,0,.25)">€${Math.round(perDay)} a day</span>for ${nOf(days, 'day')} in France`;
   const recent = (p.spend||[]).slice().sort((a, b) => a.d < b.d ? 1 : -1).slice(0, 5);
   return `<section class="panel nopad">${headCard({ tone: 'night', kicker: 'Holiday money', title: `€${Math.max(0, Math.round(left)).toLocaleString('en-GB')} to spend`, meta, body: `<div class="hc-prog"><i style="width:${eur ? Math.min(100, spent / eur * 100) : 0}%"></i></div><div class="hc-note">€${Math.round(spent)} spent of €${eur} (about ${money(gbp,0)} on Revolut at €${rate.toFixed(2)} to the £)</div>`, actions: hcBtn('Log spending', 'tspend', `data-plan="${esc(p.id)}"`) })}
     ${recent.length ? `<div class="list" style="padding:4px 14px 10px">${recent.map(x => `<button class="rowbtn" data-act="tspend" data-plan="${esc(p.id)}" data-id="${esc(x.id)}"><span class="ti-ico" style="background:color-mix(in srgb,#E5577A 16%,transparent);color:#E5577A">${tcatIcon('food')}</span><div class="grow"><div class="t">${esc(x.n || 'Spending')}</div><div class="m">${shortDate(x.d)}</div></div><div class="amt">€${(Number(x.a)||0).toLocaleString('en-GB', { maximumFractionDigits: 2 })}</div></button>`).join('')}</div>` : ''}</section>`;
@@ -6485,7 +6486,7 @@ function viewBills() {
   const monthly = S.bills.reduce((s,b)=>s+perMonth(b),0), cm = {}; S.bills.forEach(b => { const c = b.category||'Other'; cm[c] = (cm[c]||0) + perMonth(b); });
   const cats = Object.entries(cm).sort((a,b) => b[1]-a[1]), rn = renewals();
   return `
-  <section class="panel"><h2>${money(monthly,0)} a month <span class="sub">${S.bills.length} bills</span></h2>
+  <section class="panel"><h2>${money(monthly,0)} a month <span class="sub">${nOf(S.bills.length, 'bill')}</span></h2>
     ${monthly ? `<div class="mix" aria-hidden="true" style="margin:0">${cats.map(([c,v]) => `<i style="width:${v/monthly*100}%;background:${catColor(c)}"></i>`).join('')}</div>
     <div class="mixleg" style="margin:6px -14px 0">${cats.map(([c,v]) => `<div><span class="sw" style="background:${catColor(c)}"></span><span class="nm">${esc(c)}</span><em>${Math.round(v/monthly*100)}%</em><b>${money(v,0)}</b></div>`).join('')}</div>` : ''}
   </section>
@@ -6493,7 +6494,7 @@ function viewBills() {
   <section class="panel"><h2>Next two weeks <span class="sub">${money(soonTotal,0)} going out</span></h2>
     ${soon.length ? `<div class="list">${timeline}</div>` : `<p class="empty">No bills due in the next two weeks.</p>`}
   </section>
-  <section class="panel"><h2>Every bill <button class="btn small" data-act="bill">Add bill</button></h2>
+  <section class="panel"><h2>Every bill <button class="btn small" data-act="bill">Add a bill</button></h2>
     ${list.length ? `<div class="list">${catBlocks}</div>` : `<p class="empty">Add your direct debits and standing orders to see what goes out and when.</p>`}
   </section>`;
 }
@@ -6511,7 +6512,7 @@ function viewBudget() {
     <div class="calhead"><button class="iconbtn" data-act="bm" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="bm" data-v="1" aria-label="Next month">›</button></div>
     <div class="gauge" style="padding-top:4px"><div class="gh"><span class="t" style="font-stretch:125%;font-weight:800;font-size:1.7rem;color:${left<0?'var(--red)':'var(--ink)'}">${money(Math.abs(left),0)}</span><span class="amt">${left<0?'over budget':'left to spend'}</span></div>
       ${gauge(totalLimit ? totalSpent/totalLimit : 0, 'lg')}
-      <div class="m">${money(totalSpent,0)} spent of ${money(totalLimit,0)}${isNow && left>0 && daysLeft ? `, about ${money(left/daysLeft,0)} a day for the next ${daysLeft} days` : ''}</div></div>
+      <div class="m">${money(totalSpent,0)} spent of ${money(totalLimit,0)}${isNow && left>0 && daysLeft ? `, about ${money(left/daysLeft,0)} a day for the next ${daysLeft === 1 ? 'day' : `${daysLeft} days`}` : ''}</div></div>
     ${totalLimit ? paceChart(ym, totalLimit, items) : ''}
     <div class="btnrow"><button class="btn" data-act="spend">Add spending</button><button class="btn ghost" data-act="import">Import statement</button><button class="btn ghost" data-act="cats">Categories</button></div>
   </section>
@@ -6527,8 +6528,8 @@ function viewBudget() {
   </section>`;
 }
 function viewGoals() {
-  return tripPanels() + (S.trips.length ? '' : `<section class="panel"><h2>Trip budget</h2><p class="note">Set a spending budget for Paris and log spending against it as you go.</p><div class="btnrow"><button class="btn small ghost" data-act="trip">Add a trip budget</button></div></section>`) + `<section class="panel"><h2>Savings goals <button class="btn small" data-act="goal">Add goal</button></h2>
-    ${S.goals.length ? `<div class="list">${S.goals.map(g => { const pct = g.target ? (Number(g.saved)||0)/g.target : 0; let pace = '';
+  return tripPanels() + (S.trips.length ? '' : `<section class="panel"><h2>Trip budget</h2><p class="note">Set a spending budget for Paris and log spending against it as you go.</p><div class="btnrow"><button class="btn small ghost" data-act="trip">Add a trip budget</button></div></section>`) + `<section class="panel"><h2>Savings goals <button class="btn small" data-act="goal">Add a goal</button></h2>
+    ${S.goals.length ? `<div class="list">${S.goals.slice().sort((a, b) => (a.deadline || '9999').localeCompare(b.deadline || '9999') || String(a.name || '').localeCompare(String(b.name || ''))).map(g => { const pct = g.target ? (Number(g.saved)||0)/g.target : 0; let pace = '';
       if (g.deadline && g.target) { const months = Math.max(1, Math.ceil(daysBetween(today(), g.deadline)/30.4)); const need = (g.target-(Number(g.saved)||0))/months; pace = need>0 ? `Put aside ${money(need,0)} a month to reach it by ${shortDate(g.deadline)}` : 'Reached'; }
       return `<button class="rowbtn" data-act="goal" data-id="${esc(g.id)}" style="flex-direction:column;align-items:stretch;gap:6px"><div class="gh" style="display:flex;align-items:baseline;gap:8px"><span class="t" style="flex:1">${esc(g.name)}</span><span class="amt">${money(g.saved||0,0)} <small style="font-weight:500;color:var(--muted)">of ${money(g.target||0,0)}</small></span></div>${gauge(pct, pct>=1?'':'')}${pace?`<div class="m">${esc(pace)}</div>`:''}</button>`; }).join('')}</div><p class="note">Tap a goal to add money to it.</p>`
       : `<p class="empty">No goals yet. A good first one is an emergency fund of one month's bills, kept in a separate account.</p>`}
@@ -6583,7 +6584,7 @@ const CAR_SUGGEST = [['Insurance renewal','Shop around a month before'],['Vehicl
 function carRemStatus(c) {
   const n = c.date ? daysBetween(today(), c.date) : null, left = c.miles && S.car.mileage ? Number(c.miles) - Number(S.car.mileage) : null;
   const due = (n!==null && n <= 0) || (left!==null && left <= 0), soon = (n!==null && n <= 30) || (left!==null && left <= 1000);
-  const bits = []; if (n!==null) bits.push(n<0 ? `${-n} days overdue` : n===0 ? 'today' : `in ${n} days, ${shortDate(c.date)}`); if (left!==null) bits.push(left <= 0 ? 'mileage reached' : `in ${left.toLocaleString('en-GB')} miles`);
+  const bits = []; if (n!==null) bits.push(n<0 ? `${nOf(-n, 'day')} overdue` : n===0 ? 'today' : `in ${nOf(n, 'day')}, ${shortDate(c.date)}`); if (left!==null) bits.push(left <= 0 ? 'mileage reached' : `in ${left.toLocaleString('en-GB')} miles`);
   return { cls: due ? 'due' : soon ? 'soon' : 'ok', text: bits.join(' or ') || 'No date set', n, left };
 }
 function carRemPanel() {
@@ -6766,8 +6767,8 @@ function viewCar() {
   return hero + seg + ({service:viewService, checks:viewChecks, fuel:viewFuel, costs:viewCosts, details:viewDetails, docs:() => docsPanel('car'), trip:viewTrip}[UI.carSeg] || viewService)();
 }
 function viewService() {
-  const list = S.service.slice().sort((a,b) => (b.sort||'') < (a.sort||'') ? -1 : 1);
-  return `  <section class="panel"><h2>Service log <button class="btn small" data-act="service">Add job</button></h2>
+  const list = S.service.slice().sort((a,b) => String(b.sort || b.date || '').localeCompare(String(a.sort || a.date || '')));
+  return `  <section class="panel"><h2>Service log <button class="btn small" data-act="service">Add a job</button></h2>
     ${list.length ? `<div class="list">${list.map(s => `<button class="rowbtn" data-act="service" data-id="${esc(s.id)}"><div class="grow"><div class="t">${esc(s.work)}</div><div class="m">${shortDate(s.date)}${s.status==='booked'?' (booked)':''}${s.mileage?' · '+Number(s.mileage).toLocaleString('en-GB')+' miles':''}${s.garage?' · '+esc(s.garage):''}</div></div><div class="amt">${s.cost?money(s.cost):''}</div></button>`).join('')}</div>` : `<p class="empty">No jobs logged yet.</p>`}
   </section>`;
 }
@@ -6786,7 +6787,7 @@ function viewFuel() {
   const cc = carCosts();
   const costs = cc.miles ? `<section class="panel"><h2>Running costs <span class="sub">over ${cc.miles.toLocaleString('en-GB')} miles</span></h2>
     <div class="stats"><div class="stat"><span>Fuel</span><b>${(cc.fuelPpm*100).toFixed(1)}p</b><span>a mile, ${money(cc.fuelCost,0)}</span></div><div class="stat"><span>Fuel and servicing</span><b>${(cc.ppm*100).toFixed(1)}p</b><span>a mile, ${money(cc.fuelCost+cc.serviceCost,0)}</span></div></div></section>` : '';
-  return costs + fuelChart() + `<section class="panel"><h2>Fuel <button class="btn small" data-act="fuel">Add fill-up</button></h2>
+  return costs + fuelChart() + `<section class="panel"><h2>Fuel <button class="btn small" data-act="fuel">Add a fill-up</button></h2>
     <div class="stats"><div class="stat"><span>Average</span><b>${avg?avg.toFixed(1):'—'}</b><span>mpg</span></div><div class="stat"><span>Fuel this month</span><b>${money(monthCost,0)}</b><span>${MONTHS[parse(today()).getMonth()]}</span></div></div>
     ${rows.length ? `<div class="list">${rows.map(r => `<button class="rowbtn" data-act="fuel" data-id="${esc(r.id)}"><div class="grow"><div class="t">${shortDate(r.date)}</div><div class="m">${Number(r.mileage).toLocaleString('en-GB')} miles · ${r.litres} L${r.mpg?` · ${r.mpg.toFixed(1)} mpg`:''}${r.ppm?` · ${(r.ppm*100).toFixed(1)}p a mile`:''}</div></div><div class="amt">${money(r.cost)}</div></button>`).join('')}</div>` : `<p class="empty">Log fill-ups with the mileage and litres to see your real mpg. Fill to full each time for accurate figures.</p>`}
   </section>`;
@@ -6842,7 +6843,7 @@ function dayForm(date) {
 const CATS = ['Home','Utilities','Phones & broadband','Subscriptions','Insurance','Car & bike finance','Car','Kids','Debt','Other'];
 function billForm(id) {
   const b = S.bills.find(x=>x.id===id) || {};
-  openSheet(id ? 'Edit bill' : 'Add bill', fld('bname','Name', b.name||'') + `<div class="fields2">${fld('bamount','Amount (£)', b.amount??'', 'number','min="0" step="0.01" inputmode="decimal"')}${sel('bfreq','How often', b.freq||'monthly', [['monthly','Monthly'],['weekly','Weekly'],['quarterly','Quarterly'],['annual','Yearly']])}</div>
+  openSheet(id ? 'Edit bill' : 'Add a bill', fld('bname','Name', b.name||'') + `<div class="fields2">${fld('bamount','Amount (£)', b.amount??'', 'number','min="0" step="0.01" inputmode="decimal"')}${sel('bfreq','How often', b.freq||'monthly', [['monthly','Monthly'],['weekly','Weekly'],['quarterly','Quarterly'],['annual','Yearly']])}</div>
     <div class="fields2">${fld('bdue','Next payment date', b.due || today(), 'date')}${sel('bcat','Category', b.category||'Other', CATS.map(c=>[c,c]))}</div>` + fld('brenew','Renews on (for insurance and contracts)', b.renew||'', 'date') + fld('bnote','Note', b.note||''), async () => {
     const name = v('bname').trim(), amount = num(v('bamount'));
     if (!name) throw new Error('Enter a name for the bill'); if (amount===null || amount<0) throw new Error('Enter the amount, such as 21.99');
@@ -6883,7 +6884,7 @@ function goalForm(id) {
 }
 function serviceForm(id) {
   const s = S.service.find(x=>x.id===id) || {};
-  openSheet(id ? 'Edit job' : 'Add job', fld('swork','Work done', s.work||'') + `<div class="fields2">${fld('sdate2','Date', /^\d{4}-\d\d-\d\d$/.test(s.date||'') ? s.date : (s.date ? '' : today()), 'date')}${fld('smiles','Mileage', s.mileage??'', 'number','min="0" step="1" inputmode="numeric"')}</div>
+  openSheet(id ? 'Edit job' : 'Add a job', fld('swork','Work done', s.work||'') + `<div class="fields2">${fld('sdate2','Date', /^\d{4}-\d\d-\d\d$/.test(s.date||'') ? s.date : (s.date ? '' : today()), 'date')}${fld('smiles','Mileage', s.mileage??'', 'number','min="0" step="1" inputmode="numeric"')}</div>
     <div class="fields2">${fld('sgarage','Garage', s.garage||'')}${fld('scost','Cost (£)', s.cost??'', 'number','min="0" step="0.01" inputmode="decimal"')}</div>` + sel('sstatus','Status', s.status||'done', [['done','Done'],['booked','Booked']]), async () => {
     const work = v('swork').trim(); if (!work) throw new Error('Describe the work done');
     const date = v('sdate2') || s.date || today();
@@ -6895,7 +6896,7 @@ function serviceForm(id) {
 }
 function fuelForm(id) {
   const f = S.fuel.find(x=>x.id===id) || {};
-  openSheet(id ? 'Edit fill-up' : 'Add fill-up', `<div class="fields2">${fld('fdate','Date', f.date||today(), 'date')}${fld('fmiles','Odometer (miles)', f.mileage ?? (S.car.mileage||''), 'number','min="0" step="1" inputmode="numeric"')}</div>
+  openSheet(id ? 'Edit fill-up' : 'Add a fill-up', `<div class="fields2">${fld('fdate','Date', f.date||today(), 'date')}${fld('fmiles','Odometer (miles)', f.mileage ?? (S.car.mileage||''), 'number','min="0" step="1" inputmode="numeric"')}</div>
     <div class="fields2">${fld('flitres','Litres', f.litres??'', 'number','min="0" step="0.01" inputmode="decimal"')}${fld('fcost','Cost (£)', f.cost??'', 'number','min="0" step="0.01" inputmode="decimal"')}</div>
     <label class="check" style="border:0"><input type="checkbox" id="ffull" ${f.full===false?'':'checked'}><span>Filled to full</span></label>`, async () => {
     const mileage = num(v('fmiles')), litres = num(v('flitres')), cost = num(v('fcost'));
