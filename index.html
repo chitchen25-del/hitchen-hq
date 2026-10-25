@@ -1733,6 +1733,44 @@ header.top .askbtn + .iconbtn{margin-left:6px}
 .zl-lims .zl-box{margin:0}.zl-lims .zl-leg{flex-direction:column;align-items:flex-start;gap:2px}
 .zl-row{align-items:flex-start}.zl-row .plmonths{margin-top:6px}
 .zl-done{margin-top:10px}.zl-done summary{cursor:pointer;font-weight:650;color:var(--muted);padding:6px 0}.zl-done summary span{font-weight:500}
+
+/* Me: Chris's private coach */
+:root[data-tab="me"]{--acc:#E2445C;--acc2:#FF9F43}
+nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
+:root[data-user="chris"] nav.tabs button[data-tab="me"]{display:flex}
+:root[data-user="chris"] nav.tabs{grid-template-columns:repeat(6,1fr)}
+.me-log{max-height:48vh;min-height:90px}
+.me-kind{display:block;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.me-quick{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.me-quick::-webkit-scrollbar{display:none}
+.me-quick button{flex:none;border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink);border-radius:999px;padding:7px 12px;font:inherit;font-size:.82rem;cursor:pointer}
+.me-in{display:flex;gap:8px;align-items:flex-end;margin-top:8px}
+.me-in textarea{flex:1;min-width:0;resize:none;min-height:44px;max-height:140px;border:1px solid var(--rule-2);border-radius:14px;padding:11px 12px;font:inherit;font-size:1rem;line-height:1.35;background:var(--sheet);color:var(--ink)}
+.me-in .btn{min-height:44px}
+.me-ch{margin-top:14px}
+.me-ch:first-of-type{margin-top:4px}
+.me-ch-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.86rem;color:var(--muted);margin-bottom:4px}
+.me-ch-h b{color:var(--ink);font-size:.95rem;font-weight:650}
+.me-ch svg{width:100%;height:auto;display:block;overflow:visible}
+.me-b{fill:var(--acc);opacity:.45}.me-b.now{opacity:1}.me-b0{fill:var(--rule-2)}
+.me-goal{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
+.me-ln{fill:none;stroke:var(--acc);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.me-dot{fill:var(--acc);stroke:var(--sheet);stroke-width:2}
+.me-hit{fill:transparent}
+.me-ax{font-size:10px;fill:var(--muted)}
+.me-good{color:#1E8E5A}
+.me-mj{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.me-mj p{margin:0;font-weight:600}
+.me-mj .m{display:block;color:var(--muted);font-size:.85rem}
+.me-big{font-size:1.6rem;font-weight:750;letter-spacing:-.01em}
+.me-due{color:var(--acc)}
+.me-cm{gap:6px}
+.me-steps{margin:8px 0 4px;padding-left:20px;line-height:1.5;font-size:.93rem}
+.me-steps li{margin-bottom:6px}
+.me-link{width:100%;box-sizing:border-box;margin:6px 0 2px;padding:10px;border:1px solid var(--rule-2);border-radius:10px;font:inherit;font-size:.8rem;background:var(--sheet-2);color:var(--ink)}
+.me-br button{min-height:36px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .me-good{color:#4CC38A}}
+:root[data-theme="dark"] .me-good{color:#4CC38A}
 </style>
 </head>
 <body>
@@ -1751,6 +1789,7 @@ header.top .askbtn + .iconbtn{margin-left:6px}
   <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16v11H4z"/><path d="M4 8l2-4h12l2 4"/><circle cx="12" cy="13.5" r="2.5"/></svg>Money</button>
   <button data-tab="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12"/><path d="M12 9c-2-4-6-4-6-1.5S10 9 12 9c2 0 6 1 6-1.5S14 5 12 9z"/></svg>Treats</button>
   <button data-tab="car"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5z"/><circle cx="8" cy="17" r="2"/><circle cx="16" cy="17" r="2"/><path d="M5 12h14"/></svg>Car</button>
+  <button data-tab="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>Me</button>
 </nav>
 
 <button class="fab" data-act="quick" aria-label="Add something" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -1954,10 +1993,11 @@ function render() {
   $('.fab').hidden = !session;
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
   if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('[data-act="ask"]').hidden = true; $('#title').textContent = `${UI.kid}'s corner`; $('#subtitle').textContent = UI.kidTab === 'jobs' ? 'Tick off your jobs to earn stars' : UI.kidTab === 'save' ? 'What you\'re saving up for' : 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
-  const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Holidays, visits, Christmas and birthdays'], car:['The Evoque','Service, checks, fuel and trips']};
+  if (UI.tab === 'me' && !meOwner()) UI.tab = 'home';
+  const titles = {me:['Me','Your better-me coach'], home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Holidays, visits, Christmas and birthdays'], car:['The Evoque','Service, checks, fuel and trips']};
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
-  const views = { home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
+  const views = { me: viewMe, home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
   if (render.lastTab !== UI.tab) { app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); render.lastTab = UI.tab; }
   hydratePhotos(); checkMilestones(); countUp(app);
@@ -5164,6 +5204,200 @@ function bsZilchSection(ym) {
     <div class="xadd"><button type="button" class="linkbtn" data-act="mseg" data-v="owed">Change on the Zilch page</button></div></section>`;
 }
 
+/* ---------- Me: Chris's private better-me coach. Its data lives in owner-only me_* tables (not docs), so nobody else and not Ask can see it ---------- */
+const ME = { uid: null, loaded: false, loading: false, err: '', docs: {}, by: {}, units: {}, workouts: [], chat: [], busy: false, draft: '', helloTried: false };
+const meOwner = () => !!session && me() === 'chris';
+async function meLoad(force) {
+  if (!meOwner() || ME.loading) return;
+  if (ME.uid !== session.user.id) Object.assign(ME, { uid: session.user.id, link: '', linkTried: false, showLink: false, loaded: false, docs: {}, by: {}, units: {}, workouts: [], chat: [], helloTried: false });
+  if (ME.loaded && !force) return;
+  ME.loading = true;
+  try {
+    const [d, m, w] = await Promise.all([
+      sb.from('me_docs').select('path,data'),
+      sb.from('me_metrics').select('day,metric,qty,units,data').gte('day', addDays(today(), -120)).order('day').limit(10000),
+      sb.from('me_workouts').select('start_at,name,data').order('start_at', { ascending: false }).limit(20)]);
+    const bad = d.error || m.error || w.error; if (bad) throw new Error(bad.message);
+    ME.docs = {}; (d.data || []).forEach(r => { ME.docs[r.path] = r.data || {}; });
+    ME.by = {}; ME.units = {}; (m.data || []).forEach(r => { (ME.by[r.day] = ME.by[r.day] || {})[r.metric] = r; if (r.units) ME.units[r.metric] = r.units; });
+    ME.workouts = w.data || []; if (!ME.busy) ME.chat = (ME.docs.chat || {}).msgs || []; ME.err = ''; ME.loaded = true;
+  } catch (e) { ME.err = e.message || 'Couldn\'t load'; }
+  ME.loading = false;
+  if (UI.tab === 'me' && !(document.activeElement && document.activeElement.id === 'meQ')) render(); else mePaint();
+  if (ME.loaded && !ME.chat.length && !ME.helloTried) meHello();
+  if (ME.loaded && !ME.link && !ME.linkTried) { ME.linkTried = true; meCall({ action: 'setup' }).then(r => { ME.link = r.url; }).catch(() => {}); }
+}
+async function meSaveDoc(path, data) {
+  ME.docs[path] = data;
+  const { error } = await sb.from('me_docs').upsert({ owner: session.user.id, path, data, updated_at: new Date().toISOString() }, { onConflict: 'owner,path' });
+  if (error) throw new Error(error.message);
+}
+async function meCall(body) {
+  const { data, error } = await sb.functions.invoke('coach', { body });
+  if (error) { let msg = error.message; try { const j = await error.context.json(); msg = j.error || msg; } catch (e) {} throw new Error(msg); }
+  return data;
+}
+
+// numbers
+const meQ = (day, k) => { const r = ME.by[day] && ME.by[day][k]; return r && r.qty !== null && r.qty !== undefined && r.qty !== '' ? Number(r.qty) : null; };
+const meAvg = (k, from, to) => { const v = []; for (let d = from; d <= to; d = addDays(d, 1)) { const q = meQ(d, k); if (q !== null) v.push(q); } return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+const meLatest = k => { for (const d of Object.keys(ME.by).sort().reverse()) { const q = meQ(d, k); if (q !== null) return { d, q }; } return null; };
+const meKg = (q, k = 'body_mass') => /lb/i.test(ME.units[k] || '') ? q / 2.20462 : q;
+const meKcal = (q, k) => /kj/i.test(ME.units[k] || '') ? q / 4.184 : q;
+const meSt = kg => { const lb = Math.round(kg * 2.20462); return `${Math.floor(lb / 14)}st ${lb % 14}lb`; };
+const meHrs = h => { const m = Math.round(h * 60); return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`; };
+const meN = n => Math.round(n).toLocaleString('en-GB');
+const meAgo = iso => { const s = (Date.now() - Date.parse(iso)) / 1000; if (s < 90) return 'just now'; if (s < 3600) return `${Math.round(s / 60)} min ago`; if (s < 86400) return `${Math.round(s / 3600)} hr ago`; const d = Math.round(s / 86400); return `${d} day${d === 1 ? '' : 's'} ago`; };
+const meDay = s => { const d = parse(s); return `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()]} ${d.getDate()}`; };
+
+// small charts: one series each, thin marks, a hover label on every bar and point
+function meBars(days, k, conv, fmt, goal) {
+  const vals = days.map(d => { const q = meQ(d, k); return q === null ? null : conv(q); });
+  if (!vals.some(x => x !== null)) return '';
+  const W = 320, H = 86, top = 6, gap = 2, n = days.length, bw = (W - gap * (n - 1)) / n, max = Math.max(goal || 0, ...vals.filter(x => x !== null)) * 1.08 || 1;
+  const y = q => H - (H - top) * q / max, r = Math.min(4, bw / 2);
+  const bars = vals.map((q, i) => { const x = i * (bw + gap); if (q === null || q <= 0) return `<rect x="${x}" y="${H - 2}" width="${bw}" height="2" rx="1" class="me-b0"><title>${esc(meDay(days[i]))}: no data</title></rect>`;
+    const yy = Math.min(y(q), H - r), lst = i === n - 1;
+    return `<path d="M${x},${H}V${yy + r}Q${x},${yy} ${x + r},${yy}H${x + bw - r}Q${x + bw},${yy} ${x + bw},${yy + r}V${H}Z" class="me-b${lst ? ' now' : ''}"><title>${esc(meDay(days[i]))}: ${esc(fmt(q))}</title></path>`; }).join('');
+  const g = goal ? `<line x1="0" x2="${W}" y1="${y(goal)}" y2="${y(goal)}" class="me-goal"/>` : '';
+  return `<svg viewBox="0 0 ${W} ${H + 16}" role="img" aria-label="Last ${n} days">${g}${bars}<text x="0" y="${H + 13}" class="me-ax">${esc(meDay(days[0]))}</text><text x="${W}" y="${H + 13}" text-anchor="end" class="me-ax">Today</text></svg>`;
+}
+function meLine(pts, fmt) {
+  if (pts.length < 2) return '';
+  const W = 320, H = 80, pad = 8, t0 = parse(pts[0].d).getTime(), t1 = parse(pts[pts.length - 1].d).getTime() || t0 + 1;
+  const lo = Math.min(...pts.map(p => p.q)), hi = Math.max(...pts.map(p => p.q)), sp = hi - lo || 1;
+  const X = p => pad + (W - 2 * pad) * (parse(p.d).getTime() - t0) / Math.max(1, t1 - t0), Y = p => pad + (H - 2 * pad) * (1 - (p.q - lo) / sp);
+  const path = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p).toFixed(1)},${Y(p).toFixed(1)}`).join('');
+  const last = pts[pts.length - 1];
+  const hits = pts.map(p => `<circle cx="${X(p).toFixed(1)}" cy="${Y(p).toFixed(1)}" r="8" class="me-hit"><title>${esc(meDay(p.d))}: ${esc(fmt(p.q))}</title></circle>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H + 16}" role="img" aria-label="Trend"><path d="${path}" class="me-ln"/><circle cx="${X(last).toFixed(1)}" cy="${Y(last).toFixed(1)}" r="4.5" class="me-dot"/>${hits}<text x="0" y="${H + 13}" class="me-ax">${esc(shortDate(pts[0].d))}</text><text x="${W}" y="${H + 13}" text-anchor="end" class="me-ax">${esc(fmt(last.q))}</text></svg>`;
+}
+
+function meLogHtml() {
+  const log = ME.chat.slice(-40).map(m => `<div class="ask-msg ${m.r === 'u' ? 'user' : 'assistant'}">${m.kind && m.kind !== 'hello' ? `<span class="me-kind">${m.kind === 'morning' ? 'Morning brief' : m.kind === 'evening' ? 'Evening check-in' : 'Weekly review'}</span>` : ''}${m.r === 'u' ? esc(m.t) : askFmt(m.t)}</div>`).join('');
+  return (log || (ME.loaded ? '' : '<p class="empty">Loading…</p>')) + (ME.busy ? '<div class="ask-msg assistant typing" aria-label="Thinking"><i></i><i></i><i></i></div>' : '');
+}
+function mePaint() { const l = $('#meLog'); if (l) { l.innerHTML = meLogHtml(); l.scrollTop = l.scrollHeight; } }
+async function meHello() {
+  ME.helloTried = true; ME.busy = true; mePaint();
+  try { const r = await meCall({ action: 'hello' }); ME.chat = r.msgs || ME.chat; }
+  catch (e) { ME.chat.push({ r: 'a', t: /nokey/.test(e.message) ? 'I need the Claude key that Ask uses. Add it in Ask first, then come back.' : `Couldn't reach the coach: ${e.message}` }); }
+  ME.busy = false; mePaint();
+}
+async function meSend(text) {
+  const inp = $('#meQ'), t = String(text || (inp && inp.value) || '').trim(); if (!t || ME.busy) return;
+  if (inp) { inp.value = ''; inp.style.height = ''; } ME.draft = '';
+  ME.chat.push({ r: 'u', t, at: new Date().toISOString() }); ME.busy = true; mePaint();
+  try { const r = await meCall({ text: t }); ME.chat.push({ r: 'a', t: r.reply, at: new Date().toISOString() }); }
+  catch (e) { ME.chat.push({ r: 'a', t: `Sorry, that didn't go through: ${e.message}` }); }
+  ME.busy = false; mePaint(); meLoad(true);
+}
+
+function viewMe() {
+  if (!ME.loaded && !ME.loading) setTimeout(() => meLoad(), 0);
+  const t = today(), y = addDays(t, -1), wk0 = addDays(t, -7), sync = ME.docs.sync || {}, prof = ME.docs.profile || {}, log = (ME.docs.log || {}).entries || [];
+  const has = Object.keys(ME.by).length > 0;
+  const steps = meQ(t, 'step_count'), ex = meQ(t, 'apple_exercise_time'), kc = meQ(t, 'active_energy'), sl = meQ(t, 'sleep_analysis') ?? null;
+  const avg = k => meAvg(k, wk0, y);
+  const sA = avg('step_count');
+  const side = sync.at ? `<span class="tb-kicker">Phone synced</span><span class="big" style="font-size:1.05rem">${esc(meAgo(sync.at))}</span>` : '';
+  const hero = tblock({ kicker: has ? 'Today' : 'Your better-me coach', title: has ? `${meN(steps || 0)} steps` : 'Let\'s get you set up',
+    side, cells: has ? [tbCell('Exercise', ex !== null ? `${meN(ex)} min` : '–', '#33B679'), tbCell('Active', kc !== null ? `${meN(meKcal(kc, 'active_energy'))} kcal` : '–', '#F4511E'), tbCell('Sleep', sl ? meHrs(sl) : '–', '#7E57C2')] : [],
+    foot: has ? `<span>${sA ? `Your 7-day average is ${meN(sA)} steps a day.` : 'Averages build up over your first week.'}</span>` : '<span>Your Apple Health numbers, a coach who talks like you, and a record of how you\'re doing. Only you can see this tab.</span>' });
+
+  // the coach
+  const quick = [['How am I doing?', 'send'], ['Plan my day', 'send'], ['Done my jab today, ', 'fill'], ['Weighed in at ', 'fill'], ['Feeling rough today', 'send'], ['Give me a challenge', 'send']]
+    .map(([q, m]) => `<button type="button" data-act="mxquick" data-m="${m}" data-q="${esc(q)}">${esc(q.replace(/,? $/, '').replace(/ at$/, ''))}</button>`).join('');
+  const coach = `<section class="panel me-coach"><h2>Your coach <button class="btn small ghost" data-act="mxbrief">Brief me</button></h2>
+    <div class="ask-log me-log" id="meLog" aria-live="polite">${meLogHtml()}</div>
+    <div class="me-quick" role="group" aria-label="Quick messages">${quick}</div>
+    <div class="me-in"><textarea id="meQ" rows="1" placeholder="Talk to your coach…" aria-label="Message your coach">${esc(ME.draft)}</textarea><button class="btn" data-act="mxsend">Send</button></div></section>`;
+
+  // Mounjaro
+  const mj = (prof.meds || []).find(m => /mounjaro|tirzepatide/i.test(m.name || ''));
+  const jabs = log.filter(e => e.type === 'injection').sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  const lastJ = jabs[jabs.length - 1], nextJ = lastJ ? addDays(lastJ.date, 7) : null;
+  const dueTxt = !nextJ ? 'Log your next jab and I\'ll keep track of the week.' : nextJ === t ? 'Jab day today.' : nextJ < t ? `Jab was due ${shortDate(nextJ)}.` : (() => { const dd = Math.round((parse(nextJ) - parse(t)) / 864e5); return dd === 1 ? `Next jab tomorrow, ${meDay(nextJ)}.` : `Next jab ${meDay(nextJ)}, in ${dd} days.`; })();
+  const doseNow = String((mj && mj.dose) || '').replace(/\s/g, '');
+  const sinceDose = jabs.filter(j => String(j.value).replace(/mg|\s/g, '') === doseNow.replace(/mg/, '')); const doseFrom = sinceDose.length ? sinceDose[0].date : null;
+  const mjPanel = mj ? `<section class="panel"><h2>Mounjaro <button class="btn small" data-act="mxjab">Log a jab</button></h2>
+    <div class="me-mj"><div><span class="me-big">${esc(mj.dose || '')}</span><span class="m">weekly${doseFrom ? `, since ${esc(shortDate(doseFrom))}` : ''}</span></div><p class="${nextJ && nextJ <= t ? 'me-due' : ''}">${esc(dueTxt)}</p></div>
+    ${jabs.length ? `<div class="list">${jabs.slice(-4).reverse().map(j => `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(shortDate(j.date))}</span>${j.text ? `<span class="m" style="display:block">${esc(j.text)}</span>` : ''}</span><span class="amt">${esc(String(j.value ?? ''))}${/^\d+(\.\d+)?$/.test(String(j.value ?? '')) ? ' mg' : ''}</span></div>`).join('')}</div>` : ''}
+    <p class="note">Dose changes are for your prescriber. Tell the coach about side effects and it'll keep an eye on them.</p></section>` : '';
+
+  // trends
+  const d14 = Array.from({ length: 14 }, (_, i) => addDays(t, i - 13));
+  const goalSteps = Number(String((prof.facts || {}).step_goal || '').replace(/\D/g, '')) || 10000;
+  const wts = Object.keys(ME.by).sort().filter(d => d >= addDays(t, -90)).map(d => ({ d, q: meQ(d, 'body_mass') })).filter(p => p.q !== null).map(p => ({ d: p.d, q: meKg(p.q) }));
+  const rhr = Object.keys(ME.by).sort().filter(d => d >= addDays(t, -30)).map(d => ({ d, q: meQ(d, 'resting_heart_rate') })).filter(p => p.q !== null);
+  const hrv = Object.keys(ME.by).sort().filter(d => d >= addDays(t, -30)).map(d => ({ d, q: meQ(d, 'heart_rate_variability') })).filter(p => p.q !== null);
+  const charts = [];
+  const ch = (title, now, svg) => { if (svg) charts.push(`<div class="me-ch"><div class="me-ch-h"><span>${title}</span><b>${now}</b></div>${svg}</div>`); };
+  ch('Steps, last 14 days', `goal ${meN(goalSteps)}`, meBars(d14, 'step_count', q => q, q => `${meN(q)} steps`, goalSteps));
+  ch('Sleep', sl ? `last night ${meHrs(sl)}` : '', meBars(d14, 'sleep_analysis', q => q, meHrs, 0));
+  if (wts.length) { const a = wts[0].q, b = wts[wts.length - 1].q, diff = b - a; ch('Weight, 90 days', `${meSt(b)}${wts.length > 1 && Math.abs(diff) >= 0.2 ? ` <span class="${diff < 0 ? 'me-good' : ''}">${diff < 0 ? '↓' : '↑'} ${meSt(Math.abs(diff)).replace(/^0st /, '')}</span>` : ''}`, meLine(wts, meSt)); }
+  ch('Resting heart rate', rhr.length ? `${Math.round(rhr[rhr.length - 1].q)} bpm` : '', meLine(rhr, q => `${Math.round(q)} bpm`));
+  ch('Heart rate variability', hrv.length ? `${Math.round(hrv[hrv.length - 1].q)} ms` : '', meLine(hrv, q => `${Math.round(q)} ms`));
+  const trends = charts.length ? `<section class="panel"><h2>Trends</h2>${charts.join('')}<p class="note">From your Apple Watch and iPhone. Good for trends, not a medical test.</p></section>` : '';
+
+  // commitments
+  const cm = (ME.docs.commits || {}).items || [], open = cm.filter(c => !c.done && !c.missed), wkC = cm.filter(c => (c.done || c.missed || '') >= wk0), kept = wkC.filter(c => c.done).length;
+  const commits = cm.length ? `<section class="panel"><h2>Promises you've made${wkC.length ? ` <span class="sub">${kept} of ${wkC.length} kept this week</span>` : ''}</h2>
+    <div class="list">${open.map(c => `<div class="row me-cm"><span class="grow"><span class="t" style="display:block">${esc(c.text)}</span><span class="m" style="display:block">${c.due ? `By ${esc(meDay(c.due))}` : `Set ${esc(shortDate(c.set))}`}</span></span><button class="btn small" data-act="mxcm" data-id="${esc(c.id)}" data-v="done" aria-label="Done">Done</button><button class="btn small ghost" data-act="mxcm" data-id="${esc(c.id)}" data-v="missed" aria-label="Missed">Missed</button></div>`).join('') || '<p class="empty">Nothing open. Ask the coach for a challenge.</p>'}</div></section>` : '';
+
+  // workouts
+  const wo = ME.workouts.slice(0, 5).map(x => { const dd = x.data || {}, kcal = dd.activeEnergyBurned?.qty ?? dd.activeEnergy?.qty, st = x.start_at ? ymd(new Date(x.start_at)) : '';
+    return `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(x.name || 'Workout')}</span><span class="m" style="display:block">${esc(st ? meDay(st) : '')}${dd.duration ? ` · ${Math.round(dd.duration / 60)} min` : ''}</span></span><span class="amt">${kcal ? `${meN(kcal)} kcal` : ''}</span></div>`; }).join('');
+  const workouts = wo ? `<section class="panel"><h2>Recent workouts</h2><div class="list">${wo}</div></section>` : '';
+
+  // what the coach knows, and settings
+  const facts = Object.entries(prof.facts || {}).filter(([, v]) => v !== null && v !== '');
+  const br = prof.briefs || {}, brief = [['morning', 'Morning brief'], ['evening', 'Evening check-in'], ['weekly', 'Sunday review']].map(([k, l]) => `<button type="button" data-act="mxbr" data-k="${k}" aria-pressed="${br[k] !== false}">${l}</button>`).join('');
+  const stale = !sync.at || (Date.now() - Date.parse(sync.at)) > 2 * 864e5;
+  const setup = `<section class="panel"><h2>${stale ? (sync.at ? 'Not heard from your phone lately' : 'Connect Apple Health') : 'Apple Health'}</h2>
+    ${stale ? `<p class="note" style="margin-top:0">${sync.at ? `The last numbers came in ${esc(meAgo(sync.at))}. Open Health Auto Export and check the automation is still on.` : 'Health Auto Export sends your numbers here through the day, whenever your phone is unlocked.'}</p>
+    <ol class="me-steps"><li>In Health Auto Export, tap <b>Automated</b>, then add a new automation and choose <b>REST API</b>.</li><li>Paste your private link in the URL box (copy it below). Keep it to yourself, it works like a password.</li><li>Data type: <b>Health Metrics</b>. Select all metrics. Format: <b>JSON</b>.</li><li>Turn on <b>Summarize data</b> and set time grouping to <b>Day</b>. Date range: <b>Today</b> (for the first run, pick the longest range offered to bring your history in).</li><li>Sync cadence: every hour. Turn the automation on, then tap <b>Manual export</b> or <b>Sync now</b> to test it.</li><li>Add a second automation the same way for <b>Workouts</b>.</li></ol>` : `<p class="note" style="margin-top:0">${esc(String(sync.readings || 0))} readings in the last delivery, ${esc(meAgo(sync.at))}.</p>`}
+    ${ME.showLink && ME.link ? `<input class="me-link" readonly value="${esc(ME.link)}" aria-label="Your private link" onfocus="this.select()">` : ''}
+    <div class="btnrow"><button class="btn${stale ? '' : ' ghost'} small" data-act="mxlink">${ME.link ? 'Copy your private link' : 'Show your private link'}</button></div></section>`;
+  const knows = `<section class="panel"><h2>What your coach knows</h2>
+    ${prof.focus ? `<p><b>This month:</b> ${esc(prof.focus)}</p>` : ''}${(prof.goals || []).length ? `<p><b>Goals:</b> ${(prof.goals || []).map(esc).join(' · ')}</p>` : ''}
+    ${facts.length || (prof.meds || []).length ? `<dl class="od-facts">${(prof.meds || []).map(m => `<dt>Medicine</dt><dd>${esc([m.name, m.dose, m.how].filter(Boolean).join(', '))}</dd>`).join('')}${facts.map(([k, v]) => `<dt>${esc(k.replace(/_/g, ' '))}</dt><dd>${esc(typeof v === 'string' ? v : JSON.stringify(v))}</dd>`).join('')}</dl>` : '<p class="empty">Nothing yet. Have a chat and it\'ll learn as you go.</p>'}
+    <div class="field" style="margin-top:12px"><label>Messages to your phone</label><div class="zchips me-br" role="group" aria-label="Coach messages">${brief}</div></div>
+    <p class="note">They come through the same notifications as the rest of the app, so they need those switched on in Settings.</p></section>`;
+  const err = ME.err ? `<div class="banner">Couldn't load your coach: ${esc(ME.err)}</div>` : '';
+  return err + hero + coach + (stale ? setup : '') + mjPanel + trends + commits + workouts + knows + (stale ? '' : setup);
+}
+
+function meJabForm() {
+  const prof = ME.docs.profile || {}, mj = (prof.meds || []).find(m => /mounjaro|tirzepatide/i.test(m.name || '')) || {};
+  openSheet('Log a jab', `<div class="fields2">${fld('mjD', 'Date', today(), 'date')}${fld('mjDose', 'Dose (mg)', String(mj.dose || '').replace(/[^\d.]/g, ''), 'number', 'step="2.5" inputmode="decimal"')}</div>`
+    + sel('mjS', 'Where', 'stomach', [['stomach', 'Stomach'], ['thigh', 'Thigh'], ['arm', 'Upper arm']])
+    + `<div class="field"><label for="mjN">How you're feeling (optional)</label><textarea id="mjN" rows="2" placeholder="Side effects, appetite, anything the coach should know"></textarea></div>`, async () => {
+      const dose = Number(v('mjDose')); if (!dose) throw new Error('Add the dose');
+      const L = { ...(ME.docs.log || {}) }; L.entries = [...(L.entries || []), { type: 'injection', date: v('mjD') || today(), value: dose, text: [v('mjS'), v('mjN').trim()].filter(Boolean).join(', '), at: new Date().toISOString() }];
+      await meSaveDoc('log', L);
+      if (mj.dose && Number(String(mj.dose).replace(/[^\d.]/g, '')) !== dose) { const P = { ...prof, meds: (prof.meds || []).map(m => /mounjaro|tirzepatide/i.test(m.name || '') ? { ...m, dose: `${dose}mg` } : m) }; await meSaveDoc('profile', P); }
+      toast('Jab logged'); render();
+    });
+}
+
+async function meAct(a, el) {
+  if (a === 'mxsend') { meSend(); return true; }
+  if (a === 'mxquick') { if (el.dataset.m === 'send') meSend(el.dataset.q); else { const i = $('#meQ'); if (i) { i.value = el.dataset.q; ME.draft = i.value; i.focus(); i.setSelectionRange(i.value.length, i.value.length); } } return true; }
+  if (a === 'mxbrief') { if (ME.busy) return true; ME.busy = true; mePaint(); try { const r = await meCall({ action: 'brief', kind: new Date().getHours() >= 17 ? 'evening' : 'morning' }); ME.chat = r.msgs || ME.chat; } catch (e) { ME.chat.push({ r: 'a', t: `Couldn't reach the coach: ${e.message}` }); } ME.busy = false; mePaint(); return true; }
+  if (a === 'mxjab') { meJabForm(); return true; }
+  if (a === 'mxcm') { const C = { ...(ME.docs.commits || {}) }; C.items = (C.items || []).map(c => c.id === el.dataset.id ? { ...c, done: el.dataset.v === 'done' ? today() : undefined, missed: el.dataset.v === 'missed' ? today() : undefined } : c);
+    try { await meSaveDoc('commits', C); toast(el.dataset.v === 'done' ? 'Nice one' : 'Noted. Go again tomorrow'); } catch (e) { toast('Couldn\'t save'); } render(); return true; }
+  if (a === 'mxbr') { const P = { ...(ME.docs.profile || {}) }; P.briefs = { ...(P.briefs || {}), [el.dataset.k]: (P.briefs || {})[el.dataset.k] === false }; try { await meSaveDoc('profile', P); } catch (e) { toast('Couldn\'t save'); } render(); return true; }
+  if (a === 'mxlink') { ME.showLink = true;
+    if (ME.link) { try { await navigator.clipboard.writeText(ME.link); toast('Link copied. Paste it into Health Auto Export'); } catch (e) { toast('Press and hold the link to copy it'); } }
+    else { try { const r = await meCall({ action: 'setup' }); ME.link = r.url; } catch (e) { toast(`Couldn't get the link: ${e.message}`); } }
+    render(); return true; }
+  return false;
+}
+document.addEventListener('input', e => { if (e.target && e.target.id === 'meQ') { ME.draft = e.target.value; e.target.style.height = ''; e.target.style.height = Math.min(140, e.target.scrollHeight) + 'px'; } });
+document.addEventListener('keydown', e => { if (e.target && e.target.id === 'meQ' && e.key === 'Enter' && !e.shiftKey && !('ontouchstart' in window)) { e.preventDefault(); meSend(); } });
+
 function viewOld() {
   const O = S.olddebts;
   if (!O) return `<section class="panel"><h2>Old debts</h2><p class="empty">Nothing here yet.</p></section>`;
@@ -7045,6 +7279,7 @@ document.addEventListener('click', async e => {
   if (a==='close') { if (e.target === el || el.tagName==='BUTTON') closeSheet(); return; }
   if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; closeSheet(); if (fn) { await fn(); toast('Deleted'); } } else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
   if (a==='settings') return settingsForm();
+  if (a.startsWith('mx') && await meAct(a, el)) return;
   if (a.startsWith('pp') && await ppAct(a, el)) return;
   if (a==='leg') return legForm(el.dataset.plan, Number(el.dataset.d), Number(el.dataset.l));
   if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
@@ -7277,16 +7512,18 @@ async function boot() {
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
   const { data } = await sb.auth.getSession();
   await startSession(data.session);
+  if (location.hash === '#me') { if (meOwner()) { UI.tab = 'me'; keepUI(); render(); } try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {} }
+  if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', e => { if (e.data && /#me/.test(e.data.open || '') && meOwner()) { UI.tab = 'me'; keepUI(); render(); window.scrollTo(0,0); meLoad(true); } });
   sb.auth.onAuthStateChange((event, s) => { if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') startSession(s); else session = s || session; });
   window.addEventListener('online', () => { if (session && offline) loadAll().then(subscribe).catch(() => {}); });
   window.addEventListener('scroll', () => { $('header.top').classList.toggle('scrolled', window.scrollY > 6); }, { passive:true });
   setInterval(() => { if (session && UI.tab==='home' && !$('#sheetRoot').innerHTML && document.visibilityState==='visible' && !(document.activeElement && document.activeElement.id==='listText')) render(); }, 60000);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState==='visible' && session) { fetchCal(); render(); } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState==='visible' && session) { fetchCal(); if (UI.tab==='me') meLoad(true); else render(); } });
   let py = null, pd = 0; const ptr = $('#ptr');
   window.addEventListener('touchstart', e => { if (window.scrollY <= 0 && !$('#sheetRoot').innerHTML) { py = e.touches[0].clientY; pd = 0; } }, { passive:true });
   window.addEventListener('touchmove', e => { if (py===null) return; pd = Math.max(0, e.touches[0].clientY - py); ptr.style.height = Math.min(70, pd*0.5) + 'px'; ptr.classList.toggle('ready', pd > 120); }, { passive:true });
   window.addEventListener('touchend', async () => { if (py===null) return; const go = pd > 120; py = null; ptr.style.height = '0px'; ptr.classList.remove('ready');
-    if (go && session) { ptr.classList.add('busy'); ptr.style.height = '36px'; try { await loadAll(); await fetchCal(true); toast('Up to date'); } catch(e) { toast('Couldn\'t refresh. Check your signal'); } ptr.classList.remove('busy'); ptr.style.height = '0px'; } });
+    if (go && session) { ptr.classList.add('busy'); ptr.style.height = '36px'; try { await loadAll(); await fetchCal(true); if (UI.tab==='me') await meLoad(true); toast('Up to date'); } catch(e) { toast('Couldn\'t refresh. Check your signal'); } ptr.classList.remove('busy'); ptr.style.height = '0px'; } });
 }
 boot();
 })();

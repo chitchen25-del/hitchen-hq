@@ -1,6 +1,6 @@
 // Hitchen HQ service worker: keeps the app shell available offline.
 // Family data always comes from Supabase and is never cached here.
-const CACHE = 'hitchen-hq-v61';
+const CACHE = 'hitchen-hq-v62';
 const SHELL = [
   './',
   './index.html',
@@ -60,7 +60,7 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
-    for (const c of list) { if ('focus' in c) return c.focus(); }
+    for (const c of list) { if ('focus' in c) { try { c.postMessage({ open: event.notification.data && event.notification.data.url }); } catch (e) {} return c.focus(); } }
     return clients.openWindow(event.notification.data && event.notification.data.url || './');
   }));
 });
