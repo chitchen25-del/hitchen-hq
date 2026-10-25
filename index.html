@@ -2071,7 +2071,12 @@ function render() {
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = UI.tab === 'trips' && UI.pltab ? 'Plans, budgets and lists' : titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
   const views = { me: viewMe, home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
+  /* keep the coach chat where it was across a redraw: same scroll spot, half-typed message and focus, unless something new arrived */
+  const ml0 = $('#meLog'), mq0 = $('#meQ'), keep = ml0 ? { top: ml0.scrollTop, n: ml0.querySelectorAll('.ask-msg').length, q: mq0 ? mq0.value : '', f: document.activeElement === mq0 } : null;
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
+  if (UI.tab === 'me') { const ml = $('#meLog'), mq = $('#meQ');
+    if (ml) { if (keep && keep.n === ml.querySelectorAll('.ask-msg').length) ml.scrollTop = keep.top; else meScroll(ml); }
+    if (keep && mq) { if (keep.q) mq.value = keep.q; if (keep.f) mq.focus({ preventScroll: true }); } }
   if (render.lastTab !== UI.tab) { app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); render.lastTab = UI.tab; }
   hydratePhotos(); checkMilestones(); countUp(app);
 }
@@ -5350,7 +5355,11 @@ function meLogHtml() {
   const log = ME.chat.slice(-40).map(m => `<div class="ask-msg ${m.r === 'u' ? 'user' : 'assistant'}">${m.kind && m.kind !== 'hello' ? `<span class="me-kind">${m.kind === 'morning' ? 'Morning brief' : m.kind === 'evening' ? 'Evening check-in' : 'Weekly review'}</span>` : ''}${m.r === 'u' ? esc(m.t) : askFmt(m.t)}</div>`).join('');
   return (log || (ME.loaded ? '' : '<p class="empty">Loading…</p>')) + (ME.busy ? '<div class="ask-msg assistant typing" aria-label="Thinking"><i></i><i></i><i></i></div>' : '');
 }
-function mePaint() { const l = $('#meLog'); if (l) { l.innerHTML = meLogHtml(); l.scrollTop = l.scrollHeight; } }
+/* new reply: show it from its first line, not its last; while waiting, show the typing dots */
+function meScroll(l) { l = l || $('#meLog'); if (!l) return; const ms = l.querySelectorAll('.ask-msg'), last = ms[ms.length - 1];
+  if (!last || ME.busy || !last.classList.contains('assistant')) { l.scrollTop = l.scrollHeight; return; }
+  l.scrollTop = Math.max(0, l.scrollTop + last.getBoundingClientRect().top - l.getBoundingClientRect().top - 6); }
+function mePaint() { const l = $('#meLog'); if (l) { l.innerHTML = meLogHtml(); meScroll(l); } }
 async function meHello() {
   ME.helloTried = true; ME.busy = true; mePaint();
   try { const r = await meCall({ action: 'hello' }); ME.chat = r.msgs || ME.chat; }
