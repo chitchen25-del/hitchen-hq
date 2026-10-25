@@ -50,6 +50,8 @@ Each girl's page has a week planner. Add every-week things (clubs, PE, swimming,
 
 The sparkle button at the top asks a question in plain English. The `ask` edge function reads the family's data with your own sign-in and sends it with the question to Claude. It needs an Anthropic API key, added once in the Ask sheet and kept server-side in `app_secrets`; set a monthly spending limit in the Anthropic Console.
 
+Ask can also add things. Tap the camera to snap a school letter, rota, appointment card or bill, or type an instruction starting with a word like "Add". Claude (Haiku, the cheap model) reads it and shows a checklist of changes; nothing is saved until you tap Add. It can add the girls' events and weekly activities, work days for Chris or Viki, shopping list items, bills and dinners.
+
 ## Holiday price watch
 
 Treats → Holidays shows the price watch (`state/pricewatch`): a list of places for each trip, with the cheapest price at each check and a trend line. A weekly scheduled check adds new prices and writes a price-drop alert, which the evening notification sends.

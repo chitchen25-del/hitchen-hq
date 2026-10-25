@@ -1453,6 +1453,21 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .pw-big{color:var(--chris-bar);margin:6px 0 10px}
 header.top .askbtn{margin-left:auto}
 header.top .askbtn + .iconbtn{margin-left:6px}
+
+.ask-cam{flex:none}
+.ask-photo:empty{display:none}
+.ask-thumb{position:relative;display:inline-block}
+.ask-thumb img{display:block;max-height:90px;border-radius:12px}
+.ask-thumb button{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;border:0;background:var(--ink);color:var(--sheet);font-size:1rem;line-height:1;cursor:pointer}
+.ask-img{display:block;max-width:160px;border-radius:10px;margin-bottom:6px}
+.ask-tip{flex-basis:100%;font-size:.8rem;color:var(--muted)}
+.ask-prop{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.ask-ch{display:flex;gap:8px;align-items:flex-start;background:var(--sheet);border-radius:10px;padding:8px 10px;font-size:.88rem;cursor:pointer}
+.ask-ch input{margin-top:3px}
+.ask-ci{flex:none}
+.ask-pa{display:flex;gap:8px;margin-top:4px}
+.ask-done{margin:6px 0 0;font-size:.82rem;font-weight:700;color:var(--good)}
+.ask-msg.assistant:has(.ask-prop){max-width:100%}
 </style>
 </head>
 <body>
@@ -2222,6 +2237,7 @@ function kidEventForm(key, id) {
 
 /* ----- Ask: plain-English questions answered from the family's data (the "ask" edge function calls Claude) ----- */
 const ASK = { hist: [], busy: false, nokey: false };
+const ASK_SUGG_DO = ['📷 Snap a school letter or rota', 'Add swimming for Grayse every Saturday at 9:30'];
 const ASK_SUGG = ['What\'s on this week?', 'When is Viki next on call?', 'How many Saturdays have I worked this year?', 'How much did we spend on food last month?', 'Can we afford October in Fuerteventura?', 'What do the girls need for school tomorrow?'];
 function askFmt(t) {
   const lines = esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split(/\n/); let html = '', inList = false;
@@ -2229,8 +2245,15 @@ function askFmt(t) {
   return html + (inList ? '</ul>' : '');
 }
 function askLog() {
-  const log = ASK.hist.map(m => `<div class="ask-msg ${m.role}">${m.role === 'assistant' ? askFmt(m.text) : esc(m.text)}</div>`).join('');
+  const log = ASK.hist.map((m, i) => `<div class="ask-msg ${m.role}">${m.img ? `<img class="ask-img" src="${m.img}" alt="">` : ''}${m.role === 'assistant' ? askFmt(m.text) : esc(m.text)}${m.prop ? askPropCard(m.prop, i) : ''}</div>`).join('');
   return log + (ASK.busy ? '<div class="ask-msg assistant typing" aria-label="Thinking"><i></i><i></i><i></i></div>' : '');
+}
+function askPropCard(P, i) {
+  if (P.state === 'done') return `<p class="ask-done">✓ Added ${P.done} of ${P.changes.length}</p>`;
+  if (P.state === 'cancelled') return '<p class="ask-done">Not added</p>';
+  const ic = { kid_event: '📅', kid_activity: '🔁', work_day: '💼', list_item: '🛒', bill: '💷', meal: '🍽️' };
+  return `<div class="ask-prop">${P.changes.map((c, j) => `<label class="ask-ch"><input type="checkbox" id="askc_${i}_${j}" checked ${P.state === 'busy' ? 'disabled' : ''}><span class="ask-ci">${ic[c.type] || '•'}</span><span>${esc(c.label)}</span></label>`).join('')}
+    <div class="ask-pa"><button type="button" class="btn small" data-act="askapply" data-i="${i}" ${P.state === 'busy' ? 'disabled' : ''}>${P.state === 'busy' ? 'Adding…' : `Add ${P.changes.length === 1 ? 'it' : 'these'}`}</button><button type="button" class="btn small ghost" data-act="askcancel" data-i="${i}">Cancel</button></div></div>`;
 }
 function askKeyBox() {
   return `<div class="ask-key"><b>One-time setup</b><p>Ask uses Claude, so it needs an Anthropic API key. Make one at console.anthropic.com (API keys), set a monthly spending limit there, then paste it here. It's stored on the server, never in the app.</p>
@@ -2238,11 +2261,13 @@ function askKeyBox() {
 }
 function askOpen() {
   openSheet('Ask Hitchen HQ', `<div class="ask"><div class="ask-log" id="askLog" aria-live="polite">${ASK.hist.length ? askLog() : '<p class="ask-hi">Ask anything about the family: shifts, school, money, holidays, the car, your hours. Answers come from your own data.</p>'}</div>
-    <div class="ask-sugg" id="askSugg">${ASK.hist.length ? '' : ASK_SUGG.map(s => `<button type="button" class="chip" data-act="asks" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+    <div class="ask-sugg" id="askSugg">${ASK.hist.length ? '' : ASK_SUGG.map(s => `<button type="button" class="chip" data-act="asks" data-q="${esc(s)}">${esc(s)}</button>`).join('') + `<span class="ask-tip">Or take a photo of a school letter, rota or appointment card and I'll add it for you.</span>`}</div>
     <div id="askKeyWrap">${ASK.nokey ? askKeyBox() : ''}</div>
-    <div class="ask-row ask-in"><input id="askQ" autocomplete="off" placeholder="Ask a question" aria-label="Your question"><button type="button" class="btn small" data-act="asksend" aria-label="Send">Ask</button></div>
+    <div id="askPhoto" class="ask-photo"></div>
+    <div class="ask-row ask-in"><button type="button" class="iconbtn ask-cam" data-act="askphoto" aria-label="Add a photo"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg></button><input id="askQ" autocomplete="off" placeholder="Ask a question, or say what to add" aria-label="Your question"><button type="button" class="btn small" data-act="asksend" aria-label="Send">Ask</button></div>
     ${ASK.hist.length ? '<button type="button" class="linkbtn ask-clear" data-act="askclear">Start again</button>' : ''}</div>`, null, { noSave: true });
   const q = $('#askQ'); if (q) q.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); askSend(); } });
+  askPaintPhoto();
 }
 const askPaint = () => { const l = $('#askLog'); if (l) { l.innerHTML = askLog(); l.scrollTop = l.scrollHeight; } const s = $('#askSugg'); if (s) s.innerHTML = ''; const kw = $('#askKeyWrap'); if (kw) kw.innerHTML = ASK.nokey ? askKeyBox() : ''; };
 async function askCall(body) {
@@ -2251,8 +2276,10 @@ async function askCall(body) {
   return data;
 }
 async function askSend(text) {
-  const inp = $('#askQ'), q = String(text || (inp && inp.value) || '').trim(); if (!q || ASK.busy) return; if (inp) inp.value = '';
-  const history = ASK.hist.slice(-6); ASK.hist.push({ role: 'user', text: q }); ASK.busy = true; askPaint();
+  const inp = $('#askQ'), q = String(text || (inp && inp.value) || '').trim(); if (ASK.busy) return;
+  if (ASK.photo || ASK_DO.test(q)) { if (inp) inp.value = ''; return askDo(q); }
+  if (!q) return; if (inp) inp.value = '';
+  const history = ASK.hist.slice(-6).map(m => ({ role: m.role, text: m.text })); ASK.hist.push({ role: 'user', text: q }); ASK.busy = true; askPaint();
   try { const r = await askCall({ q, history }); ASK.hist.push({ role: 'assistant', text: r.answer || 'No answer came back.' }); ASK.nokey = false; }
   catch (e) { if (/nokey/.test(e.message)) { ASK.nokey = true; ASK.hist.pop(); ASK.pending = q; } else ASK.hist.push({ role: 'assistant', text: `Sorry, that didn't work: ${e.message}` }); }
   ASK.busy = false; askPaint();
@@ -2261,6 +2288,68 @@ async function askSaveKey() {
   const k = ($('#askKey') || {}).value || ''; if (!k.trim()) return;
   try { await askCall({ action: 'setkey', key: k.trim() }); ASK.nokey = false; toast('Key saved'); askPaint(); if (ASK.pending) { const q = ASK.pending; ASK.pending = null; askSend(q); } }
   catch (e) { toast(e.message); }
+}
+
+/* ----- Ask can also add things: a photo or an instruction becomes a checklist of changes to confirm ----- */
+const ASK_DO = /^\s*(add|put|book|log|mark|schedule|set|plan|enter|record|save|remind|pop|stick|note)\b/i;
+async function askShrink(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => no(new Error('Couldn\'t open that photo')); i.src = url; });
+    const s = Math.min(1, 1568 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const data = c.toDataURL('image/jpeg', 0.82); return { b64: data.split(',')[1], thumb: c.width > 240 ? (() => { const t = document.createElement('canvas'), k = 240 / c.width; t.width = 240; t.height = Math.round(c.height * k); t.getContext('2d').drawImage(c, 0, 0, t.width, t.height); return t.toDataURL('image/jpeg', 0.7); })() : data };
+  } finally { URL.revokeObjectURL(url); }
+}
+function askPickPhoto() {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = async () => { const f = inp.files && inp.files[0]; if (!f) return; try { ASK.photo = await askShrink(f); askPaintPhoto(); const q = $('#askQ'); if (q) q.focus(); } catch (e) { toast(e.message); } };
+  inp.click();
+}
+function askPaintPhoto() { const w = $('#askPhoto'); if (!w) return; w.innerHTML = ASK.photo ? `<span class="ask-thumb"><img src="${ASK.photo.thumb}" alt="Photo to read"><button type="button" data-act="askphotox" aria-label="Remove photo">×</button></span>` : ''; const b = $('[data-act="asksend"]'); if (b) b.textContent = ASK.photo ? 'Add' : 'Ask'; const q = $('#askQ'); if (q) q.placeholder = ASK.photo ? 'Anything to add? Then tap Add' : 'Ask a question, or say what to add'; }
+const kidKeyOf = name => { const k = kidsDob().find(x => x.name.toLowerCase() === String(name || '').trim().toLowerCase()) || (kidsDob().length === 1 ? kidsDob()[0] : null); return k ? wishKey(k.name) : null; };
+async function askDo(text) {
+  const photo = ASK.photo; ASK.photo = null; askPaintPhoto();
+  ASK.hist.push({ role: 'user', text: text || 'Add what this photo shows', img: photo ? photo.thumb : '' }); ASK.busy = true; askPaint();
+  try {
+    const r = await askCall({ action: 'do', text, image: photo ? photo.b64 : '', mediaType: 'image/jpeg' });
+    const changes = (r.changes || []).filter(c => c && c.type && c.label);
+    ASK.hist.push({ role: 'assistant', text: r.summary || (changes.length ? 'Here\'s what I found.' : 'I couldn\'t find anything to add.'), prop: changes.length ? { changes, state: 'open' } : null });
+    ASK.nokey = false;
+  } catch (e) { if (/nokey/.test(e.message)) { ASK.nokey = true; ASK.hist.pop(); ASK.photo = photo; askPaintPhoto(); } else ASK.hist.push({ role: 'assistant', text: `Sorry, that didn't work: ${e.message}` }); }
+  ASK.busy = false; askPaint();
+}
+async function askApplyOne(c) {
+  const t = String(c.title || '').trim();
+  if (c.type === 'kid_event' || c.type === 'kid_activity') {
+    const key = kidKeyOf(c.kid); if (!key) throw new Error(`Which child is "${c.label}" for?`);
+    if (c.type === 'kid_event') { if (!c.date) throw new Error(`No date for "${c.label}"`);
+      return saveKid(key, z => ({ ...z, events: [...(z.events || []), { id: uid('ev'), d: c.date, kind: c.kind || 'other', t, from: c.from || '', kit: c.kit || '', note: c.note || '' }] })); }
+    return saveKid(key, z => ({ ...z, acts: [...(z.acts || []), { id: uid('ac'), n: t || 'Activity', day: Number.isInteger(c.day) ? c.day : 1, from: c.from || '', to: c.to || '', where: c.where || '', drop: c.drop || '', pick: c.pick || '', term: c.term !== false, kind: c.kind || 'club', kit: c.kit || '' }] }));
+  }
+  if (c.type === 'work_day') {
+    const who = c.who === 'viki' ? 'viki' : 'chris', d = c.date; if (!d) throw new Error(`No date for "${c.label}"`);
+    const status = STATUS[who].some(([k]) => k === c.status) ? c.status : (who === 'viki' ? 'shift' : 'work');
+    const data = { ...(S.days[`${who}_${d}`] || {}), who, date: d, status, src: 'ask' };
+    if (c.start) data.start = c.start; if (c.end) data.end = c.end; if (c.note) data.note = c.note;
+    if (who === 'viki') { data.callouts = data.callouts || []; if (status === 'shift' && data.lunch == null) data.lunch = 30;
+      if (c.oncall) data.oncall = (isWeekend(d) || isBH(d)) && status !== 'shift' ? { start: '08:00', end: '08:00' } : { start: status === 'shift' && data.end ? data.end : '18:30', end: '08:00' }; }
+    return put(`days/${who}_${d}`, data);
+  }
+  if (c.type === 'list_item') return put(`list/${uid('l')}`, { text: c.text || t, list: 'shopping', done: false, by: me(), at: Date.now() });
+  if (c.type === 'bill') { const amount = Number(c.amount); if (!(amount >= 0)) throw new Error(`No amount for "${c.label}"`);
+    return put(`bills/${uid('b')}`, { name: t || 'Bill', amount, freq: ['monthly', 'weekly', 'quarterly', 'annual'].includes(c.freq) ? c.freq : 'monthly', due: c.date || today(), category: CATS.includes(c.category) ? c.category : 'Other', ...(c.note ? { note: c.note } : {}) }); }
+  if (c.type === 'meal') { if (!c.date) throw new Error(`No date for "${c.label}"`); const doc = mealsDoc(), plan = { ...doc.plan, [c.date]: { n: t || 'Dinner', items: [], cost: 0 } }; return put('meals/main', { ...doc, plan }); }
+  throw new Error(`Not sure how to add "${c.label}"`);
+}
+async function askApply(i) {
+  const m = ASK.hist[i]; if (!m || !m.prop || m.prop.state !== 'open') return;
+  const pick = m.prop.changes.filter((c, j) => { const b = $(`#askc_${i}_${j}`); return b ? b.checked : true; });
+  m.prop.state = 'busy'; askPaint(); let ok = 0; const errs = [];
+  for (const c of pick) { try { await askApplyOne(c); ok++; } catch (e) { errs.push(e.message); } }
+  m.prop.state = 'done'; m.prop.done = ok;
+  ASK.hist.push({ role: 'assistant', text: `${ok ? `Done: added ${ok} thing${ok === 1 ? '' : 's'}.` : 'Nothing was added.'}${errs.length ? `\n- ${errs.join('\n- ')}` : ''}` });
+  askPaint(); render();
 }
 
 /* ----- holiday price watch: state/pricewatch = { updated, groups:{ id:{label, when, note, tone} }, watches:[{ id, g, name, kind, ... }], points:{ id:[{ d, p, h, r, c, direct }] }, alerts:[{ d, id, text }] }
@@ -5960,6 +6049,10 @@ document.addEventListener('click', async e => {
   if (a==='asks') return askSend(el.dataset.q);
   if (a==='asksend') return askSend();
   if (a==='askkey') return askSaveKey();
+  if (a==='askphoto') return askPickPhoto();
+  if (a==='askphotox') { ASK.photo = null; return askPaintPhoto(); }
+  if (a==='askapply') return askApply(Number(el.dataset.i));
+  if (a==='askcancel') { const m = ASK.hist[Number(el.dataset.i)]; if (m && m.prop) m.prop.state = 'cancelled'; return askPaint(); }
   if (a==='askclear') { ASK.hist = []; ASK.nokey = false; closeSheet(); return askOpen(); }
   if (a==='pwrow') return pwRowSheet(el.dataset.id);
   if (a==='kchore') return choreForm(el.dataset.k, el.dataset.id);

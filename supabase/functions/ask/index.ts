@@ -10,7 +10,7 @@ const TZ = 'Europe/Isle_of_Man';
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
 const svc = (path: string, init: RequestInit = {}) => fetch(`${URL_}/rest/v1/${path}`, { ...init, headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, 'Content-Type': 'application/json', ...(init.headers || {}) } });
-const MODEL = 'claude-sonnet-5-5';
+const MODEL = 'claude-sonnet-5-5', DO_MODEL = 'claude-haiku-5-5';
 
 function localNow() {
   const p: Record<string, string> = {};
@@ -53,6 +53,55 @@ async function context(auth: string, today: string) {
   return text;
 }
 
+/* ---- "do": read a photo or an instruction and propose changes for the family to confirm in the app ---- */
+const addD = (s: string, n: number) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+async function doContext(auth: string, today: string) {
+  const r = await fetch(`${URL_}/rest/v1/docs?select=path,data&or=(path.eq.settings/main,path.like.kids/*,path.like.days/*,path.like.bills/*,path.like.list/*,path.eq.meals/main,path.like.plans/*)`, { headers: { apikey: ANON, Authorization: auth } });
+  const rows: { path: string; data: any }[] = r.ok ? await r.json() : [];
+  const lo = addD(today, -7), hi = addD(today, 90), L: string[] = [];
+  for (const { path, data } of rows) {
+    const [c, id] = path.split('/');
+    if (c === 'settings') L.push(`children: ${JSON.stringify((data.kids || []).map((k: any) => ({ name: k.name, dob: k.dob })))}`);
+    else if (c === 'kids') L.push(`kid ${id}: activities ${JSON.stringify((data.acts || []).map((a: any) => ({ n: a.n, day: a.day, from: a.from, kind: a.kind })))}; upcoming events ${JSON.stringify((data.events || []).filter((e: any) => e.d >= lo).map((e: any) => ({ d: e.d, t: e.t, kind: e.kind })))}`);
+    else if (c === 'days') { const d = id.split('_')[1]; if (d >= lo && d <= hi) L.push(`day ${id}: ${data.status || ''} ${data.start || ''}${data.end ? '-' + data.end : ''}${data.oncall ? ' on call' : ''}`); }
+    else if (c === 'bills') L.push(`bill: ${data.name} £${data.amount} ${data.freq}`);
+    else if (c === 'list' && !data.done) L.push(`shopping list: ${data.text}`);
+    else if (c === 'plans') L.push(`trip/plan: ${data.name} ${data.from || ''} to ${data.to || ''}`);
+  }
+  return L.join('\n');
+}
+const DO_TOOL = { name: 'propose_changes', description: 'Propose additions or changes to the family app for the family to confirm.', input_schema: { type: 'object', properties: {
+  summary: { type: 'string', description: 'One short friendly sentence saying what you found, in British English.' },
+  changes: { type: 'array', items: { type: 'object', properties: {
+    type: { type: 'string', enum: ['kid_event', 'kid_activity', 'work_day', 'list_item', 'bill', 'meal'] },
+    label: { type: 'string', description: 'Short plain description of this change for a checklist, e.g. "Ella: museum trip, Thu 29 Oct, packed lunch and £5".' },
+    kid: { type: 'string', description: 'Child first name (kid_event, kid_activity).' },
+    date: { type: 'string', description: 'YYYY-MM-DD (kid_event, work_day, meal, bill next payment).' },
+    day: { type: 'integer', description: 'Weekday 0=Sunday..6=Saturday (kid_activity).' },
+    kind: { type: 'string', description: 'kid_event: test|trip|event|nonuniform|dayoff|other. kid_activity: club|pe|swim|music|lesson|other.' },
+    title: { type: 'string', description: 'Name of the event, activity, bill or dinner.' },
+    from: { type: 'string', description: 'HH:MM start' }, to: { type: 'string', description: 'HH:MM end' },
+    where: { type: 'string' }, kit: { type: 'string', description: 'Things to take, comma separated.' }, note: { type: 'string' },
+    drop: { type: 'string', description: 'chris|viki|other name for drop-off' }, pick: { type: 'string', description: 'chris|viki|other name for pick-up' },
+    term: { type: 'boolean', description: 'Activity runs in term time only (default true).' },
+    who: { type: 'string', enum: ['chris', 'viki'], description: 'work_day: whose day.' },
+    status: { type: 'string', description: 'work_day: chris work|holiday|sick|off; viki shift|holiday|sick|off.' },
+    start: { type: 'string', description: 'HH:MM shift start' }, end: { type: 'string', description: 'HH:MM shift end' },
+    oncall: { type: 'boolean', description: 'work_day for viki: on call that day.' },
+    text: { type: 'string', description: 'list_item: the shopping item.' },
+    amount: { type: 'number', description: 'bill: amount in pounds.' }, freq: { type: 'string', enum: ['monthly', 'weekly', 'quarterly', 'annual'] },
+    category: { type: 'string' } }, required: ['type', 'label'] } } }, required: ['summary', 'changes'] } };
+const DO_RULES = (n: ReturnType<typeof localNow>) => `You help a family keep their organiser app up to date. Today is ${n.weekday} ${n.date} (Isle of Man).
+Read the photo and/or instruction and propose the changes to make, using the propose_changes tool. Rules:
+- Only propose what the photo or instruction actually says. Never invent dates, times or amounts; leave a field out if it isn't given.
+- Resolve relative dates ("next Tuesday", "the 29th") to YYYY-MM-DD from today. Dates in letters without a year are the next occurrence.
+- A school letter about a one-off day is a kid_event; a weekly club or lesson is a kid_activity. If a letter doesn't say which child, use the child it names, or leave kid empty.
+- A work rota becomes one work_day per listed day. "C:" or Chris means who=chris; Viki's NHS rota means who=viki (status shift with start/end; on call days set oncall true).
+- Receipts or bills with a regular payment become a bill; groceries to buy become list_item entries; dinners become meal entries.
+- Avoid duplicates of what's already in the app (listed below).
+- If nothing can be added, return an empty changes list and say why in the summary.
+What's already in the app:`;
+
 const RULES = (n: ReturnType<typeof localNow>) => `You are the assistant inside Hitchen HQ, a family's own organiser app on the Isle of Man. Who's who is in the settings and data below.
 Today is ${n.weekday} ${n.date}, ${n.time} Isle of Man time.
 Answer the question using the family's data below. Work things out properly (dates, money, hours) rather than guessing, and say plainly if the data doesn't cover it.
@@ -74,6 +123,21 @@ Deno.serve(async (req: Request) => {
     await setKey(k); return json({ ok: true });
   }
   if (body.action === 'forgetkey') { await svc('app_secrets?name=eq.anthropic_key', { method: 'DELETE' }); return json({ ok: true }); }
+  if (body.action === 'do') {
+    const key = await getKey(); if (!key) return json({ error: 'nokey' }, 400);
+    const text = String(body.text || '').trim().slice(0, 2000), img = typeof body.image === 'string' && body.image.length < 6_000_000 ? body.image : '';
+    if (!text && !img) return json({ error: 'Add a photo or say what to add' }, 400);
+    const n = localNow(), ctx = await doContext(auth, n.date);
+    const content: any[] = []; if (img) content.push({ type: 'image', source: { type: 'base64', media_type: /^image\/(png|webp|gif)$/.test(body.mediaType) ? body.mediaType : 'image/jpeg', data: img } });
+    content.push({ type: 'text', text: text || 'Add what this shows to the app.' });
+    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: DO_MODEL, max_tokens: 2000, system: `${DO_RULES(n)}\n${ctx}`, tools: [DO_TOOL], tool_choice: { type: 'tool', name: 'propose_changes' }, messages: [{ role: 'user', content }] }) });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) { const m = out?.error?.message || `Claude answered ${res.status}`; return json({ error: res.status === 401 ? 'The API key was turned down. Add a new one in Ask settings.' : m }, 502); }
+    const use = (out.content || []).find((c: any) => c.type === 'tool_use');
+    if (!use) return json({ error: `No changes came back (${out.stop_reason || 'unknown'})` }, 502);
+    return json({ summary: use.input.summary || '', changes: Array.isArray(use.input.changes) ? use.input.changes : [], usage: out.usage });
+  }
   const q = String(body.q || '').trim().slice(0, 1500); if (!q) return json({ error: 'Ask a question' }, 400);
   const key = await getKey(); if (!key) return json({ error: 'nokey' }, 400);
   const n = localNow(), ctx = await context(auth, n.date);
@@ -83,5 +147,6 @@ Deno.serve(async (req: Request) => {
   const out = await res.json().catch(() => ({}));
   if (!res.ok) { const m = out?.error?.message || `Claude answered ${res.status}`; return json({ error: res.status === 401 ? 'The API key was turned down. Add a new one in Ask settings.' : m }, 502); }
   const answer = (out.content || []).filter((c: any) => c.type === 'text').map((c: any) => c.text).join('\n').trim();
+  if (!answer) return json({ error: `Claude didn't send an answer (${out.stop_reason || 'unknown'}). Try asking again.` }, 502);
   return json({ answer, usage: out.usage });
 });
