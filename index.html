@@ -375,6 +375,16 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-1
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--blc:#7FA8F5}}
 :root[data-theme="dark"]{--blc:#7FA8F5}
 
+.od-row .t small.od-via{font-weight:500;color:var(--ink-2);font-size:.82rem}
+.od-note{white-space:pre-line}
+.chip.od-st{font-size:.7rem}.chip.od-st.bad{background:color-mix(in srgb,#D50000 14%,transparent);color:#C62828}.chip.od-st.warn{background:color-mix(in srgb,#C98A00 16%,transparent);color:#9A6A00}.chip.od-st.ok{background:color-mix(in srgb,#0B8043 14%,transparent);color:#0B8043}
+:root[data-theme="dark"] .chip.od-st.bad{color:#FF8A80}:root[data-theme="dark"] .chip.od-st.warn{color:#FFD27A}:root[data-theme="dark"] .chip.od-st.ok{color:#7FD8A6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip.od-st.bad{color:#FF8A80}:root:not([data-theme="light"]) .chip.od-st.warn{color:#FFD27A}:root:not([data-theme="light"]) .chip.od-st.ok{color:#7FD8A6}}
+.od-f{margin:0 0 10px}
+.od-facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:.92rem}.od-facts dt{color:var(--ink-2)}.od-facts dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}.od-facts.small{margin-bottom:12px;font-size:.88rem}
+.od-time{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--rule-2)}.od-time li{position:relative;padding:0 0 12px 8px;display:flex;flex-direction:column;gap:1px}.od-time li::before{content:'';position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--sheet);border:2px solid var(--ink-2)}.od-time li.future::before{border-style:dashed}.od-time b{font-size:.8rem;color:var(--ink-2)}.od-time li span{font-size:.92rem}
+.od-open{font-size:.85rem;font-weight:700}.od-c{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-size:.85rem}.od-c a{color:inherit}
+
 .linkbtn{all:unset;cursor:pointer;color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-2)}
 .linkbtn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .panel h2 .btnrow{gap:6px}
@@ -1769,14 +1779,14 @@ function applyLocal(path, data) {
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; }
+  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
@@ -2875,7 +2885,7 @@ function loansPanel() {
   const st = Ls.map(L => ({ L, s: loanStat(L) })), owed = st.reduce((a, x) => a + x.s.leftAmt, 0), monthly = st.filter(x => x.s.left).reduce((a, x) => a + x.s.pay, 0);
   const cards = st.map(({ L, s }, i) => `<div class="ln" style="--i:${i}">
     <div class="ln-ring" style="--p:${(s.pct * 100).toFixed(1)}" role="img" aria-label="${Math.round(s.pct * 100)}% paid"><span><b>${Math.round(s.pct * 100)}%</b><small>paid</small></span></div>
-    <div class="ln-body"><div class="ln-t">${esc(L.name)}</div><div class="ln-m">${s.paid} of ${s.n} payments of ${money(s.pay, 0)}${L.lender ? ` · ${esc(L.lender)}` : ''}</div>
+    <div class="ln-body"><div class="ln-t">${esc(L.name)}</div><div class="ln-m">${s.paid} of ${s.n} payments of ${money(s.pay, 0)}${L.lender ? ` · ${esc(L.lender)}` : ''}${L.holder ? ` · in ${esc(L.holder.split(' (')[0])}’s name` : ''}</div>
       <div class="ln-cells"><span><small>Paid so far</small><b>${money(s.paidAmt, 0)}</b></span><span><small>Still to pay</small><b>${money(s.leftAmt, 0)}</b></span><span><small>Last payment</small><b>${esc(shortDate(s.last))}</b></span></div></div>
     <p class="ln-note">${s.left ? `${s.left} payments left, about ${s.leftTxt}. Next one ${esc(dayShort(s.next))}.` : 'All paid off. It\'s yours!'}${s.extra != null ? ` Over the whole plan that's ${money(s.total, 0)}, ${money(s.extra, 0)} more than the ${money(L.price, 0)} price.` : ''}${L.note ? ` ${esc(L.note)}` : ''}</p></div>`).join('');
   return `<section class="panel"><h2>Car finance <span class="sub">${money(owed, 0)} still to pay${monthly ? `, ${money(monthly, 0)} a month` : ''}</span></h2><div class="ln-list">${cards}</div></section>`;
@@ -4263,7 +4273,7 @@ function planFor(ym) {
 const MONEY_GROUPS = [
   { k:'overview', l:'Overview', pages:[['overview','Overview']] },
   { k:'month', l:'This month', pages:[['sheet','Sheet'],['meals','Dinners'],['plan','Plan'],['spending','Spending'],['budget','Budget']] },
-  { k:'debts', l:'Bills', pages:[['bills','Direct debits'],['owed','Zilch']] },
+  { k:'debts', l:'Bills', pages:[['bills','Direct debits'],['owed','Zilch'],['old','Old debts']] },
   { k:'goals', l:'Goals', pages:[['goals','Goals'],['year','Year ahead'],['save','Tips']] },
 ];
 const moneyGroupOf = page => MONEY_GROUPS.find(g => g.pages.some(([k]) => k === page)) || MONEY_GROUPS[0];
@@ -4282,7 +4292,7 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, save:viewSave, meals:viewMeals}[UI.money]();
+  const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals}[UI.money]();
   return (S.bsheet[ym] ? sheetHero(ym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -4776,6 +4786,77 @@ function debtForm(id) {
     const data = { name, kind: v('dKind'), balance: bal, monthly: num(v('dMon')) || 0, original: Math.max(Number(d.original)||0, bal) }; if (v('dNext')) data.next = v('dNext');
     await put(`debts/${id || uid('d')}`, data);
   }, id ? { onDelete: () => remove(`debts/${id}`) } : {});
+}
+
+/* ----- Old debts: everything known about the debts left from the failed IVA and the older accounts being chased.
+   state/olddebts = { updated, barredEst, iva:{...}, debts:[{ id, who, cred, via, ref, soa, pod, div, bal, status, chaser, cref, heard, orig, note, src }],
+   timeline:[{ d, t }], ideas:[{ t, note }], docs:[{ n, d, url }], contacts:[{ n, tel, email, note }] }. Family figures live only in Supabase. */
+const OD_ST = { chasing: ['Being chased', 'bad'], quiet: ['Quiet', ''], unclaimed: ['Never claimed', 'warn'], settled: ['Settled', 'ok'], barred: ['Statute-barred', 'ok'] };
+const OD_WHO = { chris: 'Chris', viki: 'Viki', joint: 'Joint' };
+const odLeft = d => d.bal != null && d.bal !== '' ? Number(d.bal) || 0 : d.status === 'settled' || d.status === 'barred' ? 0 : Number(d.pod) ? Math.max(0, Number(d.pod) - (Number(d.div) || 0)) : Number(d.soa) || 0;
+const odChip = st => { const x = OD_ST[st] || OD_ST.quiet; return `<span class="chip od-st ${x[1]}">${x[0]}</span>`; };
+function odRow(d) {
+  return `<button class="rowbtn od-row" data-act="oddebt" data-id="${esc(d.id)}"><span class="grow"><span class="t" style="display:block">${esc(d.cred)}${d.via ? ` <small class="od-via">via ${esc(d.via)}</small>` : ''}</span>
+    <span class="m" style="display:block">${odChip(d.status)}${d.ref ? ` · ref ${esc(d.ref)}` : ''}${d.heard ? ` · last heard ${esc(shortDate(d.heard))}` : ''}</span>${d.note ? `<span class="m od-note" style="display:block">${esc(d.note)}</span>` : ''}</span><span class="amt">${money(odLeft(d), 0)}</span></button>`;
+}
+function viewOld() {
+  const O = S.olddebts;
+  if (!O) return `<section class="panel"><h2>Old debts</h2><p class="empty">Nothing here yet.</p></section>`;
+  const D = O.debts || [], live = D.filter(d => d.status !== 'settled' && d.status !== 'barred');
+  const tot = w => live.filter(d => !w || d.who === w).reduce((s, d) => s + odLeft(d), 0);
+  const chasing = D.filter(d => d.status === 'chasing');
+  const f = UI.odf || 'all', fl = D.filter(d => f === 'all' ? true : f === 'chasing' ? d.status === 'chasing' : f === 'unclaimed' ? d.status === 'unclaimed' : d.who === f);
+  const be = O.barredEst ? parse(O.barredEst) : null, now = parse(today());
+  const mLeft = be ? Math.max(0, (be.getFullYear() - now.getFullYear()) * 12 + be.getMonth() - now.getMonth()) : 0;
+  const hero = tblock({ kicker: 'Old debts', title: `${money(tot(), 0)} on paper`,
+    side: be ? `<span class="tb-kicker">Can't be chased in court from about</span><span class="big" style="font-size:1.25rem">${MONTHS[be.getMonth()].slice(0, 3)} ${be.getFullYear()}</span>` : '',
+    cells: [tbCell('Chris', money(tot('chris'), 0), '#3F51B5'), tbCell('Viki', money(tot('viki'), 0), '#D2477A'), tbCell('Being chased', `${chasing.length}`, '#D50000')],
+    foot: `<span>${be ? `About ${Math.floor(mLeft / 12)} years ${mLeft % 12} months to go, if nothing restarts the clock. That date is an estimate, so check it with National Debtline before relying on it.` : ''}</span>` });
+  const chips = [['all', 'All'], ['chris', 'Chris'], ['viki', 'Viki'], ['chasing', 'Being chased'], ['unclaimed', 'Never claimed']].map(([k, l]) => `<button type="button" data-act="odf" data-v="${k}" aria-pressed="${f === k}">${l}</button>`).join('');
+  const groups = ['chris', 'viki', 'joint'].map(w => [w, fl.filter(d => d.who === w).sort((a, b) => odLeft(b) - odLeft(a))]).filter(([, l]) => l.length);
+  const iva = O.iva || {};
+  const facts = [['Firm', iva.firm], ['Reference', iva.ref], ['Supervisor', iva.supervisor], ['Approved', iva.approved && shortDate(iva.approved)], ['Terminated', iva.terminated && shortDate(iva.terminated)], ['Why', iva.reason], ['Agreed to pay in', iva.due != null && money(iva.due, 0)], ['Paid in', iva.paid != null && money(iva.paid, 2)], ['Last payment in', iva.lastPaid], ['Paid out to creditors', iva.divPaid != null && `${money(iva.divPaid, 2)} (${iva.divRate})`], ['Earlier IVAs', iva.earlier]].filter(x => x[1]);
+  return hero + `
+  ${chasing.length ? `<section class="panel"><h2>Being chased now <span class="sub">${money(chasing.reduce((s, d) => s + odLeft(d), 0), 0)}</span></h2><div class="list">${chasing.sort((a, b) => (b.heard || '').localeCompare(a.heard || '')).map(odRow).join('')}</div>
+    <p class="note">Don't pay anything or confirm any of these in writing without advice: that can restart the six-year clock. Never ignore anything from a court.</p></section>` : ''}
+  <section class="panel"><h2>Every debt <button class="btn small" data-act="oddebt">Add</button></h2>
+    <div class="zchips od-f" role="group" aria-label="Show">${chips}</div>
+    ${groups.map(([w, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${w === 'chris' ? '#3F51B5' : w === 'viki' ? '#D2477A' : '#888'}"></i>${OD_WHO[w]}<span>${money(l.reduce((s, d) => s + odLeft(d), 0), 0)}</span></div><div class="list">${l.map(odRow).join('')}</div></div>`).join('') || '<p class="empty">Nothing matches.</p>'}
+    <p class="note">"Left" is what each creditor claimed in the IVA, minus what the IVA paid them, or the latest balance a collector has quoted. Creditors who never claimed show their original balance. They may also add interest back.</p></section>
+  <section class="panel"><h2>The IVA</h2><dl class="od-facts">${facts.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(String(v))}</dd>`).join('')}</dl></section>
+  <section class="panel"><h2>What's happened <button class="btn small ghost" data-act="odevent">Add</button></h2><ol class="od-time">${(O.timeline || []).slice().sort((a, b) => (b.d || '').localeCompare(a.d || '')).map(e => `<li class="${e.d > today() ? 'future' : ''}"><b>${esc(/^\d{4}-\d\d-\d\d$/.test(e.d) ? shortDate(e.d) : /^\d{4}-\d\d$/.test(e.d) ? `${MONTHS[Number(e.d.slice(5)) - 1]} ${e.d.slice(0, 4)}` : e.d)}</b><span>${esc(e.t)}</span></li>`).join('')}</ol></section>
+  <section class="panel"><h2>Ideas and options <button class="btn small ghost" data-act="odidea">Add</button></h2><div class="list">${(O.ideas || []).map((x, i) => `<button class="rowbtn" data-act="odidea" data-i="${i}"><span class="grow"><span class="t" style="display:block">${esc(x.t)}</span>${x.note ? `<span class="m" style="display:block">${esc(x.note)}</span>` : ''}</span></button>`).join('')}</div></section>
+  <section class="panel"><h2>Paperwork</h2><div class="list">${(O.docs || []).map(x => `<a class="rowbtn" href="${esc(x.url)}" target="_blank" rel="noopener"><span class="grow"><span class="t" style="display:block">${esc(x.n)}</span><span class="m" style="display:block">${esc(x.d ? shortDate(x.d) : '')}${x.where ? ` · ${esc(x.where)}` : ''}</span></span><span class="amt od-open">Open</span></a>`).join('')}</div><p class="note">These open the emails in Gmail.</p></section>
+  <section class="panel"><h2>Who to contact</h2><div class="list">${(O.contacts || []).map(c => `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(c.n)}</span><span class="m" style="display:block">${esc(c.note || '')}</span></span><span class="amt od-c">${c.tel ? `<a href="tel:${esc(c.tel.replace(/\s/g, ''))}">${esc(c.tel)}</a>` : ''}${c.email ? `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''}</span></div>`).join('')}</div></section>
+  <p class="note" style="padding:0 16px 8px">${O.updated ? `Put together ${esc(shortDate(O.updated))} from your emails, the IVA reports and your credit report. ` : ''}General information, not legal advice.</p>`;
+}
+async function odSave(patch) { const { id, ...O } = { ...S.olddebts }; await put('state/olddebts', { ...O, ...patch, updated: today() }); }
+function odDebtForm(id) {
+  const O = S.olddebts || {}, D = O.debts || [], d = D.find(x => x.id === id) || { who: 'chris', status: 'chasing' };
+  const info = id ? `<dl class="od-facts small">${[['Whose', OD_WHO[d.who]], ['Original lender', d.orig], ['Account ref', d.ref], ['Owed at the start of the IVA', Number(d.soa) ? money(d.soa, 0) : ''], ['Claimed in the IVA', Number(d.pod) ? money(d.pod, 2) : d.src === 'iva' ? 'Never claimed' : ''], ['Paid by the IVA', Number(d.div) ? money(d.div, 2) : ''], ['Left', money(odLeft(d), 2)]].filter(x => x[1]).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(String(v))}</dd>`).join('')}</dl>` : '';
+  openSheet(id ? d.cred : 'Add an old debt', info + (id ? '' : fld('odC', 'Who it’s owed to', '', 'text', 'placeholder="e.g. Lowell"') + sel('odW', 'Whose', d.who, [['chris', 'Chris'], ['viki', 'Viki'], ['joint', 'Joint']]) + fld('odR', 'Account reference', '')) +
+    sel('odS', 'Status', d.status, Object.entries(OD_ST).map(([k, v]) => [k, v[0]])) +
+    `<div class="fields2">${fld('odCh', 'Chased by', d.chaser || '', 'text', 'placeholder="Collector or solicitor"')}${fld('odCr', 'Their reference', d.cref || '')}</div>` +
+    `<div class="fields2">${fld('odB', 'Balance they quote (£)', d.bal ?? '', 'number', 'step="0.01" inputmode="decimal"')}${fld('odH', 'Last heard from', d.heard || '', 'date')}</div>` +
+    `<div class="field"><label for="odN">Notes</label><textarea id="odN" rows="4" placeholder="What they said, offers made, anything worth remembering">${esc(d.note || '')}</textarea></div>`, async () => {
+      const nx = { ...d }; if (!id) { nx.id = uid('od'); nx.cred = v('odC').trim(); if (!nx.cred) throw new Error('Say who it’s owed to'); nx.who = v('odW'); nx.ref = v('odR').trim(); nx.src = 'added'; }
+      nx.status = v('odS'); nx.chaser = v('odCh').trim(); nx.cref = v('odCr').trim(); const b = num(v('odB')); if (b === null) delete nx.bal; else nx.bal = b; nx.heard = v('odH'); nx.note = v('odN').trim();
+      ['chaser', 'cref', 'heard', 'note'].forEach(k => { if (!nx[k]) delete nx[k]; });
+      await odSave({ debts: id ? D.map(x => x.id === id ? nx : x) : [...D, nx] });
+    }, id ? { onDelete: () => odSave({ debts: D.filter(x => x.id !== id) }) } : {});
+}
+function odIdeaForm(i) {
+  const L = (S.olddebts || {}).ideas || [], x = i != null ? L[i] : {};
+  openSheet(i != null ? 'Idea' : 'Add an idea', fld('oiT', 'Idea', x.t || '') + `<div class="field"><label for="oiN">Details</label><textarea id="oiN" rows="5">${esc(x.note || '')}</textarea></div>`, async () => {
+    const t = v('oiT').trim(); if (!t) throw new Error('Write the idea'); const nx = { t, note: v('oiN').trim() };
+    await odSave({ ideas: i != null ? L.map((y, j) => j === i ? nx : y) : [...L, nx] });
+  }, i != null ? { onDelete: () => odSave({ ideas: L.filter((_, j) => j !== i) }) } : {});
+}
+function odEventForm() {
+  const L = (S.olddebts || {}).timeline || [];
+  openSheet('Add to what’s happened', fld('oeD', 'Date', today(), 'date') + fld('oeT', 'What happened', '', 'text', 'placeholder="e.g. Letter from Lowell about the Capital One debt"'), async () => {
+    const t = v('oeT').trim(); if (!t) throw new Error('Say what happened'); await odSave({ timeline: [...L, { d: v('oeD'), t }] });
+  });
 }
 
 /* ----- trip pots ----- */
@@ -6678,6 +6759,10 @@ document.addEventListener('click', async e => {
   if (a==='chrisrates') { closeSheet(); return chrisRatesForm(); }
   if (a==='planform') return planForm();
   if (a==='debt') return debtForm(el.dataset.id);
+  if (a==='oddebt') return odDebtForm(el.dataset.id);
+  if (a==='odidea') return odIdeaForm(el.dataset.i != null ? Number(el.dataset.i) : null);
+  if (a==='odevent') return odEventForm();
+  if (a==='odf') { UI.odf = el.dataset.v; return render(); }
   if (a==='trip') return tripForm(el.dataset.id);
   if (a==='pltab') { UI.pltab = el.dataset.v; return render(); }
   if (a==='plopt') { const p = (S.plans||[]).find(x => x.id === el.dataset.id); if (p && p.sel !== el.dataset.v) { const y = window.scrollY; plSetOpt(p, el.dataset.v).then(() => { render(); window.scrollTo(0, y); }); } return; }
