@@ -1809,6 +1809,29 @@ nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 .me-yt th,.me-yt td{padding:6px 5px;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}.me-yt th:first-child{text-align:left}.me-yt thead th{color:var(--muted);font-weight:600;font-size:.72rem}.me-yt small{color:var(--muted);font-weight:400}
 .me-imp{display:flex;flex-direction:column;gap:4px;margin:4px 0}
 .me-impb{position:relative;overflow:hidden;align-self:flex-start}.me-impb input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* Treats: five badges, nothing else, until one is opened */
+.tr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:4px}
+.tr-b{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:4px;min-height:132px;border:0;border-radius:22px;padding:16px;color:#fff;text-align:left;font:inherit;cursor:pointer;box-shadow:0 14px 26px -16px rgba(0,0,0,.55);transition:transform .15s}
+.tr-b:active{transform:scale(.97)}
+.tr-b:last-child:nth-child(odd){grid-column:1/-1;min-height:110px}
+.tr-b .tr-i{position:absolute;top:12px;right:14px;font-size:2.4rem;line-height:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
+.tr-b b{font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
+.tr-b::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 100% 0,rgba(255,255,255,.22),transparent 60%);pointer-events:none}
+.tr-b.k-summer{background:linear-gradient(145deg,#E2713A,#E8A33D 60%,#F5C55B)}
+.tr-b.k-family{background:linear-gradient(145deg,#0B5D35,#0B8043 60%,#3DAA6A)}
+.tr-b.k-christmas{background:linear-gradient(145deg,#7A0F1E,#C62828 60%,#E5533D)}
+.tr-b.k-birthday{background:linear-gradient(145deg,#5B2A9E,#C2457F 60%,#FF8A5B)}
+.tr-b.k-celebration{background:linear-gradient(145deg,#2A1457,#6A2C91 60%,#B0407E)}
+.tr-head{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
+.tr-head h2{margin:0;font-size:1.25rem;font-weight:800}
+.tr-back{border:0;background:var(--sheet);box-shadow:var(--shadow);color:var(--ink);border-radius:999px;padding:8px 14px 8px 10px;font:inherit;font-weight:650;font-size:.9rem;cursor:pointer;min-height:40px}
+.cd.k-celebration{background:linear-gradient(145deg,#2A1457,#6A2C91 60%,#B0407E)}
+.occ.on.k-celebration{background:linear-gradient(145deg,#2A1457,#6A2C91 70%,#B0407E)}
+.bdl .rowbtn.on{box-shadow:inset 0 0 0 2px var(--acc)}
+.bdl .bd-av{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:1.1rem;background:color-mix(in srgb,#C2457F 16%,transparent);background-size:cover;background-position:center}
+.bdl .amt small{display:block;font-size:.72rem;font-weight:600;color:var(--muted);text-align:right}
+.bdl .plan-it{color:var(--acc);font-weight:700;font-size:.85rem}
 </style>
 </head>
 <body>
@@ -1870,7 +1893,7 @@ const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).
 /* ---------- state ---------- */
 const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
-try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.pltab) UI.pltab=saved.pltab; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; if (saved.csub) UI.csub=saved.csub; } catch(e) {}
+try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; if (saved.csub) UI.csub=saved.csub; } catch(e) {}
 const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode, kidTab:UI.kidTab, csub:UI.csub})); } catch(e) {} };
 let sb = null, session = null, offline = false;
 const LOGIN_DOMAIN = 'hitchen.example.com'; // usernames map to <username>@this (never emailed)
@@ -2032,8 +2055,8 @@ function render() {
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
   if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('[data-act="ask"]').hidden = true; $('#title').textContent = `${UI.kid}'s corner`; $('#subtitle').textContent = UI.kidTab === 'jobs' ? 'Tick off your jobs to earn stars' : UI.kidTab === 'save' ? 'What you\'re saving up for' : 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
   if (UI.tab === 'me' && !meOwner()) UI.tab = 'home';
-  const titles = {me:['Me','Your better-me coach'], home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Holidays, visits, Christmas and birthdays'], car:['The Evoque','Service, checks, fuel and trips']};
-  $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = titles[UI.tab][1];
+  const titles = {me:['Me','Your better-me coach'], home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Tap one to open it'], car:['The Evoque','Service, checks, fuel and trips']};
+  $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = UI.tab === 'trips' && UI.pltab ? 'Plans, budgets and lists' : titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
   const views = { me: viewMe, home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
@@ -5718,14 +5741,15 @@ function tripForm(id) {
 }
 
 /* ----- holiday planner: plans/<id> = { kind, name, from, to, note, saveFrom, items:[{id,n,a,how,ym,from,paid,note}] } ----- */
-const PL_KINDS = [['summer','Holidays'],['family','Visits'],['city','City breaks'],['christmas','Celebrations']];
-const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5', christmas:'#C62828', birthday:'#E5577A', year:'#2E9E62' };
+const PL_KINDS = [['summer','Holidays'],['family','Visits'],['christmas','Christmas'],['birthday','Birthdays'],['celebration','Celebrations']];
+const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5', christmas:'#C62828', birthday:'#E5577A', celebration:'#8E44AD', year:'#2E9E62' };
 const PL_IDEAS = {
   summer: ['Flights','Hotel or villa','Car hire','Airport parking','Transfers','Travel insurance','Excursions','Spending money'],
   family: ['Steam Packet','Fuel','Premier Inn','Gifts','Days out','Food and drink'],
   city: ['Flights or ferry','Hotel','Attractions','Local transport','Food and drink','Spending money'],
   christmas: ['Stocking fillers','Christmas food','Wrapping and cards','Christmas day out'],
   birthday: ['Party or day out','Birthday cake','Party bags','Decorations'],
+  celebration: ['Meal out','Cards and flowers','Decorations','Day out'],
   year: [],
 };
 const PL_HOW = [['save','Save up each month until then'],['once','Pay in one go'],['zilch','Zilch, 4 parts from then']];
@@ -5797,16 +5821,95 @@ function plPastPanel(past) {
     return `<button class="rowbtn${open && open.id === p.id ? ' on' : ''}" data-act="plpast" data-id="${esc(p.id)}" aria-expanded="${!!(open && open.id === p.id)}"><span class="sw" style="background:${PL_COL[p.kind] || 'var(--rule-2)'}"></span><div class="grow"><div class="t">${esc(p.name || 'Trip')}</div><div class="m">${esc(plRange(p))}</div></div><div class="amt">${money((st.cost || 0) + (st.fees || 0), 0)}</div></button>`; }).join('')}</div>
     <p class="note">Trips move here the day after they end. Tap one to look back at it.</p></section>${open ? plPanel(open) : ''}`;
 }
-function viewPlanner() {
-  const k = PL_KINDS.some(x => x[0]===UI.pltab) ? UI.pltab : 'summer', label = PL_KINDS.find(x => x[0]===k)[1];
-  /* the four buttons run in order of whose next event comes first, and swap round as dates pass; ones with nothing coming up go last */
-  const nextOf = kk => (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===kk && !plIsPast(p) && p.from).map(p => p.from).sort()[0] || '9999';
-  const kinds = PL_KINDS.map((x, i) => [x, nextOf(x[0]), i]).sort((a, b) => a[1].localeCompare(b[1]) || a[2] - b[2]).map(x => x[0]);
-  const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of treat">${kinds.map(([kk,l]) => { const n = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===kk && !plIsPast(p)).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}"><span class="pt-i">${OCC_ICON[kk]}</span>${{ summer: 'Holidays', family: 'Visits', city: 'City breaks', christmas: 'Celebrations' }[kk]}${n ? ` <small>${n}</small>` : ''}</button>`; }).join('')}</div>`;
-  const all = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===k), { up, past } = plTimeline(all), list = up;
-  if (k === 'christmas') return countRibbon() + tabs + occasionView(all);
-  return countRibbon() + tabs + (k === 'summer' ? priceWatchPanel() : '') + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : `a ${esc(label.toLowerCase().replace(/s$/,''))}`}</button></div>${list.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plPastPanel(past) + plOverview();
+/* Treats opens on five plain badges, with no dates, amounts or countdowns, so nothing shows over a shoulder until one is tapped.
+   The badges run in order of whose next event comes first and swap round as dates pass. */
+const TR_ICON = { summer: '☀️', family: '🏡', christmas: '🎄', birthday: '🎈', celebration: '🎉' };
+function trNext(kk) {
+  const own = (S.plans || []).filter(p => p.kind !== 'year' && kindTab(p) === kk && !plIsPast(p) && p.from).map(p => p.from);
+  if (kk === 'birthday') own.push(...calBirthdays().map(b => b.d));
+  return own.sort()[0] || '9999';
 }
+function viewPlanner() {
+  const k = PL_KINDS.some(x => x[0] === UI.pltab) ? UI.pltab : '';
+  if (!k) {
+    const kinds = PL_KINDS.map((x, i) => [x, trNext(x[0]), i]).sort((a, b) => a[1].localeCompare(b[1]) || a[2] - b[2]).map(x => x[0]);
+    return `<div class="tr-grid" role="group" aria-label="Treats">${kinds.map(([kk, l]) => `<button type="button" class="tr-b k-${kk}" data-act="pltab" data-v="${kk}"><span class="tr-i" aria-hidden="true">${TR_ICON[kk]}</span><b>${l}</b></button>`).join('')}</div>`;
+  }
+  const label = PL_KINDS.find(x => x[0] === k)[1];
+  const head = `<div class="tr-head"><button type="button" class="tr-back" data-act="pltab" data-v="">‹ Treats</button><h2>${TR_ICON[k]} ${label}</h2></div>`;
+  const all = (S.plans || []).filter(p => p.kind !== 'year' && kindTab(p) === k);
+  if (k === 'christmas' || k === 'celebration') return head + occasionView(all, k);
+  if (k === 'birthday') return head + birthdayView(all);
+  const { up, past } = plTimeline(all);
+  return head + (k === 'summer' ? priceWatchPanel() : '') + up.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August, or three nights in Dublin: add the travel, where you\'re staying, car hire and spending money, and pick when each gets paid.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + plPastPanel(past) + plOverview();
+}
+
+/* Birthdays: everyone's, from the family calendar and the girls' dates, soonest first; tap one to plan it or open its list */
+function birthdayView(all) {
+  const tl = plTimeline(all);
+  const rows = [...tl.up.map(p => ({ p, name: occName(p).replace(/['’]s birthday.*$/i, ''), d: p.from })), ...calBirthdays().map(b => ({ name: b.name, d: b.d }))]
+    .sort((a, b) => (a.d || '9') < (b.d || '9') ? -1 : 1);
+  const sel = [...tl.up, ...tl.past].find(p => p.id === UI.occ) || tl.up[0] || null;
+  const row = r => {
+    const kb = kidBday(r.name), age = kb && kb.date === r.d ? kb.age : null, fa = faceAttr(faceSlot(r.name)), n = sleepsN(r.d);
+    const when = r.d ? `${shortDate(r.d).replace(/ \d{4}$/, '')} · ${n === 0 ? 'today 🎂' : n === 1 ? 'tomorrow' : `${n} sleeps`}${age ? ` · turns ${age}` : ''}` : 'No date yet';
+    const right = r.p ? `<div class="amt">${money(plStats(r.p).cost, 0)}<small>budget</small></div>` : `<div class="amt"><span class="plan-it">Plan it</span></div>`;
+    const attrs = r.p ? `data-act="occ" data-id="${esc(r.p.id)}"` : `data-act="bday" data-name="${esc(r.name)}" data-date="${esc(r.d)}"`;
+    return `<button type="button" class="rowbtn${r.p && sel && sel.id === r.p.id ? ' on' : ''}" ${attrs}><span class="bd-av"${fa}>${fa ? '' : '🎈'}</span><div class="grow"><div class="t">${esc(r.name)}</div><div class="m">${esc(when)}</div></div>${right}</button>`;
+  };
+  const list = rows.length
+    ? `<section class="panel"><h2>Everyone's birthdays <span class="sub">${nOf(rows.length, 'birthday')}</span></h2><div class="list bdl">${rows.map(row).join('')}</div>
+      <p class="note">From the family calendar and the girls' dates. Tap one that says "Plan it" to give it a budget: it saves a little each month until the day.</p>
+      <div class="btnrow"><button class="btn small ghost" data-act="bday">Add a birthday</button></div></section>`
+    : `<section class="panel"><p class="empty">No birthdays found yet. Add them to the family calendar, or add one here.</p><div class="btnrow"><button class="btn small" data-act="bday">Add a birthday</button></div></section>`;
+  return list + (sel ? plPanel(sel) + giftReview(sel) : '') + plPastPanel(tl.past);
+}
+
+/* Celebrations: Valentine's, Mother's Day, Easter, Father's Day, Halloween, Bonfire Night, New Year's Eve, anniversaries and anything else */
+function easterSun(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  return `${y}-${pad(Math.floor((h + l - 7 * m + 114) / 31))}-${pad(((h + l - 7 * m + 114) % 31) + 1)}`;
+}
+const nthSunday = (y, m, nth) => { const dow = new Date(y, m - 1, 1).getDay(); return `${y}-${pad(m)}-${pad(1 + ((7 - dow) % 7) + 7 * (nth - 1))}`; };
+function celebDates() {
+  const t = today(), y = +t.slice(0, 4), out = [];
+  const add = (n, ic, f) => { for (const yy of [y, y + 1]) { const d = f(yy); if (d >= t) { out.push({ n, ic, d }); return; } } };
+  add("Valentine's Day", '💝', yy => `${yy}-02-14`);
+  add("Mother's Day", '💐', yy => addDays(easterSun(yy), -21));   /* Mothering Sunday: three weeks before Easter */
+  add('Easter', '🐣', easterSun);
+  add("Father's Day", '👔', yy => nthSunday(yy, 6, 3));
+  add('Halloween', '🎃', yy => `${yy}-10-31`);
+  add('Bonfire Night', '🎆', yy => `${yy}-11-05`);
+  add("New Year's Eve", '🥂', yy => `${yy}-12-31`);
+  const seen = new Set();
+  (CAL.calendars || []).forEach(c => (c.events || []).forEach(e => {
+    if (!/anniversary/i.test(e.title || '')) return; const d = evDate(e); if (d < t) return;
+    const n = String(e.title).replace(/[^\p{L}\p{N}\s'’&-]/gu, '').replace(/\s+/g, ' ').trim(); if (!n || seen.has(n.toLowerCase())) return; seen.add(n.toLowerCase()); out.push({ n, ic: '💍', d });
+  }));
+  const have = new Set((S.plans || []).filter(p => p.kind === 'celebration').map(p => `${occName(p).toLowerCase()}|${p.from}`));
+  return out.filter(c => !have.has(`${c.n.toLowerCase()}|${c.d}`)).sort((a, b) => a.d < b.d ? -1 : 1);
+}
+function celebSuggest() {
+  const list = celebDates();
+  return `<section class="panel"><h2>Coming up</h2><div class="zchips">${list.map(c => `<button type="button" data-act="celeb" data-name="${esc(c.n)}" data-date="${c.d}">${c.ic} ${esc(c.n)} · ${esc(shortDate(c.d).replace(/ \d{4}$/, ''))}</button>`).join('')}${list.some(c => /anniversary/i.test(c.n)) ? '' : `<button type="button" data-act="celeb" data-name="Anniversary">💍 Anniversary</button>`}<button type="button" data-act="celeb">＋ Something else</button></div>
+    <p class="note">Tap one to give it a budget. It saves a little each month until the day, and shows in each month's Budget Sheet.</p></section>`;
+}
+function celebForm(name = '', date = '') {
+  openSheet('Add a celebration', fld('ceN', 'What', name, 'text', 'placeholder="e.g. Mother\'s Day"') + fld('ceD', 'Date', date, 'date') + fld('ceW', 'Presents for (optional)', '', 'text', 'placeholder="e.g. Viki"') +
+    `<div class="fields2">${fld('ceA', 'Presents (£)', '', 'number', 'step="1" min="0" inputmode="decimal" placeholder="e.g. 50"')}${fld('ceP', 'Meal or day out (£)', '', 'number', 'step="1" min="0" inputmode="decimal" placeholder="Optional"')}</div>
+    <p class="note">The app saves a little each month until the day, and counts it in each month's Budget Sheet.</p>`, async () => {
+    const n = v('ceN').trim(), d = v('ceD'), w = v('ceW').trim(), a = num(v('ceA')) || 0, party = num(v('ceP')) || 0;
+    if (!n) throw new Error('Say what you\'re celebrating'); if (!d) throw new Error('Pick the date');
+    let ym = payYm(d); const cur = plCur(); if (ym < cur) ym = cur;
+    const items = [];
+    if (a > 0 || !party) items.push({ id: uid('pi'), n: w ? `Presents for ${w}` : 'Presents', a, how: 'save', ym, cat: 'gift', via: 'card' });
+    if (party > 0) items.push({ id: uid('pi'), n: 'Meal or day out', a: party, how: 'save', ym, cat: 'fun', via: 'card' });
+    const id = uid('pl'); UI.pltab = 'celebration'; UI.occ = id; keepUI();
+    await put(`plans/${id}`, { kind: 'celebration', name: `${n.replace(/\s+20\d\d$/, '')} ${d.slice(0, 4)}`, from: d, saveFrom: cur, items });
+  });
+}
+
 function tripPlanForm(id, kind) {
   const p = (S.plans||[]).find(x => x.id===id) || { kind: kind || UI.pltab || 'summer', saveFrom: plCur() };
   openSheet(id ? p.name : 'New trip', fld('plN','Name', p.name||'', 'text','placeholder="e.g. Spain, August 2027"') + sel('plK','Type', p.kind||'summer', PL_TYPES) +
@@ -5892,6 +5995,12 @@ function tripArt(kind, seed = 1) {
     return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="bd1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5B2A9E"/><stop offset=".6" stop-color="#C2457F"/><stop offset="1" stop-color="#FF8A5B"/></linearGradient></defs><rect width="400" height="220" fill="url(#bd1)"/>${conf}
       ${bal(250, 30, 1.1, '#FFD36B')}${bal(300, 52, .9, '#7EE0E6')}${bal(345, 24, 1, '#FF9AC4')}${bal(205, 64, .75, '#B8F28A')}
       <g transform="translate(120 150)"><rect x="0" y="22" width="90" height="48" rx="6" fill="#FFF3E6"/><rect x="0" y="22" width="90" height="12" rx="6" fill="#FF9AC4"/><rect x="12" y="0" width="66" height="26" rx="5" fill="#FFF3E6"/><rect x="12" y="0" width="66" height="8" rx="4" fill="#7EE0E6"/>${[24,45,66].map(x => `<rect x="${x-2}" y="-14" width="4" height="14" rx="2" fill="#fff"/><path d="M${x} -24 q4 5 0 9 q-4 -4 0 -9z" fill="#FFD36B"/>`).join('')}</g></svg>`; }
+  if (kind === 'celebration') { const conf = Array.from({ length: 50 }, () => `<rect x="${(rnd()*400).toFixed(0)}" y="${(rnd()*210).toFixed(0)}" width="${(rnd()*4+2).toFixed(1)}" height="${(rnd()*3+2).toFixed(1)}" rx="1" fill="${['#FFD36B','#7EE0E6','#FFFFFF','#FF9AC4','#C9A7FF'][Math.floor(rnd()*5)]}" transform="rotate(${(rnd()*90).toFixed(0)})" opacity=".8"/>`).join('');
+    const flags = (y, sag, cols) => { const n = 11, pts = Array.from({ length: n + 1 }, (_, i) => { const x = i * 400 / n, yy = y + Math.sin(i / n * Math.PI) * sag; return [x, yy]; });
+      return `<path d="M0 ${y} Q200 ${y + sag * 2} 400 ${y}" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6"/>` + pts.slice(0, -1).map(([x, yy], i) => `<path d="M${x + 6} ${yy + 1} L${x + 30} ${yy + 1} L${x + 18} ${yy + 26}Z" fill="${cols[i % cols.length]}"/>`).join(''); };
+    const glass = (x, r) => `<g transform="translate(${x} 128) rotate(${r})" fill="none" stroke="#FFF3C4" stroke-width="3" stroke-linecap="round"><path d="M-14 0 L14 0 L8 34 Q0 42 -8 34Z" fill="rgba(255,211,107,.55)"/><path d="M0 40 V72 M-12 72 H12"/></g>`;
+    return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="ce1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A1457"/><stop offset=".6" stop-color="#6A2C91"/><stop offset="1" stop-color="#B0407E"/></linearGradient></defs><rect width="400" height="220" fill="url(#ce1)"/>${conf}
+      ${flags(14, 22, ['#FFD36B','#FF8FB6','#7EE0E6','#C9A7FF'])}${glass(262, -12)}${glass(304, 12)}<g fill="#FFD36B">${[[283,112],[276,98],[292,92]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="3"/>`).join('')}</g></svg>`; }
   if (kind === 'summer') return `<svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="su1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9A5A"/><stop offset=".55" stop-color="#FFC27A"/><stop offset="1" stop-color="#FFE3A6"/></linearGradient><linearGradient id="su2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA8C9"/><stop offset="1" stop-color="#136E9A"/></linearGradient></defs>
     <rect width="400" height="220" fill="url(#su1)"/><circle cx="300" cy="96" r="44" fill="#FFF2C4"/><circle cx="300" cy="96" r="62" fill="#FFF2C4" opacity=".25"/>
     <path d="M0 140 Q50 128 100 140 T200 140 T300 140 T400 140 V220 H0Z" fill="url(#su2)"/><path d="M0 158 Q50 148 100 158 T200 158 T300 158 T400 158 V220 H0Z" fill="#0F5F86" opacity=".55"/>
@@ -5942,10 +6051,11 @@ const ring = (pct, size = 64, col = '#fff') => { const r = size/2 - 5, c = 2*Mat
 function sleepsTo(p) {
   if (!p.from) return { big: 'Dates to pick', small: '' };
   const d = daysBetween(today(), p.from), back = p.to ? daysBetween(today(), p.to) : d;
-  if (d > 1) return { big: `${d} sleeps to go`, small: d > 60 ? `About ${Math.round(d/7)} weeks` : d <= 14 ? 'Nearly time to pack' : '' };
-  if (d === 1) return { big: 'Tomorrow!', small: 'Last sleep before the adventure' };
-  if (back >= 0) return { big: 'Happening now', small: 'Have the best time' };
-  return { big: 'Back home', small: 'Hope it was magic' };
+  const g = isGift(p);
+  if (d > 1) return { big: `${d} sleeps to go`, small: d > 60 ? `About ${Math.round(d/7)} weeks` : d <= 14 ? (g ? 'Nearly here' : 'Nearly time to pack') : '' };
+  if (d === 1) return { big: 'Tomorrow!', small: g ? 'One more sleep' : 'Last sleep before the adventure' };
+  if (back >= 0) return { big: g ? 'It\'s today!' : 'Happening now', small: g ? 'Have a lovely day' : 'Have the best time' };
+  return { big: g ? 'Been and gone' : 'Back home', small: g ? 'Hope it was a good one' : 'Hope it was magic' };
 }
 function tripHero(p, st, opts = {}) {
   const k = p.kind || 'summer', lbl = kindLabel(k), sl = sleepsTo(p);
@@ -6044,7 +6154,7 @@ function plPanel(p) {
   return `${tripHero(p, st)}${ideaCard}${p.options ? planOptions(p) : ''}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
     ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + drivePanel(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
-    ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
+    ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : p.kind === 'celebration' ? 'celebration' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
     ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">${p.payplan ? 'Following your plan from the Planner. ' : ''}Already counted in each month's Budget Sheet in Money. <button type="button" class="linkbtn" data-act="tab" data-v="money" data-seg="planner">${p.payplan ? 'Change the plan' : 'Plan it on the Planner'}</button></p></section>` : ''}
     ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>${blcBanner(items.filter(it => !it.paid).map(it => [`${it.n} ${it.note || ''}`, it.a]), 'in this plan')}
     ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.slice().sort((a, b) => (a.ym || '').localeCompare(b.ym || '') || String(a.n || '').localeCompare(String(b.n || ''))).map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
@@ -6060,7 +6170,7 @@ const itemCost = it => Math.max(Number(it.a)||0, giftSpent(it));
 const m2 = x => money(x, Math.abs(x % 1) > 0.004 ? 2 : 0);
 const XAV = ['#C62828','#1F7A55','#B8860B','#3F6FD8','#7E4CC9','#D2477A','#16897F','#D9771E'];
 const xName = n => String(n||'').replace(/^presents?\s+for\s+/i, '').trim() || n;
-const xIsPerson = it => /^presents?\s+for\s+/i.test(it.n||'') || (itemCat(it) === 'gift' && !/stocking|wrapping|cards/i.test(it.n||''));
+const xIsPerson = it => /^presents?\s+for\s+/i.test(it.n||'') || (itemCat(it) === 'gift' && !/stocking|wrapping|cards|^\s*presents?\s*$/i.test(it.n||''));
 const XCHEV = '<svg class="xp-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 function xmasRow(p, it, i) {
   const gifts = giftsOf(it), bud = Number(it.a)||0, spent = giftSpent(it), left = Math.round((bud - spent) * 100) / 100, open = UI.xopen === it.id;
@@ -6086,14 +6196,14 @@ function xmasList(p) {
   const overBy = items.reduce((s, i) => s + Math.max(0, giftSpent(i) - (Number(i.a)||0)), 0);
   const first = items[0] || {}, howTxt = first.how === 'save' ? `Saved up a bit each month until the ${monShort(ym)} pay` : first.how === 'zilch' ? `On Zilch from ${monShort(ym)}` : `From the ${monShort(ym)} pay, on the card`;
   const bdKid = p.kind === 'birthday' ? xName(String(p.name || '').replace(/['’]s birthday.*$/i, '')) : '', bdSlot = bdKid && media(`kid-${wishKey(bdKid)}`) ? `kid-${wishKey(bdKid)}` : '';
-  const card = headCard({ bg: bdSlot ? mediaBg(bdSlot, 'hc-bg') + '<div class="pp-shade" aria-hidden="true"></div>' : '', tone: p.kind === 'birthday' ? 'party' : 'xmas', kicker: p.kind === 'birthday' ? 'Birthday list' : 'Christmas list', title: left >= 0 ? `${m2(left)} left to spend` : `${m2(-left)} over budget`,
+  const card = headCard({ bg: bdSlot ? mediaBg(bdSlot, 'hc-bg') + '<div class="pp-shade" aria-hidden="true"></div>' : '', tone: p.kind === 'christmas' ? 'xmas' : 'party', kicker: p.kind === 'birthday' ? 'Birthday list' : p.kind === 'celebration' ? `${occName(p)} list` : 'Christmas list', title: left >= 0 ? `${m2(left)} left to spend` : `${m2(-left)} over budget`,
     meta: `<span class="st-pill" style="background:rgba(255,255,255,.22)">${m2(spent)} of ${m2(bud)}</span>${gifts.length ? `${gifts.length} present${gifts.length===1?'':'s'} picked · ${got} bought` : 'Tap a name to start adding presents'}`,
     body: `<div class="hc-prog"><i style="width:${bud ? Math.min(100, Math.round(spent / bud * 100)) : 0}%"></i></div><div class="hc-note">${howTxt}.${overBy > 0.5 ? ` ${m2(overBy)} over on some people, so the ${monShort(ym)} Budget Sheet counts that extra.` : ' Go over on anyone and the extra shows up in that month\'s Budget Sheet.'}</div>` });
   return `<section class="panel nopad xmas">${card}<div class="xl">
     ${people.length ? `<div class="xl-h">Presents <span>${people.length} ${people.length === 1 ? 'person' : 'people'}</span></div>${people.map((it, i) => xmasRow(p, it, i)).join('')}` : ''}
     <form class="xperson" data-plan="${esc(p.id)}" autocomplete="off"><input name="n" aria-label="Who" placeholder="Add someone"><span class="xadd-a"><i>£</i><input name="a" aria-label="Their budget in pounds" inputmode="decimal" placeholder="Budget"></span><button class="btn small ghost" type="submit">Add</button></form>
     ${others.length ? `<div class="xl-h">Everything else <span>${m2(others.reduce((s, i) => s + itemCost(i), 0))}</span></div>${others.map((it, i) => xmasRow(p, it, i)).join('')}` : ''}
-    <div class="zchips" style="margin:10px 0 4px">${(p.kind === 'birthday' ? ['Party or day out', 'Birthday cake', 'Party bags', 'Decorations'] : ['Stocking fillers','Wrapping and cards','Christmas day out'].concat(others.some(i => /food/i.test(i.n)) ? [] : ['Christmas food'])).filter(n => !items.some(i => i.n === n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
+    <div class="zchips" style="margin:10px 0 4px">${(p.kind !== 'christmas' ? (PL_IDEAS[p.kind] || []) : ['Stocking fillers','Wrapping and cards','Christmas day out'].concat(others.some(i => /food/i.test(i.n)) ? [] : ['Christmas food'])).filter(n => !items.some(i => i.n === n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
   </div></section>`;
 }
 async function xSaveItem(planId, itemId, fn) {
@@ -6292,15 +6402,15 @@ function nextJobs() {
 }
 
 /* ===== Treats: occasions (Christmas and birthdays), present history, wish lists, packing, on the day ===== */
-const GIFT_KINDS = ['christmas', 'birthday'];
+const GIFT_KINDS = ['christmas', 'birthday', 'celebration'];
 const isGift = p => !!p && GIFT_KINDS.includes(p.kind);
-const kindTab = p => p.kind === 'birthday' ? 'christmas' : (p.kind || 'summer');
-const PL_TYPES = [['summer','Holiday'],['family','Family visit'],['city','City break'],['christmas','Christmas'],['birthday','Birthday']];
+const kindTab = p => p.kind === 'city' ? 'summer' : (p.kind || 'summer');   /* city breaks live under Holidays */
+const PL_TYPES = [['summer','Holiday'],['family','Family visit'],['city','City break'],['christmas','Christmas'],['birthday','Birthday'],['celebration','Celebration']];
 const kindLabel = k => (PL_TYPES.find(x => x[0] === k) || [])[1] || '';
 const occName = p => String(p.name || '').replace(/\s+20\d\d$/, '');
 const sleepsN = d => d ? daysBetween(today(), d) : null;
 const sleepsTxt = d => { const n = sleepsN(d); return n === null ? '' : n > 1 ? `${n} sleeps` : n === 1 ? 'Tomorrow' : n === 0 ? 'Today' : 'Been'; };
-const OCC_ICON = { christmas: '🎄', birthday: '🎈', summer: '☀️', family: '🏡', city: '🏰' };
+const OCC_ICON = { christmas: '🎄', birthday: '🎈', celebration: '🎉', summer: '☀️', family: '🏡', city: '🏰' };
 
 /* birthdays in the family calendar, next 12 months */
 function calBirthdays() {
@@ -6322,7 +6432,7 @@ function bdayForm(name = '', date = '') {
     let ym = payYm(d); const cur = plCur(); if (ym < cur) ym = cur;
     const items = [{ id: uid('pi'), n: `Presents for ${n}`, a, how: 'save', ym, cat: 'gift', via: 'card' }];
     if (party > 0) items.push({ id: uid('pi'), n: 'Party or day out', a: party, how: 'save', ym, cat: 'fun', via: 'card' });
-    const id = uid('pl'); UI.pltab = 'christmas'; UI.occ = id; keepUI();
+    const id = uid('pl'); UI.pltab = 'birthday'; UI.occ = id; keepUI();
     await put(`plans/${id}`, { kind: 'birthday', name: `${n}'s birthday`, from: d, saveFrom: cur, items });
   });
 }
@@ -6398,13 +6508,12 @@ async function wishToGift(planId, itemId, name, wid) {
 }
 
 /* occasion picker for Christmas and birthdays */
-function occasionView(list) {
+function occasionView(list, kind = 'christmas') {
   const tl = plTimeline(list), sorted = [...tl.up, ...tl.past]; /* coming up first, soonest at the front; past ones after, most recent first */
   const sel = sorted.find(p => p.id === UI.occ) || tl.up[0] || tl.past[0];
-  const bdays = calBirthdays().slice(0, 8);
-  const row = `<div class="occ-row" role="group" aria-label="Which occasion">${sorted.map(p => `<button type="button" class="occ k-${p.kind} ${sel && p.id === sel.id ? 'on' : ''}${plIsPast(p) ? ' past' : ''}" data-act="occ" data-id="${esc(p.id)}" aria-pressed="${!!(sel && p.id === sel.id)}"><span class="occ-i">${OCC_ICON[p.kind]}</span><b>${esc(occName(p).replace(/['’]s birthday$/i, ''))}${p.kind === 'christmas' ? ` <small>${esc((p.from || '').slice(0, 4))}</small>` : ''}</b><small>${esc(sleepsTxt(p.from) || 'No date')}</small></button>`).join('')}<button type="button" class="occ add" data-act="bday"><span class="occ-i">＋</span><b>Birthday</b><small>Add one</small></button></div>`;
-  const sugg = bdays.length ? `<section class="panel"><h2>Birthdays coming up <span class="sub">from your calendar</span></h2><div class="zchips">${bdays.map(b => `<button type="button" data-act="bday" data-name="${esc(b.name)}" data-date="${b.d}">🎈 ${esc(b.name)} · ${esc(shortDate(b.d).replace(/ \d{4}$/, ''))}</button>`).join('')}</div><p class="note">Tap one to give it a budget. It saves a little each month until the day.</p></section>` : '';
-  return row + (sel ? plPanel(sel) + giftReview(sel) : `<section class="panel"><p class="empty">Nothing planned yet.</p></section>`) + sugg;
+  const row = `<div class="occ-row" role="group" aria-label="Which occasion">${sorted.map(p => `<button type="button" class="occ k-${p.kind} ${sel && p.id === sel.id ? 'on' : ''}${plIsPast(p) ? ' past' : ''}" data-act="occ" data-id="${esc(p.id)}" aria-pressed="${!!(sel && p.id === sel.id)}"><span class="occ-i">${OCC_ICON[p.kind]}</span><b>${esc(occName(p).replace(/['’]s birthday$/i, ''))}${p.kind === 'christmas' ? ` <small>${esc((p.from || '').slice(0, 4))}</small>` : ''}</b><small>${esc(sleepsTxt(p.from) || 'No date')}</small></button>`).join('')}${kind === 'celebration' ? `<button type="button" class="occ add" data-act="celeb"><span class="occ-i">＋</span><b>Celebration</b><small>Add one</small></button>` : `<button type="button" class="occ add" data-act="plan" data-kind="christmas"><span class="occ-i">＋</span><b>Christmas</b><small>Add a year</small></button>`}</div>`;
+  const sugg = kind === 'celebration' ? celebSuggest() : '';
+  return row + (sel ? plPanel(sel) + giftReview(sel) : `<section class="panel"><p class="empty">${kind === 'celebration' ? 'Nothing planned yet. Tap one of the ideas below to give it a budget.' : 'Nothing planned yet.'}</p></section>`) + sugg;
 }
 
 /* packing list: plan.pack = [{id,n,g,done}] */
@@ -7512,7 +7621,7 @@ async function startSession(s) {
 let toastTimer;
 function toast(msg) { let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role','status'); document.body.appendChild(t); } t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 2400); }
 document.addEventListener('click', async e => {
-  const tabBtn = e.target.closest('nav.tabs button'); if (tabBtn) { UI.tab = tabBtn.dataset.tab; keepUI(); render(); window.scrollTo(0,0); return; }
+  const tabBtn = e.target.closest('nav.tabs button'); if (tabBtn) { UI.tab = tabBtn.dataset.tab; if (UI.tab === 'trips') UI.pltab = ''; keepUI(); render(); window.scrollTo(0,0); return; }
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
   if (a==='close') { if (e.target === el || el.tagName==='BUTTON') closeSheet(); return; }
@@ -7640,7 +7749,8 @@ document.addEventListener('click', async e => {
   if (a==='odevent') return odEventForm();
   if (a==='odf') { UI.odf = el.dataset.v; return render(); }
   if (a==='trip') return tripForm(el.dataset.id);
-  if (a==='pltab') { UI.pltab = el.dataset.v; return render(); }
+  if (a==='pltab') { UI.pltab = el.dataset.v || ''; if (UI.pltab !== 'birthday' && UI.pltab !== 'christmas' && UI.pltab !== 'celebration') UI.occ = null; render(); window.scrollTo(0,0); return; }
+  if (a==='celeb') return celebForm(el.dataset.name || '', el.dataset.date || '');
   if (a==='plopt') { const p = (S.plans||[]).find(x => x.id === el.dataset.id); if (p && p.sel !== el.dataset.v) { const y = window.scrollY; plSetOpt(p, el.dataset.v).then(() => { render(); window.scrollTo(0, y); }); } return; }
   if (a==='pldo') return planDayOutForm(el.dataset.id, el.dataset.d || null, el.dataset.idea != null ? Number(el.dataset.idea) : null);
   if (a==='ovm') { UI.ovm = el.dataset.v; return render(); }
