@@ -1654,6 +1654,7 @@ header.top .askbtn + .iconbtn{margin-left:6px}
 .ask-pa{display:flex;gap:8px;margin-top:4px}
 .ask-done{margin:6px 0 0;font-size:.82rem;font-weight:700;color:var(--good)}
 .ask-msg.assistant:has(.ask-prop){max-width:100%}
+.occ.past{opacity:.62}.occ.past.on{opacity:1}
 </style>
 </head>
 <body>
@@ -4937,12 +4938,30 @@ function plOverview() {
     <div class="list">${list}</div>
     <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Budget Sheet, and these amounts are already counted in each month's Budget Sheet in Money. Tap a month to open it.</p></section>`;
 }
+/* treats in time order: what's on now and coming up first (soonest at the top), then the ones that are over, most recent first, folded away.
+   Worked out from today's date each time, so the list moves along on its own: a trip drops into "Been and gone" the day after it ends */
+const plEnd = p => p.to || p.from || '';
+const plIsPast = p => !!plEnd(p) && plEnd(p) < today();
+function plTimeline(list) {
+  const nm = p => String(p.name || '');
+  const up = list.filter(p => !plIsPast(p)).sort((a, b) => (a.from || '9999').localeCompare(b.from || '9999') || nm(a).localeCompare(nm(b)));
+  const past = list.filter(plIsPast).sort((a, b) => plEnd(b).localeCompare(plEnd(a)) || nm(a).localeCompare(nm(b)));
+  return { up, past };
+}
+const plRange = p => { if (!p.from) return 'No date yet'; const nd = d => shortDate(d).replace(/ \d{4}$/, ''), yr = (p.to || p.from).slice(0, 4); return `${nd(p.from)}${p.to && p.to !== p.from && !isGift(p) ? ` – ${nd(p.to)}` : ''} ${yr}`; };
+function plPastPanel(past) {
+  if (!past.length) return '';
+  const open = past.find(p => p.id === UI.plpast);
+  return `<section class="panel"><h2>Been and gone <span class="sub">${past.length}</span></h2><div class="list">${past.map(p => { const st = plStats(p);
+    return `<button class="rowbtn${open && open.id === p.id ? ' on' : ''}" data-act="plpast" data-id="${esc(p.id)}" aria-expanded="${!!(open && open.id === p.id)}"><span class="sw" style="background:${PL_COL[p.kind] || 'var(--rule-2)'}"></span><div class="grow"><div class="t">${esc(p.name || 'Trip')}</div><div class="m">${esc(plRange(p))}</div></div><div class="amt">${money((st.cost || 0) + (st.fees || 0), 0)}</div></button>`; }).join('')}</div>
+    <p class="note">Trips move here the day after they end. Tap one to look back at it.</p></section>${open ? plPanel(open) : ''}`;
+}
 function viewPlanner() {
   const k = PL_KINDS.some(x => x[0]===UI.pltab) ? UI.pltab : 'summer', label = PL_KINDS.find(x => x[0]===k)[1];
-  const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of treat">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}"><span class="pt-i">${OCC_ICON[kk]}</span>${{ summer: 'Holidays', family: 'Visits', city: 'City breaks', christmas: 'Celebrations' }[kk]}${n ? ` <small>${n}</small>` : ''}</button>`; }).join('')}</div>`;
-  const list = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===k).sort((a,b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
-  if (k === 'christmas') return countRibbon() + tabs + occasionView(list);
-  return countRibbon() + tabs + (k === 'summer' ? priceWatchPanel() : '') + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : `a ${esc(label.toLowerCase().replace(/s$/,''))}`}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plOverview();
+  const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of treat">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===kk && !plIsPast(p)).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}"><span class="pt-i">${OCC_ICON[kk]}</span>${{ summer: 'Holidays', family: 'Visits', city: 'City breaks', christmas: 'Celebrations' }[kk]}${n ? ` <small>${n}</small>` : ''}</button>`; }).join('')}</div>`;
+  const all = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===k), { up, past } = plTimeline(all), list = up;
+  if (k === 'christmas') return countRibbon() + tabs + occasionView(all);
+  return countRibbon() + tabs + (k === 'summer' ? priceWatchPanel() : '') + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : `a ${esc(label.toLowerCase().replace(/s$/,''))}`}</button></div>${list.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plPastPanel(past) + plOverview();
 }
 function tripPlanForm(id, kind) {
   const p = (S.plans||[]).find(x => x.id===id) || { kind: kind || UI.pltab || 'summer', saveFrom: plCur() };
@@ -5528,10 +5547,10 @@ async function wishToGift(planId, itemId, name, wid) {
 
 /* occasion picker for Christmas and birthdays */
 function occasionView(list) {
-  const t = today(), sorted = list.slice().sort((a, b) => (a.from || '9') < (b.from || '9') ? -1 : 1);
-  const sel = sorted.find(p => p.id === UI.occ) || sorted.find(p => (p.to || p.from || '9') >= t) || sorted[sorted.length - 1];
+  const tl = plTimeline(list), sorted = [...tl.up, ...tl.past]; /* coming up first, soonest at the front; past ones after, most recent first */
+  const sel = sorted.find(p => p.id === UI.occ) || tl.up[0] || tl.past[0];
   const bdays = calBirthdays().slice(0, 8);
-  const row = `<div class="occ-row" role="group" aria-label="Which occasion">${sorted.map(p => `<button type="button" class="occ k-${p.kind} ${sel && p.id === sel.id ? 'on' : ''}" data-act="occ" data-id="${esc(p.id)}" aria-pressed="${!!(sel && p.id === sel.id)}"><span class="occ-i">${OCC_ICON[p.kind]}</span><b>${esc(occName(p).replace(/['’]s birthday$/i, ''))}${p.kind === 'christmas' ? ` <small>${esc((p.from || '').slice(0, 4))}</small>` : ''}</b><small>${esc(sleepsTxt(p.from) || 'No date')}</small></button>`).join('')}<button type="button" class="occ add" data-act="bday"><span class="occ-i">＋</span><b>Birthday</b><small>Add one</small></button></div>`;
+  const row = `<div class="occ-row" role="group" aria-label="Which occasion">${sorted.map(p => `<button type="button" class="occ k-${p.kind} ${sel && p.id === sel.id ? 'on' : ''}${plIsPast(p) ? ' past' : ''}" data-act="occ" data-id="${esc(p.id)}" aria-pressed="${!!(sel && p.id === sel.id)}"><span class="occ-i">${OCC_ICON[p.kind]}</span><b>${esc(occName(p).replace(/['’]s birthday$/i, ''))}${p.kind === 'christmas' ? ` <small>${esc((p.from || '').slice(0, 4))}</small>` : ''}</b><small>${esc(sleepsTxt(p.from) || 'No date')}</small></button>`).join('')}<button type="button" class="occ add" data-act="bday"><span class="occ-i">＋</span><b>Birthday</b><small>Add one</small></button></div>`;
   const sugg = bdays.length ? `<section class="panel"><h2>Birthdays coming up <span class="sub">from your calendar</span></h2><div class="zchips">${bdays.map(b => `<button type="button" data-act="bday" data-name="${esc(b.name)}" data-date="${b.d}">🎈 ${esc(b.name)} · ${esc(shortDate(b.d).replace(/ \d{4}$/, ''))}</button>`).join('')}</div><p class="note">Tap one to give it a budget. It saves a little each month until the day.</p></section>` : '';
   return row + (sel ? plPanel(sel) + giftReview(sel) : `<section class="panel"><p class="empty">Nothing planned yet.</p></section>`) + sugg;
 }
@@ -6793,6 +6812,7 @@ document.addEventListener('click', async e => {
   if (a==='ciinc') return ciIncForm();
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; if (el.dataset.id) UI.occ = el.dataset.id; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
+  if (a==='plpast') { UI.plpast = UI.plpast === el.dataset.id ? null : el.dataset.id; render(); if (UI.plpast) setTimeout(() => { const r = document.querySelector(`[data-act="plpast"][data-id="${UI.plpast}"]`); if (r) r.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 30); return; }
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
   if (a==='plspread') { if (!el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again: this turns Zilch and one-off payments into monthly saving'; return; } return planSpread(el.dataset.id); }
   if (a==='plsheet') { if (bsDirty()) { toast('Save or undo your sheet changes first'); return; } UI.bym = el.dataset.v; UI.bs = null; UI.tab = 'money'; UI.money = 'sheet'; keepUI(); render(); window.scrollTo(0,0); return; }
