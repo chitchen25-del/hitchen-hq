@@ -1440,6 +1440,33 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
   main.enter .fun-t:nth-child(2){animation-delay:.04s}main.enter .fun-t:nth-child(3){animation-delay:.08s}main.enter .fun-t:nth-child(4){animation-delay:.12s}main.enter .fun-t:nth-child(5){animation-delay:.16s}main.enter .fun-t:nth-child(6){animation-delay:.2s}main.enter .fun-t:nth-child(7){animation-delay:.24s}main.enter .fun-t:nth-child(8){animation-delay:.28s}
 }
 
+/* ---- car details and finance ---- */
+.ln-list{display:grid;gap:10px}
+.ln{display:grid;grid-template-columns:76px minmax(0,1fr);gap:4px 14px;align-items:center;padding:14px;border-radius:16px;background:var(--sheet-2)}
+.ln-ring{--p:0;width:76px;height:76px;border-radius:50%;background:conic-gradient(var(--good-bar) calc(var(--p) * 1%),color-mix(in srgb,var(--ink) 9%,transparent) 0);display:grid;place-items:center}
+.ln-ring span{width:58px;height:58px;border-radius:50%;background:var(--sheet-2);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.ln-ring b{font-stretch:118%;font-weight:800;font-size:1.05rem}.ln-ring small{font-size:.62rem;color:var(--muted);margin-top:2px}
+.ln-body{min-width:0}
+.ln-t{font-weight:750;font-size:1.02rem}
+.ln-m{font-size:.8rem;color:var(--muted);margin-top:1px}
+.ln-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+.ln-cells span{display:flex;flex-direction:column;min-width:0}
+.ln-cells small{font-size:.68rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ln-cells b{font-weight:750;font-size:.92rem;font-variant-numeric:tabular-nums}
+.ln-note{grid-column:1/-1;margin:6px 0 0;font-size:.82rem;color:var(--ink-2);line-height:1.45}
+.dt-warn{margin:0 0 10px;padding:9px 12px;border-radius:10px;background:var(--gold-soft);color:var(--ink);font-size:.86rem;border-left:4px solid var(--gold-bar)}
+.dt-list{margin:0;display:grid}
+.dt-list div{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:12px;padding:8px 0;border-top:1px solid var(--rule)}
+.dt-list div:first-child{border-top:0}
+.dt-list dt{color:var(--muted);font-size:.84rem}
+.dt-list dd{margin:0;font-weight:600;font-size:.9rem;overflow-wrap:anywhere}
+.dt-list dd a{color:var(--chris);text-decoration:underline;text-underline-offset:2px}
+.dt-docs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.dt-doc{appearance:none;border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink);font:inherit;font-size:.8rem;font-weight:600;padding:6px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;max-width:100%}
+.dt-doc span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dt-doc svg{width:14px;height:14px;flex:none}
+@media (prefers-reduced-motion:no-preference){main.enter .ln{animation:rise .45s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 80ms)}}
+
 /* ---- the girls' week, Ask, price watch ---- */
 .wk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 8px}
 .wk-head h2{margin:0}
@@ -2607,7 +2634,8 @@ function fuelPriceForm() {
 }
 
 /* ----- the full cost of running the car: car/main.costs = { ins, rac, fin (bill ids), withFin, band, tax } ----- */
-const IOM_DUTY = [['A', 'up to 50', 65], ['B', '51–75', 65], ['C', '76–100', 65], ['D', '101–110', 65], ['E', '111–120', 79], ['F', '121–130', 169], ['G', '131–140', 203], ['H', '141–150', 235], ['I', '151–165', 268], ['J', '166–175', 302], ['K', '176–185', 336], ['L', '186–200', 394], ['M', '201–225', 410], ['N', '226–255', 700], ['O', 'over 255', 724]];
+/* Isle of Man vehicle duty for cars first registered from April 2010: [band, CO2 g/km, 12 months, 6 months] (form VL1, rates from May 2023) */
+const IOM_DUTY = [['A', 'up to 50', 65, 39], ['B', '51–75', 65, 39], ['C', '76–100', 65, 39], ['D', '101–110', 65, 39], ['E', '111–120', 79, 46], ['F', '121–130', 169, 91], ['G', '131–140', 203, 108], ['H', '141–150', 235, 124], ['I', '151–165', 268, 140], ['J', '166–175', 302, 157], ['K', '176–185', 336, 174], ['L', '186–200', 394, 203], ['M', '201–225', 410, 211], ['N', '226–255', 700, 356], ['O', 'over 255', 724, 368]];
 const TT_LAP = 37.73;
 const perWord = b => ({ weekly: 'a week', quarterly: 'a quarter', annual: 'a year' })[b && b.freq] || 'a month';
 function carRun() {
@@ -2620,7 +2648,7 @@ function carRun() {
     { k: 'rep', n: 'Repairs and servicing', v: repairs, col: '#E67C73', sub: jobs.length ? jobs.map(j => `${j.work}${j.status === 'booked' ? ' (booked)' : ''}`).join(', ') : `Nothing logged in ${c.y}` },
     { k: 'ins', n: 'Insurance', v: yr(ins), col: '#33B679', sub: ins ? `${money(ins.amount, 2)} ${perWord(ins)}` : 'Choose the bill in Edit costs' },
     { k: 'rac', n: 'Breakdown cover', v: yr(rac), col: '#4FC3F7', sub: rac ? `${money(rac.amount, 2)} ${perWord(rac)}` : 'Choose the bill in Edit costs' },
-    { k: 'tax', n: 'Road tax', v: tax, col: '#9FA8DA', sub: K.band ? `Isle of Man band ${K.band}` : 'Pick the band in Edit costs' },
+    { k: 'tax', n: 'Road tax', v: tax, col: '#9FA8DA', sub: K.band ? `Isle of Man band ${K.band}${Number(K.taxTerm) === 6 ? `, paid every 6 months (${money(tax / 2, 0)} each)` : ', paid yearly'}` : 'Pick the band in Edit costs' },
   ];
   if (K.withFin && fin) parts.push({ k: 'fin', n: 'Finance', v: yr(fin), col: '#CE93D8', sub: `${money(fin.amount, 2)} ${perWord(fin)}` });
   const total = parts.reduce((a, p) => a + p.v, 0);
@@ -2639,9 +2667,11 @@ function carRunHero(R) {
 function carCostList(R) {
   const rows = R.parts.map(p => `<div class="row"><i class="cr-dot" style="background:${p.col}"></i><span class="grow"><span class="t" style="display:block">${esc(p.n)}</span><span class="m" style="display:block">${esc(p.sub)}</span></span><span class="amt">${p.v ? money(p.v, 0) : '–'}<small class="cr-yr">a year</small></span></div>`).join('');
   const fin = R.fin && !R.K.withFin ? `<div class="row cr-off"><i class="cr-dot" style="background:#CE93D8"></i><span class="grow"><span class="t" style="display:block">Finance</span><span class="m" style="display:block">${esc(R.fin.name)}, ${money(R.fin.amount, 2)} ${perWord(R.fin)}. Not in the running cost</span></span><span class="amt">${money(R.finYr, 0)}<small class="cr-yr">a year</small></span></div>` : '';
+  const loan = R.fin && (S.car.loans || []).find(L => L.bill === R.fin.id), ls = loan && loanStat(loan);
+  const finNote = ls ? `<p class="note">Finance: ${ls.paid} of ${ls.n} payments made, ${money(ls.leftAmt, 0)} to go, last one ${esc(shortDate(ls.last))}. <button class="linkbtn" data-act="cseg" data-v="details">See details</button></p>` : '';
   const band = IOM_DUTY.find(x => x[0] === R.K.band);
   return `<section class="panel"><h2>Where it goes <button class="btn small ghost" data-act="carcosts">Edit</button></h2><div class="list">${rows}${fin}</div>
-    <p class="note">Diesel is this year's driving carried on to a full year. ${band ? `Road tax is band ${band[0]} (${band[1]} g/km of CO₂). Check the CO₂ figure on the logbook and change the band if it's different.` : ''} Bills update from Money → Bills.</p></section>`;
+    <p class="note">Diesel is this year's driving carried on to a full year. ${band ? `Road tax is band ${band[0]} (${band[1]} g/km of CO₂).` : ''} Bills update from Money → Bills.</p>${finNote}</section>`;
 }
 function carEffPanel(c) {
   const e = c.ext, ms = c.mlist; if (!ms.length) return '';
@@ -2677,6 +2707,34 @@ function carFunPanel(c) {
   const week = `<div class="dw-bars" role="img" aria-label="Miles by day of the week">${order.map(i => `<div class="dw-row${i === top ? ' top' : ''}"><span>${DN[i].slice(0, 3)}</span><span class="dw-track"><i style="width:${(c.dow[i] / dmax * 100).toFixed(1)}%"></i></span><b>${Math.round(c.dow[i]).toLocaleString('en-GB')}</b></div>`).join('')}</div>`;
   return `<section class="panel"><h2>The year behind the wheel <span class="sub">${Math.round(c.mi).toLocaleString('en-GB')} miles</span></h2><div class="fun-grid">${tiles}</div><h3 class="cr-h3">Miles by day of the week</h3>${week}</section>`;
 }
+/* ----- car finance: car/main.loans = [{ id, name, bill, start (first payment), months, price, lender, note }] ----- */
+function loanStat(L, t = today()) {
+  const b = S.bills.find(x => x.id === L.bill), pay = Number(L.pay || (b && b.amount)) || 0, n = Number(L.months) || 0;
+  let paid = 0; while (paid < n && addMonths(L.start, paid) <= t) paid++;
+  const left = n - paid;
+  return { pay, n, paid, left, paidAmt: paid * pay, leftAmt: left * pay, total: n * pay, extra: L.price ? n * pay - Number(L.price) : null, last: addMonths(L.start, n - 1), next: left ? addMonths(L.start, paid) : null, pct: n ? paid / n : 0,
+    leftTxt: left >= 12 ? `${Math.floor(left / 12)} year${left >= 24 ? 's' : ''}${left % 12 ? ` and ${left % 12} month${left % 12 === 1 ? '' : 's'}` : ''}` : `${left} month${left === 1 ? '' : 's'}` };
+}
+function loansPanel() {
+  const Ls = S.car.loans || []; if (!Ls.length) return '';
+  const st = Ls.map(L => ({ L, s: loanStat(L) })), owed = st.reduce((a, x) => a + x.s.leftAmt, 0), monthly = st.filter(x => x.s.left).reduce((a, x) => a + x.s.pay, 0);
+  const cards = st.map(({ L, s }, i) => `<div class="ln" style="--i:${i}">
+    <div class="ln-ring" style="--p:${(s.pct * 100).toFixed(1)}" role="img" aria-label="${Math.round(s.pct * 100)}% paid"><span><b>${Math.round(s.pct * 100)}%</b><small>paid</small></span></div>
+    <div class="ln-body"><div class="ln-t">${esc(L.name)}</div><div class="ln-m">${s.paid} of ${s.n} payments of ${money(s.pay, 0)}${L.lender ? ` · ${esc(L.lender)}` : ''}</div>
+      <div class="ln-cells"><span><small>Paid so far</small><b>${money(s.paidAmt, 0)}</b></span><span><small>Still to pay</small><b>${money(s.leftAmt, 0)}</b></span><span><small>Last payment</small><b>${esc(shortDate(s.last))}</b></span></div></div>
+    <p class="ln-note">${s.left ? `${s.left} payments left, about ${s.leftTxt}. Next one ${esc(dayShort(s.next))}.` : 'All paid off. It\'s yours!'}${s.extra != null ? ` Over the whole plan that's ${money(s.total, 0)}, ${money(s.extra, 0)} more than the ${money(L.price, 0)} price.` : ''}${L.note ? ` ${esc(L.note)}` : ''}</p></div>`).join('');
+  return `<section class="panel"><h2>Car finance <span class="sub">${money(owed, 0)} still to pay${monthly ? `, ${money(monthly, 0)} a month` : ''}</span></h2><div class="ln-list">${cards}</div></section>`;
+}
+function viewDetails() {
+  const secs = ((S.car.details || {}).sections) || [], t = today();
+  const docBtn = id => { const f = S.files.find(x => x.id === id); return f ? `<button class="dt-doc" data-act="docopen" data-id="${esc(id)}">${icon('doc')}<span>${esc(f.name)}</span></button>` : ''; };
+  const body = secs.map(s => { const d = s.due ? daysBetween(t, s.due) : null, docs = (s.docs || []).map(docBtn).join('');
+    return `<section class="panel dt"><h2>${esc(s.t)}${d != null ? ` <span class="chip ${d < 0 ? 'due' : d <= 45 ? 'soon' : 'ok'}">${d < 0 ? 'Expired' : d === 0 ? 'Due today' : `${d} day${d === 1 ? '' : 's'} left`}</span>` : ''}</h2>
+      ${s.warn ? `<p class="dt-warn">${esc(s.warn)}</p>` : ''}
+      <dl class="dt-list">${(s.rows || []).map(([k, val, href]) => `<div><dt>${esc(k)}</dt><dd>${href && /^(tel|mailto|https):/.test(href) ? `<a href="${esc(href)}">${esc(val)}</a>` : esc(val)}</dd></div>`).join('')}</dl>
+      ${docs ? `<div class="dt-docs">${docs}</div>` : ''}</section>`; }).join('');
+  return loansPanel() + (body || `<section class="panel"><h2>Details</h2><p class="empty">Registration, tax, insurance and purchase details show up here.</p></section>`);
+}
 function viewCosts() {
   const R = carRun(); if (!R) return carlogPanel();
   return carRunHero(R) + carCostList(R) + carlogPanel() + carEffPanel(R.c) + carFunPanel(R.c);
@@ -2685,10 +2743,11 @@ function carCostsForm() {
   const K = S.car.costs || {}, opts = [['', 'None'], ...S.bills.slice().sort((a, b) => a.name < b.name ? -1 : 1).map(b => [b.id, `${b.name} (${money(b.amount, 2)} ${perWord(b)})`])];
   openSheet('Car costs', sel('ccIns', 'Insurance', K.ins || '', opts) + sel('ccRac', 'Breakdown cover', K.rac || '', opts) + sel('ccFin', 'Finance', K.fin || '', opts)
     + `<label class="check"><input type="checkbox" id="ccWith" ${K.withFin ? 'checked' : ''}><span>Count the finance in the running cost</span></label>`
-    + sel('ccBand', 'Road tax band (Isle of Man)', K.band || '', [['', 'Not set'], ...IOM_DUTY.map(([b, r, n]) => [b, `Band ${b}: ${r} g/km, £${n} a year`])])
+    + sel('ccBand', 'Road tax band (Isle of Man)', K.band || '', [['', 'Not set'], ...IOM_DUTY.map(([b, r, n, h]) => [b, `Band ${b}: ${r} g/km, £${n} a year or £${h} for 6 months`])])
+    + sel('ccTerm', 'You pay the road tax', String(K.taxTerm || 12), [['12', 'Once a year'], ['6', 'Every 6 months']])
     + '<p class="note">The CO₂ figure (g/km) is on the logbook. Rates are from the Isle of Man vehicle duty table. The bills come from Money → Bills, so a new price there shows up here too.</p>', async () => {
     const band = v('ccBand'), row = IOM_DUTY.find(x => x[0] === band);
-    await put('car/main', { ...S.car, costs: { ins: v('ccIns'), rac: v('ccRac'), fin: v('ccFin'), withFin: !!($('#ccWith') || {}).checked, band, tax: row ? row[2] : 0 } });
+    await put('car/main', { ...S.car, costs: { ins: v('ccIns'), rac: v('ccRac'), fin: v('ccFin'), withFin: !!($('#ccWith') || {}).checked, band, taxTerm: Number(v('ccTerm')) || 12, tax: row ? (v('ccTerm') === '6' ? row[3] * 2 : row[2]) : 0 } });
   });
 }
 
@@ -5728,6 +5787,7 @@ function carRemForm(id, name, note) {
 /* ----- documents: stored privately, kept on the phone once opened ----- */
 const FILE_CACHE = 'hhq-files-v1';
 async function fileBlob(f) {
+  if (f.media) { const m = (S.media || {})[f.media]; if (!m || !m.b64) throw new Error('missing'); const bin = atob(m.b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return new Blob([u8], { type: m.mime || f.type || 'image/png' }); }
   try { const c = await caches.open(FILE_CACHE); const hit = await c.match(`/hhq-file/${f.path}`); if (hit) return await hit.blob(); } catch(e) {}
   const { data, error } = await sb.storage.from('family-files').download(f.path); if (error) throw error;
   try { const c = await caches.open(FILE_CACHE); await c.put(`/hhq-file/${f.path}`, new Response(data, { headers: { 'Content-Type': f.type || 'application/octet-stream' } })); f._cached = true; } catch(e) {}
@@ -5758,7 +5818,7 @@ async function openDoc(id) {
   let url; try { url = URL.createObjectURL(await fileBlob(f)); } catch(e) { toast(navigator.onLine ? 'Couldn\'t open that file' : 'Not saved on this phone yet, and you\'re offline'); return; }
   const isImg = (f.type||'').startsWith('image/');
   openSheet(f.name, isImg ? `<img src="${url}" alt="${esc(f.name)}" style="width:100%;border-radius:8px">` : `<iframe src="${url}" title="${esc(f.name)}" style="width:100%;height:60vh;border:1px solid var(--rule);border-radius:8px"></iframe><div class="btnrow"><a class="btn small ghost" href="${url}" target="_blank" rel="noopener">Open full screen</a></div>`,
-    null, { noSave:true, onDelete: async () => { await sb.storage.from('family-files').remove([f.path]); try { (await caches.open(FILE_CACHE)).delete(`/hhq-file/${f.path}`); } catch(e) {} await remove(`files/${f.id}`); } });
+    null, { noSave:true, onDelete: async () => { if (f.media) { await remove(`files/${f.id}`); return remove(`media/${f.media}`); } await sb.storage.from('family-files').remove([f.path]); try { (await caches.open(FILE_CACHE)).delete(`/hhq-file/${f.path}`); } catch(e) {} await remove(`files/${f.id}`); } });
   // allow delete from the viewer
   const row = $('#sheetForm .btnrow:last-child'); if (row) row.insertAdjacentHTML('beforeend', '<button class="btn danger" type="button" data-act="delete">Delete</button>');
 }
@@ -5848,7 +5908,7 @@ function milesCountUp() {
   requestAnimationFrame(step);
 }
 function viewCar() {
-  const segs = [['service','Service log'],['costs','Running costs'],['checks','Checks and dates'],['fuel','Fuel log'],['docs','Documents'],['trip','Paris trip']];
+  const segs = [['details','Details'],['service','Service log'],['costs','Running costs'],['checks','Checks and dates'],['fuel','Fuel log'],['docs','Documents'],['trip','Paris trip']];
   const seg = `<div class="seg" role="group" aria-label="Car section">${segs.map(([k,l]) => `<button data-act="cseg" data-v="${k}" aria-pressed="${UI.carSeg===k}">${l}</button>`).join('')}</div>`;
   const due = CHECKS.map(c => ({c, s: checkStatus(c)})).filter(x => x.s.cls!=='ok');
   const fills = S.fuel.slice().sort((a,b) => (Number(a.mileage)||0) - (Number(b.mileage)||0)); let mpgs = [];
@@ -5883,7 +5943,7 @@ function viewCar() {
     </div>
   </section>`;
   if (ph && miles) setTimeout(milesCountUp, 30);
-  return hero + seg + ({service:viewService, checks:viewChecks, fuel:viewFuel, costs:viewCosts, docs:() => docsPanel('car'), trip:viewTrip}[UI.carSeg] || viewService)();
+  return hero + seg + ({service:viewService, checks:viewChecks, fuel:viewFuel, costs:viewCosts, details:viewDetails, docs:() => docsPanel('car'), trip:viewTrip}[UI.carSeg] || viewService)();
 }
 function viewService() {
   const list = S.service.slice().sort((a,b) => (b.sort||'') < (a.sort||'') ? -1 : 1);
