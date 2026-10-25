@@ -1467,6 +1467,54 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .dt-doc svg{width:14px;height:14px;flex:none}
 @media (prefers-reduced-motion:no-preference){main.enter .ln{animation:rise .45s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 80ms)}}
 
+/* ---- Viki's metrics ---- */
+:root{--vm-sal:color-mix(in srgb,var(--ink) 16%,transparent)}
+.vm-bars{display:flex;align-items:flex-end;gap:4px;height:150px;padding:4px 0 2px}
+.vm-col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+.vm-v{font-size:.58rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;visibility:hidden}
+.vm-col.hi .vm-v,.vm-col.lo .vm-v,.vm-col:last-child .vm-v{visibility:visible;font-weight:800}
+.vm-col.hi .vm-v{color:var(--good)}.vm-col.lo .vm-v{color:var(--gold)}
+.vm-track{flex:1;width:100%;display:flex;align-items:flex-end;border-radius:5px;background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.vm-track i{display:flex;flex-direction:column;justify-content:flex-start;width:100%;border-radius:5px;background:var(--vm-sal);overflow:hidden}
+.vm-track b{display:block;width:100%;background:var(--viki-bar)}
+.vm-m{font-size:.66rem;color:var(--muted)}
+.vf-head{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.vf-head div{background:var(--sheet-2);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.vf-head div:first-child{background:color-mix(in srgb,var(--viki-bar) 14%,var(--sheet))}
+.vf-head span{font-size:.72rem;color:var(--muted)}.vf-head b{font-stretch:118%;font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.vf-list{display:grid;gap:2px}
+.vf-row{display:grid;grid-template-columns:42px minmax(0,1fr) 96px;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--rule)}
+.vf-row:first-child{border-top:0}
+.vf-row.rise .vf-l b::after{content:" ▲";color:var(--good);font-size:.7em}
+.vf-l{display:flex;flex-direction:column;line-height:1.1}.vf-l b{font-size:.9rem}.vf-l span{font-size:.66rem;color:var(--muted)}
+.vf-track{position:relative;height:18px}
+.vf-track::before{content:"";position:absolute;left:0;right:0;top:8px;height:2px;border-radius:2px;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.vf-rng{position:absolute;top:4px;height:10px;border-radius:999px;background:color-mix(in srgb,var(--viki-bar) 30%,transparent)}
+.vf-dot{position:absolute;top:2px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--viki-bar);box-shadow:0 0 0 2px var(--sheet)}
+.vf-sal{position:absolute;top:1px;width:2px;height:16px;margin-left:-1px;background:var(--muted);opacity:.6;border-radius:2px}
+.vf-v{text-align:right;display:flex;flex-direction:column;line-height:1.15}.vf-v b{font-variant-numeric:tabular-nums}.vf-v span{font-size:.68rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.vf-sw-rng{background:color-mix(in srgb,var(--viki-bar) 30%,transparent)!important}.vf-sw-dot{background:var(--viki-bar)!important;border-radius:50%}.vf-sw-sal{background:var(--muted)!important;width:3px!important}
+.vp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.vp{border-radius:14px;padding:12px 14px;background:var(--sheet-2);display:flex;flex-direction:column;gap:4px;border-top:4px solid var(--rule-2)}
+.vp-safe{border-top-color:var(--good-bar)}.vp-steady{border-top-color:var(--viki-bar)}.vp-full{border-top-color:var(--gold-bar)}
+.vp-t{font-weight:800;font-size:.95rem}
+.vp-b{font-stretch:118%;font-weight:800;font-size:1.4rem;font-variant-numeric:tabular-nums}.vp-b small{font-size:.72rem;font-weight:600;color:var(--muted);margin-left:4px}
+.vp p{margin:0;font-size:.82rem;color:var(--ink-2);line-height:1.4}
+.vp dl{margin:6px 0 0;display:grid;gap:4px}.vp dl div{display:flex;justify-content:space-between;gap:8px;font-size:.8rem}
+.vp dt{color:var(--muted)}.vp dd{margin:0;font-weight:700;text-align:right}
+.vh-sum{margin:10px 0 12px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--good-bar) 14%,var(--sheet));font-size:.9rem}
+.vh{margin-top:10px}
+.vh-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0 0 6px;border-bottom:1px solid var(--rule-2)}
+.vh-head b{font-size:.95rem}.vh-head span{font-size:.8rem;color:var(--muted);font-weight:600}
+.vh-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule)}
+.vh-row .grow{display:flex;flex-direction:column;min-width:0}.vh-row .t{font-weight:650}.vh-row .m{font-size:.78rem;color:var(--muted)}
+.vh-ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:800;background:var(--sheet-2);color:var(--muted)}
+.vh-row.ok .vh-ic{background:var(--good-soft);color:var(--good)}.vh-row.ok .m{color:var(--good)}
+@media (prefers-reduced-motion:no-preference){
+  main.enter .vm-track i{animation:growup .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 40ms);transform-origin:bottom}
+  main.enter .vf-row{animation:rise .4s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 35ms)}
+}
+
 /* ---- the girls' week, Ask, price watch ---- */
 .wk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 8px}
 .wk-head h2{margin:0}
@@ -2221,8 +2269,8 @@ function viewWork() {
   </div>`;
   fetchCal();
   if (ki >= 0) return whoSeg + viewKidWork(kids[ki], ki);
-  if (who==='viki') { const sub = ['contract','co'].includes(UI.vsub) ? UI.vsub : 'pay';
-    return whoSeg + personHero('viki') + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Rota &amp; claims</button><button role="tab" data-act="vsub" data-v="co" aria-selected="${sub==='co'}">Call-outs</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Pay &amp; contract</button></div>` + (sub==='contract' ? viewVikiContract() : sub==='co' ? `<div class="co-wrap">${viewCallouts()}</div>` : viewViki()); }
+  if (who==='viki') { const sub = ['contract','co','metrics'].includes(UI.vsub) ? UI.vsub : 'pay';
+    return whoSeg + personHero('viki') + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Rota &amp; claims</button><button role="tab" data-act="vsub" data-v="co" aria-selected="${sub==='co'}">Call-outs</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Pay &amp; contract</button><button role="tab" data-act="vsub" data-v="metrics" aria-selected="${sub==='metrics'}">Metrics</button></div>` + (sub==='metrics' ? viewVikiMetrics() : sub==='contract' ? viewVikiContract() : sub==='co' ? `<div class="co-wrap">${viewCallouts()}</div>` : viewViki()); }
   if (who==='leave') return whoSeg + viewLeave();
   const chTabs = who==='chris' ? `<div class="subtabs" role="tablist" aria-label="Chris"><button role="tab" data-act="csub" data-v="cal" aria-selected="${UI.csub!=='hours'}">Work calendar</button><button role="tab" data-act="csub" data-v="hours" aria-selected="${UI.csub==='hours'}">Hours &amp; leave</button></div>` : '';
   if (who==='chris' && UI.csub==='hours') return whoSeg + personHero('chris') + chTabs + viewChrisHours();
@@ -3555,6 +3603,112 @@ function claimText(ym) {
   rows.forEach(r => lines.push([r.day, r.cont?'':shortDate(r.date), r.start, r.end, r.hrs, r.amt!=null?r.amt.toFixed(2):'', r.from||'', r.to||'', r.ch||'', r.note||''].join('\t')));
   lines.push(`Total on call ${fh(m.ocH)}h = £${m.oc.toFixed(2)} · call-outs ${fh(m.h15)}h at 1.5x, ${fh(m.h2)}h at 2x`);
   return lines.join('\n');
+}
+/* ===== Viki → Metrics: her real take-home (payslips/<ym> = { net, paid }) and a month-by-month guesstimate =====
+   Each month = salary-only take-home (the tax engine, with pay rises) + her usual on-call money,
+   nudged by how the same month went last year. The range is her usual month-to-month swing. */
+function salaryFactorAt(ym) {
+  const r = vk(), from = r.ratesFrom || '0000-00';
+  if (ym >= from) return awardFactor(ym);
+  return 1 / (r.awards || []).filter(a => a.from <= from && a.from > ym).reduce((f, a) => f * (1 + (Number(a.pct) || 0) / 100), 1);
+}
+const salaryNetAt = ym => { const r = vk(); return takeHome(((Number(r.salary) || 0) + (Number(r.enh) || 0)) * salaryFactorAt(ym), 0, vikiPayday(ym)).net; };
+function vikiPayday(ym) { if (!ym.endsWith('-12')) return payday(ym); let d = `${ym}-18`; while (isWeekend(d) || isBH(d)) d = addDays(d, -1); return d; } /* December pay comes early, before Christmas */
+const avgOf = a => a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0;
+const sdOf = a => { const m = avgOf(a); return Math.sqrt(avgOf(a.map(x => (x - m) ** 2))); };
+function vikiHistory() {
+  return S.payslips.filter(x => Number(x.net) > 0 && /^\d{4}-\d\d$/.test(x.id)).sort((a, b) => a.id < b.id ? -1 : 1)
+    .map(x => { const sal = salaryNetAt(x.id), net = Number(x.net); return { ym: x.id, net, paid: x.paid || vikiPayday(x.id), sal, ex: net - sal }; });
+}
+function vikiOutlook() {
+  const r = vk(); if (!r.salary) return null;
+  const H = vikiHistory(); if (H.length < 3) return null;
+  const last12 = H.slice(-12), e12 = last12.map(h => h.ex), e6 = H.slice(-6).map(h => h.ex), m12 = avgOf(e12) || 1;
+  const typical = (avgOf(e12) + avgOf(e6)) / 2, spread = sdOf(e12), lastYM = H[H.length - 1].ym, out = [];
+  for (let i = 1; i <= 12; i++) {
+    const ym = ymAdd(lastYM, i), ly = H.find(h => h.ym === ymAdd(ym, -12));
+    const season = ly ? Math.max(0.3, 1 + 0.5 * (ly.ex / m12 - 1)) : 1, f = salaryFactorAt(ym) / salaryFactorAt(lastYM);
+    const sal = salaryNetAt(ym), ex = typical * season * f, w = spread * 0.8 * f;
+    out.push({ ym, sal, exp: sal + ex, lo: sal + Math.max(0, ex - w), hi: sal + ex + w, paid: vikiPayday(ym), ly, rise: f > 1.0001 && salaryFactorAt(ymAdd(ym, -1)) < salaryFactorAt(ym) });
+  }
+  return { H, last12, typical, spread, out, m12, e6: avgOf(e6) };
+}
+const monTag = ym => `${monShort(ym).slice(0, 3)} ${String(ym).slice(2, 4)}`;
+function viewVikiMetrics() {
+  const F = vikiOutlook();
+  if (!F) return `<section class="panel"><h2>Metrics</h2><p class="empty">Add at least three months of Viki's real take-home (Rota &amp; claims → Got the payslip?) and her pay rates, then her pay history and a month-by-month guesstimate show here.</p></section>`;
+  const { H, last12, out } = F, tot = last12.reduce((s, h) => s + h.net, 0), avg = tot / last12.length;
+  const lo = last12.reduce((a, b) => b.net < a.net ? b : a), hi = last12.reduce((a, b) => b.net > a.net ? b : a), lastSal = H[H.length - 1].sal;
+  const ocShare = Math.round(avgOf(last12.map(h => h.ex)) / avg * 100);
+  const hero = tblock({ cls: 'vm-hero', kicker: `Take-home · last ${last12.length} months`, title: `<span data-cu="${Math.round(tot)}" data-cu-fmt="gbp" data-cu-key="vmtot">${money(tot, 0)}</span>`,
+    side: `<span class="tb-kicker">A month</span><span class="big">${money(avg, 0)}</span>`,
+    cells: [tbCell('Lowest', `${money(lo.net, 0)}<small class="sub">${esc(monTag(lo.ym))}</small>`, 'var(--gold-bar)'), tbCell('Highest', `${money(hi.net, 0)}<small class="sub">${esc(monTag(hi.ym))}</small>`, 'var(--good-bar)'), tbCell('Salary alone', `${money(lastSal, 0)}<small class="sub">no on call</small>`, 'var(--rule-2)')],
+    foot: `<span>About <b>${ocShare}%</b> of her pay comes from on call and call-outs</span><span>Last paid ${esc(dayShort(H[H.length - 1].paid))}</span>` });
+
+  /* every payday: salary part and on-call part */
+  const max = Math.max(...H.map(h => h.net)) || 1;
+  const bars = `<div class="vm-bars" role="img" aria-label="Take-home each payday: ${esc(H.map(h => `${monTag(h.ym)} ${money(h.net, 0)}`).join(', '))}">${H.map((h, i) => `<div class="vm-col${h === hi ? ' hi' : h === lo ? ' lo' : ''}" style="--i:${i}" title="${esc(dayShort(h.paid))} ${h.paid.slice(0, 4)}: ${money(h.net, 2)}">
+      <span class="vm-v">£${(h.net / 1000).toFixed(1)}k</span><span class="vm-track"><i style="height:${(h.net / max * 100).toFixed(1)}%"><b style="height:${(Math.max(0, h.ex) / h.net * 100).toFixed(1)}%"></b></i></span><span class="vm-m">${monShort(h.ym).slice(0, 1)}</span></div>`).join('')}</div>
+    <div class="legend"><span class="chip"><i class="lvsw" style="background:var(--vm-sal)"></i>Salary</span><span class="chip"><i class="lvsw" style="background:var(--viki-bar)"></i>On call and call-outs</span></div>`;
+  const yoy = H.filter(h => H.some(p => p.ym === ymAdd(h.ym, -12))).map(h => ({ h, p: H.find(p => p.ym === ymAdd(h.ym, -12)) }));
+  const first6 = avgOf(last12.slice(0, 6).map(h => h.net)), last6 = avgOf(last12.slice(-6).map(h => h.net)), swing = avgOf(last12.slice(1).map((h, i) => Math.abs(h.net - last12[i].net)));
+  const stat = (lb, val, sub, cls = '') => `<div class="stat ${cls}"><span>${lb}</span><b>${val}</b><span>${sub}</span></div>`;
+  const history = `<section class="panel"><h2>Every payday <span class="sub">${H.length} months</span></h2>${bars}
+    <div class="stats cr-stats">
+      ${stat('Last 6 months', money(last6, 0), `a month, ${last6 >= first6 ? 'up' : 'down'} ${money(Math.abs(last6 - first6), 0)} on the 6 before`, last6 >= first6 ? 'good' : 'warn')}
+      ${stat('On call is worth', money(avgOf(last12.map(h => h.ex)), 0), 'a month after tax, on average')}
+      ${stat('Typical swing', money(swing, 0), 'between one payday and the next')}
+      ${yoy.length ? stat('Year on year', `${yoy.reduce((s, x) => s + x.h.net - x.p.net, 0) >= 0 ? '+' : '−'}${money(Math.abs(yoy.reduce((s, x) => s + x.h.net - x.p.net, 0) / yoy.length), 0)}`, `a month, ${esc(yoy.map(x => monShort(x.h.ym).slice(0, 3)).join(', '))} against last year`, 'good') : ''}
+    </div></section>`;
+
+  /* the next 12 months */
+  const fmin = Math.min(...out.map(o => o.lo), ...out.map(o => o.sal)) * 0.94, fmax = Math.max(...out.map(o => o.hi)), pct = v => ((v - fmin) / (fmax - fmin) * 100).toFixed(1);
+  const fTot = out.reduce((s, o) => s + o.exp, 0), fLo = out.reduce((s, o) => s + o.lo, 0), fHi = out.reduce((s, o) => s + o.hi, 0);
+  const rows = out.map((o, i) => `<div class="vf-row${o.rise ? ' rise' : ''}" style="--i:${i}"><div class="vf-l"><b>${esc(monShort(o.ym).slice(0, 3))}</b><span>${esc(dayShort(o.paid).slice(0, 3))} ${parse(o.paid).getDate()}</span></div>
+      <div class="vf-track"><i class="vf-sal" style="left:${pct(o.sal)}%"></i><i class="vf-rng" style="left:${pct(o.lo)}%;width:${(pct(o.hi) - pct(o.lo)).toFixed(1)}%"></i><i class="vf-dot" style="left:${pct(o.exp)}%"></i></div>
+      <div class="vf-v"><b>${money(o.exp, 0)}</b><span>${money(o.lo, 0)}–${money(o.hi, 0).replace('£', '')}</span></div></div>`).join('');
+  const riseNote = out.find(o => o.rise);
+  const forecast = `<section class="panel"><h2>The next 12 months <span class="sub">a guesstimate</span></h2>
+    <div class="vf-head"><div><span>Expected</span><b>${money(fTot, 0)}</b></div><div><span>Quiet year</span><b>${money(fLo, 0)}</b></div><div><span>Busy year</span><b>${money(fHi, 0)}</b></div></div>
+    <div class="vf-list">${rows}</div>
+    <div class="legend"><span class="chip"><i class="lvsw vf-sw-rng"></i>Likely range</span><span class="chip"><i class="lvsw vf-sw-dot"></i>Best guess</span><span class="chip"><i class="lvsw vf-sw-sal"></i>Salary alone</span></div>
+    <p class="note">Her salary after tax, plus her usual on-call money (${money(F.typical, 0)} a month: the average of the last year and the last six months), adjusted for how each month went last year.${riseNote ? ` Includes the ${esc(String((vk().awards || []).find(a => a.from === riseNote.ym)?.pct || ''))}% pay rise from ${esc(monShort(riseNote.ym))}.` : ''} December is paid early, before Christmas.</p></section>`;
+
+  /* budget plans */
+  const plans = [
+    { k: 'safe', t: 'Salary only', d: 'Live on her salary. Every penny of on call goes to savings and holidays.', b: o => o.sal },
+    { k: 'steady', t: 'Steady', d: 'Budget on a quiet month. Most months leave something over.', b: o => o.lo },
+    { k: 'full', t: 'Spend it all', d: 'Budget on the best guess. Nothing over, and quiet months fall short.', b: o => o.exp },
+  ].map(p => { const extra = out.reduce((s, o) => s + Math.max(0, o.exp - p.b(o)), 0), shortBy = Math.max(0, ...out.map(o => p.b(o) - o.lo)), bAvg = avgOf(out.map(p.b));
+    return `<div class="vp vp-${p.k}"><div class="vp-t">${p.t}</div><div class="vp-b">${money(bAvg, 0)}<small>a month</small></div><p>${p.d}</p>
+      <dl><div><dt>Left over in a year</dt><dd>${extra ? `about ${money(extra, 0)}` : 'Nothing'}</dd></div><div><dt>In a quiet month</dt><dd>${shortBy > 1 ? `up to ${money(shortBy, 0)} short` : 'Still covered'}</dd></div></dl></div>`; }).join('');
+  const budget = `<section class="panel"><h2>Budget plans</h2><div class="vp-grid">${plans}</div>
+    <p class="note">Monthly amounts are averages over the next 12 months, so they change a little after the April pay rise. This is Viki's take-home only; add Chris's pay for the household picture.</p></section>`;
+
+  /* holiday ideas: put a share of the on-call money aside */
+  const share = [25, 50, 75, 100].includes(Number(UI.vmshare)) ? Number(UI.vmshare) : 50;
+  const P = S.pricewatch, groups = P && P.groups ? Object.entries(P.groups) : [];
+  const saved = until => out.filter(o => o.paid < until).reduce((s, o) => s + (o.exp - o.sal) * share / 100, 0);
+  const readyBy = cost => { let c = 0; for (const o of out) { c += (o.exp - o.sal) * share / 100; if (c >= cost) return o; } return null; };
+  const hol = groups.map(([g, G]) => {
+    const ws = (P.watches || []).filter(w => w.g === g).map(w => { const pts = (P.points || {})[w.id] || []; return { w, last: pts[pts.length - 1] }; }).filter(x => x.last).sort((a, b) => a.last.p - b.last.p);
+    if (!ws.length) return '';
+    const start = ws[0].w.from || '9999', pot = saved(start);
+    return `<div class="vh"><div class="vh-head"><b>${esc(G.label || g)}</b><span>${money(pot, 0)} by then, if it's the only trip</span></div>
+      ${ws.map(({ w, last }) => { const ok = pot >= last.p, rb = readyBy(last.p);
+        return `<div class="vh-row ${ok ? 'ok' : 'no'}"><span class="vh-ic" aria-hidden="true">${ok ? '✓' : '…'}</span><span class="grow"><span class="t">${esc(w.name)}</span><span class="m">${ok ? `Covered by ${esc(rb ? monShort(rb.ym) : '')} payday` : `${money(last.p - pot, 0)} short${rb ? `, covered by ${esc(monShort(rb.ym))}` : ''}`}</span></span><span class="amt">${money(last.p, 0)}</span></div>`; }).join('')}</div>`; }).join('');
+  const cheap = groups.map(([g]) => (P.watches || []).filter(w => w.g === g).map(w => { const pts = (P.points || {})[w.id] || []; return pts.length ? { w, p: pts[pts.length - 1].p } : null; }).filter(Boolean).sort((a, b) => a.p - b.p)).filter(a => a.length);
+  const pair = (pick) => { const xs = cheap.map(pick); const cost = xs.reduce((s, x) => s + x.p, 0), rb = readyBy(cost); return { xs, cost, rb }; };
+  const both = cheap.length > 1 ? [pair(a => a[0]), pair(a => a[Math.floor((a.length - 1) / 2)])] : [];
+  const bothHtml = both.length ? `<div class="vh"><div class="vh-head"><b>Both trips</b><span>one of each</span></div>${both.map(b => `<div class="vh-row ${b.rb ? 'ok' : 'no'}"><span class="vh-ic" aria-hidden="true">${b.rb ? '✓' : '…'}</span><span class="grow"><span class="t">${esc(b.xs.map(x => x.w.name.split(',')[0]).join(' + '))}</span><span class="m">${b.rb ? `Covered by ${esc(monShort(b.rb.ym))} payday` : 'Not covered within the year at this rate'}</span></span><span class="amt">${money(b.cost, 0)}</span></div>`).join('')}</div>` : '';
+  const shareSeg = `<div class="vc-toggle" role="group" aria-label="How much of her on-call money to put aside">${[25, 50, 75, 100].map(s => `<button data-act="vmshare" data-v="${s}" aria-pressed="${s === share}">${s === 100 ? 'All' : s + '%'}</button>`).join('')}</div>`;
+  const holiday = `<section class="panel"><h2>Holiday ideas <span class="sub">from her on-call money</span></h2>
+    <p class="note" style="margin-top:0">How much of her on-call money goes into a holiday fund each payday?</p>${shareSeg}
+    <div class="vh-sum"><b>${money(avgOf(out.map(o => (o.exp - o.sal) * share / 100)), 0)}</b> a month · <b>${money(out.reduce((s, o) => s + (o.exp - o.sal) * share / 100, 0), 0)}</b> over the year</div>
+    ${bothHtml}${hol || '<p class="empty">Holiday prices from the price watch show up here.</p>'}
+    <p class="note">Prices come from the price watch (Treats → Planner), checked every Monday. The July prices are for somewhere to stay only, so leave room for ferries and fuel.</p></section>`;
+
+  return hero + history + forecast + budget + holiday;
 }
 /* ===== Viki → Contract & rises: her contract terms and what each agreed pay rise is worth =====
    Terms come from settings/main → viki.contract, rises from viki.awards; money from the same takeHome engine as her payslip estimate. */
@@ -6280,6 +6434,7 @@ document.addEventListener('click', async e => {
   if (a==='lpbook') return leavePlanBook(el.dataset.id);
   if (a==='hrsedit') return hrsForm(el.dataset.id);
   if (a==='vsub') { UI.vsub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='vmshare') { UI.vmshare = Number(el.dataset.v); const y = window.scrollY; render(); window.scrollTo(0,y); return; }
   if (a==='vcmode' || a==='vcyr') { if (a==='vcmode') UI.vcmode = el.dataset.v; else UI.vcyr = el.dataset.v; keepUI(); const y = window.scrollY; render(); window.scrollTo(0,y); return; }
   if (a==='hday') { UI.hday = el.dataset.date; return render(); }
   if (a==='cal') { UI.cal = ymOf(addMonths(`${UI.cal}-01`, Number(el.dataset.v))); return render(); }
