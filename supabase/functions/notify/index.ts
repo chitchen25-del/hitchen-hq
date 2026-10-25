@@ -55,7 +55,7 @@ async function loadData(today: string) {
     if (c === 'days') D.days[id] = r.data; else if (c === 'plans') D.plans.push({ ...r.data, id }); else if (c === 'bills') D.bills.push({ ...r.data, id }); else if (c === 'carrem') D.carrem.push({ ...r.data, id });
     else if (c === 'settings') D.settings = r.data; else if (r.path === 'private/calendar') D.cal = r.data; else if (r.path === 'state/checks') D.checks = r.data;
     else if (c === 'kids') D.kids[id] = r.data; else if (r.path === 'state/cover') D.cover = r.data; else if (r.path === 'meals/main') D.meals = r.data;
-    else if (r.path === 'state/hours') D.hours = r.data; else if (r.path === 'state/carlog') D.carlog = r.data;
+    else if (r.path === 'state/hours') D.hours = r.data; else if (r.path === 'state/carlog') D.carlog = r.data; else if (r.path === 'state/pricewatch') D.pricewatch = r.data;
   }
   // calendar events for the next 16 days (the week ahead looks two weeks out for childcare gaps)
   D.events = [];
@@ -135,6 +135,7 @@ function messages(D: any, today: string, mode: string) {
       const nm = String(p.name || '').replace(/\s+20\d\d$/, ''), pk = p.pack || [], left = pk.filter((x: any) => !x.done).length;
       if (n === 7) out.push({ title: `A week until ${nm}!`, body: pk.length ? `${left} thing${left === 1 ? '' : 's'} still to pack. The list is in Treats.` : 'Time to start packing. There\'s a ready-made list in Treats.', tag: `pack-${p.id}-7` });
       if (n === 1) out.push({ title: `${nm} tomorrow!`, body: pk.length && left ? `${left} thing${left === 1 ? '' : 's'} left on the packing list. Passports by the door!` : 'Passports by the door, and get some sleep!', tag: `pack-${p.id}-1` }); }
+    for (const a of ((D.pricewatch && D.pricewatch.alerts) || [])) if (a.d === today && a.text) out.push({ title: 'Holiday price drop', body: a.text, tag: `pw-${a.id}-${today}` });
     for (const c of D.carrem) { if (!c.date) continue; const n = Math.round((parse(c.date).getTime() - parse(today).getTime()) / 86400000);
       if ([30, 7, 1].includes(n)) out.push({ title: `Car: ${c.name} ${n === 1 ? 'tomorrow' : `in ${n} days`}`, body: c.note || 'Due soon. Open the Car page for details.', tag: `car-${c.id}-${n}` }); }
   }
@@ -169,6 +170,10 @@ const kidsOf = (D: any) => (D.settings.kids || []).filter((k: any) => k && k.nam
 const whoName = (w: string) => w === 'chris' ? 'Chris' : w === 'viki' ? 'Viki' : w || '';
 const actsOn = (kd: any, d: string) => (kd.acts || []).filter((a: any) => Number(a.day) === dow(d) && !(a.term !== false && school(d).k === 'off')).sort((a: any, b: any) => (a.from || '') < (b.from || '') ? -1 : 1);
 const actText = (name: string, a: any) => `${name}: ${a.n}${a.from ? ` ${hm(a.from)}` : ''}${a.drop ? `, ${whoName(a.drop)} drops off` : ''}${a.pick ? `, ${whoName(a.pick)} picks up` : ''}`;
+const EVN: Record<string, string> = { test: 'a test', trip: 'a school trip', event: 'a show or event', nonuniform: 'non-uniform day', dayoff: 'a day off school', other: '' };
+const eventsOn = (kd: any, d: string) => (kd.events || []).filter((e: any) => e.d === d);
+const evText = (e: any) => e.t ? `${e.t}${e.from ? ` at ${hm(e.from)}` : ''}` : EVN[e.kind] || 'something on';
+const kitOn = (kd: any, d: string) => [...new Set([...actsOn(kd, d), ...eventsOn(kd, d)].flatMap((x: any) => String(x.kit || '').split(/[,;\n]+/).map((y: string) => y.trim()).filter(Boolean)))];
 function dinnerOn(D: any, d: string) { const p = (D.meals.plan || {})[d]; if (!p) return null; if (p.lib) { const l = (D.meals.lib || []).find((x: any) => x.id === p.lib); return l ? l.n : null; } return p.n || null; }
 const awayOn = (D: any, d: string) => D.plans.some((p: any) => ['summer', 'city', 'family'].includes(p.kind) && p.from && p.from <= d && (p.to || p.from) >= d);
 /* only days we're sure about: Viki's rota says she's working, and Chris isn't marked off (he works weekdays that aren't bank holidays) */
@@ -183,6 +188,7 @@ function familyMessages(D: any, today: string, mode: string) {
     const pm = kids.filter((k: any) => Number(k.d.pocket?.a) > 0 && Number(k.d.pocket?.day ?? 5) === dow(today));
     if (pm.length) { const same = pm.every((k: any) => Number(k.d.pocket.a) === Number(pm[0].d.pocket.a)), via = pm[0].d.pocket.via;
       parts.push(same ? `Pocket money day: ${money(Number(pm[0].d.pocket.a))} ${pm.length > 1 ? 'each ' : ''}to ${pm.map((k: any) => k.name).join(' and ')}${via ? ` (${via})` : ''}.` : `Pocket money day: ${pm.map((k: any) => `${money(Number(k.d.pocket.a))} to ${k.name}`).join(', ')}.`); }
+    kids.forEach((k: any) => eventsOn(k.d, today).forEach((e: any) => parts.push(`${k.name}: ${evText(e)} today.`)));
     kids.forEach((k: any) => actsOn(k.d, today).forEach((a: any) => parts.push(`${actText(k.name, a)}.`)));
     const dn = dinnerOn(D, today); if (dn) parts.push(`Tonight's dinner: ${dn}.`);
     if (parts.length) out.push({ title: 'Family today', body: parts.join(' '), tag: `family-am-${today}` });
@@ -193,7 +199,9 @@ function familyMessages(D: any, today: string, mode: string) {
     else if (school(today).k === 'school' && sNw.k === 'off' && !isWk(today)) { let back = nw; while (school(back).k !== 'school' && back < addDays(nw, 60)) back = addDays(back, 1);
       parts.push(`${sNw.n} starts ${tm === nw ? 'tomorrow' : 'after the weekend'}. No school until ${DOWS[dow(back)]} ${Number(back.slice(8))} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][Number(back.slice(5, 7)) - 1]}.`); }
     if (gapOn(D, tm)) parts.push(`The girls are off school tomorrow and you're both working, with nobody down to look after them yet.`);
+    kids.forEach((k: any) => eventsOn(k.d, tm).forEach((e: any) => parts.push(`${k.name}: ${evText(e)} tomorrow.`)));
     kids.forEach((k: any) => actsOn(k.d, tm).forEach((a: any) => parts.push(`Tomorrow, ${actText(k.name, a)}.`)));
+    kids.forEach((k: any) => { const kit = kitOn(k.d, tm); if (kit.length) parts.push(`${k.name}, pack: ${kit.join(', ')}.`); });
     const dn = dinnerOn(D, tm); if (dn) parts.push(`Tomorrow's dinner: ${dn}.`);
     if (today.slice(8) === '01') { const due = kids.filter((k: any) => { const g = (k.d.growth || []).map((x: any) => x.d).sort(); return g.length && (parse(today).getTime() - parse(g[g.length - 1]).getTime()) / 86400000 > 80; });
       if (due.length) parts.push(`Time to measure ${due.map((k: any) => k.name).join(' and ')}: it's been about 3 months.`); }
@@ -204,6 +212,8 @@ function familyMessages(D: any, today: string, mode: string) {
     const parts: string[] = [];
     if (offNext.length) parts.push(`No school ${offNext.length >= 5 ? 'all week' : `on ${offNext.length} day${offNext.length === 1 ? '' : 's'}`} (${[...new Set(offNext)].join(', ')}).`);
     if (gaps.length) parts.push(`Childcare still needed: ${gaps.join(', ')}. Sort it on the Family page.`);
+    const evs: string[] = []; for (let d = addDays(today, 1); d <= addDays(today, 7); d = addDays(d, 1)) kids.forEach((k: any) => eventsOn(k.d, d).forEach((e: any) => evs.push(`${k.name}: ${evText(e)} (${DOWS[dow(d)]})`)));
+    if (evs.length) parts.push(`Coming up: ${evs.join(', ')}.`);
     if (parts.length) out.push({ title: 'The girls this fortnight', body: parts.join(' '), tag: `family-wk-${today}` });
   }
   return out;

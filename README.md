@@ -42,6 +42,18 @@ A suggested holiday plan (`state/leaveplan`) shows on Leave → Chris for its ye
 
 A trip can carry `drive` (day-by-day legs) and `alerts`; they show as The drive on the trip, with a fuel estimate.
 
+## The girls' week
+
+Each girl's page has a week planner. Add every-week things (clubs, PE, swimming, music lessons, with what to take) and one-off days (tests, school trips, shows, non-uniform days). The evening notification lists tomorrow's tests and trips and what to pack, and skips term-time clubs in the holidays.
+
+## Ask
+
+The sparkle button at the top asks a question in plain English. The `ask` edge function reads the family's data with your own sign-in and sends it with the question to Claude. It needs an Anthropic API key, added once in the Ask sheet and kept server-side in `app_secrets`; set a monthly spending limit in the Anthropic Console.
+
+## Holiday price watch
+
+Treats → Holidays shows the price watch (`state/pricewatch`): a list of places for each trip, with the cheapest price at each check and a trend line. A weekly scheduled check adds new prices and writes a price-drop alert, which the evening notification sends.
+
 ## Viki's pay
 
 Her pay rates are stored only in the private database (never in this repository) and can be changed in the app: Work → Viki → Viki's rates → Edit. On call and call-outs are paid on the 25th of the following month. The on-call claim table follows the layout of her claim form.

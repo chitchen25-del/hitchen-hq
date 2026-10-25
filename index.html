@@ -1394,12 +1394,72 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .cl-hero .cl-leg .lvsw[style*="--cl-all"]{background:rgba(255,255,255,.35)!important}.cl-hero .cl-leg .lvsw[style*="--cl-work"]{background:#fff!important}
 @media (max-width:520px){.cl-v{display:none}.cl-col:last-child .cl-v,.cl-col.mx .cl-v{display:block}}
 .cl-bars{padding:0 2px}
+
+/* ---- the girls' week, Ask, price watch ---- */
+.wk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 8px}
+.wk-head h2{margin:0}
+.wk-nav{display:flex;align-items:center;gap:6px;font-weight:700;font-size:.85rem;white-space:nowrap}
+.wk-nav span{min-width:76px;text-align:center}
+.wk-tm{margin:0 16px 10px;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--kc) 14%,var(--sheet));border:1px solid color-mix(in srgb,var(--kc) 35%,transparent);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:.9rem}
+.wk-tm-k{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--kc)}
+.wk-days{list-style:none;margin:0;padding:0 16px;display:grid;gap:2px}
+.wk-day{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;padding:8px 0;border-top:1px solid var(--rule)}
+.wk-day:first-child{border-top:0}
+.wk-day.today .wk-date{background:var(--kc);color:#fff}
+.wk-day.we .wk-date{opacity:.7}
+.wk-date{display:flex;flex-direction:column;align-items:center;justify-content:center;height:44px;border-radius:12px;background:var(--sheet-2);line-height:1.05}
+.wk-date span{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.wk-date b{font-size:1.1rem}
+.wk-body{display:flex;flex-direction:column;gap:6px;min-width:0;justify-content:center}
+.wk-empty{color:var(--muted);font-size:.86rem}
+.wk-chip{align-self:flex-start;font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:999px;background:var(--good-soft);color:var(--good)}
+.wk-chip.bh{background:var(--gold-soft);color:var(--gold)}
+.wk-item{appearance:none;border:0;text-align:left;font:inherit;color:inherit;display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:12px;background:var(--sheet-2);cursor:pointer;width:100%}
+.wk-item .grow{display:flex;flex-direction:column;gap:2px;min-width:0}
+.wk-item small{color:var(--muted);font-size:.78rem}
+.wk-item .wk-note{display:block}
+.wk-item.ev{background:color-mix(in srgb,var(--kc) 12%,var(--sheet));box-shadow:inset 3px 0 0 var(--kc)}
+.wk-item.ev.k-test{background:var(--gold-soft);box-shadow:inset 3px 0 0 var(--gold-bar)}
+.wk-ic{flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--sheet);font-size:.95rem}
+.wk-kit{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.wk-kit i{font-style:normal;font-size:.7rem;font-weight:700;padding:1px 7px;border-radius:999px;background:color-mix(in srgb,var(--kc) 16%,transparent);color:var(--ink)}
+.wk-add{padding:6px 16px 14px}
+.ask{display:flex;flex-direction:column;gap:10px}
+.ask-log{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;padding:2px}
+.ask-hi{color:var(--muted);margin:0}
+.ask-msg{max-width:88%;padding:10px 12px;border-radius:16px;line-height:1.45;font-size:.95rem}
+.ask-msg p{margin:0 0 6px}.ask-msg p:last-child{margin:0}
+.ask-msg ul{margin:4px 0;padding-left:18px}
+.ask-msg.user{align-self:flex-end;background:var(--chris-bar);color:#fff;border-bottom-right-radius:4px}
+.ask-msg.assistant{align-self:flex-start;background:var(--sheet-2);border-bottom-left-radius:4px}
+.ask-msg.typing{display:flex;gap:5px;padding:14px}
+.ask-msg.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.4}
+@media (prefers-reduced-motion:no-preference){.ask-msg.typing i{animation:askdot 1.1s ease-in-out infinite}.ask-msg.typing i:nth-child(2){animation-delay:.15s}.ask-msg.typing i:nth-child(3){animation-delay:.3s}@keyframes askdot{50%{opacity:1;transform:translateY(-3px)}}.ask-msg{animation:rise .3s ease both}}
+.ask-sugg{display:flex;flex-wrap:wrap;gap:6px}
+.ask-sugg .chip{cursor:pointer;font:inherit;font-size:.82rem}
+.ask-row{display:flex;gap:8px}
+.ask-row input{flex:1;min-width:0;font:inherit;padding:10px 12px;border-radius:12px;border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink)}
+.ask-key{padding:12px;border-radius:12px;background:var(--gold-soft);display:flex;flex-direction:column;gap:8px;font-size:.88rem}
+.ask-key p{margin:0}
+.ask-clear{align-self:center}
+.pw-list{padding:0 16px}
+.pw-row{gap:10px;align-items:center}
+.pw-spark{width:64px;height:22px;flex:none}
+.pw-spark.down{color:var(--good)}.pw-spark.up{color:var(--bad)}
+.pw-new{font-size:.66rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.pw-amt{display:flex;flex-direction:column;align-items:flex-end;min-width:64px}
+.pw-amt small{font-size:.7rem;font-weight:700}.pw-amt small.down{color:var(--good)}.pw-amt small.up{color:var(--bad)}
+.pw-foot{padding:0 16px 12px}
+.pw-big{color:var(--chris-bar);margin:6px 0 10px}
+header.top .askbtn{margin-left:auto}
+header.top .askbtn + .iconbtn{margin-left:6px}
 </style>
 </head>
 <body>
 
 <header class="top">
   <div class="brand"><h1 id="title">Hitchen HQ</h1><small id="subtitle">Family work, money and car</small></div>
+  <button class="iconbtn askbtn" data-act="ask" aria-label="Ask Hitchen HQ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></button>
   <button class="iconbtn" data-act="settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
 </header>
 
@@ -1518,18 +1578,18 @@ function applyLocal(path, data) {
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; }
+  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.hours) rows.push(['state/hours', S.hours]); if (S.carlog) rows.push(['state/carlog', S.carlog]); if (S.leaveplan) rows.push(['state/leaveplan', S.leaveplan]); if (S.meals) rows.push(['meals/main', S.meals]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.hours) rows.push(['state/hours', S.hours]); if (S.carlog) rows.push(['state/carlog', S.carlog]); if (S.leaveplan) rows.push(['state/leaveplan', S.leaveplan]); if (S.pricewatch) rows.push(['state/pricewatch', S.pricewatch]); if (S.meals) rows.push(['meals/main', S.meals]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.entries(S.media || {}).forEach(([id,d]) => rows.push([`media/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
@@ -1609,10 +1669,10 @@ function render() {
   document.documentElement.dataset.user = session ? me() : ''; document.documentElement.dataset.tab = UI.kid ? 'kid' : UI.tab;
   document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab===UI.tab ? 'page' : 'false'));
   $('nav.tabs').hidden = !session;
-  $('[data-act="settings"]').hidden = !session;
+  $('[data-act="settings"]').hidden = !session; $('[data-act="ask"]').hidden = !session;
   $('.fab').hidden = !session;
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
-  if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('#title').textContent = `${UI.kid}'s corner`; $('#subtitle').textContent = UI.kidTab === 'jobs' ? 'Tick off your jobs to earn stars' : UI.kidTab === 'save' ? 'What you\'re saving up for' : 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
+  if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('[data-act="ask"]').hidden = true; $('#title').textContent = `${UI.kid}'s corner`; $('#subtitle').textContent = UI.kidTab === 'jobs' ? 'Tick off your jobs to earn stars' : UI.kidTab === 'save' ? 'What you\'re saving up for' : 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
   const titles = {home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Holidays, visits, Christmas and birthdays'], car:['The Evoque','Service, checks, fuel and trips']};
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
@@ -2119,6 +2179,121 @@ function viewWork() {
   </section>`;
 }
 
+/* ----- the girls' week planner -----
+   Every-week items live in kids/<key>.acts ({ id, n, day, from, to, where, drop, pick, term, kind, kit }).
+   One-off days live in kids/<key>.events ({ id, d, kind, t, from, note, kit }). */
+const AKINDS = [['club', '⚽', 'Club'], ['pe', '👟', 'PE'], ['swim', '🏊', 'Swimming'], ['music', '🎵', 'Music lesson'], ['lesson', '📚', 'Lesson or tutor'], ['other', '⭐', 'Something else']];
+const EKINDS = [['test', '📝', 'Test'], ['trip', '🚌', 'School trip'], ['event', '🎭', 'Show or event'], ['nonuniform', '👕', 'Non-uniform day'], ['dayoff', '🏠', 'Day off school'], ['other', '📌', 'Something else']];
+const kindOf = (list, k) => list.find(x => x[0] === k) || list[list.length - 1];
+const actKind = a => a.kind || (/swim/i.test(a.n) ? 'swim' : /(^|\s)p\.?e\.?(\s|$)/i.test(a.n) ? 'pe' : /music|piano|guitar|violin|sing|drum|recorder|keyboard/i.test(a.n) ? 'music' : /tutor|lesson|class/i.test(a.n) ? 'lesson' : 'club');
+const eventsOn = (key, d) => (kidDoc(key).events || []).filter(e => e.d === d).sort((a, b) => (a.from || '') < (b.from || '') ? -1 : 1);
+const splitKit = s => String(s || '').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);
+function kitFor(key, d) { const L = []; actsOn(key, d).forEach(a => splitKit(a.kit).forEach(x => L.push(x))); eventsOn(key, d).forEach(e => splitKit(e.kit).forEach(x => L.push(x))); return [...new Set(L)]; }
+function kidWeekPanel(k, i) {
+  const key = wishKey(k.name), col = KIDCOL[i % KIDCOL.length], off = Number((UI.kwk || {})[key] || 0), t = today();
+  const sun = parse(t).getDay() === 0, base = sun ? addDays(t, 1) : t, mon = addDays(base, -((parse(base).getDay() + 6) % 7) + off * 7), days = [0, 1, 2, 3, 4, 5, 6].map(n => addDays(mon, n));
+  const tm = addDays(t, 1), kit = kitFor(key, tm), evTm = eventsOn(key, tm).filter(e => ['test', 'trip', 'nonuniform', 'dayoff'].includes(e.kind));
+  const label = off === 0 ? (sun ? 'Week ahead' : 'This week') : off === 1 ? 'Next week' : off === -1 ? 'Last week' : `w/c ${dayShort(mon).slice(4)}`;
+  const chip = d => { const s = schoolDay(d); return isBH(d) ? '<span class="wk-chip bh">Bank holiday</span>' : s.k === 'hol' || s.k === 'inset' ? `<span class="wk-chip hol">${esc(s.l || 'Holiday')}</span>` : ''; };
+  const row = d => {
+    const acts = actsOn(key, d), evs = eventsOn(key, d), wd = parse(d).getDay(), we = wd === 0 || wd === 6, sd = schoolDay(d);
+    const pe = !we && sd.k === 'school';
+    const items = [...evs.map(e => { const [kk, ic, nm] = kindOf(EKINDS, e.kind); return `<button class="wk-item ev k-${kk}" data-act="kev" data-k="${key}" data-id="${esc(e.id)}"><span class="wk-ic">${ic}</span><span class="grow"><b>${esc(e.t || nm)}</b>${e.from ? ` <small>${hm(e.from)}</small>` : ''}${e.note ? `<small class="wk-note">${esc(e.note)}</small>` : ''}${splitKit(e.kit).length ? `<span class="wk-kit">${splitKit(e.kit).map(x => `<i>${esc(x)}</i>`).join('')}</span>` : ''}</span></button>`; }),
+      ...acts.map(a => { const [kk, ic] = kindOf(AKINDS, actKind(a)); return `<button class="wk-item k-${kk}" data-act="kact" data-k="${key}" data-id="${esc(a.id)}"><span class="wk-ic">${ic}</span><span class="grow"><b>${esc(a.n)}</b>${a.from ? ` <small>${hm(a.from)}${a.to ? `–${hm(a.to)}` : ''}</small>` : ''}${a.where || a.drop || a.pick ? `<small class="wk-note">${[a.where, a.drop ? `${whoName(a.drop)} drops off` : '', a.pick ? `${whoName(a.pick)} picks up` : ''].filter(Boolean).map(esc).join(' · ')}</small>` : ''}${splitKit(a.kit).length ? `<span class="wk-kit">${splitKit(a.kit).map(x => `<i>${esc(x)}</i>`).join('')}</span>` : ''}</span></button>`; })];
+    return `<li class="wk-day${d === t ? ' today' : ''}${we ? ' we' : ''}"><div class="wk-date"><span>${esc(DOWS[wd].slice(0, 3))}</span><b>${parse(d).getDate()}</b></div><div class="wk-body">${chip(d)}${items.length ? items.join('') : `<span class="wk-empty">${we ? 'Weekend' : pe ? 'Just school' : 'Nothing on'}</span>`}</div></li>`;
+  };
+  return `<section class="panel nopad wk" style="--kc:${col}">
+    <div class="wk-head"><h2>${esc(k.name)}'s week</h2><div class="wk-nav"><button class="iconbtn" data-act="kwk" data-k="${key}" data-v="-1" aria-label="Previous week">‹</button><span>${esc(label)}</span><button class="iconbtn" data-act="kwk" data-k="${key}" data-v="1" aria-label="Next week">›</button></div></div>
+    ${off === 0 && (kit.length || evTm.length) ? `<div class="wk-tm"><span class="wk-tm-k">Tomorrow</span>${evTm.map(e => `<b>${kindOf(EKINDS, e.kind)[1]} ${esc(e.t || kindOf(EKINDS, e.kind)[2])}</b>`).join('')}${kit.length ? `<span>Pack: ${kit.map(esc).join(', ')}</span>` : ''}</div>` : ''}
+    <ol class="wk-days">${days.map(row).join('')}</ol>
+    <div class="btnrow wk-add"><button class="btn small" data-act="kact" data-k="${key}">Add every week</button><button class="btn small ghost" data-act="kev" data-k="${key}">Add one day</button></div>
+  </section>`;
+}
+function kidEventForm(key, id) {
+  const k = kidByKey(key); if (!k) return; const e = id ? (kidDoc(key).events || []).find(x => x.id === id) : null; if (id && !e) return;
+  openSheet(e ? (e.t || 'Day') : `One day for ${k.name}`, sel('evK', 'What is it', e ? e.kind : 'test', EKINDS.map(([kk, ic, nm]) => [kk, `${ic} ${nm}`])) + fld('evT', 'Name', e ? e.t || '' : '', 'text', 'placeholder="e.g. Spelling test, Manx Museum trip"') +
+    `<div class="fields2">${fld('evD', 'Day', e ? e.d : addDays(today(), 1), 'date')}${fld('evF', 'Time (optional)', e ? e.from || '' : '', 'time')}</div>` +
+    fld('evKit', 'Things to take', e ? e.kit || '' : '', 'text', 'placeholder="e.g. Packed lunch, £5, waterproof"') + fld('evN', 'Note', e ? e.note || '' : '', 'text', 'placeholder="e.g. Back at 3:30pm, revise times tables"'), async () => {
+    const d = v('evD'); if (!d) throw new Error('Pick the day');
+    const x = { id: e ? e.id : uid('ev'), d, kind: v('evK'), t: v('evT').trim(), from: v('evF'), kit: v('evKit').trim(), note: v('evN').trim() };
+    await saveKid(key, z => ({ ...z, events: e ? (z.events || []).map(y => y.id === e.id ? x : y) : [...(z.events || []), x] }));
+  }, e ? { onDelete: () => saveKid(key, z => ({ ...z, events: (z.events || []).filter(y => y.id !== e.id) })) } : {});
+}
+
+/* ----- Ask: plain-English questions answered from the family's data (the "ask" edge function calls Claude) ----- */
+const ASK = { hist: [], busy: false, nokey: false };
+const ASK_SUGG = ['What\'s on this week?', 'When is Viki next on call?', 'How many Saturdays have I worked this year?', 'How much did we spend on food last month?', 'Can we afford October in Fuerteventura?', 'What do the girls need for school tomorrow?'];
+function askFmt(t) {
+  const lines = esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split(/\n/); let html = '', inList = false;
+  lines.forEach(l => { const m = l.match(/^\s*[-•*]\s+(.*)/); if (m) { if (!inList) { html += '<ul>'; inList = true; } html += `<li>${m[1]}</li>`; } else { if (inList) { html += '</ul>'; inList = false; } if (l.trim()) html += `<p>${l}</p>`; } });
+  return html + (inList ? '</ul>' : '');
+}
+function askLog() {
+  const log = ASK.hist.map(m => `<div class="ask-msg ${m.role}">${m.role === 'assistant' ? askFmt(m.text) : esc(m.text)}</div>`).join('');
+  return log + (ASK.busy ? '<div class="ask-msg assistant typing" aria-label="Thinking"><i></i><i></i><i></i></div>' : '');
+}
+function askKeyBox() {
+  return `<div class="ask-key"><b>One-time setup</b><p>Ask uses Claude, so it needs an Anthropic API key. Make one at console.anthropic.com (API keys), set a monthly spending limit there, then paste it here. It's stored on the server, never in the app.</p>
+    <div class="ask-row"><input id="askKey" type="password" autocomplete="off" placeholder="sk-ant-..." aria-label="Anthropic API key"><button type="button" class="btn small" data-act="askkey">Save</button></div></div>`;
+}
+function askOpen() {
+  openSheet('Ask Hitchen HQ', `<div class="ask"><div class="ask-log" id="askLog" aria-live="polite">${ASK.hist.length ? askLog() : '<p class="ask-hi">Ask anything about the family: shifts, school, money, holidays, the car, your hours. Answers come from your own data.</p>'}</div>
+    <div class="ask-sugg" id="askSugg">${ASK.hist.length ? '' : ASK_SUGG.map(s => `<button type="button" class="chip" data-act="asks" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+    <div id="askKeyWrap">${ASK.nokey ? askKeyBox() : ''}</div>
+    <div class="ask-row ask-in"><input id="askQ" autocomplete="off" placeholder="Ask a question" aria-label="Your question"><button type="button" class="btn small" data-act="asksend" aria-label="Send">Ask</button></div>
+    ${ASK.hist.length ? '<button type="button" class="linkbtn ask-clear" data-act="askclear">Start again</button>' : ''}</div>`, null, { noSave: true });
+  const q = $('#askQ'); if (q) q.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); askSend(); } });
+}
+const askPaint = () => { const l = $('#askLog'); if (l) { l.innerHTML = askLog(); l.scrollTop = l.scrollHeight; } const s = $('#askSugg'); if (s) s.innerHTML = ''; const kw = $('#askKeyWrap'); if (kw) kw.innerHTML = ASK.nokey ? askKeyBox() : ''; };
+async function askCall(body) {
+  const { data, error } = await sb.functions.invoke('ask', { body });
+  if (error) { let msg = error.message; try { const j = await error.context.json(); msg = j.error || msg; } catch (e) {} throw new Error(msg); }
+  return data;
+}
+async function askSend(text) {
+  const inp = $('#askQ'), q = String(text || (inp && inp.value) || '').trim(); if (!q || ASK.busy) return; if (inp) inp.value = '';
+  const history = ASK.hist.slice(-6); ASK.hist.push({ role: 'user', text: q }); ASK.busy = true; askPaint();
+  try { const r = await askCall({ q, history }); ASK.hist.push({ role: 'assistant', text: r.answer || 'No answer came back.' }); ASK.nokey = false; }
+  catch (e) { if (/nokey/.test(e.message)) { ASK.nokey = true; ASK.hist.pop(); ASK.pending = q; } else ASK.hist.push({ role: 'assistant', text: `Sorry, that didn't work: ${e.message}` }); }
+  ASK.busy = false; askPaint();
+}
+async function askSaveKey() {
+  const k = ($('#askKey') || {}).value || ''; if (!k.trim()) return;
+  try { await askCall({ action: 'setkey', key: k.trim() }); ASK.nokey = false; toast('Key saved'); askPaint(); if (ASK.pending) { const q = ASK.pending; ASK.pending = null; askSend(q); } }
+  catch (e) { toast(e.message); }
+}
+
+/* ----- holiday price watch: state/pricewatch = { updated, groups:{ id:{label, when, note, tone} }, watches:[{ id, g, name, kind, ... }], points:{ id:[{ d, p, h, r, c, direct }] }, alerts:[{ d, id, text }] }
+   A weekly scheduled check adds a price point for each watch. */
+function pwSpark(pts) {
+  if (pts.length < 2) return '<span class="pw-new">First check</span>';
+  const ys = pts.map(p => p.p), lo = Math.min(...ys), hi = Math.max(...ys), w = 64, h = 22, X = i => (i / (pts.length - 1)) * (w - 4) + 2, Y = y => h - 3 - ((y - lo) / ((hi - lo) || 1)) * (h - 6);
+  const down = ys[ys.length - 1] <= ys[0];
+  return `<svg class="pw-spark ${down ? 'down' : 'up'}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${pts.map((p, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(p.p).toFixed(1)}`).join('')}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function priceWatchPanel() {
+  const P = S.pricewatch; if (!P || !(P.watches || []).length) return '';
+  const groups = Object.entries(P.groups || {});
+  return groups.map(([g, G]) => {
+    const ws = P.watches.filter(w => w.g === g).map(w => { const pts = (P.points || {})[w.id] || [], last = pts[pts.length - 1], first = pts[0]; return { w, pts, last, first }; }).filter(x => x.last).sort((a, b) => a.last.p - b.last.p);
+    if (!ws.length) return '';
+    const best = ws[0];
+    return `<section class="panel nopad pw">${headCard({ tone: G.tone || 'sea', kicker: `Price watch · ${esc(G.label)}`, title: `From <span data-cu="${Math.round(best.last.p)}" data-cu-fmt="gbp" data-cu-key="pw${g}">${money(best.last.p, 0)}</span> in ${esc(best.w.name)}`, meta: `<span>${esc(G.note || '')}</span>` })}
+      <div class="list pw-list">${ws.map(({ w, pts, last, first }) => { const ch = pts.length > 1 ? last.p - pts[pts.length - 2].p : 0;
+        return `<button class="rowbtn pw-row" data-act="pwrow" data-id="${esc(w.id)}"><span class="grow"><span class="t" style="display:block">${esc(w.name)}</span><span class="m" style="display:block">${esc(last.h || '')}${last.r ? ` · ${last.r}%` : ''}${last.c ? ` · ${esc(last.c)}${last.direct ? ' direct' : ''}` : ''}</span></span>
+          ${pwSpark(pts)}<span class="amt pw-amt"><b>${money(last.p, 0)}</b>${ch ? `<small class="${ch < 0 ? 'down' : 'up'}">${ch < 0 ? '▼' : '▲'} ${money(Math.abs(ch), 0)}</small>` : ''}</span></button>`; }).join('')}</div>
+      <p class="note pw-foot">${esc(G.when || '')} Checked every Monday${P.updated ? `, last ${esc(dayShort(P.updated))}` : ''}. Prices are indicative.</p></section>`;
+  }).join('');
+}
+function pwRowSheet(id) {
+  const P = S.pricewatch, w = P && P.watches.find(x => x.id === id); if (!w) return; const pts = (P.points || {})[id] || [];
+  const lo = pts.reduce((a, p) => !a || p.p < a.p ? p : a, null);
+  openSheet(w.name, `<p class="note" style="margin-top:0">${esc(w.desc || '')}</p>${pts.length > 1 ? `<div class="pw-big">${sparkline(pts.map((p, i) => [i, p.p]), { tone: 'var(--chris-bar)', zero: false })}</div>` : ''}
+    ${lo ? `<p><b>Lowest seen:</b> ${money(lo.p, 0)} on ${esc(dayShort(lo.d))}${lo.h ? ` (${esc(lo.h)})` : ''}</p>` : ''}
+    <div class="list">${pts.slice().reverse().map(p => `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(dayShort(p.d))}</span><span class="m" style="display:block">${esc(p.h || '')}${p.r ? ` · rated ${p.r}%` : ''}</span></span><span class="amt">${money(p.p, 0)}</span></div>`).join('')}</div>
+    ${w.link ? `<a class="btn" style="display:flex;justify-content:center;margin-top:12px" href="${esc(w.link)}" target="_blank" rel="noopener">Look on lastminute.com</a>` : ''}`, null, { noSave: true });
+}
+
 /* ----- little bits of motion: numbers count up the first time they appear (skipped for reduced motion) ----- */
 const CU_SEEN = new Set();
 function countUp(root) {
@@ -2555,7 +2730,7 @@ function kidGrowPanel(k, i) {
     <h3 class="gsub">Measurements</h3><div class="list">${shown.map(x => `<button class="rowbtn" data-act="kgrow" data-k="${key}" data-id="${esc(x.id)}"><span class="kic" style="--c:${col}">📏</span><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.d))} ${x.d.slice(0, 4)}</span><span class="m" style="display:block">${[x.h ? `${n1(x.h)} cm (${ftin(x.h)})` : '', x.w ? `${n1(x.w)} kg (${stlb(x.w)})` : ''].filter(Boolean).join(' · ')}</span></span></button>`).join('')}</div>
     ${list.length > 6 ? `<p class="note">Showing the latest 6 of ${list.length}.</p>` : ''}</section>`;
 }
-function viewKidWork(k, i) { return kidHero(k, i) + kidGlance(k, i) + kidActsPanel(k, i) + kidCalendar() + clashPanel() + kidChoresPanel(k, i) + kidSavePanel(k, i) + kidMoneyPanel(k) + kidLogPanel(k) + kidGrowPanel(k, i) + termDatesPanel(); }
+function viewKidWork(k, i) { return kidHero(k, i) + kidGlance(k, i) + kidWeekPanel(k, i) + kidCalendar() + clashPanel() + kidChoresPanel(k, i) + kidSavePanel(k, i) + kidMoneyPanel(k) + kidLogPanel(k) + kidGrowPanel(k, i) + termDatesPanel(); }
 function kidMoneyForm(key) {
   const k = kidByKey(key); if (!k) return; const d = kidDoc(key);
   openSheet(`${k.name}'s money`, `<div class="fields2">${fld('kmA', 'Pocket money each week (£)', d.pocket.a || '', 'number', 'step="0.01" min="0" inputmode="decimal" placeholder="e.g. 5"')}${sel('kmD', 'Paid on', d.pocket.day, [1, 2, 3, 4, 5, 6, 0].map(x => [x, DOWS[x]]))}</div>` +
@@ -2659,12 +2834,13 @@ function kidActsPanel(k, i) {
 function actForm(key, id) {
   const k = kidByKey(key); if (!k) return; const a = id ? (kidDoc(key).acts || []).find(x => x.id === id) : null; if (id && !a) return;
   const people = [['', 'Not set'], ['chris', 'Chris'], ['viki', 'Viki'], ['Grandparents', 'Grandparents'], ['Lift share', 'Lift share'], ['Walks or bus', 'Walks or bus']];
-  openSheet(a ? a.n : `Add an activity for ${k.name}`, fld('acN', 'Activity', a ? a.n : '', 'text', 'placeholder="e.g. Swimming lessons"') + sel('acD', 'Day', a ? a.day : 1, [1, 2, 3, 4, 5, 6, 0].map(x => [x, DOWS[x]])) +
+  openSheet(a ? a.n : `Add an activity for ${k.name}`, fld('acN', 'Activity', a ? a.n : '', 'text', 'placeholder="e.g. Swimming lessons, PE, Piano"') + `<div class="fields2">${sel('acK', 'Type', a ? actKind(a) : 'club', AKINDS.map(([kk, ic, nm]) => [kk, `${ic} ${nm}`]))}${sel('acD', 'Day', a ? a.day : 1, [1, 2, 3, 4, 5, 6, 0].map(x => [x, DOWS[x]]))}</div>` +
     `<div class="fields2">${fld('acF', 'Starts', a ? a.from || '' : '', 'time')}${fld('acT', 'Finishes', a ? a.to || '' : '', 'time')}</div>` + fld('acW', 'Where', a ? a.where || '' : '', 'text', 'placeholder="e.g. NSC, Douglas"') +
     `<div class="fields2">${sel('acDr', 'Drop-off', a ? a.drop || '' : '', people)}${sel('acPu', 'Pick-up', a ? a.pick || '' : '', people)}</div>` +
+    fld('acKit', 'Things to take', a ? a.kit || '' : '', 'text', 'placeholder="e.g. PE kit, trainers, swimming bag"') +
     `<label class="toggle"><input type="checkbox" id="acTm" ${!a || a.term !== false ? 'checked' : ''}> Term time only (not in school holidays)</label>`, async () => {
     const n = v('acN').trim(); if (!n) throw new Error('Say what the activity is');
-    const x = { id: a ? a.id : uid('ac'), n, day: Number(v('acD')), from: v('acF'), to: v('acT'), where: v('acW').trim(), drop: v('acDr'), pick: v('acPu'), term: $('#acTm').checked };
+    const x = { id: a ? a.id : uid('ac'), n, day: Number(v('acD')), from: v('acF'), to: v('acT'), where: v('acW').trim(), drop: v('acDr'), pick: v('acPu'), term: $('#acTm').checked, kind: v('acK'), kit: v('acKit').trim() };
     await saveKid(key, d => ({ ...d, acts: a ? (d.acts || []).map(y => y.id === a.id ? x : y) : [...(d.acts || []), x] }));
   }, a ? { onDelete: () => saveKid(key, d => ({ ...d, acts: (d.acts || []).filter(y => y.id !== a.id) })) } : {});
 }
@@ -4115,7 +4291,7 @@ function viewPlanner() {
   const tabs = `<div class="seg pltabs" role="group" aria-label="Which kind of treat">${PL_KINDS.map(([kk,l]) => { const n = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===kk).length; return `<button data-act="pltab" data-v="${kk}" aria-pressed="${k===kk}"><span class="pt-i">${OCC_ICON[kk]}</span>${{ summer: 'Holidays', family: 'Visits', city: 'City breaks', christmas: 'Celebrations' }[kk]}${n ? ` <small>${n}</small>` : ''}</button>`; }).join('')}</div>`;
   const list = (S.plans||[]).filter(p => p.kind !== 'year' && kindTab(p)===k).sort((a,b) => (a.from||'9') < (b.from||'9') ? -1 : 1);
   if (k === 'christmas') return countRibbon() + tabs + occasionView(list);
-  return countRibbon() + tabs + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : `a ${esc(label.toLowerCase().replace(/s$/,''))}`}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plOverview();
+  return countRibbon() + tabs + (k === 'summer' ? priceWatchPanel() : '') + list.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : `a ${esc(label.toLowerCase().replace(/s$/,''))}`}</button></div>${list.length ? '' : `<p class="note">${k==='summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k==='family' ? 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.' : 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.'}</p>`}</section>` + plOverview();
 }
 function tripPlanForm(id, kind) {
   const p = (S.plans||[]).find(x => x.id===id) || { kind: kind || UI.pltab || 'summer', saveFrom: plCur() };
@@ -5778,6 +5954,14 @@ document.addEventListener('click', async e => {
   if (a==='cover') return coverForm(el.dataset.date);
   if (a==='clashall') { UI.clashAll = !UI.clashAll; return render(); }
   if (a==='kact') return actForm(el.dataset.k, el.dataset.id);
+  if (a==='kev') return kidEventForm(el.dataset.k, el.dataset.id);
+  if (a==='kwk') { UI.kwk = UI.kwk || {}; UI.kwk[el.dataset.k] = (Number(UI.kwk[el.dataset.k]) || 0) + Number(el.dataset.v); render(); return; }
+  if (a==='ask') return askOpen();
+  if (a==='asks') return askSend(el.dataset.q);
+  if (a==='asksend') return askSend();
+  if (a==='askkey') return askSaveKey();
+  if (a==='askclear') { ASK.hist = []; ASK.nokey = false; closeSheet(); return askOpen(); }
+  if (a==='pwrow') return pwRowSheet(el.dataset.id);
   if (a==='kchore') return choreForm(el.dataset.k, el.dataset.id);
   if (a==='kchoredo') return toggleChore(el.dataset.k, el.dataset.id);
   if (a==='krate') return starRateForm(el.dataset.k);
