@@ -361,6 +361,20 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-1
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c-oc:#6F7DE0;--c-co:#B5850C;--c-in:#2E9E62;--c-out:#6F7DE0;--g1:#6F7DE0;--g2:#B5850C;--g3:#D2386C;--g4:#1FA5B4}}
 :root[data-theme="dark"]{--c-oc:#6F7DE0;--c-co:#B5850C;--c-in:#2E9E62;--c-out:#6F7DE0;--g1:#6F7DE0;--g2:#B5850C;--g3:#D2386C;--g4:#1FA5B4}
 
+.blc-chip{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:.72rem;font-weight:700;line-height:1.5;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--blc) 13%,transparent);color:var(--blc);white-space:nowrap}
+.blc-chip svg{width:12px;height:12px;flex:none}.blc-chip.off{background:var(--sheet-2);color:var(--ink-2)}
+.amt .blc-chip{margin-top:0}
+.blc-banner{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;gap:10px;align-items:flex-start;width:100%;margin:2px 0 12px;padding:10px 12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--blc) 30%,transparent);background:color-mix(in srgb,var(--blc) 8%,var(--sheet))}
+.blc-banner svg{width:20px;height:20px;color:var(--blc);flex:none;margin-top:1px}.blc-banner b{display:block;color:var(--blc)}.blc-banner small{display:block;color:var(--ink-2);margin-top:2px}
+.blc-pw{appearance:none;font:inherit;color:inherit;text-align:left;cursor:pointer;display:block;width:calc(100% - 24px);margin:4px 12px 0;padding:10px 12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--blc) 30%,transparent);background:color-mix(in srgb,var(--blc) 7%,var(--sheet))}
+.blc-pw-h{display:flex;align-items:center;gap:6px;font-weight:800;color:var(--blc);font-size:.9rem}.blc-pw-h svg{width:16px;height:16px}
+.blc-pw ul{margin:6px 0 4px;padding-left:18px;font-size:.88rem}.blc-pw li{margin:2px 0}.blc-pw small{display:block;color:var(--ink-2);font-size:.78rem}
+.blc-h{font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);margin:16px 0 4px}
+.blc-row.none .t{color:var(--ink-2)}
+:root{--blc:#1858C4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--blc:#7FA8F5}}
+:root[data-theme="dark"]{--blc:#7FA8F5}
+
 .linkbtn{all:unset;cursor:pointer;color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-2)}
 .linkbtn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .panel h2 .btnrow{gap:6px}
@@ -1755,14 +1769,14 @@ function applyLocal(path, data) {
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; }
+  else if (c === 'state') { if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
@@ -2531,9 +2545,9 @@ function priceWatchPanel() {
     const best = ws[0];
     return `<section class="panel nopad pw">${headCard({ tone: G.tone || 'sea', kicker: `Price watch · ${esc(G.label)}`, title: `From <span data-cu="${Math.round(best.last.p)}" data-cu-fmt="gbp" data-cu-key="pw${g}">${money(best.last.p, 0)}</span> in ${esc(best.w.name)}`, meta: `<span>${esc(G.note || '')}</span>` })}
       <div class="list pw-list">${ws.map(({ w, pts, last, first }) => { const ch = pts.length > 1 ? last.p - pts[pts.length - 2].p : 0;
-        return `<button class="rowbtn pw-row" data-act="pwrow" data-id="${esc(w.id)}"><span class="grow"><span class="t" style="display:block">${esc(w.name)}</span><span class="m" style="display:block">${esc(last.h || '')}${last.r ? ` · ${last.r}%` : ''}${last.c ? ` · ${esc(last.c)}${last.direct ? ' direct' : ''}` : ''}</span></span>
+        return `<button class="rowbtn pw-row" data-act="pwrow" data-id="${esc(w.id)}"><span class="grow"><span class="t" style="display:block">${esc(w.name)}</span><span class="m" style="display:block">${esc(last.h || '')}${last.r ? ` · ${last.r}%` : ''}${last.c ? ` · ${esc(last.c)}${last.direct ? ' direct' : ''}` : ''}</span>${blcChip(last.h || '', last.p, 'hotel')}</span>
           ${pwSpark(pts)}<span class="amt pw-amt"><b>${money(last.p, 0)}</b>${ch ? `<small class="${ch < 0 ? 'down' : 'up'}">${ch < 0 ? '▼' : '▲'} ${money(Math.abs(ch), 0)}</small>` : ''}</span></button>`; }).join('')}</div>
-      <p class="note pw-foot">${esc(G.when || '')} Checked every Monday${P.updated ? `, last ${esc(dayShort(P.updated))}` : ''}. Prices are indicative.</p></section>`;
+      ${blcPw(ws, best)}<p class="note pw-foot">${esc(G.when || '')} Checked every Monday${P.updated ? `, last ${esc(dayShort(P.updated))}` : ''}. Prices are indicative.</p></section>`;
   }).join('');
 }
 function pwRowSheet(id) {
@@ -2543,6 +2557,57 @@ function pwRowSheet(id) {
     ${lo ? `<p><b>Lowest seen:</b> ${money(lo.p, 0)} on ${esc(dayShort(lo.d))}${lo.h ? ` (${esc(lo.h)})` : ''}</p>` : ''}
     <div class="list">${pts.slice().reverse().map(p => `<div class="row"><span class="grow"><span class="t" style="display:block">${esc(dayShort(p.d))}</span><span class="m" style="display:block">${esc(p.h || '')}${p.r ? ` · rated ${p.r}%` : ''}</span></span><span class="amt">${money(p.p, 0)}</span></div>`).join('')}</div>
     ${w.link ? `<a class="btn" style="display:flex;justify-content:center;margin-top:12px" href="${esc(w.link)}" target="_blank" rel="noopener">Look on lastminute.com</a>` : ''}`, null, { noSave: true });
+}
+
+/* ----- Blue Light Card: state/blc = { on, holder, checked, src, offers:[{ id, n, grp, m (regex text), kind:'pct'|'off'|'tiers'|'info'|'none', pct, off, tiers:[[min, off]], upto, deal, terms, scope }] }
+   Offers live in Supabase so they can be refreshed without touching the app. Savings shown are estimates; book through the Blue Light Card app or site. */
+const blcOn = () => !!(S.blc && S.blc.on !== false && (S.blc.offers || []).length);
+const blcRe = o => { try { return o._re || (o._re = new RegExp(o.m, 'i')); } catch (e) { return /$^/; } };
+function blcFind(text, scope) {
+  if (!blcOn() || !text) return null;
+  return (S.blc.offers || []).find(o => o.m && (!scope || !o.scope || o.scope === scope) && blcRe(o).test(text)) || null;
+}
+function blcSave(o, amount) {
+  const a = Number(amount) || 0; if (!o || !a) return 0;
+  if (o.kind === 'pct') return Math.round(a * (Number(o.pct) || 0) / 100);
+  if (o.kind === 'off') return a >= (Number(o.min) || 0) ? Math.min(Number(o.off) || 0, a) : 0;
+  if (o.kind === 'tiers') { const t = (o.tiers || []).slice().sort((x, y) => y[0] - x[0]).find(x => a >= x[0]); return t ? Math.min(t[1], a) : 0; }
+  return 0;
+}
+const blcShort = o => o.kind === 'pct' ? `${o.upto ? 'up to ' : ''}${o.pct}% off` : o.kind === 'off' ? (o.gift ? `£${o.off} gift card` : `${o.upto ? 'up to ' : ''}£${o.off} off`) : o.kind === 'tiers' ? `£${Math.max(...o.tiers.map(t => t[1]))} off` : o.kind === 'none' ? 'no discount' : 'member offer';
+/* a little chip for a priced thing: "Blue Light Card · 20% off · about £150" */
+function blcChip(text, amount, scope) {
+  const o = blcFind(text, scope); if (!o || o.kind === 'none') return '';
+  const sv = blcSave(o, amount);
+  return `<span class="blc-chip" title="${esc(`${o.n}: ${o.deal}`)}">${BLC_ICON}${esc(blcShort(o))}${sv ? ` · ${o.upto ? 'up to ' : 'about '}${money(sv, 0)}` : ''}</span>`;
+}
+const BLC_ICON = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M1.5 6.5h13" stroke="currentColor" stroke-width="1.6"/></svg>';
+/* what the card could take off a list of priced things */
+function blcTotal(list) {
+  let sum = 0, n = 0; list.forEach(([t, a]) => { const o = blcFind(t); const v = blcSave(o, a); if (o && o.kind !== 'none') n++; sum += v; }); return { sum, n };
+}
+function blcBanner(list, where) {
+  if (!blcOn()) return ''; const { sum, n } = blcTotal(list); if (!n) return '';
+  return `<button type="button" class="blc-banner" data-act="blc">${BLC_ICON}<span class="grow"><b>${sum ? `${esc(S.blc.holder || 'Your')}${S.blc.holder ? '’s' : ''} Blue Light Card could save about ${money(sum, 0)}` : `Blue Light Card offers on ${n} thing${n === 1 ? '' : 's'}`}</b><small>${n} thing${n === 1 ? '' : 's'} ${where} ${n === 1 ? 'has' : 'have'} an offer. Tap to see them all.</small></span></button>`;
+}
+function blcSheet() {
+  const B = S.blc || {}, offers = B.offers || [], grp = [['holiday', 'Package holidays'], ['hotel', 'Hotels'], ['day', 'Days out'], ['other', 'Other']];
+  const row = o => `<div class="row blc-row ${o.kind === 'none' ? 'none' : ''}"><span class="grow"><span class="t" style="display:block">${esc(o.n)}</span><span class="m" style="display:block">${esc(o.deal)}${o.terms ? `. ${esc(o.terms)}` : ''}</span></span><span class="amt"><span class="blc-chip${o.kind === 'none' ? ' off' : ''}">${esc(blcShort(o))}</span></span></div>`;
+  openSheet('Blue Light Card', `<p class="note" style="margin-top:0">${B.holder ? `${esc(B.holder)} has the card. ` : ''}The app shows these offers next to prices in trips, days out and the holiday price watch, with a rough saving. To get them, book through the Blue Light Card app or website and take the card along.</p>
+    <label class="toggle"><input type="checkbox" id="blcOn" ${B.on !== false ? 'checked' : ''}> Show Blue Light Card savings next to prices</label>
+    ${grp.map(([g, l]) => { const L = offers.filter(o => (o.grp || 'other') === g); return L.length ? `<div class="blc-h" role="heading" aria-level="3">${l}</div><div class="list">${L.map(row).join('')}</div>` : ''; }).join('')}
+    <p class="note">Offers checked ${B.checked ? esc(dayShort(B.checked)) : 'recently'}${B.src ? ` (${esc(B.src)})` : ''}. They change often, so check the live offer before booking.</p>`,
+    async () => { await put('state/blc', { ...B, on: document.getElementById('blcOn').checked, offers: offers.map(({ _re, ...o }) => o) }); });
+}
+
+/* price watch: which Blue Light Card holiday offers would apply at this price (the watch prices are lastminute.com's, which has no card offer) */
+function blcPw(ws, best) {
+  if (!blcOn() || !best) return '';
+  const pkg = ws.some(x => x.w.kind === 'package'), scope = pkg ? 'package' : 'hotel';
+  const offs = (S.blc.offers || []).filter(o => o.scope === scope && o.kind !== 'none' && o.list !== false);
+  if (!offs.length) return '';
+  const bits = offs.map(o => { const sv = blcSave(o, best.last.p); return `<li><b>${esc(o.n)}</b> ${sv ? (o.gift ? `${money(sv, 0)} gift card` : `${o.upto ? 'up to ' : ''}${money(sv, 0)} off at this price`) : esc(blcShort(o))}</li>`; }).join('');
+  return `<button type="button" class="blc-pw" data-act="blc"><span class="blc-pw-h">${BLC_ICON}Booking with ${esc(S.blc.holder ? `${S.blc.holder}’s` : 'the')} Blue Light Card instead</span><ul>${bits}</ul><small>These prices are from lastminute.com, which has no card offer, so compare the same trip through the Blue Light Card app.</small></button>`;
 }
 
 /* ----- little bits of motion: numbers count up the first time they appear (skipped for reduced motion) ----- */
@@ -4993,7 +5058,7 @@ function planOptions(p) {
   const days = (o.days || []).slice().sort((a, b) => a.d < b.d ? -1 : 1);
   const used = new Set(days.map(x => x.n));
   const ideas = (p.ideas || []).filter(x => !used.has(x.n));
-  const dRow = x => `<button type="button" class="rowbtn po-do" data-act="pldo" data-id="${esc(p.id)}" data-d="${esc(x.id)}"><span class="po-dd"><b>${parse(x.d).getDate()}</b>${esc(DOWS[parse(x.d).getDay()].slice(0, 3))}</span><span class="grow"><span class="t">${esc(x.n)}</span><span class="m">${esc([x.where, x.note].filter(Boolean).join('. '))}</span></span><span class="amt">${Number(x.cost) ? money(x.cost, 0) : 'Free'}</span></button>`;
+  const dRow = x => `<button type="button" class="rowbtn po-do" data-act="pldo" data-id="${esc(p.id)}" data-d="${esc(x.id)}"><span class="po-dd"><b>${parse(x.d).getDate()}</b>${esc(DOWS[parse(x.d).getDay()].slice(0, 3))}</span><span class="grow"><span class="t">${esc(x.n)}</span><span class="m">${esc([x.where, x.note].filter(Boolean).join('. '))}</span>${blcChip(x.n, x.cost, 'day')}</span><span class="amt">${Number(x.cost) ? money(x.cost, 0) : 'Free'}</span></button>`;
   return `<section class="panel po">
     <h2>${['', 'One way', 'Two ways', 'Three ways', 'Four ways', 'Five ways'][ks.length] || ks.length + ' ways'} to do it <span class="sub">tap one to see it</span></h2>
     <div class="po-chips${ks.length === 4 ? ' n4' : ''}" role="group" aria-label="Choose an option">${chips}</div>
@@ -5026,14 +5091,14 @@ function plPanel(p) {
   const st = plStats(p), items = p.items||[], cur = plCur(), parts = tripCatParts(p);
   const groups = TCAT.map(c => [c, items.filter(it => itemCat(it) === c[0])]).filter(([, l]) => l.length);
   const row = it => { const k = itemCat(it), col = TCATI[k][2];
-    return `<button class="rowbtn tripitem" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}">${it.img ? `<span class="ti-thumb" data-photo="${esc(it.img)}"></span>` : `<span class="ti-ico" style="background:color-mix(in srgb,${col} 16%,transparent);color:${col}">${tcatIcon(k)}</span>`}<div class="grow"><div class="t">${esc(it.n)}${it.paid ? ' <span class="chip ok">Sorted</span>' : ''}</div><div class="m">${esc(plWhen(it, p))}${it.note ? ` · ${esc(it.note)}` : ''}</div></div><div class="amt">${money(it.a||0,0)}</div></button>`; };
+    return `<button class="rowbtn tripitem" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}">${it.img ? `<span class="ti-thumb" data-photo="${esc(it.img)}"></span>` : `<span class="ti-ico" style="background:color-mix(in srgb,${col} 16%,transparent);color:${col}">${tcatIcon(k)}</span>`}<div class="grow"><div class="t">${esc(it.n)}${it.paid ? ' <span class="chip ok">Sorted</span>' : ''}</div><div class="m">${esc(plWhen(it, p))}${it.note ? ` · ${esc(it.note)}` : ''}</div>${blcChip(`${it.n} ${it.note || ''}`, it.a)}</div><div class="amt">${money(it.a||0,0)}</div></button>`; };
   const hero = items.filter(it => it.img).slice(0, 3);
   return `${tripHero(p, st)}${p.options ? planOptions(p) : ''}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
     ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + drivePanel(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
     ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
-    ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>
+    ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>${blcBanner(items.filter(it => !it.paid).map(it => [`${it.n} ${it.note || ''}`, it.a]), 'in this plan')}
     ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
     <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
     ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
@@ -6533,6 +6598,7 @@ document.addEventListener('click', async e => {
   if (a==='askcancel') { const m = ASK.hist[Number(el.dataset.i)]; if (m && m.prop) m.prop.state = 'cancelled'; return askPaint(); }
   if (a==='askclear') { ASK.hist = []; ASK.nokey = false; closeSheet(); return askOpen(); }
   if (a==='pwrow') return pwRowSheet(el.dataset.id);
+  if (a==='blc') return blcSheet();
   if (a==='kchore') return choreForm(el.dataset.k, el.dataset.id);
   if (a==='kchoredo') return toggleChore(el.dataset.k, el.dataset.id);
   if (a==='krate') return starRateForm(el.dataset.k);
