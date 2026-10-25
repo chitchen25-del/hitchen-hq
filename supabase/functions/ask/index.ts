@@ -131,11 +131,11 @@ Deno.serve(async (req: Request) => {
     const content: any[] = []; if (img) content.push({ type: 'image', source: { type: 'base64', media_type: /^image\/(png|webp|gif)$/.test(body.mediaType) ? body.mediaType : 'image/jpeg', data: img } });
     content.push({ type: 'text', text: text || 'Add what this shows to the app.' });
     const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: DO_MODEL, max_tokens: 2000, system: `${DO_RULES(n)}\n${ctx}`, tools: [DO_TOOL], tool_choice: { type: 'tool', name: 'propose_changes' }, messages: [{ role: 'user', content }] }) });
+      body: JSON.stringify({ model: DO_MODEL, max_tokens: 4000, output_config: { effort: 'low' }, system: `${DO_RULES(n)}\n${ctx}`, tools: [DO_TOOL], tool_choice: { type: 'tool', name: 'propose_changes' }, messages: [{ role: 'user', content }] }) });
     const out = await res.json().catch(() => ({}));
     if (!res.ok) { const m = out?.error?.message || `Claude answered ${res.status}`; return json({ error: res.status === 401 ? 'The API key was turned down. Add a new one in Ask settings.' : m }, 502); }
     const use = (out.content || []).find((c: any) => c.type === 'tool_use');
-    if (!use) return json({ error: `No changes came back (${out.stop_reason || 'unknown'})` }, 502);
+    if (!use) return json({ error: out.stop_reason === 'max_tokens' ? 'That was too much to read in one go. Try a clearer or smaller photo.' : `No changes came back (${out.stop_reason || 'unknown'})` }, 502);
     return json({ summary: use.input.summary || '', changes: Array.isArray(use.input.changes) ? use.input.changes : [], usage: out.usage });
   }
   const q = String(body.q || '').trim().slice(0, 1500); if (!q) return json({ error: 'Ask a question' }, 400);
@@ -143,10 +143,11 @@ Deno.serve(async (req: Request) => {
   const n = localNow(), ctx = await context(auth, n.date);
   const hist = (Array.isArray(body.history) ? body.history : []).slice(-6).filter((m: any) => m && (m.role === 'user' || m.role === 'assistant') && m.text).map((m: any) => ({ role: m.role, content: String(m.text).slice(0, 4000) }));
   const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-    body: JSON.stringify({ model: MODEL, max_tokens: 900, system: [{ type: 'text', text: RULES(n) }, { type: 'text', text: `# The family's data\n\n${ctx}`, cache_control: { type: 'ephemeral' } }], messages: [...hist, { role: 'user', content: q }] }) });
+    body: JSON.stringify({ model: MODEL, max_tokens: 4000, output_config: { effort: 'low' }, system: [{ type: 'text', text: RULES(n) }, { type: 'text', text: `# The family's data\n\n${ctx}`, cache_control: { type: 'ephemeral' } }], messages: [...hist, { role: 'user', content: q }] }) });
   const out = await res.json().catch(() => ({}));
   if (!res.ok) { const m = out?.error?.message || `Claude answered ${res.status}`; return json({ error: res.status === 401 ? 'The API key was turned down. Add a new one in Ask settings.' : m }, 502); }
   const answer = (out.content || []).filter((c: any) => c.type === 'text').map((c: any) => c.text).join('\n').trim();
-  if (!answer) return json({ error: `Claude didn't send an answer (${out.stop_reason || 'unknown'}). Try asking again.` }, 502);
-  return json({ answer, usage: out.usage });
+  /* these models think before answering, and the thinking counts towards max_tokens: effort 'low' keeps it short, and a cut-off answer is still shown */
+  if (!answer) return json({ error: out.stop_reason === 'max_tokens' ? 'That one needed more working out than Ask allows. Try asking it in smaller parts.' : `Claude didn't send an answer (${out.stop_reason || 'unknown'}). Try asking again.` }, 502);
+  return json({ answer: out.stop_reason === 'max_tokens' ? `${answer}…\n\n(That answer was cut short. Ask for the rest if you need it.)` : answer, usage: out.usage });
 });
