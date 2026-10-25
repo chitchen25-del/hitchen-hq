@@ -1517,6 +1517,7 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 
 /* ---- trip options ---- */
 .po-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.po-chips.n4{grid-template-columns:repeat(2,minmax(0,1fr))}
 .po-chip{appearance:none;font:inherit;color:inherit;text-align:left;border:1.5px solid var(--rule-2);background:var(--sheet);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;cursor:pointer;min-width:0}
 .po-chip.on{border-color:var(--acc,var(--chris-bar));background:color-mix(in srgb,var(--acc,var(--chris-bar)) 10%,var(--sheet));box-shadow:0 4px 14px color-mix(in srgb,var(--acc,var(--chris-bar)) 18%,transparent)}
 .po-l{font-weight:800;font-size:.95rem}
@@ -4966,7 +4967,9 @@ function tripPayChart(p) {
 function optBuild(o) {
   const days = (o.days || []).slice().sort((a, b) => a.d < b.d ? -1 : 1);
   const drive = (o.drive || []).map(d => { const legs = [...(d.legs || [])], extra = days.filter(x => x.d === d.d).map(x => ({ k: 'park', t: `Day out: ${x.n}`, note: [x.where, x.note].filter(Boolean).join('. '), ...(Number(x.mi) ? { mi: Number(x.mi) } : {}) }));
-    const si = legs.findIndex(l => l.k === 'stay'); legs.splice(si < 0 ? legs.length : si, 0, ...extra); return { ...d, legs }; });
+    let si = legs.findIndex(l => l.k === 'stay');
+    if (si < 0) { const f = legs.findIndex(l => l.k === 'ferry'); si = f < 0 ? legs.length : (f > 0 && legs[f - 1].k === 'car' ? f - 1 : f); } /* home day: the day out goes before the last drive to the boat */
+    legs.splice(si, 0, ...extra); return { ...d, legs }; });
   const items = [...(o.items || []), ...days.filter(x => Number(x.cost) > 0).map(x => ({ id: `do_${x.id}`, n: `Day out: ${x.n}`, a: Number(x.cost), how: 'save', ym: payYm(x.d), cat: 'fun', gen: 1, ...(x.where ? { note: x.where } : {}) }))];
   return { drive, items, alerts: o.alerts || [] };
 }
@@ -4992,8 +4995,8 @@ function planOptions(p) {
   const ideas = (p.ideas || []).filter(x => !used.has(x.n));
   const dRow = x => `<button type="button" class="rowbtn po-do" data-act="pldo" data-id="${esc(p.id)}" data-d="${esc(x.id)}"><span class="po-dd"><b>${parse(x.d).getDate()}</b>${esc(DOWS[parse(x.d).getDay()].slice(0, 3))}</span><span class="grow"><span class="t">${esc(x.n)}</span><span class="m">${esc([x.where, x.note].filter(Boolean).join('. '))}</span></span><span class="amt">${Number(x.cost) ? money(x.cost, 0) : 'Free'}</span></button>`;
   return `<section class="panel po">
-    <h2>Three ways to do it <span class="sub">tap one to see it</span></h2>
-    <div class="po-chips" role="group" aria-label="Choose an option">${chips}</div>
+    <h2>${['', 'One way', 'Two ways', 'Three ways', 'Four ways', 'Five ways'][ks.length] || ks.length + ' ways'} to do it <span class="sub">tap one to see it</span></h2>
+    <div class="po-chips${ks.length === 4 ? ' n4' : ''}" role="group" aria-label="Choose an option">${chips}</div>
     <div class="po-body">
       <p class="po-blurb">${esc(o.blurb || '')}</p>
       ${bar}
