@@ -1819,6 +1819,7 @@ nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 .tr-b b{font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
 .tr-b::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 100% 0,rgba(255,255,255,.22),transparent 60%);pointer-events:none}
 .tr-b.k-summer{background:linear-gradient(145deg,#E2713A,#E8A33D 60%,#F5C55B)}
+.tr-b.k-city{background:linear-gradient(145deg,#1B1F5E,#3F51B5 60%,#7C5CE0)}
 .tr-b.k-family{background:linear-gradient(145deg,#0B5D35,#0B8043 60%,#3DAA6A)}
 .tr-b.k-christmas{background:linear-gradient(145deg,#7A0F1E,#C62828 60%,#E5533D)}
 .tr-b.k-birthday{background:linear-gradient(145deg,#5B2A9E,#C2457F 60%,#FF8A5B)}
@@ -5741,7 +5742,7 @@ function tripForm(id) {
 }
 
 /* ----- holiday planner: plans/<id> = { kind, name, from, to, note, saveFrom, items:[{id,n,a,how,ym,from,paid,note}] } ----- */
-const PL_KINDS = [['summer','Holidays'],['family','Visits'],['christmas','Christmas'],['birthday','Birthdays'],['celebration','Celebrations']];
+const PL_KINDS = [['summer','Holidays'],['city','Trips'],['family','Visits'],['christmas','Christmas'],['birthday','Birthdays'],['celebration','Celebrations']];
 const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5', christmas:'#C62828', birthday:'#E5577A', celebration:'#8E44AD', year:'#2E9E62' };
 const PL_IDEAS = {
   summer: ['Flights','Hotel or villa','Car hire','Airport parking','Transfers','Travel insurance','Excursions','Spending money'],
@@ -5823,7 +5824,7 @@ function plPastPanel(past) {
 }
 /* Treats opens on five plain badges, with no dates, amounts or countdowns, so nothing shows over a shoulder until one is tapped.
    The badges run in order of whose next event comes first and swap round as dates pass. */
-const TR_ICON = { summer: '☀️', family: '🏡', christmas: '🎄', birthday: '🎈', celebration: '🎉' };
+const TR_ICON = { summer: '☀️', city: '🏰', family: '🏡', christmas: '🎄', birthday: '🎈', celebration: '🎉' };
 function trNext(kk) {
   const own = (S.plans || []).filter(p => p.kind !== 'year' && kindTab(p) === kk && !plIsPast(p) && p.from).map(p => p.from);
   if (kk === 'birthday') own.push(...calBirthdays().map(b => b.d));
@@ -5841,7 +5842,7 @@ function viewPlanner() {
   if (k === 'christmas' || k === 'celebration') return head + occasionView(all, k);
   if (k === 'birthday') return head + birthdayView(all);
   const { up, past } = plTimeline(all);
-  return head + up.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday or city break' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August, or three nights in Dublin: add the travel, where you\'re staying, car hire and spending money, and pick when each gets paid.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + (k === 'summer' ? priceWatchPanel() : '') + plPastPanel(past) + plOverview();
+  return head + up.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : k === 'city' ? 'a trip' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k === 'city' ? 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + (k === 'summer' ? priceWatchPanel() : '') + plPastPanel(past) + plOverview();
 }
 
 /* Birthdays: everyone's, from the family calendar and the girls' dates, soonest first; tap one to plan it or open its list */
@@ -6404,8 +6405,8 @@ function nextJobs() {
 /* ===== Treats: occasions (Christmas and birthdays), present history, wish lists, packing, on the day ===== */
 const GIFT_KINDS = ['christmas', 'birthday', 'celebration'];
 const isGift = p => !!p && GIFT_KINDS.includes(p.kind);
-const kindTab = p => p.kind === 'city' ? 'summer' : (p.kind || 'summer');   /* city breaks live under Holidays */
-const PL_TYPES = [['summer','Holiday'],['family','Family visit'],['city','City break'],['christmas','Christmas'],['birthday','Birthday'],['celebration','Celebration']];
+const kindTab = p => p.kind || 'summer';
+const PL_TYPES = [['summer','Holiday'],['family','Family visit'],['city','Trip'],['christmas','Christmas'],['birthday','Birthday'],['celebration','Celebration']];
 const kindLabel = k => (PL_TYPES.find(x => x[0] === k) || [])[1] || '';
 const occName = p => String(p.name || '').replace(/\s+20\d\d$/, '');
 const sleepsN = d => d ? daysBetween(today(), d) : null;
