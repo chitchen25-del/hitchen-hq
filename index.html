@@ -1515,6 +1515,31 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
   main.enter .vf-row{animation:rise .4s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 35ms)}
 }
 
+/* ---- trip options ---- */
+.po-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.po-chip{appearance:none;font:inherit;color:inherit;text-align:left;border:1.5px solid var(--rule-2);background:var(--sheet);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;cursor:pointer;min-width:0}
+.po-chip.on{border-color:var(--acc,var(--chris-bar));background:color-mix(in srgb,var(--acc,var(--chris-bar)) 10%,var(--sheet));box-shadow:0 4px 14px color-mix(in srgb,var(--acc,var(--chris-bar)) 18%,transparent)}
+.po-l{font-weight:800;font-size:.95rem}
+.po-s{font-size:.7rem;color:var(--muted);line-height:1.25;min-height:2.5em}
+.po-chip b{font-stretch:118%;font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums;margin-top:2px}
+.po-body{margin-top:12px}
+.po-blurb{margin:0 0 10px;font-size:.9rem;color:var(--ink-2);line-height:1.45}
+.po-split{display:flex;height:12px;border-radius:999px;overflow:hidden;gap:2px}
+.po-split i{display:block;height:100%}
+.po-leg{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 0 12px;font-size:.8rem}
+.po-leg span{display:inline-flex;align-items:center;gap:6px}.po-leg i{width:9px;height:9px;border-radius:3px}.po-leg small{color:var(--muted)}
+.po-cost{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
+.po-cost div{background:var(--sheet-2);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.po-cost span{font-size:.72rem;color:var(--muted)}.po-cost b{font-variant-numeric:tabular-nums}
+.po-cost .tot{background:color-mix(in srgb,var(--acc,var(--chris-bar)) 12%,var(--sheet))}
+.po-h{display:flex;align-items:center;justify-content:space-between;font-size:.95rem;margin:16px 0 6px}
+.po-do{gap:12px;align-items:center}
+.po-do .grow{display:flex;flex-direction:column;gap:2px;min-width:0}.po-do .t{font-weight:650}.po-do .m{font-size:.8rem;color:var(--muted);line-height:1.35}
+.po-dd{flex:none;width:42px;height:42px;border-radius:12px;background:var(--gold-soft);color:var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;text-transform:uppercase;line-height:1.05}
+.po-dd b{font-size:1.05rem}
+.po-ideas{margin-top:8px}
+@media (prefers-reduced-motion:no-preference){.po-chip{transition:border-color .2s,background .2s,box-shadow .2s}}
+
 /* ---- the girls' week, Ask, price watch ---- */
 .wk-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 8px}
 .wk-head h2{margin:0}
@@ -4900,13 +4925,71 @@ function tripPayChart(p) {
   const rows = months.map(m => ({ label: mon3(m) + (m === tripYm ? ' ✦' : ''), parts: [{ v: by[m].save, c: '#2BA59A', name: 'Saving up' }, { v: by[m].once, c: '#3F7BEA', name: 'Paying outright' }, { v: by[m].zilch, c: '#F2A33A', name: 'Zilch' }] }));
   return `<div class="cleg">${[['#2BA59A','Saving up'],['#3F7BEA','Paying outright'],['#F2A33A','Zilch']].filter(([c,n]) => rows.some(r => r.parts.some(x => x.name===n && x.v > 0))).map(([c,n]) => `<span><i style="background:${c}"></i>${n}</span>`).join('')}${tripYm ? '<span>✦ the trip</span>' : ''}</div>${barChart(rows, { label: `When ${p.name} gets paid`, fmt: v => Math.abs(v - peak) < .01 ? money(v,0) : '' })}`;
 }
+/* ----- trip options: plans/<id>.options = { a: { label, short, blurb, split:[[who, hours, colour]], drive, alerts, items, days:[{id, d, n, where, cost, note, mi}] }, ... }
+   The chosen option (p.sel) is copied onto the plan's own items, drive and alerts, so the budget only ever counts one option. */
+function optBuild(o) {
+  const days = (o.days || []).slice().sort((a, b) => a.d < b.d ? -1 : 1);
+  const drive = (o.drive || []).map(d => { const legs = [...(d.legs || [])], extra = days.filter(x => x.d === d.d).map(x => ({ k: 'park', t: `Day out: ${x.n}`, note: [x.where, x.note].filter(Boolean).join('. '), ...(Number(x.mi) ? { mi: Number(x.mi) } : {}) }));
+    const si = legs.findIndex(l => l.k === 'stay'); legs.splice(si < 0 ? legs.length : si, 0, ...extra); return { ...d, legs }; });
+  const items = [...(o.items || []), ...days.filter(x => Number(x.cost) > 0).map(x => ({ id: `do_${x.id}`, n: `Day out: ${x.n}`, a: Number(x.cost), how: 'save', ym: payYm(x.d), cat: 'fun', gen: 1, ...(x.where ? { note: x.where } : {}) }))];
+  return { drive, items, alerts: o.alerts || [] };
+}
+const optTotal = (p, k) => (k === p.sel ? (p.items || []) : optBuild(p.options[k]).items).reduce((s, it) => s + (Number(it.a) || 0), 0);
+async function plSetOpt(p, k, patch) {
+  const options = JSON.parse(JSON.stringify(p.options || {}));
+  if (p.sel && options[p.sel]) options[p.sel].items = (p.items || []).filter(it => !it.gen); /* keep any edits or "sorted" ticks on the option you're leaving */
+  if (patch) patch(options);
+  const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, options, sel: k, ...optBuild(options[k]) });
+}
+function planOptions(p) {
+  const O = p.options || {}, ks = Object.keys(O).sort(); if (!ks.length) return '';
+  const sel = O[p.sel] ? p.sel : ks[0], o = O[sel], items = p.items || [];
+  /* options written straight to the database arrive without the copied-on drive and costs: fill them in once */
+  if (!p.drive && !(planOptions.healed || (planOptions.healed = new Set())).has(p.id)) { planOptions.healed.add(p.id); setTimeout(() => plSetOpt({ ...p, sel: null }, sel).then(render), 0); }
+  const chips = ks.map(k => `<button type="button" class="po-chip${k === sel ? ' on' : ''}" data-act="plopt" data-id="${esc(p.id)}" data-v="${esc(k)}" aria-pressed="${k === sel}"><span class="po-l">${esc(O[k].label || k.toUpperCase())}</span><span class="po-s">${esc(O[k].short || '')}</span><b>${money(optTotal(p, k), 0)}</b></button>`).join('');
+  const split = o.split || [], hrs = split.reduce((s, x) => s + (Number(x[1]) || 0), 0) || 1;
+  const bar = split.length ? `<div class="po-split" role="img" aria-label="Time with family: ${esc(split.map(x => `${x[0]} about ${x[1]} hours`).join(', '))}">${split.map(x => `<i style="width:${(x[1] / hrs * 100).toFixed(1)}%;background:${esc(x[2] || '#999')}"></i>`).join('')}</div>
+    <div class="po-leg">${split.map(x => `<span><i style="background:${esc(x[2] || '#999')}"></i>${esc(x[0])} <b>${Math.round(x[1] / hrs * 100)}%</b> <small>about ${x[1]}h</small></span>`).join('')}</div>` : '';
+  const cats = [['travel', 'Ferry and fuel'], ['stay', 'Hotels and breakfasts'], ['fun', 'Days out']].map(([c, l]) => [l, items.filter(it => itemCat(it) === c).reduce((s, it) => s + (Number(it.a) || 0), 0)]).filter(x => x[1]);
+  const days = (o.days || []).slice().sort((a, b) => a.d < b.d ? -1 : 1);
+  const used = new Set(days.map(x => x.n));
+  const ideas = (p.ideas || []).filter(x => !used.has(x.n));
+  const dRow = x => `<button type="button" class="rowbtn po-do" data-act="pldo" data-id="${esc(p.id)}" data-d="${esc(x.id)}"><span class="po-dd"><b>${parse(x.d).getDate()}</b>${esc(DOWS[parse(x.d).getDay()].slice(0, 3))}</span><span class="grow"><span class="t">${esc(x.n)}</span><span class="m">${esc([x.where, x.note].filter(Boolean).join('. '))}</span></span><span class="amt">${Number(x.cost) ? money(x.cost, 0) : 'Free'}</span></button>`;
+  return `<section class="panel po">
+    <h2>Three ways to do it <span class="sub">tap one to see it</span></h2>
+    <div class="po-chips" role="group" aria-label="Choose an option">${chips}</div>
+    <div class="po-body">
+      <p class="po-blurb">${esc(o.blurb || '')}</p>
+      ${bar}
+      <div class="po-cost">${cats.map(([l, v]) => `<div><span>${esc(l)}</span><b>${money(v, 0)}</b></div>`).join('')}<div class="tot"><span>All in</span><b>${money(items.reduce((s, it) => s + (Number(it.a) || 0), 0), 0)}</b></div></div>
+      <h3 class="po-h">Days out <button type="button" class="btn small ghost" data-act="pldo" data-id="${esc(p.id)}">Add one</button></h3>
+      ${days.length ? `<div class="list">${days.map(dRow).join('')}</div>` : '<p class="empty">No days out yet in this option.</p>'}
+      ${ideas.length ? `<div class="zchips po-ideas">${ideas.map((x, i) => `<button type="button" data-act="pldo" data-id="${esc(p.id)}" data-idea="${(p.ideas || []).indexOf(x)}">+ ${esc(x.n)}${Number(x.cost) ? ` · ${money(x.cost, 0)}` : ''}</button>`).join('')}</div>` : ''}
+      <p class="note">The drive, hotels and costs below follow whichever option is chosen, and only that one counts in the Budget Sheet. Tap a day out to change it.</p>
+    </div></section>`;
+}
+function planDayOutForm(planId, dayId, ideaI) {
+  const p = (S.plans || []).find(x => x.id === planId); if (!p || !p.options) return;
+  const o = p.options[p.sel] || {}, dates = (o.drive || []).map(d => d.d), idea = ideaI != null ? (p.ideas || [])[ideaI] : null;
+  const x = (o.days || []).find(y => y.id === dayId) || { d: dates[Math.min(1, dates.length - 1)] || p.from, n: idea ? idea.n : '', where: idea ? idea.where : '', cost: idea ? idea.cost : '', note: idea ? idea.note : '', mi: idea ? idea.mi : '' };
+  openSheet(dayId ? x.n : 'Add a day out',
+    sel('doD', 'Which day', x.d, dates.map(d => [d, dayShort(d)])) + fld('doN', 'Where to', x.n || '', 'text', 'placeholder="e.g. Cheddar Gorge"') +
+    fld('doW', 'How far', x.where || '', 'text', 'placeholder="e.g. 25 minutes from the hotel"') +
+    `<div class="fields2">${fld('doC', 'Cost for all 4 (£)', x.cost ?? '', 'number', 'min="0" step="1" inputmode="decimal"')}${fld('doM', 'Extra miles there and back', x.mi ?? '', 'number', 'min="0" step="1" inputmode="numeric"')}</div>` +
+    fld('doT', 'Note', x.note || '', 'text', 'placeholder="Tickets, opening times, who\'s coming"'), async () => {
+      const n = v('doN').trim(); if (!n) throw new Error('Say where the day out is');
+      const nx = { id: x.id || uid('do'), d: v('doD'), n }; const w = v('doW').trim(), t = v('doT').trim(), c = num(v('doC')), m = num(v('doM'));
+      if (w) nx.where = w; if (t) nx.note = t; if (c) nx.cost = c; if (m) nx.mi = m;
+      await plSetOpt(p, p.sel, opts => { const L = opts[p.sel].days = opts[p.sel].days || [], i = L.findIndex(y => y.id === nx.id); if (i >= 0) L[i] = nx; else L.push(nx); });
+    }, dayId ? { onDelete: () => plSetOpt(p, p.sel, opts => { opts[p.sel].days = (opts[p.sel].days || []).filter(y => y.id !== dayId); }) } : {});
+}
 function plPanel(p) {
   const st = plStats(p), items = p.items||[], cur = plCur(), parts = tripCatParts(p);
   const groups = TCAT.map(c => [c, items.filter(it => itemCat(it) === c[0])]).filter(([, l]) => l.length);
   const row = it => { const k = itemCat(it), col = TCATI[k][2];
     return `<button class="rowbtn tripitem" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}">${it.img ? `<span class="ti-thumb" data-photo="${esc(it.img)}"></span>` : `<span class="ti-ico" style="background:color-mix(in srgb,${col} 16%,transparent);color:${col}">${tcatIcon(k)}</span>`}<div class="grow"><div class="t">${esc(it.n)}${it.paid ? ' <span class="chip ok">Sorted</span>' : ''}</div><div class="m">${esc(plWhen(it, p))}${it.note ? ` · ${esc(it.note)}` : ''}</div></div><div class="amt">${money(it.a||0,0)}</div></button>`; };
   const hero = items.filter(it => it.img).slice(0, 3);
-  return `${tripHero(p, st)}
+  return `${tripHero(p, st)}${p.options ? planOptions(p) : ''}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
     ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + drivePanel(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
@@ -6491,6 +6574,8 @@ document.addEventListener('click', async e => {
   if (a==='debt') return debtForm(el.dataset.id);
   if (a==='trip') return tripForm(el.dataset.id);
   if (a==='pltab') { UI.pltab = el.dataset.v; return render(); }
+  if (a==='plopt') { const p = (S.plans||[]).find(x => x.id === el.dataset.id); if (p && p.sel !== el.dataset.v) { const y = window.scrollY; plSetOpt(p, el.dataset.v).then(() => { render(); window.scrollTo(0, y); }); } return; }
+  if (a==='pldo') return planDayOutForm(el.dataset.id, el.dataset.d || null, el.dataset.idea != null ? Number(el.dataset.idea) : null);
   if (a==='ovm') { UI.ovm = el.dataset.v; return render(); }
   if (a==='potadd') return potForm(1);
   if (a==='pottake') return potForm(-1);
