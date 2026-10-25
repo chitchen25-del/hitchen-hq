@@ -1655,6 +1655,79 @@ header.top .askbtn + .iconbtn{margin-left:6px}
 .ask-done{margin:6px 0 0;font-size:.82rem;font-weight:700;color:var(--good)}
 .ask-msg.assistant:has(.ask-prop){max-width:100%}
 .occ.past{opacity:.62}.occ.past.on{opacity:1}
+
+/* Money → Planner */
+.pp-inc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.pp-inc div{background:rgba(255,255,255,.14);border-radius:12px;padding:9px 11px;display:flex;flex-direction:column;gap:2px}
+.pp-inc span{font-size:.8rem;opacity:.9}.pp-inc b{font-size:1.1rem}
+.pp-spare{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,.25);margin-top:12px;padding-top:10px}
+.pp-spare b{font-size:1.25rem}
+.pp-verdict{border-radius:var(--r-panel);padding:16px;display:flex;flex-direction:column;gap:6px;background:var(--good-soft);color:var(--ink)}
+.pp-verdict.v-tight{background:var(--gold-soft)}.pp-verdict.v-no{background:var(--bad-soft)}
+.pp-k{font-size:.74rem;font-weight:750;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.pp-k i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.pp-k.g{color:var(--good)}.pp-k.p{color:#8A2BD0}
+.pp-vt{font-size:1.3rem;line-height:1.2}
+.pp-verdict.v-yes .pp-vt{color:var(--good)}.pp-verdict.v-tight .pp-vt{color:var(--gold)}.pp-verdict.v-no .pp-vt{color:var(--bad)}
+.pp-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:4px}
+.pp-stats div{background:var(--sheet);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:1px}
+.pp-stats span{font-size:.72rem;color:var(--muted)}.pp-stats b{font-size:1rem}
+.pp-fine{margin:2px 0 0;font-size:.78rem;color:var(--muted)}
+.pp-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+.pp-col{padding:14px 12px;display:flex;flex-direction:column;gap:8px}
+.pp-ch{display:flex;flex-direction:column;gap:1px}.pp-ch b{font-size:1.25rem}.pp-ch small{font-size:.75rem;color:var(--muted)}
+.pp-b{border-top:1px solid var(--rule);padding-top:7px;display:flex;flex-direction:column;gap:4px}
+.pp-b div{display:flex;justify-content:space-between;gap:6px;font-size:.84rem}.pp-b span{font-weight:600;min-width:0}
+.pp-b i{display:block;height:5px;border-radius:3px;background:var(--sheet-2);overflow:hidden}.pp-b em{display:block;height:100%;background:var(--good-bar);border-radius:3px}
+.pp-t{border-top:1px solid var(--rule);padding:8px 6px;margin:0 -6px;border-radius:12px;display:flex;flex-direction:column;gap:6px}
+.pp-t.on{background:color-mix(in srgb,#8A2BD0 9%,transparent);box-shadow:inset 0 0 0 2px #8A2BD0}
+.pp-tb{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;gap:2px;color:inherit;font:inherit;min-height:44px;cursor:pointer}
+.pp-tn{display:flex;align-items:center;gap:6px;font-weight:650;font-size:.86rem;line-height:1.25}.pp-tn i{width:10px;height:10px;border-radius:3px;flex:none}
+.pp-tb small{font-size:.74rem;color:var(--muted)}.pp-tb b{font-size:.98rem}
+.pp-chip{align-self:flex-start;border:0;border-radius:999px;min-height:32px;padding:0 11px;font:inherit;font-size:.78rem;font-weight:650;background:var(--sheet-2);color:var(--muted);cursor:pointer}
+.pp-chip.in{background:var(--good-soft);color:var(--good)}
+.pp-dash{width:14px!important;height:0!important;border-top:2px dashed var(--muted);border-radius:0!important}
+.pp-chart{position:relative;height:178px;display:flex;align-items:flex-end;gap:3px;border-bottom:1px solid var(--rule-2);margin-top:6px}
+.pp-colm{position:relative;flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
+.pp-colm i{display:block;width:100%}.pp-colm i:first-of-type{border-radius:4px 4px 0 0}
+.pp-line{position:absolute;left:-2px;right:-2px;border-top:2px dashed var(--muted);opacity:.8;pointer-events:none}
+.pp-flag,.pp-flag-k{display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;font-size:.62rem;font-weight:800;background:var(--gold-soft);color:var(--gold)}
+.pp-flag{position:absolute;top:0;left:50%;transform:translateX(-50%)}.pp-flag.bad,.pp-flag-k.bad{background:var(--bad-soft);color:var(--bad)}
+.pp-flag-k{margin-right:5px}
+.pp-link{font-size:.84rem;align-self:flex-start;text-align:left}
+.pp-axis{display:flex;gap:3px;margin-top:4px}.pp-axis span{flex:1;min-width:0;text-align:center;font-size:.6rem;color:var(--muted);line-height:1.2}
+.pp-clash{margin-top:10px;background:var(--gold-soft);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:.84rem;line-height:1.4}
+.pp-clash b{color:var(--gold)}
+.pp-pay{scroll-margin-top:80px;display:flex;flex-direction:column;gap:10px}
+.pp-h{margin:0;font-size:1.35rem}.pp-sub{margin:0;color:var(--muted);font-size:.88rem}
+.pp-ih{display:flex;justify-content:space-between;align-items:baseline;margin-top:4px}.pp-ih small{color:var(--muted);font-size:.78rem}
+.pp-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pp-item{border:0;border-radius:12px;padding:10px;min-height:64px;background:var(--sheet-2);color:var(--ink);font:inherit;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:6px;cursor:pointer}
+.pp-item span{font-size:.84rem;font-weight:600;line-height:1.3}.pp-item b{font-size:.98rem}.pp-item b small{font-size:.72rem;color:var(--good);font-weight:650}
+.pp-item.paid{opacity:.75}
+.pp-item.add{border:1.5px dashed var(--rule-2);background:none;color:#8A2BD0;font-weight:650;align-items:center;justify-content:center}
+.pp-ctl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;border-top:1px solid var(--rule);padding-top:10px}
+.pp-ctl>div{background:var(--sheet-2);border-radius:12px;padding:9px;display:flex;flex-direction:column;gap:6px}.pp-ctl>div>span{font-size:.78rem;color:var(--muted);font-weight:600}
+.pp-step{display:flex;align-items:center;justify-content:space-between;gap:4px}.pp-step b{font-size:.95rem;text-align:center}
+.pp-sb{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink);font:inherit;font-size:1.2rem;cursor:pointer}
+.pp-mode{display:flex;justify-content:space-between;align-items:center;gap:10px}.pp-mode>span{font-size:.84rem;color:var(--muted);font-weight:600}
+.pp-seg{display:flex;background:var(--sheet-2);border-radius:12px;padding:3px}
+.pp-seg button{border:0;background:none;border-radius:10px;min-height:38px;padding:0 12px;font:inherit;font-size:.84rem;font-weight:650;color:var(--muted);cursor:pointer}
+.pp-seg button[aria-pressed="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.pp-rows{display:flex;flex-direction:column;gap:6px}
+.pp-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:var(--sheet-2)}
+.pp-row.after{background:var(--gold-soft)}
+.pp-row .grow{display:flex;flex-direction:column;gap:1px;min-width:0}.pp-row .grow b{font-size:.9rem}.pp-row .grow small{font-size:.74rem;color:var(--muted)}.pp-row .grow small.warn{color:var(--gold);font-weight:650}
+.pp-val{width:70px;flex:none;text-align:center;display:flex;flex-direction:column}.pp-val b{font-size:1.02rem}.pp-val small{font-size:.72rem;color:var(--muted)}
+.pp-alloc{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bad-soft);color:var(--bad);font-weight:650;font-size:.9rem}
+.pp-alloc.ok{background:var(--good-soft);color:var(--good)}
+.pp-done{margin:0;padding:10px 12px;border-radius:12px;background:var(--good-soft);color:var(--good);font-weight:650}
+.pp-good{color:var(--good)}.pp-bad{color:var(--bad)}
+.pp-est{font-size:.7rem;color:var(--muted);font-weight:500}
+.dv-lb{display:flex;gap:10px;align-items:flex-start;width:100%;border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.dv-lb .grow{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.dv-ed{flex:none;width:18px;height:18px;color:var(--muted);opacity:.7;margin-top:2px}.dv-ed svg{width:16px;height:16px}
+.dv-cost{font-size:.82rem;font-weight:700;color:var(--good)}
 </style>
 </head>
 <body>
@@ -2004,6 +2077,7 @@ function niceTitle(title) {
 }
 /* ----- icons for event types, person badges, live countdowns ----- */
 const ICONS = {
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
   moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
   cross:'<path d="M9.5 3.5h5v6h6v5h-6v6h-5v-6h-6v-5h6z"/>',
   wrench:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3.5 17.5l3 3 5.8-5.8a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>',
@@ -2966,7 +3040,7 @@ function drivePanel(p) {
   return `<section class="panel nopad dv">${headCard({ tone: 'sea', kicker: 'The drive', title: `${Math.round(miles).toLocaleString('en-GB')} miles, door to door`,
       meta: `<span>About ${Math.round(litres)} litres of diesel at ${mpg} mpg${c ? ` (your car managed ${c.mpg.toFixed(0)} mpg around the island this year)` : ''}: roughly ${money(litres * price, 0)}.</span>` })}
     ${alerts ? `<div class="dv-alerts">${alerts}</div>` : ''}
-    <ol class="dv-days">${p.drive.map(d => `<li class="dv-day"><div class="dv-date"><b>${parse(d.d).getDate()}</b><span>${esc(DOWS[parse(d.d).getDay()].slice(0, 3))}</span></div><ol class="dv-legs">${d.legs.map(l => `<li class="dv-leg k-${esc(l.k)}"><span class="dv-ico" aria-hidden="true">${ICO[l.k] || '•'}</span><span class="grow"><span class="t">${esc(l.t)}</span>${l.mi || l.dur ? `<span class="dv-chips">${l.mi ? `<span>${l.mi} mi</span>` : ''}${l.dur ? `<span>${esc(l.dur)}</span>` : ''}</span>` : ''}${l.note ? `<span class="m">${esc(l.note)}</span>` : ''}</span></li>`).join('')}</ol></li>`).join('')}</ol>
+    <ol class="dv-days">${p.drive.map(d => `<li class="dv-day"><div class="dv-date"><b>${parse(d.d).getDate()}</b><span>${esc(DOWS[parse(d.d).getDay()].slice(0, 3))}</span></div><ol class="dv-legs">${d.legs.map((l, li) => `<li class="dv-leg k-${esc(l.k)}"><button type="button" class="dv-lb" data-act="leg" data-plan="${esc(p.id)}" data-d="${p.drive.indexOf(d)}" data-l="${li}" aria-label="Change ${esc(l.t)}"><span class="dv-ico" aria-hidden="true">${ICO[l.k] || '•'}</span><span class="grow"><span class="t">${esc(l.t)}</span>${l.mi || l.dur ? `<span class="dv-chips">${l.mi ? `<span>${l.mi} mi</span>` : ''}${l.dur ? `<span>${esc(l.dur)}</span>` : ''}</span>` : ''}${l.note ? `<span class="m">${esc(l.note)}</span>` : ''}${(() => { const it = legItem(p, l); return it ? `<span class="dv-cost">${money(itemCost(it), 0)}${it.paid ? ' · sorted' : ''}</span>` : ''; })()}</span><span class="dv-ed" aria-hidden="true">${icon('edit')}</span></button></li>`).join('')}</ol></li>`).join('')}</ol>
   </section>`;
 }
 
@@ -4273,6 +4347,7 @@ function planFor(ym) {
 
 const MONEY_GROUPS = [
   { k:'overview', l:'Overview', pages:[['overview','Overview']] },
+  { k:'planner', l:'Planner', pages:[['planner','Planner']] },
   { k:'month', l:'This month', pages:[['sheet','Sheet'],['meals','Dinners'],['plan','Plan'],['spending','Spending'],['budget','Budget']] },
   { k:'debts', l:'Bills', pages:[['bills','Direct debits'],['owed','Zilch'],['old','Old debts']] },
   { k:'goals', l:'Goals', pages:[['goals','Goals'],['year','Year ahead'],['save','Tips']] },
@@ -4293,7 +4368,7 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals}[UI.money]();
+  const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
   return (S.bsheet[ym] ? sheetHero(ym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -4800,6 +4875,208 @@ function odRow(d) {
   return `<button class="rowbtn od-row" data-act="oddebt" data-id="${esc(d.id)}"><span class="grow"><span class="t" style="display:block">${esc(d.cred)}${d.via ? ` <small class="od-via">via ${esc(d.via)}</small>` : ''}</span>
     <span class="m" style="display:block">${odChip(d.status)}${d.ref ? ` · ref ${esc(d.ref)}` : ''}${d.heard ? ` · last heard ${esc(shortDate(d.heard))}` : ''}</span>${d.note ? `<span class="m od-note" style="display:block">${esc(d.note)}</span>` : ''}</span><span class="amt">${money(odLeft(d), 0)}</span></button>`;
 }
+/* ===== Money → Planner: what comes in, the budget, and every trip on one page, with a pay plan for each trip =====
+   plan.payplan = { start:'YYYY-MM', n, mode:'pct'|'gbp', v:[…], past:{ym:£}, made:'YYYY-MM' } replaces each unpaid item's own
+   dates (Zilch already booked carries on); pct is a share of what was still to put aside when the plan was made.
+   plan.idea = true keeps a trip out of the Budget Sheet. Changes on the Planner stay a draft (UI.pp) until "Use this plan". */
+const PP_COL = ['#2F6FDE', '#9B3FD9', '#12A385', '#E07A1F', '#D2477A', '#5E6B7D'];
+const PP_N = 14;
+const ppMonths = () => Array.from({ length: PP_N }, (_, i) => ymAdd(plCur(), i));
+const ppUnpaid = items => (items || []).filter(it => !it.paid).reduce((s, it) => s + itemCost(it), 0);
+const ppPastSum = pp => Object.values(pp.past || {}).reduce((s, a) => s + (Number(a) || 0), 0);
+function ppEven(n, mode, target) { const tot = mode === 'pct' ? 100 : Math.round(target), base = Math.floor(tot / n), out = Array(n).fill(base); for (let i = 0; i < tot - base * n; i++) out[i] += 1; return out; }
+/* what each month of a pay plan puts aside */
+function ppAmounts(pp, items) { const left = Math.max(0, ppUnpaid(items) - ppPastSum(pp)); return (pp.v || []).map(x => pp.mode === 'pct' ? left * (Number(x) || 0) / 100 : (Number(x) || 0)); }
+/* the trip's schedule by month: its pay plan if it has one, else each unpaid item's own dates; Zilch already booked is separate */
+function ppSchedule(p, items, pp) {
+  const by = {}; const add = (ym, a) => { if (a > 0.004) by[ym] = (by[ym] || 0) + a; };
+  if (pp) { Object.entries(pp.past || {}).forEach(([ym, a]) => add(ym, Number(a) || 0)); ppAmounts(pp, items).forEach((a, i) => add(ymAdd(pp.start, i), a)); }
+  else (items || []).filter(it => !it.paid).forEach(it => plItemPays(it, p).forEach(x => add(x.ym, x.amount)));
+  return by;
+}
+const ppBooked = (p, items) => { const by = {}; (items || []).filter(it => it.paid && it.how === 'zilch').forEach(it => plItemPays(it, p).forEach(x => { by[x.ym] = (by[x.ym] || 0) + x.amount; })); return by; };
+/* turn whatever a trip has now into a plan you can change: months before this one count as already put aside */
+function ppDraftFrom(p, items) {
+  const cur = plCur(), sch = ppSchedule(p, items, p.payplan), past = {}, fut = {};
+  Object.entries(sch).forEach(([ym, a]) => { (ym < cur ? past : fut)[ym] = a; });
+  const ks = Object.keys(fut).sort(), start = ks[0] || cur, last = ks[ks.length - 1] || start, n = Math.max(1, Math.min(PP_N, ymDiff(start, last) + 1));
+  const gbp = Array.from({ length: n }, (_, i) => Math.round(fut[ymAdd(start, i)] || 0));
+  const draft = { start: start < cur ? cur : start, n, mode: 'gbp', v: gbp, past };
+  if (p.payplan && p.payplan.mode === 'pct') { const left = Math.max(0, ppUnpaid(items) - ppPastSum(draft)); if (left > 0) { draft.mode = 'pct'; draft.v = gbp.map(a => Math.round(a / left * 100)); const d = 100 - draft.v.reduce((s, x) => s + x, 0); if (d && draft.v.length) { const i = draft.v.indexOf(Math.max(...draft.v)); draft.v[i] += d; } } }
+  return draft;
+}
+const ppTrips = () => plTimeline((S.plans || []).filter(p => p.kind !== 'year')).up;
+function ppState() { if (!UI.pp) UI.pp = { sel: null, t: {} }; return UI.pp; }
+/* a trip as the Planner sees it: the saved one, or your draft changes to it */
+function ppTrip(p) {
+  const d = ppState().t[p.id] || {}, items = d.items || (p.items || []);
+  const pp = d.pp || ppDraftFrom(p, items);
+  return { p, items, pp, on: d.on !== undefined ? d.on : !p.idea, touched: !!(d.items || d.pp || d.on !== undefined), ppTouched: !!d.pp };
+}
+const ppDirty = () => !!UI.pp && Object.keys(UI.pp.t).length > 0;
+function ppEdit(id, fn) { const st = ppState(), p = (S.plans || []).find(x => x.id === id); if (!p) return; const T = ppTrip(p), d = st.t[id] = { ...(st.t[id] || {}) }; fn(d, T); render(); }
+/* what's spare each month before any trips: that month's Budget Sheet (or the latest one), less yearly costs */
+function ppBase(ym) {
+  const keys = Object.keys(S.bsheet || {}).sort(); if (!keys.length) return null;
+  const own = S.bsheet[ym], k = own ? ym : (keys.filter(x => x <= ym).pop() || keys[0]), doc = S.bsheet[k], t = bsTotals(doc, k);
+  const year = (S.plans || []).filter(p => p.kind === 'year').reduce((s, p) => s + (plPays(p)[ym] || 0), 0);
+  const buys = own ? t.buys : 0, other = t.extra - t.plan - t.buys + buys;
+  return { ym, from: k, est: !own, inc: t.inc, base: t.base, other, year, spare: t.inc - t.base - other - year };
+}
+
+function viewPlanner2() {
+  const months = ppMonths(), cur = months[0], b0 = ppBase(cur);
+  if (!b0) return `<section class="panel"><h2>Planner</h2><p class="empty">Start a Budget Sheet for this month first, so the Planner knows what comes in and what goes out.</p><div class="btnrow"><button class="btn small" data-act="mseg" data-v="sheet">Open the Budget Sheet</button></div></section>`;
+  const st = ppState(), all = ppTrips(), col = {}; all.forEach((p, i) => { col[p.id] = PP_COL[Math.min(i, PP_COL.length - 1)]; });
+  const T = all.map(ppTrip), on = T.filter(x => x.on);
+  if (!st.sel || !all.some(p => p.id === st.sel)) st.sel = (all[0] || {}).id || null;
+  const bases = months.map(ppBase);
+  const pays = months.map(() => []);
+  on.forEach(x => { const sch = ppSchedule(x.p, x.items, x.ppTouched || x.p.payplan ? x.pp : null), bk = ppBooked(x.p, x.items);
+    months.forEach((ym, i) => { const a = (sch[ym] || 0) + (bk[ym] || 0); if (a > 0.5) pays[i].push({ x, a }); }); });
+  const outs = pays.map(ps => ps.reduce((s, y) => s + y.a, 0)), rests = months.map((_, i) => bases[i].spare - outs[i]);
+  const short = rests.map((r, i) => [r, i]).filter(([r]) => r < -0.5), minI = rests.indexOf(Math.min(...rests));
+  const verdict = short.length ? 'no' : rests[minI] < 250 ? 'tight' : 'yes';
+  const tripTot = on.reduce((s, x) => s + x.items.reduce((a, it) => a + itemCost(it), 0), 0), spareTot = bases.reduce((s, b) => s + Math.max(0, b.spare), 0);
+  const mon = ym => `${mon3(ym)} ${ym.slice(2, 4)}`;
+
+  // what comes in, and the budget, from this month's sheet
+  const doc = S.bsheet[b0.from], t0 = bsTotals(doc, b0.from);
+  const incRows = [...(doc.inc || []).filter(bsOn).map(x => [String(x.n || '').replace(/['’]s? wages|\s*wages/i, '').trim() || x.n, Number(x.a) || 0]), ...(t0.viki ? [['Viki', t0.viki]] : [])];
+  const incomeCard = `<section class="panel nopad">${headCard({ tone: 'good', kicker: 'Predicted income a month', title: money(b0.inc, 0),
+    meta: `<span>From the ${esc(monthName(b0.from))} Budget Sheet</span>`,
+    body: `<div class="pp-inc">${incRows.map(([n, a]) => `<div><span>${esc(n)}</span><b>${money(a, 0)}</b></div>`).join('')}</div><div class="pp-spare"><span>After the budget${b0.year ? ' and yearly costs' : ''}, spare each month</span><b>${money(b0.spare, 0)}</b></div>` })}</section>`;
+  const vTitle = verdict === 'no' ? `Not yet: ${short.length} month${short.length === 1 ? '' : 's'} come${short.length === 1 ? 's' : ''} up short` : verdict === 'tight' ? 'Yes, but it\'s tight' : 'Yes, it all fits';
+  const vText = verdict === 'no' ? `${monthName(months[short[0][1]])} is ${money(-short[0][0], 0)} short. Start saving earlier, spread a trip over more months, or move some of it to a quieter month.` : verdict === 'tight' ? `Every month fits, but ${monthName(months[minI])} only has ${money(rests[minI], 0)} left for anything unexpected.` : `Every month still has at least ${money(rests[minI], 0)} left after the trips.`;
+  const verdictCard = `<section class="pp-verdict v-${verdict}"><span class="pp-k">Can we afford it?</span><b class="pp-vt">${esc(vTitle)}</b><span>${esc(vText)}</span>
+    <div class="pp-stats"><div><span>Trips in the plan</span><b>${money(tripTot, 0)}</b></div><div><span>Of spare money</span><b>${spareTot ? Math.round(tripTot / spareTot * 100) : 0}%</b></div><div><span>Tightest month</span><b>${esc(mon(months[minI]))}</b></div></div>
+    <p class="pp-fine">Over the next ${PP_N} months, using predicted income${bases.some(b => b.est) ? ' (months without a Budget Sheet copy the latest one)' : ''}.</p></section>`;
+
+  const secs = (doc.secs || []).filter(s => s.kind !== 'list').map(s => [s.t, t0.sec[s.k] || 0]).filter(x => x[1] > 0);
+  if (b0.year) secs.push(['Yearly costs', b0.year]);
+  const bTot = secs.reduce((s, x) => s + x[1], 0), bMax = Math.max(1, ...secs.map(x => x[1]));
+  const budgetCol = `<section class="panel pp-col"><div class="pp-ch"><span class="pp-k g">Our budget</span><b>${money(bTot, 0)}</b><small>a month</small></div>
+    ${secs.map(([n, a]) => `<div class="pp-b"><div><span>${esc(n)}</span><b>${money(a, 0)}</b></div><i><em style="width:${Math.round(a / bMax * 100)}%"></em></i></div>`).join('')}
+    <button type="button" class="linkbtn pp-link" data-act="mseg" data-v="sheet">Change in the Budget Sheet</button></section>`;
+  const tripsCol = `<section class="panel pp-col"><div class="pp-ch"><span class="pp-k p">Trips we're planning</span><b>${money(tripTot, 0)}</b><small>tap one to plan it</small></div>
+    ${T.length ? T.map(x => { const c = x.items.reduce((s, it) => s + itemCost(it), 0), sel = x.p.id === st.sel;
+      return `<div class="pp-t${sel ? ' on' : ''}"><button type="button" class="pp-tb" data-act="ppsel" data-id="${esc(x.p.id)}" aria-pressed="${sel}"><span class="pp-tn"><i style="background:${col[x.p.id]}"></i>${esc(x.p.name || 'Trip')}</span><small>${esc(plRange(x.p))}</small><b>${money(c, 0)}</b></button>
+        <button type="button" class="pp-chip${x.on ? ' in' : ''}" data-act="pptog" data-id="${esc(x.p.id)}" aria-pressed="${x.on}">${x.on ? '✓ In the plan' : 'Just an idea'}</button></div>`; }).join('') : '<p class="empty">No trips coming up. Add one in Treats.</p>'}</section>`;
+
+  // the year at a glance
+  const top = Math.max(1, ...bases.map(b => b.spare * 1.15), ...outs), H = 160;
+  const clashes = pays.map((ps, i) => ps.length > 1 ? `${monthName(months[i])}: ${ps.map(y => `${y.x.p.name} ${money(y.a, 0)}`).join(' and ')}, ${money(outs[i], 0)} in all${rests[i] < -0.5 ? `, ${money(-rests[i], 0)} more than is spare` : ''}.` : '').filter(Boolean);
+  const yearCard = `<section class="panel"><h2>The year at a glance</h2><p class="note" style="margin-top:-4px">When each trip gets paid, month by month.</p>
+    <div class="cleg">${on.map(x => `<span><i style="background:${col[x.p.id]}"></i>${esc(x.p.name)}</span>`).join('')}<span><i class="pp-dash"></i>Spare that month</span><span><b class="pp-flag-k">2</b>Trips that month</span><span><b class="pp-flag-k bad">!</b>Short</span></div>
+    <div class="pp-chart" role="img" aria-label="${esc(months.map((ym, i) => `${monthName(ym)}: ${money(outs[i], 0)} of ${money(bases[i].spare, 0)} spare`).join('; '))}">
+      ${months.map((ym, i) => `<div class="pp-colm">${rests[i] < -0.5 || pays[i].length > 1 ? `<span class="pp-flag${rests[i] < -0.5 ? ' bad' : ''}" title="${rests[i] < -0.5 ? 'Short this month' : `${pays[i].length} trips this month`}">${rests[i] < -0.5 ? '!' : pays[i].length}</span>` : ''}<span class="pp-line" style="bottom:${Math.round(Math.max(0, bases[i].spare) / top * H)}px"></span>${pays[i].slice().reverse().map(y => `<i title="${esc(`${y.x.p.name}: ${money(y.a, 0)} in ${monthName(ym)}`)}" style="height:${Math.max(3, Math.round(y.a / top * H))}px;background:${col[y.x.p.id]}"></i>`).join('')}</div>`).join('')}
+    </div>
+    <div class="pp-axis">${months.map(ym => `<span>${mon3(ym)}<br>${ym.slice(2, 4)}</span>`).join('')}</div>
+    ${clashes.length ? `<div class="pp-clash"><b>Trips landing in the same month</b>${clashes.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}</section>`;
+
+  // paying for the chosen trip
+  const S0 = T.find(x => x.p.id === st.sel);
+  let payCard = '';
+  if (S0) {
+    const p = S0.p, pp = S0.pp, cost = S0.items.reduce((s, it) => s + itemCost(it), 0), left = Math.max(0, ppUnpaid(S0.items) - ppPastSum(pp)), amts = ppAmounts(pp, S0.items);
+    const alloc = amts.reduce((s, a) => s + a, 0), diff = left - alloc, pct = pp.mode === 'pct' ? pp.v.reduce((s, x) => s + (Number(x) || 0), 0) : (left ? Math.round(alloc / left * 100) : 0);
+    const tripYm = p.from ? payYm(p.from) : null, set = ppPastSum(pp), paidN = S0.items.filter(it => it.paid).length;
+    const cards = S0.items.map(it => `<button type="button" class="pp-item${it.paid ? ' paid' : ''}" data-act="ppitem" data-id="${esc(p.id)}" data-item="${esc(it.id)}"><span>${esc(it.n)}</span><b>${money(itemCost(it), 0)}${it.paid ? ' <small>Sorted</small>' : ''}</b></button>`).join('');
+    payCard = `<section class="panel pp-pay" id="ppPay"><span class="pp-k p"><i style="background:${col[p.id]}"></i>Paying for it</span><h2 class="pp-h">${esc(p.name)}</h2>
+      <p class="pp-sub">${money(cost, 0)}${p.from ? ` · going ${esc(shortDate(p.from))}` : ''}${set > 0.5 ? ` · ${money(set, 0)} put aside already` : ''}${paidN ? ` · ${paidN} sorted` : ''}</p>
+      <div class="pp-ih"><b>What's in it</b><small>tap one to change it</small></div>
+      <div class="pp-items">${cards}<button type="button" class="pp-item add" data-act="ppadd" data-id="${esc(p.id)}">+ Add something</button></div>
+      ${left < 0.5 ? `<p class="pp-done">All of it is sorted or put aside. Nothing left to plan.</p>` : `
+      <div class="pp-ctl">
+        <div><span>Spread over</span><div class="pp-step"><button type="button" class="pp-sb" data-act="ppn" data-id="${esc(p.id)}" data-v="-1" aria-label="Fewer months">−</button><b>${pp.n} month${pp.n === 1 ? '' : 's'}</b><button type="button" class="pp-sb" data-act="ppn" data-id="${esc(p.id)}" data-v="1" aria-label="More months">+</button></div></div>
+        <div><span>Starting</span><div class="pp-step"><button type="button" class="pp-sb" data-act="ppst" data-id="${esc(p.id)}" data-v="-1" aria-label="Start a month earlier">‹</button><b>${esc(mon(pp.start))}</b><button type="button" class="pp-sb" data-act="ppst" data-id="${esc(p.id)}" data-v="1" aria-label="Start a month later">›</button></div></div>
+      </div>
+      <div class="pp-mode"><span>Plan it in</span><div class="pp-seg" role="group" aria-label="Plan in percentages or pounds"><button type="button" data-act="ppmode" data-id="${esc(p.id)}" data-v="pct" aria-pressed="${pp.mode === 'pct'}">Percentages</button><button type="button" data-act="ppmode" data-id="${esc(p.id)}" data-v="gbp" aria-pressed="${pp.mode === 'gbp'}">Pounds</button></div></div>
+      <div class="pp-rows">${pp.v.map((x, i) => { const ym = ymAdd(pp.start, i), after = tripYm && ym > tripYm, mi = months.indexOf(ym), others = mi >= 0 ? pays[mi].filter(y => y.x.p.id !== p.id) : [];
+        return `<div class="pp-row${after ? ' after' : ''}"><div class="grow"><b>${esc(monthName(ym))} pay</b><small class="${others.length && !after ? 'warn' : ''}">${after ? 'After the trip, so only on Zilch or a card' : others.length ? `Also ${esc(others.map(y => `${y.x.p.name} ${money(y.a, 0)}`).join(', '))}` : `Month ${i + 1} of ${pp.n}`}</small></div>
+          <button type="button" class="pp-sb" data-act="ppstep" data-id="${esc(p.id)}" data-i="${i}" data-v="-1" aria-label="Less in ${esc(monthName(ym))}">−</button><span class="pp-val"><b>${pp.mode === 'pct' ? `${x}%` : money(Number(x) || 0, 0)}</b><small>${pp.mode === 'pct' ? money(amts[i], 0) : `${left ? Math.round(amts[i] / left * 100) : 0}%`}</small></span><button type="button" class="pp-sb" data-act="ppstep" data-id="${esc(p.id)}" data-i="${i}" data-v="1" aria-label="More in ${esc(monthName(ym))}">+</button></div>`; }).join('')}</div>
+      <div class="pp-alloc${Math.abs(diff) < 0.5 ? ' ok' : ''}"><span>${Math.abs(diff) < 0.5 ? `All planned: ${money(left, 0)}` : diff > 0 ? `${money(diff, 0)} still to plan (${pct}%)` : `${money(-diff, 0)} too much (${pct}%)`}</span><button type="button" class="btn small ghost" data-act="ppeven" data-id="${esc(p.id)}">Split evenly</button></div>
+      ${p.payplan && !S0.ppTouched ? `<p class="note">This trip follows a plan made here. <button type="button" class="linkbtn" data-act="ppown" data-id="${esc(p.id)}">Go back to each thing's own pay month</button></p>` : !p.payplan && !S0.ppTouched ? `<p class="note">These are the amounts the trip already puts aside, from each thing's own pay month. Change anything here to make a plan for the whole trip instead.</p>` : ''}`}
+    </section>`;
+  }
+
+  const monthCard = `<section class="panel"><h2>What's left each month</h2><div class="list">${months.map((ym, i) => `<div class="row"><div class="grow"><div class="t">${esc(monthName(ym))}${bases[i].est ? ' <small class="pp-est">estimate</small>' : ''}</div><div class="m">${pays[i].length ? esc(pays[i].map(y => `${y.x.p.name} ${money(y.a, 0)}`).join(' · ')) : 'No trips to pay'}</div></div><div class="amt ${rests[i] < -0.5 ? 'pp-bad' : 'pp-good'}">${rests[i] < -0.5 ? `${money(-rests[i], 0)} short` : `${money(rests[i], 0)} spare`}</div></div>`).join('')}</div></section>`;
+  const bar = ppDirty() ? `<div class="xbar" role="region" aria-label="Unsaved plan"><span>Trying out a plan</span><button class="btn small ghost" data-act="ppundo">Undo all</button><button class="btn small" data-act="ppuse">Use this plan</button></div>` : '';
+  return incomeCard + verdictCard + `<div class="pp-two">${budgetCol}${tripsCol}</div>` + yearCard + payCard + monthCard
+    + `<p class="note" style="padding:0 6px">Nothing here changes the Budget Sheet or the trips until you tap Use this plan.</p>` + bar;
+}
+
+function ppItemForm(id, itemId) {
+  const p = (S.plans || []).find(x => x.id === id); if (!p) return; const T = ppTrip(p), it = T.items.find(x => x.id === itemId) || { n: '', a: '' };
+  openSheet(itemId ? it.n : `Add to ${p.name}`, fld('ppiN', 'What', it.n || '', 'text', 'placeholder="e.g. Premier Inn, Holyhead"') + fld('ppiA', 'Cost (£)', it.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')
+    + `<p class="note">This changes the Planner's draft. Tap Use this plan to keep it.${it.gifts && it.gifts.length ? ' Presents already added still count if they come to more.' : ''}</p>`, async () => {
+    const n = v('ppiN').trim(), a = num(v('ppiA')); if (!n) throw new Error('Say what it is'); if (a === null || a < 0) throw new Error('Enter what it costs, roughly is fine');
+    ppEdit(id, d => { const items = (d.items || p.items || []).map(x => ({ ...x }));
+      if (itemId) { const i = items.findIndex(x => x.id === itemId); if (i >= 0) items[i] = { ...items[i], n, a }; }
+      else items.push({ id: uid('pi'), n, a, how: 'save', ym: p.from ? payYm(p.from) : plCur(), cat: itemCat({ n }), via: 'card' });
+      d.items = items; });
+  }, itemId ? { onDelete: async () => ppEdit(id, d => { d.items = (d.items || p.items || []).filter(x => x.id !== itemId); }) } : {});
+}
+async function ppUse() {
+  const st = UI.pp; if (!st) return; let n = 0;
+  for (const [id, d] of Object.entries(st.t)) {
+    const p = (S.plans || []).find(x => x.id === id); if (!p) continue; const T = ppTrip(p), { id: _i, ...rest } = p, out = { ...rest };
+    if (d.items) out.items = d.items;
+    if (d.on !== undefined) { if (d.on) delete out.idea; else out.idea = true; }
+    if (d.pp) out.payplan = { start: T.pp.start, n: T.pp.n, mode: T.pp.mode, v: T.pp.v.slice(), past: T.pp.past || {}, made: plCur() };
+    await put(`plans/${id}`, out); n++;
+  }
+  UI.pp = { sel: st.sel, t: {} }; toast(n ? `Plan saved. The Budget Sheets now follow it` : 'Nothing to save'); render();
+}
+async function ppAct(a, el) {
+  const id = el.dataset.id;
+  if (a === 'ppsel') { ppState().sel = id; render(); setTimeout(() => { const s = $('#ppPay'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30); return true; }
+  if (a === 'pptog') { ppEdit(id, (d, T) => { d.on = !T.on; }); return true; }
+  if (a === 'ppn' || a === 'ppst') { ppEdit(id, (d, T) => { const pp = { ...T.pp }, dv = Number(el.dataset.v), cur = plCur(), last = ymAdd(cur, PP_N - 1);
+      if (a === 'ppn') pp.n = Math.max(1, Math.min(PP_N - ymDiff(cur, pp.start), pp.n + dv)); else { const s = ymAdd(pp.start, dv); if (s >= cur && ymAdd(s, pp.n - 1) <= last) pp.start = s; }
+      const left = Math.max(0, ppUnpaid(T.items) - ppPastSum(pp)); pp.v = ppEven(pp.n, pp.mode, left); d.pp = pp; }); return true; }
+  if (a === 'ppmode') { ppEdit(id, (d, T) => { const pp = { ...T.pp }, m = el.dataset.v; if (pp.mode === m) return; const left = Math.max(0, ppUnpaid(T.items) - ppPastSum(pp)), amts = ppAmounts(pp, T.items);
+      pp.mode = m; pp.v = m === 'pct' ? amts.map(x => left ? Math.round(x / left * 100) : 0) : amts.map(x => Math.round(x)); d.pp = pp; }); return true; }
+  if (a === 'ppstep') { ppEdit(id, (d, T) => { const pp = { ...T.pp, v: T.pp.v.slice() }, i = Number(el.dataset.i); pp.v[i] = Math.max(0, (Number(pp.v[i]) || 0) + Number(el.dataset.v) * (pp.mode === 'pct' ? 5 : 25)); d.pp = pp; }); return true; }
+  if (a === 'ppeven') { ppEdit(id, (d, T) => { const left = Math.max(0, ppUnpaid(T.items) - ppPastSum(T.pp)); d.pp = { ...T.pp, v: ppEven(T.pp.n, T.pp.mode, left) }; }); return true; }
+  if (a === 'ppitem') { ppItemForm(id, el.dataset.item); return true; }
+  if (a === 'ppadd') { ppItemForm(id, null); return true; }
+  if (a === 'ppundo') { UI.pp = { sel: (UI.pp || {}).sel, t: {} }; render(); toast('Back to how it was'); return true; }
+  if (a === 'ppuse') { await ppUse(); return true; }
+  if (a === 'ppown') { const p = (S.plans || []).find(x => x.id === id); if (p) { const { id: _i, payplan, ...rest } = p; await put(`plans/${id}`, rest); if (UI.pp) delete UI.pp.t[id]; toast('Back to each thing\'s own pay month'); render(); } return true; }
+  if (a === 'ppin') { const p = (S.plans || []).find(x => x.id === id); if (p) { const { id: _i, idea, ...rest } = p; await put(`plans/${id}`, rest); toast('Back in the plan'); } return true; }
+  return false;
+}
+
+/* ----- the drive on a trip: tap a stay, ferry or drive to change it, with its cost in the plan ----- */
+const ppWords = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(w => w && !/^(\d+|night|nights|the|and|a|to|for|with|of|car|room|rooms)$/.test(w));
+function legItem(p, leg) {
+  const lw = ppWords(leg.t); if (!lw.length) return null; let best = null, score = 0;
+  (p.items || []).forEach(it => { const iw = ppWords(it.n), hit = lw.filter(w => iw.includes(w)).length, sc = hit / Math.max(lw.length, Math.min(iw.length, lw.length + 2)); if (hit >= Math.min(2, lw.length) && sc > score) { score = sc; best = it; } });
+  return score >= 0.5 ? best : null;
+}
+function legForm(planId, di, li) {
+  const p = (S.plans || []).find(x => x.id === planId); if (!p || !p.drive || !p.drive[di] || !p.drive[di].legs[li]) return;
+  const leg = p.drive[di].legs[li], it = legItem(p, leg), what = { stay: 'Where you\'re staying', ferry: 'Sailing', car: 'Drive', park: 'Day out' }[leg.k] || 'What';
+  openSheet(`${DOWS[parse(p.drive[di].d).getDay()]} ${parse(p.drive[di].d).getDate()} ${MONTHS[parse(p.drive[di].d).getMonth()]}`, fld('lgT', what, leg.t || '')
+    + (leg.k === 'car' ? `<div class="fields2">${fld('lgM', 'Miles', leg.mi ?? '', 'number', 'min="0" inputmode="numeric"')}${fld('lgD', 'How long', leg.dur || '', 'text', 'placeholder="e.g. 3 hours"')}</div>` : leg.k === 'ferry' ? fld('lgD', 'Times', leg.dur || '', 'text', 'placeholder="e.g. 02:15 to about 06:00"') : '')
+    + `<div class="field"><label for="lgN">Notes</label><textarea id="lgN" rows="3">${esc(leg.note || '')}</textarea></div>`
+    + fld('lgA', it ? `Cost in the plan (£), as “${esc(it.n)}”` : 'Cost (£, optional: adds it to the plan)', it ? (it.a ?? '') : '', 'number', 'step="0.01" min="0" inputmode="decimal"')
+    + (it && it.paid ? '<p class="note">That one is marked as booked and paid.</p>' : ''), async () => {
+    const t = v('lgT').trim(); if (!t) throw new Error('Say what it is');
+    const nl = { ...leg, t, note: v('lgN').trim() }; if (!nl.note) delete nl.note;
+    if (leg.k === 'car') { const m = num(v('lgM')); if (m) nl.mi = m; else delete nl.mi; }
+    if (leg.k === 'car' || leg.k === 'ferry') { const d = v('lgD').trim(); if (d) nl.dur = d; else delete nl.dur; }
+    const drive = JSON.parse(JSON.stringify(p.drive)); drive[di].legs[li] = nl;
+    let items = (p.items || []).map(x => ({ ...x })); const a = num(v('lgA'));
+    if (it) { const i = items.findIndex(x => x.id === it.id); if (i >= 0) { const renamed = leg.t !== t && /^(stay|ferry)$/.test(leg.k); items[i] = { ...items[i], ...(a !== null ? { a } : {}), ...(renamed ? { n: t } : {}) }; } }
+    else if (a) items.push({ id: uid('pi'), n: t, a, how: 'save', ym: p.from ? payYm(p.from) : plCur(), cat: leg.k === 'stay' ? 'stay' : leg.k === 'park' ? 'fun' : 'travel', via: 'card' });
+    const { id, ...rest } = p, out = { ...rest, drive, items };
+    if (p.options && p.sel && p.options[p.sel]) { const o = JSON.parse(JSON.stringify(p.options)); if (o[p.sel].drive && o[p.sel].drive[di] && o[p.sel].drive[di].legs[li]) o[p.sel].drive[di].legs[li] = nl; o[p.sel].items = items.filter(x => !x.gen); out.options = o; }
+    await put(`plans/${p.id}`, out);
+  });
+}
+
 function viewOld() {
   const O = S.olddebts;
   if (!O) return `<section class="panel"><h2>Old debts</h2><p class="empty">Nothing here yet.</p></section>`;
@@ -4907,14 +5184,17 @@ function plItemPays(it, p) {
   for (let i = 0; i < n; i++) out.push({ ym: ymAdd(start, i), amount: i === n-1 ? Math.round((cost - each*(n-1))*100)/100 : each });
   return out;
 }
-function plPays(p) { const by = {}; (p.items||[]).forEach(it => plItemPays(it, p).forEach(x => by[x.ym] = (by[x.ym]||0) + x.amount)); return by; }
+function plPays(p) {
+  if (p.idea) return {};
+  if (p.payplan) { const by = ppSchedule(p, p.items, p.payplan); Object.entries(ppBooked(p, p.items)).forEach(([k, a]) => { by[k] = (by[k] || 0) + a; }); return by; }
+  const by = {}; (p.items||[]).forEach(it => plItemPays(it, p).forEach(x => by[x.ym] = (by[x.ym]||0) + x.amount)); return by; }
 function plannerMonth(ym) {
   const rows = []; (S.plans||[]).forEach(p => { const a = plPays(p)[ym] || 0; if (a > 0.004) rows.push({ p, amount: Math.round(a*100)/100 }); });
   return { rows, total: Math.round(rows.reduce((s,r) => s + r.amount, 0)*100)/100 };
 }
 function plStats(p) {
   const items = p.items||[], cost = items.reduce((s,i) => s + itemCost(i), 0), paid = p.kind === 'christmas' ? items.reduce((s,i) => s + giftsOf(i).filter(g => g.got).reduce((t,g) => t + (Number(g.a)||0), 0), 0) : items.filter(i => i.paid).reduce((s,i) => s + itemCost(i), 0);
-  const fees = items.filter(i => i.how==='zilch').reduce((s,i) => { const z = zilchPlan(Number(i.a)||0, { avail: zs().limit }); return s + (z ? z.fee : 0); }, 0);
+  const fees = items.filter(i => i.how==='zilch' && (!p.payplan || i.paid)).reduce((s,i) => { const z = zilchPlan(Number(i.a)||0, { avail: zs().limit }); return s + (z ? z.fee : 0); }, 0);
   const pays = plPays(p), cur = plCur(), future = Object.entries(pays).filter(([ym]) => ym >= cur).sort();
   return { cost, paid, fees, future, toPay: future.reduce((s,[,a]) => s + a, 0) };
 }
@@ -4936,7 +5216,8 @@ function plOverview() {
     <div class="cleg">${PL_KINDS.map(([k,l]) => `<span><i style="background:${PL_COL[k]}"></i>${l}</span>`).join('')}</div>
     ${barChart(per.map(x => ({ label: mon3(x.ym), parts: x.parts })), { label: 'Planner money to put aside each month', fmt: v => v === peak ? `Most ${money(v,0)}` : '' })}
     <div class="list">${list}</div>
-    <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Budget Sheet, and these amounts are already counted in each month's Budget Sheet in Money. Tap a month to open it.</p></section>`;
+    <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Budget Sheet, and these amounts are already counted in each month's Budget Sheet in Money. Tap a month to open it.</p>
+    <div class="btnrow"><button class="btn small" data-act="tab" data-v="money" data-seg="planner">Plan it all on the Planner</button></div></section>`;
 }
 /* treats in time order: what's on now and coming up first (soonest at the top), then the ones that are over, most recent first, folded away.
    Worked out from today's date each time, so the list moves along on its own: a trip drops into "Been and gone" the day after it ends */
@@ -5124,6 +5405,9 @@ function tripCatParts(p) {
   return parts;
 }
 function tripPayChart(p) {
+  if (p.payplan) { const cur = plCur(), pays = plPays(p), ms = Object.keys(pays).filter(m => m >= cur).sort(); if (!ms.length) return '';
+    const peak = Math.max(...ms.map(m => pays[m])), tripYm = p.from ? payYm(p.from) : null;
+    return `<div class="cleg"><span><i style="background:#8E5BD8"></i>Your plan from the Planner</span>${tripYm ? '<span>✦ the trip</span>' : ''}</div>${barChart(ms.map(m => ({ label: mon3(m) + (m === tripYm ? ' ✦' : ''), parts: [{ v: pays[m], c: '#8E5BD8', name: 'Your plan' }] })), { label: `When ${p.name} gets paid`, fmt: v => Math.abs(v - peak) < .01 ? money(v,0) : '' })}`; }
   const cur = plCur(), by = {}; (p.items||[]).forEach(it => plItemPays(it, p).forEach(x => { if (x.ym < cur) return; const k = it.how === 'zilch' ? 'zilch' : it.how === 'save' ? 'save' : 'once'; by[x.ym] = by[x.ym] || { once:0, zilch:0, save:0 }; by[x.ym][k] += x.amount; }));
   const months = Object.keys(by).sort(); if (!months.length) return '';
   const peak = Math.max(...months.map(m => by[m].once + by[m].zilch + by[m].save)), tripYm = p.from ? payYm(p.from) : null;
@@ -5196,11 +5480,12 @@ function plPanel(p) {
   const row = it => { const k = itemCat(it), col = TCATI[k][2];
     return `<button class="rowbtn tripitem" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}">${it.img ? `<span class="ti-thumb" data-photo="${esc(it.img)}"></span>` : `<span class="ti-ico" style="background:color-mix(in srgb,${col} 16%,transparent);color:${col}">${tcatIcon(k)}</span>`}<div class="grow"><div class="t">${esc(it.n)}${it.paid ? ' <span class="chip ok">Sorted</span>' : ''}</div><div class="m">${esc(plWhen(it, p))}${it.note ? ` · ${esc(it.note)}` : ''}</div>${blcChip(`${it.n} ${it.note || ''}`, it.a)}</div><div class="amt">${money(it.a||0,0)}</div></button>`; };
   const hero = items.filter(it => it.img).slice(0, 3);
-  return `${tripHero(p, st)}${p.options ? planOptions(p) : ''}
+  const ideaCard = p.idea ? `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Just an idea', title: 'Not in the Budget Sheet yet', meta: '<span>Marked as an idea on the Planner, so nothing is being put aside for it.</span>', actions: hcBtn('Put it in the plan', 'ppin', `data-id="${esc(p.id)}"`) + hcBtn('Open the Planner', 'tab', 'data-v="money" data-seg="planner"') })}</section>` : '';
+  return `${tripHero(p, st)}${ideaCard}${p.options ? planOptions(p) : ''}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
     ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + drivePanel(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
-    ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">Already counted in each month's Budget Sheet in Money.</p></section>` : ''}
+    ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">${p.payplan ? 'Following your plan from the Planner. ' : ''}Already counted in each month's Budget Sheet in Money. <button type="button" class="linkbtn" data-act="tab" data-v="money" data-seg="planner">${p.payplan ? 'Change the plan' : 'Plan it on the Planner'}</button></p></section>` : ''}
     ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>${blcBanner(items.filter(it => !it.paid).map(it => [`${it.n} ${it.note || ''}`, it.a]), 'in this plan')}
     ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
     <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
@@ -5376,9 +5661,11 @@ const STEP_ICON = {
 const STEP_COL = { card: '#3F7BEA', zilch: '#E8902A', auto: '#E8902A', pot: '#2BA59A', revolut: '#5B6475', clear: '#E8902A' };
 const stepIcon = h => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${STEP_ICON[h]||STEP_ICON.card}</svg>`;
 function tripSteps(p) {
+  if (p.idea) return [];
   const steps = [], add = s => steps.push(s), done = p.done || {}, merge = {};
   const mergeAdd = (key, base, amount, what) => { const m = merge[key] || (merge[key] = { ...base, amount: 0, whats: [] }); m.amount += amount; m.whats.push(what); };
   (p.items||[]).forEach(it => { const cost = itemCost(it), ym = it.ym || plCur(); if (!cost) return;
+    if (p.payplan && !(it.how === 'zilch' && it.paid)) { add({ key: `spay:${it.id}`, ym, how: itemVia(it), kind: 'do', item: it.id, title: `Pay for ${it.n} from the pot`, amount: cost, sub: VIA[itemVia(it)], done: !!it.paid, order: 3 }); return; }
     if (it.how === 'zilch') {
       const z = zilchPlan(cost, { avail: zs().limit, start: `${ym}-01` }); if (!z) return;
       add({ key: `zbook:${it.id}`, ym, how: 'zilch', kind: 'do', item: it.id, title: `Book ${it.n} on Zilch`, amount: z.pays[0].amount, sub: `${money(cost,0)} in all. Zilch takes ${money(z.pays[0].amount, z.pays[0].amount % 1 ? 2 : 0)} today, the rest over 3 months`, done: !!it.paid, order: 2 });
@@ -5396,6 +5683,7 @@ function tripSteps(p) {
   Object.values(merge).forEach(m => { const what = m.whats.length > 3 ? `${m.whats.slice(0,3).join(', ')} and ${m.whats.length-3} more` : m.whats.join(', ').replace(/, ([^,]*)$/, ' and $1');
     const low = m.whats.map(x => x.toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' and $1');
     add({ ...m, amount: Math.round(m.amount*100)/100, sub: m.how === 'auto' ? `Comes out on its own. Covers your ${m.whats.length} Zilch booking${m.whats.length===1?'':'s'}` : m.how === 'revolut' ? `From the joint account, then spend in euros on ${low}` : `On payday, so it's there when needed. For ${what}`, done: !!done[m.key] }); });
+  if (p.payplan) Object.entries(ppSchedule(p, p.items, p.payplan)).forEach(([ym, a]) => add({ key: `pp:${ym}`, ym, how: 'pot', kind: 'do', title: 'Move money into the holiday pot', amount: Math.round(a * 100) / 100, sub: `For ${p.name}, from your plan on the Planner`, done: !!done[`pp:${ym}`], order: 1 }));
   (p.steps||[]).forEach(s => add({ ...s, done: !!done[s.key], order: s.order ?? 0 }));
   const groups = {}; steps.forEach(s => (groups[s.ym] = groups[s.ym] || []).push(s));
   return Object.keys(groups).sort().map(ym => ({ ym, steps: groups[ym].sort((a, b) => (a.kind === 'also') - (b.kind === 'also') || a.order - b.order) }));
@@ -6668,6 +6956,8 @@ document.addEventListener('click', async e => {
   if (a==='close') { if (e.target === el || el.tagName==='BUTTON') closeSheet(); return; }
   if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; closeSheet(); if (fn) { await fn(); toast('Deleted'); } } else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
   if (a==='settings') return settingsForm();
+  if (a.startsWith('pp') && await ppAct(a, el)) return;
+  if (a==='leg') return legForm(el.dataset.plan, Number(el.dataset.d), Number(el.dataset.l));
   if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='corange') { UI.coRange = el.dataset.v; return render(); }
   if (a==='vday') return vikiDayForm(el.dataset.date);
