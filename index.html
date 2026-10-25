@@ -2398,6 +2398,7 @@ function viewHome() {
     goal ? `<button class="tile" data-act="tab" data-v="money" data-seg="goals">
       <span class="tl">${goal ? esc(goal.name) : 'Savings goal'}</span><span class="tv" style="color:var(--good)">${goal ? Math.round(gp*100)+'%' : '—'}</span>
       ${goal ? gauge(gp, '') : ''}<span class="ts">${goal ? `${money(goal.saved||0,0)} of ${money(goal.target||0,0)}` : 'Add your first goal'}</span></button>` : '',
+    `<button class="tile ring-tile" data-act="ring"><span class="tl">🔔 Ring</span><span class="tv">Doorbell</span><span class="ts">Open the cameras</span></button>`,
   ].filter(Boolean);
   const tiles = tileList.length ? `<section class="tiles">${tileList.join('')}</section>` : '';
 
@@ -7678,6 +7679,9 @@ document.addEventListener('click', async e => {
   if (a==='close') { if (e.target === el || el.tagName==='BUTTON') closeSheet(); return; }
   if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; closeSheet(); if (fn) { await fn(); toast('Deleted'); } } else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
   if (a==='settings') return settingsForm();
+  if (a==='ring') return openSheet('Ring', `<p class="note">Ring doesn't let other apps show its cameras, so this takes you to Ring itself.</p>
+    <div class="btnrow" style="flex-direction:column;align-items:stretch"><a class="btn" href="ring://">Open the Ring app</a><a class="btn ghost" href="https://account.ring.com/account/dashboard" target="_blank" rel="noopener">Ring in the browser</a></div>
+    <p class="note">If the app button does nothing, use the browser one: it has live view and your event history too.</p>`, null, { noSave: true });
   if (a.startsWith('mx') && await meAct(a, el)) return;
   if (a.startsWith('pp') && await ppAct(a, el)) return;
   if (a==='leg') return legForm(el.dataset.plan, Number(el.dataset.d), Number(el.dataset.l));
