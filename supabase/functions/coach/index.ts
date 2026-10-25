@@ -98,6 +98,10 @@ function contextText(D: any, n: ReturnType<typeof localNow>) {
     const t = x.start_at ? localNow(new Date(x.start_at)) : null;
     return `${t ? `${t.date} ${t.time}` : '?'} ${x.name || 'Workout'}${d.duration ? `, ${Math.round(d.duration / 60)} min` : ''}${kcal ? `, ${Math.round(kcal)} kcal` : ''}${dist ? `, ${r1(dist)} ${d.distance.units || ''}` : ''}${d.avgHeartRate?.qty ? `, avg HR ${Math.round(d.avgHeartRate.qty)}` : ''}`; });
   const open = D.commits.items.filter((c: any) => !c.done && !c.missed), recent = D.commits.items.filter((c: any) => c.done || c.missed).slice(-15);
+  const msgs = D.chat.msgs, mornings = msgs.map((m: any, i: number) => ({ m, i })).filter((x: any) => x.m.kind === 'morning').slice(-21)
+    .map((x: any) => { const next = msgs.slice(x.i + 1).find((y: any) => y.r === 'u'); const nextAt = next ? msgs.indexOf(next) : -1;
+      const sameDay = next && (!next.at || String(next.at).slice(0, 10) <= addDays(x.m.day || '', 1));
+      return `${x.m.day}: ${String(x.m.t).replace(/\s+/g, ' ').slice(0, 420)}\n  -> he said next: ${sameDay && nextAt > x.i ? String(next.t).replace(/\s+/g, ' ').slice(0, 300) : '(nothing that day)'}`; });
   return [
     `## Profile (what he's told you)\n${JSON.stringify(D.profile)}`,
     `## Apple Health sync\n${s && s.at ? `Last delivery ${s.at} UTC: ${s.readings} readings, ${s.workouts} workouts, days ${s.from || '?'} to ${s.to || '?'}` : 'Not connected yet. He is setting up the Health Auto Export app.'}`,
@@ -105,6 +109,7 @@ function contextText(D: any, n: ReturnType<typeof localNow>) {
     monthlyText(D),
     `## Workouts, last 60 days (newest first)\n${w.length ? w.join('\n') : 'None recorded.'}`,
     `## His log (injections, weigh-ins, mood, side effects, wins; newest last)\n${D.log.entries.slice(-60).map((e: any) => `${e.date} ${e.type}${e.value !== undefined && e.value !== null && e.value !== '' ? ` ${e.value}` : ''}${e.text ? `: ${e.text}` : ''}`).join('\n') || 'Nothing yet.'}`,
+    `## Your recent morning messages and what he said next (newest last). Never repeat a theme, angle or line from these.\n${mornings.join('\n') || 'None yet: this is the first.'}`,
     `## Commitments he's made\nOpen:\n${open.map((c: any) => `[${c.id}] ${c.text}${c.due ? ` (by ${c.due})` : ''}, set ${c.set}`).join('\n') || 'none'}\nRecent:\n${recent.map((c: any) => `[${c.id}] ${c.text}: ${c.done ? 'DONE ' + c.done : 'MISSED ' + c.missed}`).join('\n') || 'none'}`,
   ].join('\n\n');
 }
@@ -140,6 +145,18 @@ His medicines, and any dose, are in his profile. If one of these is there, know 
 - Weight loss on it usually comes in fits and starts; plateaus are normal. Very fast loss is worth mentioning to the prescriber.
 - Track injection day and dose from his log; remind him on jab day if he's made it a habit, and note side effects against dose changes.
 
+# The morning message
+Every morning you send him one message that genuinely moves him: motivational and thought-provoking, not a pep-talk template. It's the most important thing you write all day.
+- Open with the thought itself: one line that stops him scrolling (it shows on its own as the phone notification). Then build it out in 3 to 5 sentences, and land it on today: one small, concrete thing to do with it.
+- Make it about him, not about everyone: draw on what his profile and the chat tell you about his family, his work, what he's already overcome, his goals, past-Chris, the man he wants to be. Use his own words back to him when you can.
+- Vary the angle day to day so it never goes stale: a reframe, a hard question to sit with, a short true story, a challenge, a bit of perspective, gratitude, legacy, identity ("the kind of man who..."), stoic-style toughness, humour. Pull from real thinkers, athletes, soldiers, explorers, philosophers when it fits, quoted accurately and attributed, but always tied back to his life. Never invent a quote.
+- Honest, not fluffy. No toxic positivity, no "you've got this!" filler. Thought-provoking means it should make him think, not just nod.
+- Never make it about weight, the scales, food rules, restriction, fasting or earning food. Never about his health worries or medicines unless he raises them first. Feeling better, strength, showing up, sleep, presence with his family, pride in himself: yes.
+- Read how he reacted to past mornings (below the numbers) and what you've learned about him, and keep sharpening: more of what lands, less of what falls flat. Every few weeks it should feel noticeably more like it was written by someone who really knows him.
+
+# Learning him
+Keep a running, honest picture of who he is and what moves him, and save it with remember.learned: short observations like "loves a challenge framed as beating past-Chris", "rolls his eyes at soft wellness talk", "lights up talking about his kids", "responds to blunt numbers", "hated the quote from X". Update it whenever a message clearly lands or falls flat, or he shows you something new about himself. Keep it to the 20 most useful points, rewriting rather than piling up.
+
 # Using tools
 - remember: whenever he tells you something lasting about himself (age, height, goal weight, conditions, injuries, medicines or dose changes, his "why", his work pattern, food likes, what motivates him, preferred units), save it. Set onboarded true once you know his main goals, starting point and anything health-wise you need to know.
 - log: record things he reports in chat: injections (value = dose in mg), weigh-ins he tells you (value with units), mood (value 1 to 10), side effects, food, wins, notes. Use today's date unless he says otherwise.
@@ -154,9 +171,9 @@ If he mentions not eating at all, making himself sick, bingeing and feeling out 
 Use the monthly averages for the long view (this month against the same month last year, his best months, how things moved since starting Mounjaro if his log or profile says when). The numbers come from an Apple Watch, iPhone and a glucose sensor he wore for a while: good for trends, not medical-grade. If no Apple Health data has arrived yet, say so honestly and work from what he tells you.`;
 
 const BRIEF: Record<string, string> = {
-  morning: 'Write his morning brief for today, to arrive as a phone notification and in this chat. Look at last night\'s sleep and recovery and yesterday\'s numbers against his goals and commitments. Then one clear plan for today, one honest call-out if yesterday slipped, and one line of fire. 3 to 5 short sentences, first sentence must work on its own as the notification.',
+  morning: 'Write today\'s morning message, to arrive as a phone notification and in this chat. Follow "The morning message" rules: open with the thought (the first sentence must work on its own as the notification), build it out, and land it on one small concrete thing for today. Then, as a short last line, the practical bit: how he slept and one plan for the day from his numbers and commitments. Up to about 120 words. Check your recent morning messages first and take a fresh angle.',
   evening: 'Write his evening check-in. Score today so far against what he committed to and his usual (use the numbers), say what\'s still winnable before bed, then ask him one real question about how he\'s doing or how the day went. 3 to 4 short sentences, first sentence must work on its own as the notification.',
-  weekly: 'Write his Sunday weekly review. This week vs last week vs his best: steps, exercise, sleep, resting HR, weight trend, commitments kept vs missed. Who won, him or past-Chris. One thing to fix, one thing to keep, and propose 2 or 3 specific commitments for the week ahead for him to agree to. Keep it tight: under 150 words, first sentence must work on its own as the notification.',
+  weekly: 'Write his Sunday weekly review. This week vs last week vs his best: steps, exercise, sleep, resting HR, weight trend, commitments kept vs missed. Who won, him or past-Chris. One thing to fix, one thing to keep, and propose 2 or 3 specific commitments for the week ahead for him to agree to. Keep it tight: under 150 words, first sentence must work on its own as the notification. Before writing, look back at this week\'s chat and how he reacted to the morning messages, and update remember.learned with anything new about what motivates him.',
 };
 
 const TOOLS = [
@@ -166,6 +183,7 @@ const TOOLS = [
     focus: { type: 'string', description: 'The one main focus for this month.' },
     meds: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, dose: { type: 'string' }, how: { type: 'string' } }, required: ['name'] }, description: 'Full current medicine list (replaces it).' },
     push_level: { type: 'integer', minimum: 1, maximum: 10 },
+    learned: { type: 'array', items: { type: 'string' }, description: 'What you have learned about his personality and what motivates him or falls flat (replaces the list, max 20).' },
     onboarded: { type: 'boolean' } } } },
   { name: 'log', description: 'Record things he reports.', input_schema: { type: 'object', properties: { entries: { type: 'array', items: { type: 'object', properties: {
     type: { type: 'string', enum: ['injection', 'weight', 'mood', 'side_effect', 'food', 'win', 'note', 'measure'] }, date: { type: 'string', description: 'YYYY-MM-DD' }, value: { type: ['string', 'number'] }, text: { type: 'string' } }, required: ['type'] } } }, required: ['entries'] } },
@@ -179,6 +197,7 @@ async function applyTool(owner: string, D: any, name: string, input: any, today:
     const p = D.profile; p.facts = p.facts || {};
     for (const [k, v] of Object.entries(input.facts || {})) { if (v === null) delete p.facts[k]; else p.facts[k] = v; }
     if (Array.isArray(input.goals)) p.goals = input.goals; if (input.focus) p.focus = input.focus; if (Array.isArray(input.meds)) p.meds = input.meds;
+    if (Array.isArray(input.learned)) p.learned = input.learned.slice(0, 20).map((x: any) => String(x).slice(0, 200));
     if (input.push_level) p.push_level = input.push_level; if (typeof input.onboarded === 'boolean') p.onboarded = input.onboarded;
     p.updated = today; await putDoc(owner, 'profile', p); return 'saved';
   }
@@ -247,7 +266,7 @@ Deno.serve(async (req: Request) => {
   // scheduled briefs
   if (req.headers.get('x-hhq-cron')) {
     if (req.headers.get('x-hhq-cron') !== sec.notify_secret) return json({ error: 'Not allowed' }, 403);
-    const kind = body.kind || (n.hour >= 7 && n.hour <= 10 ? 'morning' : n.hour === 20 ? 'evening' : n.hour === 19 && n.weekday === 'Sunday' ? 'weekly' : '');
+    const kind = body.kind || (n.hour >= 6 && n.hour <= 10 ? 'morning' : n.hour === 20 ? 'evening' : n.hour === 19 && n.weekday === 'Sunday' ? 'weekly' : '');
     if (!kind || !BRIEF[kind] || !key) return json({ skipped: true, hour: n.hour });
     const D = await loadAll(owner, n.date);
     if (!D.profile.onboarded && !body.force) return json({ skipped: 'not onboarded yet' });
