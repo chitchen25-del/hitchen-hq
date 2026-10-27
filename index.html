@@ -2625,7 +2625,7 @@ function kidEventForm(key, id) {
 
 /* ----- Ask: plain-English questions answered from the family's data (the "ask" edge function calls Claude) ----- */
 const ASK = { hist: [], busy: false, nokey: false };
-const ASK_SUGG_DO = ['📷 Snap a school letter or rota', 'Add swimming for Grayse every Saturday at 9:30'];
+const ASK_SUGG_DO = ['📷 Snap a school letter or rota', 'Add swimming for Grayse every Saturday at 9:30', 'Move the Easter visit to 23–28 July'];
 const ASK_SUGG = ['What\'s on this week?', 'When is Viki next on call?', 'How many Saturdays have I worked this year?', 'How much did we spend on food last month?', 'Can we afford October in Fuerteventura?', 'What do the girls need for school tomorrow?'];
 function askFmt(t) {
   const lines = esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').split(/\n/); let html = '', inList = false;
@@ -2639,7 +2639,7 @@ function askLog() {
 function askPropCard(P, i) {
   if (P.state === 'done') return `<p class="ask-done">✓ Added ${P.done} of ${P.changes.length}</p>`;
   if (P.state === 'cancelled') return '<p class="ask-done">Not added</p>';
-  const ic = { kid_event: '📅', kid_activity: '🔁', work_day: '💼', list_item: '🛒', bill: '💷', meal: '🍽️' };
+  const ic = { kid_event: '📅', kid_activity: '🔁', work_day: '💼', list_item: '🛒', bill: '💷', meal: '🍽️', trip: '🧳', trip_change: '✏️' };
   return `<div class="ask-prop">${P.changes.map((c, j) => `<label class="ask-ch"><input type="checkbox" id="askc_${i}_${j}" checked ${P.state === 'busy' ? 'disabled' : ''}><span class="ask-ci">${ic[c.type] || '•'}</span><span>${esc(c.label)}</span></label>`).join('')}
     <div class="ask-pa"><button type="button" class="btn small" data-act="askapply" data-i="${i}" ${P.state === 'busy' ? 'disabled' : ''}>${P.state === 'busy' ? 'Adding…' : `Add ${P.changes.length === 1 ? 'it' : 'these'}`}</button><button type="button" class="btn small ghost" data-act="askcancel" data-i="${i}">Cancel</button></div></div>`;
 }
@@ -2679,7 +2679,7 @@ async function askSaveKey() {
 }
 
 /* ----- Ask can also add things: a photo or an instruction becomes a checklist of changes to confirm ----- */
-const ASK_DO = /^\s*(add|put|book|log|mark|schedule|set|plan|enter|record|save|remind|pop|stick|note)\b/i;
+const ASK_DO = /^\s*(?:(?:please|pls|can you|could you|would you|will you|i want to|i'd like to|i need to|we need to|let's)\s+)?(add|put|book|log|mark|schedule|set|plan|enter|record|save|remind|pop|stick|note|move|change|update|reschedule|rename|edit|extend|shorten|push|bring|make)\b/i;
 async function askShrink(file) {
   const url = URL.createObjectURL(file);
   try {
@@ -2728,6 +2728,19 @@ async function askApplyOne(c) {
   if (c.type === 'bill') { const amount = Number(c.amount); if (!(amount >= 0)) throw new Error(`No amount for "${c.label}"`);
     return put(`bills/${uid('b')}`, { name: t || 'Bill', amount, freq: ['monthly', 'weekly', 'quarterly', 'annual'].includes(c.freq) ? c.freq : 'monthly', due: c.date || today(), category: CATS.includes(c.category) ? c.category : 'Other', ...(c.note ? { note: c.note } : {}) }); }
   if (c.type === 'meal') { if (!c.date) throw new Error(`No date for "${c.label}"`); const doc = mealsDoc(), plan = { ...doc.plan, [c.date]: { n: t || 'Dinner', items: [], cost: 0 } }; return put('meals/main', { ...doc, plan }); }
+  if (c.type === 'trip' || c.type === 'trip_change') {
+    const isD = d => /^\d{4}-\d\d-\d\d$/.test(d || ''), f = isD(c.date_from) ? c.date_from : '', b = isD(c.date_to) ? c.date_to : '';
+    if (f && b && b < f) throw new Error(`"${c.label}" comes back before it leaves`);
+    const note = String(c.note || '').trim();
+    if (c.type === 'trip') {
+      const kind = PL_TYPES.some(([k]) => k === c.trip_kind) ? c.trip_kind : 'summer', data = { name: t || 'Trip', kind, saveFrom: plCur(), items: [] };
+      if (f) data.from = f; if (b) data.to = b; else if (f) data.to = f; if (note) data.note = note;
+      return put(`plans/${uid('pl')}`, data);
+    }
+    const p = (S.plans || []).find(x => x.id === c.plan_id); if (!p) throw new Error(`Couldn't find the trip for "${c.label}". Open it in Treats and tap Edit`);
+    const { id, ...data } = p; if (t) data.name = t; if (f) data.from = f; if (b) data.to = b; if (data.to && data.from && data.to < data.from) data.to = data.from; if (note) data.note = note;
+    return put(`plans/${id}`, data);
+  }
   throw new Error(`Not sure how to add "${c.label}"`);
 }
 async function askApply(i) {
@@ -6102,7 +6115,7 @@ function tripHero(p, st, opts = {}) {
   const paris = /disney|paris/i.test(p.name || ''), ps = paris && !p.cover ? (p.from && daysBetween(today(), p.from) <= 7 && media('paris-day') ? 'paris-day' : media('paris-night') ? 'paris-night' : '') : '';
   const fx = paris && ps !== 'paris-day' ? `<div class="th-fx" aria-hidden="true">${[0,1,2,3].map(i => `<i style="--x:${[22,70,45,84][i]}%;--y:${[18,12,30,24][i]}%;--c:${['#FFD36B','#FF8FB6','#7EE0E6','#C9A7FF'][i]};--d:${i*1.3}s"></i>`).join('')}</div>` : '';
   return `<${opts.tag||'section'} class="trip-hero k-${k}${opts.mini ? ' mini' : ''}" ${opts.attrs||''}><div class="th-art">${tripArt(k, seed)}</div>${ps ? mediaBg(ps, 'th-photo') : `<div class="th-photo" ${p.cover ? `data-photo="${esc(p.cover)}"` : ''}></div>`}${fx}<div class="th-shade"></div>
-    <div class="th-top"><span class="th-kind">${esc(lbl)}${dates ? ` · ${esc(dates)}` : ''}</span>${opts.mini ? '' : `<button type="button" class="th-btn" data-act="plan" data-id="${esc(p.id)}" aria-label="Edit trip and photo">${p.cover ? 'Edit' : 'Add photo'}</button>`}</div>
+    <div class="th-top"><span class="th-kind">${esc(lbl)}${dates ? ` · ${esc(dates)}` : ''}</span>${opts.mini ? '' : `<button type="button" class="th-btn" data-act="plan" data-id="${esc(p.id)}" aria-label="Edit name, dates and photo">Edit</button>`}</div>
     <div class="th-body"><div class="th-name">${esc(p.name)}</div><div class="th-count">${esc(sl.big)}</div>${sl.small && !opts.mini ? `<div class="th-small">${esc(sl.small)}</div>` : ''}</div>
     <div class="th-foot"><div class="th-prog"><div class="th-pt">${money(st.paid,0)} of ${money(st.cost + st.fees,0)} sorted</div><div class="th-bar"><i style="width:${Math.round(Math.min(1, sorted)*100)}%"></i></div></div>${opts.mini ? '' : ring(sorted, 58, '#FFD36B')}</div></${opts.tag||'section'}>`;
 }

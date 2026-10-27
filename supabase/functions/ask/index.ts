@@ -66,14 +66,14 @@ async function doContext(auth: string, today: string) {
     else if (c === 'days') { const d = id.split('_')[1]; if (d >= lo && d <= hi) L.push(`day ${id}: ${data.status || ''} ${data.start || ''}${data.end ? '-' + data.end : ''}${data.oncall ? ' on call' : ''}`); }
     else if (c === 'bills') L.push(`bill: ${data.name} £${data.amount} ${data.freq}`);
     else if (c === 'list' && !data.done) L.push(`shopping list: ${data.text}`);
-    else if (c === 'plans') L.push(`trip/plan: ${data.name} ${data.from || ''} to ${data.to || ''}`);
+    else if (c === 'plans' && data.kind !== 'year') L.push(`trip/plan id=${id} kind=${data.kind || ''}: ${data.name} ${data.from || ''} to ${data.to || ''}${data.note ? ` (note: ${data.note})` : ''}`);
   }
   return L.join('\n');
 }
 const DO_TOOL = { name: 'propose_changes', description: 'Propose additions or changes to the family app for the family to confirm.', input_schema: { type: 'object', properties: {
   summary: { type: 'string', description: 'One short friendly sentence saying what you found, in British English.' },
   changes: { type: 'array', items: { type: 'object', properties: {
-    type: { type: 'string', enum: ['kid_event', 'kid_activity', 'work_day', 'list_item', 'bill', 'meal'] },
+    type: { type: 'string', enum: ['kid_event', 'kid_activity', 'work_day', 'list_item', 'bill', 'meal', 'trip', 'trip_change'] },
     label: { type: 'string', description: 'Short plain description of this change for a checklist, e.g. "Ella: museum trip, Thu 29 Oct, packed lunch and £5".' },
     kid: { type: 'string', description: 'Child first name (kid_event, kid_activity).' },
     date: { type: 'string', description: 'YYYY-MM-DD (kid_event, work_day, meal, bill next payment).' },
@@ -90,7 +90,11 @@ const DO_TOOL = { name: 'propose_changes', description: 'Propose additions or ch
     oncall: { type: 'boolean', description: 'work_day for viki: on call that day.' },
     text: { type: 'string', description: 'list_item: the shopping item.' },
     amount: { type: 'number', description: 'bill: amount in pounds.' }, freq: { type: 'string', enum: ['monthly', 'weekly', 'quarterly', 'annual'] },
-    category: { type: 'string' } }, required: ['type', 'label'] } } }, required: ['summary', 'changes'] } };
+    category: { type: 'string' },
+    plan_id: { type: 'string', description: 'trip_change: the id of the existing trip/plan to change, from the list below (e.g. pl_easter27).' },
+    trip_kind: { type: 'string', enum: ['summer', 'city', 'family', 'christmas', 'birthday', 'celebration'], description: 'trip: summer = holiday, city = trip or short break, family = visit to family or friends, christmas, birthday, celebration.' },
+    date_from: { type: 'string', description: 'trip, trip_change: YYYY-MM-DD the trip starts (leave).' },
+    date_to: { type: 'string', description: 'trip, trip_change: YYYY-MM-DD the trip ends (back home).' } }, required: ['type', 'label'] } } }, required: ['summary', 'changes'] } };
 const DO_RULES = (n: ReturnType<typeof localNow>) => `You help a family keep their organiser app up to date. Today is ${n.weekday} ${n.date} (Isle of Man).
 Read the photo and/or instruction and propose the changes to make, using the propose_changes tool. Rules:
 - Only propose what the photo or instruction actually says. Never invent dates, times or amounts; leave a field out if it isn't given.
@@ -98,6 +102,7 @@ Read the photo and/or instruction and propose the changes to make, using the pro
 - A school letter about a one-off day is a kid_event; a weekly club or lesson is a kid_activity. If a letter doesn't say which child, use the child it names, or leave kid empty.
 - A work rota becomes one work_day per listed day. "C:" or Chris means who=chris; Viki's NHS rota means who=viki (status shift with start/end; on call days set oncall true).
 - Receipts or bills with a regular payment become a bill; groceries to buy become list_item entries; dinners become meal entries.
+- Holidays, trips and visits live in the Treats planner. A new one is a trip (title, trip_kind, date_from, date_to, note). Moving, renaming or re-dating one that's already listed below is a trip_change with its plan_id, giving only the fields that change (title for a new name). Times of day like "pm" or "evening" go in note, e.g. "Leave 23 Jul afternoon, back 28 Jul afternoon". If it's unclear which existing trip is meant, pick the closest match by name and say which in the label.
 - Avoid duplicates of what's already in the app (listed below).
 - If nothing can be added, return an empty changes list and say why in the summary.
 What's already in the app:`;
@@ -106,7 +111,8 @@ const RULES = (n: ReturnType<typeof localNow>) => `You are the assistant inside 
 Today is ${n.weekday} ${n.date}, ${n.time} Isle of Man time.
 Answer the question using the family's data below. Work things out properly (dates, money, hours) rather than guessing, and say plainly if the data doesn't cover it.
 Style: warm, brief and direct, in British English. Lead with the answer in the first sentence. Use £, 12-hour times like 5:30pm and dates like Thursday 3 December. Keep it short enough to read on a phone; use a few bullets only when listing several things. No headings, no tables.
-Notes on the data: money is in pounds. "state/hours" holds an hours balance in minutes (positive means owed to that person) and their contract hours. Calendar lines starting "V:" or "C:" are rota entries for the person with that initial. School dates are the Isle of Man ones. Bank statements ("stmt") are summaries the family imported.`;
+Notes on the data: money is in pounds. "state/hours" holds an hours balance in minutes (positive means owed to that person) and their contract hours. Calendar lines starting "V:" or "C:" are rota entries for the person with that initial. School dates are the Isle of Man ones. Bank statements ("stmt") are summaries the family imported.
+You can't change anything from this chat. If they ask you to add, move or change something (a trip, visit, shift, event), tell them to send it as an instruction starting with Add, Move or Change, for example "Move the Easter visit to 23 to 28 July", and the app will show it as a change to confirm.`;
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
