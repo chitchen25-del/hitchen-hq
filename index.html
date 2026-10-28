@@ -5881,7 +5881,12 @@ function viewPlanner() {
   if (k === 'christmas' || k === 'celebration') return head + occasionView(all, k);
   if (k === 'birthday') return head + birthdayView(all);
   const { up, past } = plTimeline(all);
-  return head + up.map(plPanel).join('') + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : k === 'city' ? 'a trip' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k === 'city' ? 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + (k === 'summer' ? priceWatchPanel() : '') + plPastPanel(past) + plOverview();
+  /* one card per planned trip at the top; tap a card to open that trip on its own */
+  const open = up.find(p => p.id === UI.occ);
+  const word = k === 'summer' ? 'holidays' : k === 'city' ? 'trips' : 'visits';
+  if (open) return head + `<div class="btnrow" style="margin:0 0 10px"><button type="button" class="btn small ghost" data-act="occ" data-id="">‹ All ${word}</button></div>` + plPanel(open);
+  const cards = up.length ? `<div class="tripcards">${up.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="occ" data-id="${esc(p.id)}" aria-label="Open ${esc(p.name || 'trip')}"` })).join('')}</div>` : '';
+  return head + cards + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : k === 'city' ? 'a trip' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k === 'city' ? 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + (k === 'summer' ? priceWatchPanel() : '') + plPastPanel(past) + plOverview();
 }
 
 /* Birthdays: everyone's, from the family calendar and the girls' dates, soonest first; tap one to plan it or open its list */
@@ -6354,7 +6359,7 @@ function potChart(start, n = 6) {
 function upcomingTrips() {
   const list = plTimeline((S.plans||[]).filter(p => p.kind !== 'year')).up;
   if (!list.length) return '';
-  return `<section class="panel"><h2>Treats on the way <button class="btn small ghost" data-act="tab" data-v="trips">All treats</button></h2><div class="tripcards">${list.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="opentrip" data-kind="${esc(p.kind||'summer')}"` })).join('')}</div></section>`;
+  return `<section class="panel"><h2>Treats on the way <button class="btn small ghost" data-act="tab" data-v="trips">All treats</button></h2><div class="tripcards">${list.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="opentrip" data-kind="${esc(kindTab(p))}" data-id="${esc(p.id)}"` })).join('')}</div></section>`;
 }
 function viewMoneyOverview() {
   const cur = plCur(), months = Object.keys(S.bsheet).filter(m => m >= cur).sort().slice(0, 6);
@@ -7833,7 +7838,7 @@ document.addEventListener('click', async e => {
   if (a==='xopen') { UI.xopen = UI.xopen === el.dataset.id ? null : el.dataset.id; render(); if (UI.xopen) { const f = document.querySelector(`form.xadd[data-id="${UI.xopen}"]`); if (f) f.closest('.xp').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } return; }
   if (a==='xgot') { el.disabled = true; return xSaveItem(el.dataset.plan, el.dataset.item, it => ({ ...it, gifts: giftsOf(it).map(g => g.id === el.dataset.g ? (g.got ? (({ got, ...r }) => r)(g) : { ...g, got: true }) : g) })); }
   if (a==='xgift') return xGiftForm(el.dataset.plan, el.dataset.item, el.dataset.g);
-  if (a==='occ') { UI.occ = el.dataset.id; UI.xopen = null; keepUI(); return render(); }
+  if (a==='occ') { UI.occ = el.dataset.id || null; UI.xopen = null; keepUI(); render(); if (['summer','city','family'].includes(UI.pltab)) window.scrollTo(0,0); return; }
   if (a==='bday') return bdayForm(el.dataset.name || '', el.dataset.date || '');
   if (a==='xnext') { el.disabled = true; return xApplyNext(el.dataset.plan, el.dataset.next); }
   if (a==='kidmode') { UI.kid = el.dataset.name; UI.kidTab = el.dataset.tab || 'wish'; keepUI(); render(); window.scrollTo(0,0); setTimeout(() => { const i = document.querySelector('form.kidadd input[name=n]'); if (i) i.focus(); }, 80); return; }

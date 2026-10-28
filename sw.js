@@ -1,6 +1,6 @@
 // Hitchen HQ service worker: keeps the app shell available offline.
 // Family data always comes from Supabase and is never cached here.
-const CACHE = 'hitchen-hq-v71';
+const CACHE = 'hitchen-hq-v72';
 const SHELL = [
   './',
   './index.html',
