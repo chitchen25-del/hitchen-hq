@@ -826,6 +826,19 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .hs-s{font-size:.7rem;color:var(--muted);line-height:1.25}
 
 .gpanel{padding:8px}
+.xs-panel{padding:10px}.xs-head{display:flex;flex-direction:column;gap:2px;margin:0 4px 8px}.xs-head b{font-size:1.1rem}.xs-head span{font-size:.82rem;color:var(--muted)}
+.xs-tools{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}.xs-tools button{min-width:36px;height:32px;border-radius:8px;border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink);font:inherit;font-size:.85rem;padding:0 8px}.xs-tools button[aria-pressed="true"]{background:#D7F0DF;border-color:#1E7B45}.xs-tools button:disabled{opacity:.4}.xs-sep{width:8px}
+.xs-bar{display:flex;align-items:center;gap:6px;border:1px solid var(--rule-2);border-radius:8px;background:var(--sheet);padding:0 6px;margin-bottom:6px}.xs-bar span{font:600 .82rem ui-monospace,monospace;min-width:42px;color:var(--muted);border-right:1px solid var(--rule-2);padding-right:6px}.xs-bar i{font-style:italic;color:var(--muted);font-size:.85rem}.xs-bar input{flex:1;border:0;background:none;font:.92rem ui-monospace,monospace;padding:8px 2px;color:var(--ink);outline:none;min-width:0}
+.xs-grid{overflow:auto;max-height:70vh;border:1px solid #C6CBD1;outline:none;-webkit-overflow-scrolling:touch}
+table.xs{border-collapse:collapse;table-layout:fixed;font:13px Calibri,Carlito,"Segoe UI",Arial,sans-serif;background:#fff;color:#111}
+table.xs th{position:sticky;top:0;z-index:2;background:#F3F3F3;color:#444;font-weight:400;font-size:11.5px;border:1px solid #D4D4D4;height:20px}
+table.xs th.on{background:#D3E6D9;color:#0E5A2E;font-weight:700}
+table.xs tbody th{position:sticky;left:0;z-index:1;text-align:center}table.xs thead th.xs-c{left:0;z-index:3}
+table.xs td{border:1px solid #E1E1E1;height:20px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:clip;cursor:cell}
+table.xs td.n{text-align:right}table.xs td.b{font-weight:700}table.xs td.e{color:#C00000;text-align:center}table.xs td.neg{color:#C00000}table.xs td.ctr{text-align:center}
+table.xs td.sel{outline:2px solid #1E7B45;outline-offset:-2px;background:#F2FAF4}
+.xs-acc{display:flex;justify-content:space-between}.xs-acc i{font-style:normal}
+.yp-src{display:flex;flex-direction:column;gap:6px;margin:10px 0 0;font-size:.86rem;color:var(--ink-2)}.yp-src .seg{margin:0}
 .yp-hero{border-radius:22px;padding:18px 18px 14px;color:#fff;background:linear-gradient(135deg,#2563A8,#1E8F8A 60%,#2FA866);margin-bottom:14px}
 .yp-hk{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8}.yp-hv{font-size:2.6rem;font-weight:900;letter-spacing:-.02em;line-height:1.1}.yp-hv.neg{color:#FFB4B4}
 .yp-hs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.yp-hs div{background:rgba(255,255,255,.12);border-radius:12px;padding:8px 10px}.yp-hs span{display:block;font-size:.72rem;opacity:.8}.yp-hs b{font-size:1.05rem}
@@ -2013,7 +2026,7 @@ const num = v => { const n=parseFloat(String(v).replace(/[£,\s]/g,'')); return 
 const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
 /* ---------- state ---------- */
-const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, loaded:0 };
+const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, xsheet:{}, loaded:0 };
 const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
 try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab && saved.tab !== 'grid') UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; if (saved.csub) UI.csub=saved.csub; } catch(e) {}
 if (UI.tab === 'money') UI.money = 'grid'; /* Money always opens on the spreadsheet */
@@ -2081,6 +2094,7 @@ function applyLocal(path, data) {
   else if (c === 'kids') { S.kids = S.kids || {}; if (data) S.kids[id] = data; else delete S.kids[id]; }
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
+  else if (c === 'xsheet') { S.xsheet = S.xsheet || {}; if (data) S.xsheet[id] = data; else delete S.xsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
@@ -2089,7 +2103,7 @@ function applyLocal(path, data) {
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, xsheet:{}, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
@@ -2336,6 +2350,193 @@ function gridCalendar() {
     <p class="note">${money(monthOut, 0)} of bills, Zilch and food shops land in ${esc(MONTHS[first.getMonth()])}. Tap a day to see what's on it.</p></section>${sel}`;
 }
 
+/* ===== A small Excel inside the app: xsheet/<id> = { name, nrows, ncols, cols:{ A: width }, cells:{ A1:{ v, b, nf } }, merges:[] }.
+   v is exactly what was typed: a number, some text, or a formula starting "=". Formulas work like Excel: + - * / ^ & % and
+   comparisons, cell refs (B2, $B$2), ranges (H1:H40), and SUM, AVERAGE, MIN, MAX, COUNT, COUNTA, ROUND, ROUNDUP, ROUNDDOWN,
+   ABS, INT, IF, AND, OR, NOT, SUMIF, IFERROR, TODAY. nf is the number format: acc2 (accounting £), cur2 (currency £, red
+   negatives), date, num, pct. Viki's "Basic" sheet underpins the Year plan: its NET, Chris' wages and BASELINE cells.
+   The figures live only in the database, never in this code. ===== */
+const XS = { id: 'basic', sel: 'A1', editing: false, undo: [] };
+const xsCol = n => { let s = ''; n++; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+const xsColN = s => { let n = 0; for (const ch of s) n = n * 26 + (ch.charCodeAt(0) - 64); return n - 1; };
+const xsRC = a => { const m = /^\$?([A-Z]+)\$?(\d+)$/.exec(String(a).toUpperCase()); return m ? { c: xsColN(m[1]), r: +m[2] - 1 } : null; };
+const xsA = (c, r) => xsCol(c) + (r + 1);
+const XERR = e => ({ err: e }), isErr = v => v && typeof v === 'object' && 'err' in v;
+function xsTok(src) {
+  const t = []; let i = 0;
+  while (i < src.length) {
+    const ch = src[i], rest = src.slice(i); let m;
+    if (/\s/.test(ch)) { i++; continue; }
+    if (ch === '"') { let j = i + 1, s = ''; while (j < src.length) { if (src[j] === '"') { if (src[j + 1] === '"') { s += '"'; j += 2; continue; } break; } s += src[j++]; } t.push({ k: 'str', v: s }); i = j + 1; continue; }
+    if ((m = /^(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?/.exec(rest))) { t.push({ k: 'num', v: parseFloat(m[0]) }); i += m[0].length; continue; }
+    if ((m = /^\$?[A-Za-z]{1,3}\$?\d+(:\$?[A-Za-z]{1,3}\$?\d+)?/.exec(rest)) && src[i + m[0].length] !== '(') { t.push({ k: 'ref', v: m[0].toUpperCase() }); i += m[0].length; continue; }
+    if ((m = /^[A-Za-z_][A-Za-z0-9_.]*/.exec(rest))) { t.push({ k: 'name', v: m[0].toUpperCase() }); i += m[0].length; continue; }
+    if ((m = /^(<=|>=|<>)/.exec(rest))) { t.push({ k: 'op', v: m[0] }); i += 2; continue; }
+    if ('+-*/^&=<>%(),'.includes(ch)) { t.push({ k: 'op', v: ch }); i++; continue; }
+    throw XERR('#NAME?');
+  }
+  return t;
+}
+function xsParse(src) {
+  const t = xsTok(src); let p = 0;
+  const peek = () => t[p], isOp = v => t[p] && t[p].k === 'op' && t[p].v === v, eat = v => { if (!isOp(v)) throw XERR('#ERROR!'); p++; };
+  const cmp = () => { let a = cat(); while (t[p] && t[p].k === 'op' && ['=', '<>', '<', '>', '<=', '>='].includes(t[p].v)) { const o = t[p++].v; a = { o, a, b: cat() }; } return a; };
+  const cat = () => { let a = add(); while (isOp('&')) { p++; a = { o: '&', a, b: add() }; } return a; };
+  const add = () => { let a = mul(); while (isOp('+') || isOp('-')) { const o = t[p++].v; a = { o, a, b: mul() }; } return a; };
+  const mul = () => { let a = pow(); while (isOp('*') || isOp('/')) { const o = t[p++].v; a = { o, a, b: pow() }; } return a; };
+  const pow = () => { let a = un(); while (isOp('^')) { p++; a = { o: '^', a, b: un() }; } return a; };
+  const un = () => { if (isOp('-')) { p++; return { o: 'neg', a: un() }; } if (isOp('+')) { p++; return un(); } return post(); };
+  const post = () => { let a = prim(); while (isOp('%')) { p++; a = { o: '%', a }; } return a; };
+  const prim = () => { const x = peek(); if (!x) throw XERR('#ERROR!');
+    if (x.k === 'num' || x.k === 'str') { p++; return { lit: x.v }; }
+    if (x.k === 'ref') { p++; return x.v.includes(':') ? { range: x.v } : { ref: x.v }; }
+    if (x.k === 'name') { p++; if (isOp('(')) { p++; const args = []; if (!isOp(')')) { args.push(cmp()); while (isOp(',')) { p++; args.push(cmp()); } } eat(')'); return { fn: x.v, args }; }
+      if (x.v === 'TRUE' || x.v === 'FALSE') return { lit: x.v === 'TRUE' }; throw XERR('#NAME?'); }
+    if (isOp('(')) { p++; const e = cmp(); eat(')'); return e; }
+    throw XERR('#ERROR!'); };
+  const e = cmp(); if (p < t.length) throw XERR('#ERROR!'); return e;
+}
+const xsNum = v => { if (isErr(v)) throw v; if (v == null || v === '') return 0; if (typeof v === 'boolean') return v ? 1 : 0; if (typeof v === 'number') return v; const n = Number(String(v).replace(/[£,\s]/g, '')); if (isNaN(n)) throw XERR('#VALUE!'); return n; };
+const xsFlat = (args, ev) => { const out = []; args.forEach(a => { const v = ev(a); if (Array.isArray(v)) v.forEach(x => { if (isErr(x)) throw x; out.push({ v: x, r: 1 }); }); else out.push({ v, r: 0 }); }); return out; };
+const xsNums = (args, ev) => xsFlat(args, ev).filter(x => x.r ? typeof x.v === 'number' : true).map(x => xsNum(x.v));
+const xsRound = (x, d, f) => { const k = Math.pow(10, d); return f(Math.abs(x) * k + 1e-9) / k * Math.sign(x); };
+const XFN = {
+  SUM: (a, ev) => xsNums(a, ev).reduce((s, x) => s + x, 0),
+  AVERAGE: (a, ev) => { const n = xsNums(a, ev); if (!n.length) throw XERR('#DIV/0!'); return n.reduce((s, x) => s + x, 0) / n.length; },
+  MIN: (a, ev) => { const n = xsNums(a, ev); return n.length ? Math.min(...n) : 0; }, MAX: (a, ev) => { const n = xsNums(a, ev); return n.length ? Math.max(...n) : 0; },
+  COUNT: (a, ev) => xsFlat(a, ev).filter(x => typeof x.v === 'number').length, COUNTA: (a, ev) => xsFlat(a, ev).filter(x => x.v != null && x.v !== '').length,
+  ROUND: (a, ev) => xsRound(xsNum(ev(a[0])), a[1] ? xsNum(ev(a[1])) : 0, Math.round), ROUNDUP: (a, ev) => xsRound(xsNum(ev(a[0])), a[1] ? xsNum(ev(a[1])) : 0, Math.ceil), ROUNDDOWN: (a, ev) => xsRound(xsNum(ev(a[0])), a[1] ? xsNum(ev(a[1])) : 0, Math.floor),
+  ABS: (a, ev) => Math.abs(xsNum(ev(a[0]))), INT: (a, ev) => Math.floor(xsNum(ev(a[0]))),
+  IF: (a, ev) => { const c = ev(a[0]); if (isErr(c)) throw c; return (typeof c === 'string' ? c !== '' : xsNum(c) !== 0) ? (a[1] ? ev(a[1]) : true) : (a[2] ? ev(a[2]) : false); },
+  AND: (a, ev) => xsFlat(a, ev).every(x => xsNum(x.v) !== 0), OR: (a, ev) => xsFlat(a, ev).some(x => xsNum(x.v) !== 0), NOT: (a, ev) => xsNum(ev(a[0])) === 0,
+  IFERROR: (a, ev) => { try { const v = ev(a[0]); if (isErr(v)) return ev(a[1]); return v; } catch (e) { return ev(a[1]); } },
+  SUMIF: (a, ev) => { const rng = ev(a[0]), crit = ev(a[1]), sum = a[2] ? ev(a[2]) : rng; if (!Array.isArray(rng)) throw XERR('#VALUE!');
+    const m = /^(<=|>=|<>|<|>|=)?(.*)$/.exec(String(crit)), op = m[1] || '=', cv = m[2], cn = Number(cv), test = x => { const n = typeof x === 'number' ? x : Number(x); const num = !isNaN(cn) && cv !== '' && !isNaN(n);
+      const l = num ? n : String(x ?? '').toLowerCase(), r = num ? cn : cv.toLowerCase(); return op === '=' ? l === r : op === '<>' ? l !== r : op === '<' ? l < r : op === '>' ? l > r : op === '<=' ? l <= r : l >= r; };
+    return rng.reduce((s, x, i) => s + (test(typeof crit === 'number' ? x : x) && typeof sum[i] === 'number' ? sum[i] : 0), 0); },
+  TODAY: () => Math.round((Date.parse(today() + 'T00:00:00Z') - Date.UTC(1899, 11, 30)) / 864e5),
+};
+/* evaluate a whole sheet: returns get(addr) -> value (number, text, boolean or {err}) */
+function xsCalc(doc) {
+  const memo = {}, busy = {};
+  const get = a => { if (a in memo) return memo[a]; const c = (doc.cells || {})[a]; if (!c || c.v == null || c.v === '') return memo[a] = null;
+    const v = c.v; if (typeof v === 'number') return memo[a] = v; if (typeof v !== 'string' || v[0] !== '=') return memo[a] = v;
+    if (busy[a]) return XERR('#CIRC!'); busy[a] = 1;
+    let out; try { out = ev(xsParse(v.slice(1))); if (Array.isArray(out)) out = out[0] ?? 0; } catch (e) { out = isErr(e) ? e : XERR('#ERROR!'); }
+    busy[a] = 0; if (typeof out === 'number' && !isFinite(out)) out = XERR('#DIV/0!'); return memo[a] = out; };
+  const ev = n => {
+    if ('lit' in n) return n.lit;
+    if (n.ref) { const rc = xsRC(n.ref); if (!rc) throw XERR('#REF!'); const v = get(xsA(rc.c, rc.r)); if (isErr(v)) throw v; return v; }
+    if (n.range) { const [a, b] = n.range.split(':').map(xsRC); if (!a || !b) throw XERR('#REF!'); const out = [];
+      for (let r = Math.min(a.r, b.r); r <= Math.max(a.r, b.r); r++) for (let c = Math.min(a.c, b.c); c <= Math.max(a.c, b.c); c++) out.push(get(xsA(c, r))); return out; }
+    if (n.fn) { const f = XFN[n.fn]; if (!f) throw XERR('#NAME?'); return f(n.args, ev); }
+    const A = () => ev(n.a), B = () => ev(n.b);
+    switch (n.o) {
+      case 'neg': return -xsNum(A()); case '%': return xsNum(A()) / 100;
+      case '+': return xsNum(A()) + xsNum(B()); case '-': return xsNum(A()) - xsNum(B()); case '*': return xsNum(A()) * xsNum(B());
+      case '/': { const d = xsNum(B()); if (d === 0) throw XERR('#DIV/0!'); return xsNum(A()) / d; } case '^': return Math.pow(xsNum(A()), xsNum(B()));
+      case '&': { const s = x => { x = Array.isArray(x) ? x[0] : x; if (isErr(x)) throw x; return x == null ? '' : typeof x === 'boolean' ? (x ? 'TRUE' : 'FALSE') : String(x); }; return s(A()) + s(B()); }
+      default: { let x = A(), y = B(); if (isErr(x)) throw x; if (isErr(y)) throw y; x = x ?? 0; y = y ?? 0; if (typeof x === 'string' && typeof y === 'string') { x = x.toLowerCase(); y = y.toLowerCase(); }
+        else if (typeof x !== typeof y) { if (typeof x === 'string' || typeof y === 'string') { return n.o === '<>' ? true : n.o === '=' ? false : (typeof x === 'string') === (n.o === '>' || n.o === '>='); } x = xsNum(x); y = xsNum(y); }
+        return n.o === '=' ? x === y : n.o === '<>' ? x !== y : n.o === '<' ? x < y : n.o === '>' ? x > y : n.o === '<=' ? x <= y : x >= y; }
+    }
+  };
+  return get;
+}
+/* how a value shows in its cell */
+function xsShow(v, nf) {
+  if (v == null || v === '') return { t: '', num: false };
+  if (isErr(v)) return { t: v.err, num: false, err: true };
+  if (typeof v === 'boolean') return { t: v ? 'TRUE' : 'FALSE', num: false, c: true };
+  if (typeof v !== 'number') return { t: String(v), num: false };
+  const d = /\d$/.test(nf || '') ? +nf.slice(-1) : 2, fx = x => Math.abs(x).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+  if (nf && nf.startsWith('acc')) return { t: Math.abs(v) < 0.5 / Math.pow(10, d) ? '£ -' : v < 0 ? `£ (${fx(v)})` : `£ ${fx(v)}`, num: true, acc: true };
+  if (nf && nf.startsWith('cur')) return { t: v < 0 ? `(£${fx(v)})` : `£${fx(v)}`, num: true, neg: v < 0 };
+  if (nf === 'date') { const dt = new Date(Date.UTC(1899, 11, 30) + Math.round(v) * 864e5); return { t: `${pad(dt.getUTCDate())}/${pad(dt.getUTCMonth() + 1)}/${dt.getUTCFullYear()}`, num: true }; }
+  if (nf === 'pct') return { t: `${(v * 100).toLocaleString('en-GB', { maximumFractionDigits: 2 })}%`, num: true };
+  if (nf && nf.startsWith('num')) return { t: (v < 0 ? '-' : '') + fx(v), num: true };
+  const r = Math.abs(v) >= 1e11 ? v.toExponential(5) : String(+v.toPrecision(10)); return { t: r, num: true };
+}
+/* the Year plan's monthly figures from the Basic sheet, found by their labels so rows can move */
+function xsLookup(doc, re) {
+  if (!doc) return null; const get = xsCalc(doc);
+  for (const [a, c] of Object.entries(doc.cells || {})) { if (typeof c.v === 'string' && c.v[0] !== '=' && re.test(c.v.trim())) { const rc = xsRC(a); for (let k = 1; k <= 3; k++) { const v = get(xsA(rc.c + k, rc.r)); if (typeof v === 'number') return v; } } }
+  return null;
+}
+const basicFigures = () => { const d = (S.xsheet || {}).basic; if (!d) return null; const viki = xsLookup(d, /^viki wages/i), chris = xsLookup(d, /^chris'?s? wages/i), base = xsLookup(d, /^baseline$/i);
+  return viki != null && chris != null && base != null ? { viki, chris, base } : null; };
+/* inserting or deleting a row moves every reference below it, like Excel */
+function xsShiftRefs(f, at, by) {
+  return f.replace(/("[^"]*")|(\$?)([A-Z]{1,3})(\$?)(\d+)(?![\d(])/g, (m, str, d1, col, d2, row) => { if (str) return str; const r = +row - 1;
+    if (by < 0 && r === at) return '#REF!'; return r >= at ? `${d1}${col}${d2}${r + by + 1}` : m; });
+}
+function xsRows(doc, at, by) {
+  const cells = {}; Object.entries(doc.cells || {}).forEach(([a, c]) => { const rc = xsRC(a); if (by < 0 && rc.r === at) return; const nr = rc.r >= at ? rc.r + by : rc.r;
+    cells[xsA(rc.c, nr)] = typeof c.v === 'string' && c.v[0] === '=' ? { ...c, v: xsShiftRefs(c.v, at, by) } : c; });
+  Object.keys(cells).forEach(a => { if (typeof cells[a].v === 'string' && cells[a].v[0] === '=') cells[a] = { ...cells[a], v: xsShiftRefs(cells[a].v, at, 0) }; });
+  const merges = (doc.merges || []).map(m => m.split(':').map(xsRC)).filter(([a, b]) => !(by < 0 && a.r <= at && b.r >= at)).map(([a, b]) => `${xsA(a.c, a.r >= at ? a.r + by : a.r)}:${xsA(b.c, b.r >= at ? b.r + by : b.r)}`);
+  return { ...doc, cells, merges, nrows: Math.max(1, (doc.nrows || 40) + by) };
+}
+const xsDoc = () => (S.xsheet || {})[XS.id];
+async function xsSave(doc, note) { XS.undo.push(JSON.stringify(xsDoc())); if (XS.undo.length > 40) XS.undo.shift(); S.xsheet[XS.id] = doc; xsPaint(); await put(`xsheet/${XS.id}`, doc); }
+function xsSet(addr, raw) {
+  const doc = JSON.parse(JSON.stringify(xsDoc())), c = doc.cells[addr] || {}; raw = String(raw ?? '');
+  let v = raw.trim() === '' ? '' : raw[0] === '=' ? '=' + raw.slice(1).replace(/[a-z]{1,3}\$?\d+/g, s => s.toUpperCase()) : /^-?£?\s?[\d,]*\.?\d+%?$/.test(raw.trim()) ? (raw.trim().endsWith('%') ? Number(raw.trim().replace(/[£,%\s]/g, '')) / 100 : Number(raw.trim().replace(/[£,\s]/g, ''))) : raw;
+  if (/^£/.test(raw.trim()) && typeof v === 'number' && !c.nf) c.nf = 'acc2';
+  if (v === '' && !c.b && !c.nf) delete doc.cells[addr]; else doc.cells[addr] = { ...c, v };
+  const rc = xsRC(addr); doc.nrows = Math.max(doc.nrows || 0, rc.r + 1); doc.ncols = Math.max(doc.ncols || 0, rc.c + 1);
+  return xsSave(doc);
+}
+const xsRaw = a => { const c = (xsDoc().cells || {})[a]; if (!c || c.v == null) return ''; return typeof c.v === 'number' && c.nf === 'date' ? xsShow(c.v, 'date').t : String(c.v); };
+function xsTable() {
+  const doc = xsDoc(), get = xsCalc(doc), nc = Math.max(10, (doc.ncols || 0) + 1), nr = Math.max(50, (doc.nrows || 0) + 10), sel = xsRC(XS.sel) || { c: 0, r: 0 };
+  const covered = {}, span = {}; (doc.merges || []).forEach(m => { const [a, b] = m.split(':').map(xsRC); span[xsA(a.c, a.r)] = { rs: b.r - a.r + 1, cs: b.c - a.c + 1 }; for (let r = a.r; r <= b.r; r++) for (let c = a.c; c <= b.c; c++) if (r !== a.r || c !== a.c) covered[xsA(c, r)] = 1; });
+  const w = c => Math.round(((doc.cols || {})[xsCol(c)] || 9.4) * 7 + 5);
+  let h = `<table class="xs"><colgroup><col style="width:36px">${Array.from({ length: nc }, (_, c) => `<col style="width:${w(c)}px">`).join('')}</colgroup><thead><tr><th class="xs-c"></th>${Array.from({ length: nc }, (_, c) => `<th class="${c === sel.c ? 'on' : ''}">${xsCol(c)}</th>`).join('')}</tr></thead><tbody>`;
+  for (let r = 0; r < nr; r++) {
+    h += `<tr><th class="xs-r${r === sel.r ? ' on' : ''}">${r + 1}</th>`;
+    for (let c = 0; c < nc; c++) { const a = xsA(c, r); if (covered[a]) continue; const cell = (doc.cells || {})[a], s = cell ? xsShow(get(a), cell.nf) : { t: '' }, sp = span[a];
+      h += `<td data-xs="${a}"${sp ? ` rowspan="${sp.rs}" colspan="${sp.cs}"` : ''} class="${a === XS.sel ? 'sel ' : ''}${cell && cell.b ? 'b ' : ''}${s.num ? 'n ' : ''}${s.err ? 'e ' : ''}${s.neg ? 'neg ' : ''}${s.c ? 'ctr' : ''}">${s.acc ? `<span class="xs-acc"><i>£</i>${esc(s.t.slice(2))}</span>` : esc(s.t)}</td>`; }
+    h += '</tr>';
+  }
+  return h + '</tbody></table>';
+}
+function xsPaint() { const w = $('#xsGrid'); if (!w) return; const x = w.scrollLeft, y = w.scrollTop; w.innerHTML = xsTable(); w.scrollLeft = x; w.scrollTop = y; const f = $('#xsF'), r = $('#xsRef'); if (r) r.textContent = XS.sel; if (f && !XS.editing) f.value = xsRaw(XS.sel); }
+function viewXSheet() {
+  const doc = xsDoc(); if (!doc) return `<section class="panel"><p class="empty">The Basic sheet isn't set up yet.</p></section>`;
+  const c = (doc.cells || {})[XS.sel] || {};
+  return `<section class="panel xs-panel"><div class="xs-head"><b>${esc(doc.name || 'Basic')}</b><span>Works like Excel: tap a cell, type a number or a formula such as =SUM(H1:H40), then press Enter. The Year plan uses this sheet's NET, Chris' wages and BASELINE every month.</span></div>
+    <div class="xs-tools"><button type="button" data-act="xsb" aria-pressed="${!!c.b}" title="Bold"><b>B</b></button><button type="button" data-act="xsnf" data-v="acc2" aria-pressed="${c.nf === 'acc2'}" title="Pounds">£</button><button type="button" data-act="xsnf" data-v="pct" aria-pressed="${c.nf === 'pct'}" title="Percent">%</button><button type="button" data-act="xsnf" data-v="" title="Plain number">123</button><span class="xs-sep"></span><button type="button" data-act="xsrow" data-v="1" title="Insert a row above">+ Row</button><button type="button" data-act="xsrow" data-v="-1" title="Delete this row">− Row</button><button type="button" data-act="xsundo" title="Undo" ${XS.undo.length ? '' : 'disabled'}>Undo</button></div>
+    <div class="xs-bar"><span id="xsRef">${esc(XS.sel)}</span><i>fx</i><input id="xsF" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(xsRaw(XS.sel))}" aria-label="Cell contents"></div>
+    <div class="xs-grid gwrap" id="xsGrid" tabindex="0">${xsTable()}</div></section>`;
+}
+function xsSelect(a) { XS.sel = a; XS.editing = false; xsPaint(); const p = $('.xs-tools'); if (p) { const c = (xsDoc().cells || {})[a] || {}; p.querySelector('[data-act="xsb"]').setAttribute('aria-pressed', !!c.b); p.querySelectorAll('[data-act="xsnf"]').forEach(b => b.setAttribute('aria-pressed', b.dataset.v && c.nf === b.dataset.v)); } }
+function xsMove(dc, dr) { const rc = xsRC(XS.sel); xsSelect(xsA(Math.max(0, rc.c + dc), Math.max(0, rc.r + dr))); const td = $(`td[data-xs="${XS.sel}"]`); if (td) td.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+async function xsCommit(dc = 0, dr = 1) { const f = $('#xsF'); if (!f) return; const raw = f.value, was = xsRaw(XS.sel); XS.editing = false; if (raw !== was) await xsSet(XS.sel, raw); xsMove(dc, dr); const g = $('#xsGrid'); if (g) g.focus({ preventScroll: true }); }
+/* tapping a cell selects it; while typing a formula, tapping a cell adds its reference */
+document.addEventListener('mousedown', e => { const td = e.target.closest && e.target.closest('td[data-xs]'); if (!td) return; const f = $('#xsF');
+  if (XS.editing && f && /^=/.test(f.value) && /[=+\-*/^(,:&<>]$/.test(f.value.slice(0, f.selectionStart ?? f.value.length))) { e.preventDefault(); const at = f.selectionStart ?? f.value.length; f.value = f.value.slice(0, at) + td.dataset.xs + f.value.slice(at); f.setSelectionRange(at + td.dataset.xs.length, at + td.dataset.xs.length); return; }
+  if (XS.editing && f && f.value !== xsRaw(XS.sel)) xsSet(XS.sel, f.value); xsSelect(td.dataset.xs); });
+document.addEventListener('dblclick', e => { const td = e.target.closest && e.target.closest('td[data-xs]'); if (!td) return; const f = $('#xsF'); if (f) { XS.editing = true; f.focus(); f.setSelectionRange(f.value.length, f.value.length); } });
+document.addEventListener('focusin', e => { if (e.target && e.target.id === 'xsF') XS.editing = true; });
+document.addEventListener('keydown', e => {
+  if (UI.tab !== 'money' || UI.money !== 'basic' || $('#sheetRoot').innerHTML) return;
+  const f = $('#xsF'); if (!f) return; const inBar = e.target === f, inGrid = e.target && (e.target.id === 'xsGrid' || e.target === document.body);
+  if (!inBar && !inGrid) return;
+  if ((e.ctrlKey || e.metaKey) && !inBar) { if (e.key === 'z') { e.preventDefault(); return xsUndo(); } if (e.key === 'b') { e.preventDefault(); return xsBold(); } if (e.key === 'c') { navigator.clipboard && navigator.clipboard.writeText(xsRaw(XS.sel)); return; } return; }
+  if (inBar) { if (e.key === 'Enter') { e.preventDefault(); return xsCommit(0, e.shiftKey ? -1 : 1); } if (e.key === 'Tab') { e.preventDefault(); return xsCommit(e.shiftKey ? -1 : 1, 0); } if (e.key === 'Escape') { e.preventDefault(); XS.editing = false; f.value = xsRaw(XS.sel); f.blur(); $('#xsGrid').focus(); } return; }
+  const mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], Tab: [e.shiftKey ? -1 : 1, 0], Enter: [0, e.shiftKey ? -1 : 1] }[e.key];
+  if (mv) { e.preventDefault(); return xsMove(...mv); }
+  if (e.key === 'F2') { e.preventDefault(); XS.editing = true; f.focus(); f.setSelectionRange(f.value.length, f.value.length); return; }
+  if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); return xsSet(XS.sel, ''); }
+  if (e.key.length === 1 && !e.altKey) { e.preventDefault(); XS.editing = true; f.value = e.key; f.focus(); f.setSelectionRange(1, 1); }
+});
+document.addEventListener('paste', e => { if (UI.tab !== 'money' || UI.money !== 'basic' || (e.target && e.target.id === 'xsF')) return; const txt = (e.clipboardData || window.clipboardData).getData('text'); if (!txt || !xsDoc()) return; e.preventDefault();
+  const doc = JSON.parse(JSON.stringify(xsDoc())), o = xsRC(XS.sel); txt.replace(/\r/g, '').replace(/\n$/, '').split('\n').forEach((line, r) => line.split('\t').forEach((v, c) => { const a = xsA(o.c + c, o.r + r), n = /^-?[\d,]*\.?\d+$/.test(v.trim()) ? Number(v.replace(/,/g, '')) : v; if (v === '') delete doc.cells[a]; else doc.cells[a] = { ...(doc.cells[a] || {}), v: n }; doc.nrows = Math.max(doc.nrows || 0, o.r + r + 1); doc.ncols = Math.max(doc.ncols || 0, o.c + c + 1); }));
+  xsSave(doc); });
+function xsBold() { const doc = JSON.parse(JSON.stringify(xsDoc())), c = doc.cells[XS.sel] || { v: '' }; c.b = !c.b; doc.cells[XS.sel] = c; xsSave(doc).then(() => xsSelect(XS.sel)); }
+function xsUndo() { const prev = XS.undo.pop(); if (!prev) return; const doc = JSON.parse(prev); S.xsheet[XS.id] = doc; xsPaint(); put(`xsheet/${XS.id}`, doc); }
+
 /* ===== Year plan: the money plan from now to September, month by month, with the three trips.
    state/yearplan = { start, buffer, months:[{ ym, viki, chris, base, items:[{n, a}] }], trips:[{ id, n, when, emoji, kind:'save'|'pot', cost, ym, monthly, from, to, target, plan }] }
    viki is the predicted take-home; once her payslip for that pay month is in (payslips/<ym>), the real figure replaces it.
@@ -2344,14 +2545,16 @@ function gridCalendar() {
 function ypCalc() {
   const Y = S.yearplan; if (!Y || !Array.isArray(Y.months)) return null;
   const cur = plCur(), bf = Y.buffer ?? 0.1; let run = Number(Y.start) || 0, bufRun = 0, now = run, nowBuf = 0;
-  const rows = Y.months.slice().sort((a, b) => a.ym < b.ym ? -1 : 1).map(m => {
+  const BF = basicFigures(), useB = !!BF, vikiB = useB && Y.vikiFrom !== 'history';
+  const rows = Y.months.slice().sort((a, b) => a.ym < b.ym ? -1 : 1).map(m0 => {
+    const m = useB ? { ...m0, chris: BF.chris, base: BF.base, viki: vikiB ? BF.viki : m0.viki } : m0;
     const slip = (S.payslips || []).find(x => x.id === m.ym && x.net), viki = slip ? Number(slip.net) : Number(m.viki) || 0;
     const out = (Number(m.base) || 0) + (m.items || []).reduce((s, x) => s + (Number(x.a) || 0), 0), inc = (Number(m.chris) || 0) + viki, left = inc - out;
     const buf = left > 0 ? left * bf : 0, saved = left - buf, chk = (Y.checks || {})[m.ym], adj = chk ? Number(chk.moved) || 0 : 0; run += saved + adj; bufRun += buf;
     if (m.ym <= cur) { now = run; nowBuf = bufRun; }
     return { ...m, slip, viki, pred: Number(m.viki) || 0, inc, out, left, buf, saved, adj, chk, moved: (Y.moved || {})[m.ym] || null, run, bufRun };
   });
-  return { rows, now, nowBuf, end: rows.length ? rows[rows.length - 1] : null, cur };
+  return { rows, now, nowBuf, end: rows.length ? rows[rows.length - 1] : null, cur, basic: BF, vikiB };
 }
 /* a fundraising-style thermometer: a goal ribbon at the top, a glass tube with tick marks, and a red bulb.
    Solid red is what's saved now; the striped part is what the plan says will be there by the time it's due. */
@@ -2500,14 +2703,15 @@ function viewYearPlan() {
     <div class="yp-hs"><div><span>Saved now</span><b>${money(C.now, 0)}</b></div><div><span>Buffer by ${esc(monShort(e.ym))}</span><b>${money(e.bufRun, 0)}</b></div>${pot ? `<div><span>${esc(pot.n)} pot</span><b>${money(potEnd, 0)}</b></div>` : ''}</div>
     <p>Viki's pay is a best guess until her payslip is in. Add it each month and everything below updates.</p></section>`;
   const trips = `<div class="yp-trips">${ypTrips(C)}</div>`;
+  const src = C.basic ? `<div class="yp-src"><span>Every month uses Viki's <button type="button" class="linkbtn" data-act="mseg" data-v="basic">Basic sheet</button>: bills and day to day ${money(C.basic.base, 2)}, Chris ${money(C.basic.chris, 2)}. Viki's predicted pay:</span><div class="seg"><button data-act="ypsrc" data-v="basic" aria-pressed="${C.vikiB}">Basic sheet ${money(C.basic.viki, 0)}</button><button data-act="ypsrc" data-v="history" aria-pressed="${!C.vikiB}">Her last 15 months</button></div></div>` : '';
   const months = C.rows.map(r => { const isCur = r.ym === cur, diff = r.slip ? r.viki - r.pred : 0;
     return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
       <div class="yp-viki">${r.slip ? `<span class="chip ok">Payslip in</span> Viki <b>${money(r.viki, 2)}</b> <small>${diff >= 0 ? '+' : '−'}${money(Math.abs(diff), 0)} on the guess</small>` : `<span class="chip">Predicted</span> Viki <b>${money(r.pred, 0)}</b>`}<button type="button" class="btn small ${r.slip ? 'ghost' : ''}" data-act="ypslip" data-v="${esc(r.ym)}">${r.slip ? 'Change' : 'Add payslip'}</button></div>
       <dl class="yp-dl"><div><dt>Coming in</dt><dd>${money(r.inc, 0)}</dd></div><div><dt>Going out</dt><dd>${money(r.out, 0)}</dd></div><div><dt>Left over</dt><dd class="${r.left < 0 ? 'neg' : 'pos'}">${money(r.left, 0)}</dd></div><div><dt>10% buffer</dt><dd>${r.buf ? money(r.buf, 0) : '–'}</dd></div><div><dt>Saved</dt><dd class="${r.saved < 0 ? 'neg' : 'pos'}">${money(r.saved, 0)}</dd></div></dl>
       ${r.slip || r.chk ? `<div class="yp-steps">${r.slip ? (r.moved ? `<span class="ok">✓ Pay sorted</span>` : `<button type="button" class="linkbtn" data-act="ypmove" data-v="${esc(r.ym)}">What to move</button>`) : ''}${r.chk ? `<span class="${r.chk.spare >= 0 ? 'ok' : 'bad'}">✓ Bank check: ${r.chk.spare >= 0 ? `${money(r.chk.spare, 0)} ahead` : `${money(-r.chk.spare, 0)} behind`}${r.adj ? `, ${r.adj > 0 ? 'moved' : 'took back'} ${money(Math.abs(r.adj), 0)}` : ''}</span>` : r.slip && today() >= ypCheckDate(r.ym) ? `<button type="button" class="linkbtn" data-act="ypcheck" data-v="${esc(r.ym)}">Bank check</button>` : ''}</div>` : ''}
       ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}</article>`; }).join('');
-  return head + ypNow(C) + `<h2 class="yp-h">The trips</h2>` + trips + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
-    <p class="note">Going out is the bills, kids' extras, food and fuel from each month's Budget Sheet, plus the one-offs and trip money shown. Chris's pay is as on the Budget Sheets. 10% of whatever is left over each month stays in the account as a buffer.</p>`;
+  return head + ypNow(C) + src + `<h2 class="yp-h">The trips</h2>` + trips + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
+    <p class="note">${C.basic ? 'Going out is the BASELINE from the Basic sheet (bills, kids\' extras, food and fuel), plus the one-offs and trip money shown. Chris\'s pay is from the Basic sheet too.' : 'Going out is the bills, kids\' extras, food and fuel from each month\'s Budget Sheet, plus the one-offs and trip money shown. Chris\'s pay is as on the Budget Sheets.'} 10% of whatever is left over each month stays in the account as a buffer.</p>`;
 }
 
 /* ----- title block: the grid of labelled boxes that opens each page ----- */
@@ -5004,7 +5208,7 @@ function planFor(ym) {
 }
 
 const MONEY_GROUPS = [
-  { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['yplan','Year plan'],['gcal','Calendar']] },
+  { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['yplan','Year plan'],['basic','Basic'],['gcal','Calendar']] },
   { k:'zilch', l:'Zilch', pages:[['owed','Zilch']] },
   { k:'planner', l:'Planner', pages:[['planner','Planner']] },
   { k:'more', l:'More', pages:[['sheet','Budget Sheet'],['bills','Bills'],['meals','Dinners and shopping'],['overview','Food shops and spends'],['old','Old debts'],['plan','Pay and plan'],['spending','Spending'],['budget','Budget'],['goals','Goals'],['year','Year ahead'],['save','Tips']] },
@@ -5025,9 +5229,9 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money${grp.k === 'more' ? ' wrap' : ''}" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body = {grid:gridSheet, yplan:viewYearPlan, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
+  const body = {grid:gridSheet, yplan:viewYearPlan, basic:viewXSheet, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
   const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : ym; /* on the spreadsheet the header shows the month last tapped or edited */
-  if (UI.money === 'yplan') return seg + body; /* the year plan has its own header */
+  if (UI.money === 'yplan' || UI.money === 'basic') return seg + body; /* the year plan has its own header */
   return (S.bsheet[hym] ? sheetHero(hym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -8460,6 +8664,11 @@ document.addEventListener('click', async e => {
   if (a==='qbill') { closeSheet(); return billForm(); }
   if (a==='ypslip') { const ym = el.dataset.v; return slipForm(ym, () => ypMoveSheet(ym)); }
   if (a==='ypmove') return ypMoveSheet(el.dataset.v);
+  if (a==='xsb') return xsBold();
+  if (a==='xsundo') return xsUndo();
+  if (a==='xsnf') { const doc = JSON.parse(JSON.stringify(xsDoc())), c = doc.cells[XS.sel] || { v: '' }; if (el.dataset.v) c.nf = el.dataset.v; else delete c.nf; doc.cells[XS.sel] = c; await xsSave(doc); xsSelect(XS.sel); return; }
+  if (a==='xsrow') { const rc = xsRC(XS.sel), by = Number(el.dataset.v); if (by < 0 && !el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again'; return; } await xsSave(xsRows(xsDoc(), rc.r, by)); render(); return; }
+  if (a==='ypsrc') { await put('state/yearplan', { ...S.yearplan, vikiFrom: el.dataset.v }); return; }
   if (a==='ypmoved') { const Y = S.yearplan, ym = el.dataset.v; closeSheet(); await put('state/yearplan', { ...Y, moved: { ...(Y.moved || {}), [ym]: { a: Number(el.dataset.a) || 0, d: today() } } }); toast('Marked as done'); return; }
   if (a==='ypcheck') return ypCheckSheet(el.dataset.v);
   if (a==='ypcpick') return ypCheckPick(el.dataset.v);
