@@ -6993,11 +6993,11 @@ function glanceCard(compact = false) {
   const t = bsTotals(doc, cur), ns = nextShop(), buys = buysIn(cur), extra = buys.reduce((s, b) => s + (Number(b.a) || 0), 0), dp = daysToPay();
   const nsT = ns ? shopTarget(ns) : 0, cut = ns ? ns.base - nsT : 0;
   const tiles = `<div class="od-tiles gl-tiles">
-    <button type="button" class="od-t" ${compact ? 'data-act="tab" data-v="money" data-seg="overview"' : ns ? `data-act="shopdone" data-ym="${ns.ym}" data-slot="${ns.slot}"` : 'data-act="mseg" data-v="sheet"'}><span>🛒</span><b>${ns ? m2(nsT) : '–'}</b><em>${ns ? `${esc(ns.n)}${cut > .5 ? ` · ${m2(cut)} off` : ''}` : 'No shops in the sheet'}</em></button>
-    <${compact ? 'button type="button" data-act="tab" data-v="money" data-seg="overview"' : 'div'} class="od-t"><span>🧾</span><b>${m2(extra)}</b><em>${buys.length ? `${buys.length} extra spend${buys.length === 1 ? '' : 's'}` : 'No extra spends'}</em></${compact ? 'button' : 'div'}>
+    <button type="button" class="od-t" ${compact ? 'data-act="tab" data-v="money" data-seg="grid"' : ns ? `data-act="shopdone" data-ym="${ns.ym}" data-slot="${ns.slot}"` : 'data-act="mseg" data-v="sheet"'}><span>🛒</span><b>${ns ? m2(nsT) : '–'}</b><em>${ns ? `${esc(ns.n)}${cut > .5 ? ` · ${m2(cut)} off` : ''}` : 'No shops in the sheet'}</em></button>
+    <${compact ? 'button type="button" data-act="tab" data-v="money" data-seg="grid"' : 'div'} class="od-t"><span>🧾</span><b>${m2(extra)}</b><em>${buys.length ? `${buys.length} extra spend${buys.length === 1 ? '' : 's'}` : 'No extra spends'}</em></${compact ? 'button' : 'div'}>
     <${compact ? 'button type="button" data-act="tab" data-v="money" data-seg="grid"' : 'div'} class="od-t"><span>📅</span><b>${dp}</b><em>day${dp === 1 ? '' : 's'} to payday</em></${compact ? 'button' : 'div'}></div>`;
   return `<section class="panel nopad glance">${headCard({ tone: t.left >= 0 ? 'good' : 'zilch', kicker: compact ? 'Budget at a glance' : `The ${monShort(cur)} pay at a glance`, title: t.left >= 0 ? `${money(t.left, 0)} spare this month` : `${money(-t.left, 0)} to find this month`,
-    body: tiles, actions: hcBtn('＋ Add a purchase', 'buyadd') + (ns ? hcBtn('Shop done', 'shopdone', `data-ym="${ns.ym}" data-slot="${ns.slot}"`) : '') + (compact ? hcBtn('Details', 'tab', 'data-v="money" data-seg="overview"') : '') })}</section>`;
+    body: tiles, actions: hcBtn('＋ Add a purchase', 'buyadd') + (ns ? hcBtn('Shop done', 'shopdone', `data-ym="${ns.ym}" data-slot="${ns.slot}"`) : '') + (compact ? hcBtn('Details', 'tab', 'data-v="money" data-seg="grid"') : '') })}</section>`;
 }
 function foodPanel() {
   const cur = plCur(), slots = shopSlots(cur), buys = buysIn(cur), t = today(); if (!slots.length && !buys.length) return '';
