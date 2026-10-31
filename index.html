@@ -77,7 +77,7 @@ main{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-lef
   padding-block:6px calc(96px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--sheet);border-top:1px solid var(--rule-2);
   padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));padding-bottom:env(safe-area-inset-bottom,0px);
-  display:grid;grid-template-columns:repeat(5,1fr)}
+  display:grid;grid-template-columns:repeat(6,1fr)}
 nav.tabs button{position:relative;border:0;background:none;padding:10px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.76rem;font-stretch:87%;font-weight:600;color:var(--muted);cursor:pointer}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button[aria-current="page"]{color:var(--ink);font-weight:750}
@@ -814,6 +814,41 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .xsec{border-top:1px solid var(--rule-2)}
 .xh{display:flex;align-items:center;gap:8px;width:100%;border:0;background:var(--sheet);padding:12px 12px;text-align:left;color:var(--ink);cursor:pointer;font:inherit}
 .xh.static{cursor:default}
+.gpanel{padding:8px}
+.gwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule-2);border-radius:12px}
+.gtab{border-collapse:separate;border-spacing:0;font-size:.8rem;min-width:100%;font-variant-numeric:tabular-nums}
+.gtab th,.gtab td{padding:5px 8px;border-bottom:1px solid var(--rule-2);border-right:1px solid var(--rule-2);text-align:right;white-space:nowrap;background:var(--sheet)}
+.gtab thead th{position:sticky;top:0;z-index:2;background:var(--sheet-2);font-weight:700}
+.gtab thead th small{display:block;font-weight:500;color:var(--muted);font-size:.68rem}
+.gtab .gn{position:sticky;left:0;z-index:1;text-align:left;max-width:150px;min-width:120px;white-space:normal;font-weight:500;background:var(--sheet)}
+.gtab thead .gn{z-index:3;background:var(--sheet-2)}
+.gtab .gn small{display:block;color:var(--muted);font-size:.66rem;font-weight:500}
+.gtab .gi{padding-left:16px;color:var(--ink-2,inherit)}
+.gtab tr.gh th,.gtab tr.gh td{font-weight:800;background:var(--sheet-2)}
+.gtab tr.gh.in th{color:var(--good)}
+.gtab tr.gt th,.gtab tr.gt td{font-weight:700;background:var(--sheet-2)}
+.gtab tr.gt.big td{font-size:.86rem}
+.gtab td.neg{color:var(--red)}.gtab td.pos{color:var(--good)}
+.gtab td.na{color:var(--muted);text-align:center}
+.gtab td:has(.gc){padding:0;background:color-mix(in srgb,var(--acc) 8%,var(--sheet))}
+.gc{width:84px;border:0;background:transparent;font:inherit;text-align:right;padding:5px 8px;color:inherit}
+.gc:focus{outline:2px solid var(--acc);outline-offset:-2px;background:var(--sheet)}
+.gcal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px}
+.gcal>span{font-size:.68rem;font-weight:700;color:var(--muted);text-align:center;padding:2px 0}
+.gd{min-height:78px;border:1px solid var(--rule-2);border-radius:8px;background:var(--sheet);padding:3px;display:flex;flex-direction:column;gap:2px;text-align:left;font:inherit;cursor:pointer;overflow:hidden;color:inherit}
+.gd.empty{border:0;background:none;cursor:default}
+.gd b{font-size:.75rem}
+.gd.today{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.gd.on{background:var(--sheet-2)}
+.gd i{font-style:normal;font-size:.58rem;line-height:1.15;border-radius:4px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.gd i.more{color:var(--muted);background:none}
+.gd em{font-style:normal;font-size:.6rem;font-weight:700;color:var(--red);margin-top:auto}
+.k-in{background:#16A34A}.k-bill{background:#3F51B5}.k-zil{background:#7E4CC9}.k-food{background:#E8A33D}.k-trip{background:#0EA5A4}.k-kid{background:#D2477A}
+.gleg{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px;font-size:.72rem;color:var(--muted)}
+.gleg span{display:inline-flex;align-items:center;gap:4px}
+.gdot{display:inline-block;width:10px;height:10px;border-radius:3px;flex:none}
+.rowbtn.static{cursor:default}
+
 .xexp{margin:-2px 0 6px;padding:0 4px;font-size:.8rem;color:var(--muted)}
 .xgrp{display:flex;justify-content:space-between;gap:8px;padding:8px 4px 2px;font-weight:700;font-size:.85rem}
 .xbreak{grid-column:1/-1;margin:10px 0 2px;padding:10px 12px;border-radius:12px;background:var(--sheet-2)}
@@ -1743,7 +1778,7 @@ header.top .askbtn + .iconbtn{margin-left:6px}
 :root[data-tab="me"]{--acc:#E2445C;--acc2:#FF9F43}
 nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 :root[data-user="chris"] nav.tabs button[data-tab="me"]{display:flex}
-:root[data-user="chris"] nav.tabs{grid-template-columns:repeat(6,1fr)}
+:root[data-user="chris"] nav.tabs{grid-template-columns:repeat(7,1fr)}
 .me-log{max-height:48vh;min-height:90px}
 .me-kind{display:block;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .me-quick{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -1864,7 +1899,8 @@ nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 <main id="app"><div class="skel tall"></div><div class="skel"></div><div class="skel"></div></main>
 
 <nav class="tabs" aria-label="Sections">
-  <button data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Home</button>
+  <button data-tab="grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg>Sheet</button>
+  <button data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Home</button>
   <button data-tab="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.2c3 .3 5.4 2.7 5.4 5.8"/></svg>Family</button>
   <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16v11H4z"/><path d="M4 8l2-4h12l2 4"/><circle cx="12" cy="13.5" r="2.5"/></svg>Money</button>
   <button data-tab="trips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12"/><path d="M12 9c-2-4-6-4-6-1.5S10 9 12 9c2 0 6 1 6-1.5S14 5 12 9z"/></svg>Treats</button>
@@ -1911,9 +1947,9 @@ const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).
 
 /* ---------- state ---------- */
 const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, loaded:0 };
-const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
-try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab) UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; if (saved.csub) UI.csub=saved.csub; } catch(e) {}
-const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode, kidTab:UI.kidTab, csub:UI.csub})); } catch(e) {} };
+const UI = { tab:'grid', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
+try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.gseg) UI.gseg=saved.gseg; /* the app always opens on the Sheet */ if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; if (saved.csub) UI.csub=saved.csub; } catch(e) {}
+const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, gseg:UI.gseg, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode, kidTab:UI.kidTab, csub:UI.csub})); } catch(e) {} };
 let sb = null, session = null, offline = false;
 const LOGIN_DOMAIN = 'hitchen.example.com'; // usernames map to <username>@this (never emailed)
 const userName = () => { const u = session && session.user; if (!u) return ''; return (u.user_metadata && u.user_metadata.username) || (u.email||'').split('@')[0]; };
@@ -2074,10 +2110,10 @@ function render() {
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
   if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('[data-act="ask"]').hidden = true; $('#title').textContent = `${UI.kid}'s corner`; $('#subtitle').textContent = UI.kidTab === 'jobs' ? 'Tick off your jobs to earn stars' : UI.kidTab === 'save' ? 'What you\'re saving up for' : 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
   if (UI.tab === 'me' && !meOwner()) UI.tab = 'home';
-  const titles = {me:['Me','Your better-me coach'], home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Tap one to open it'], car:['The Evoque','Service, checks, fuel and trips']};
+  const titles = {grid:['Sheet','Money by month, and the calendar'], me:['Me','Your better-me coach'], home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Tap one to open it'], car:['The Evoque','Service, checks, fuel and trips']};
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = UI.tab === 'trips' && UI.pltab ? 'Plans, budgets and lists' : titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
-  const views = { me: viewMe, home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
+  const views = { grid: viewGrid, me: viewMe, home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   /* keep the coach chat where it was across a redraw: same scroll spot, half-typed message and focus, unless something new arrived */
   const ml0 = $('#meLog'), mq0 = $('#meQ'), keep = ml0 ? { top: ml0.scrollTop, n: ml0.querySelectorAll('.ask-msg').length, q: mq0 ? mq0.value : '', f: document.activeElement === mq0 } : null;
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
@@ -2086,6 +2122,100 @@ function render() {
     if (keep && mq) { if (keep.q) mq.value = keep.q; if (keep.f) mq.focus({ preventScroll: true }); } }
   if (render.lastTab !== UI.tab) { app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); render.lastTab = UI.tab; }
   hydratePhotos(); checkMilestones(); countUp(app);
+}
+
+
+/* ===== Sheet: the money as one spreadsheet (a column per pay month) and a calendar of what goes out when =====
+   Everything reads the same records as the rest of the app (Budget Sheets, Zilch, Treats), so the numbers always agree.
+   Typed amounts save straight into that month's Budget Sheet. */
+const GRID_MONTHS = 6;
+function gridMonths() { const c = plCur(); return Array.from({ length: GRID_MONTHS }, (_, i) => ymAdd(c, i)); }
+const gk = s => String(s || '').trim().toLowerCase();
+function gridRows(ms) {
+  const groups = [];
+  /* coming in */
+  const inc = { t: 'Coming in', cls: 'in', rows: [] };
+  if (ms.some(ym => S.bsheet[ym] && S.bsheet[ym].viki)) inc.rows.push({ n: "Viki's pay", vals: ms.map(ym => { const d = S.bsheet[ym]; return d && d.viki && !d.viki.off ? { v: bsViki(d, ym) } : null; }) });
+  const incNames = []; ms.forEach(ym => ((S.bsheet[ym] || {}).inc || []).forEach(x => { if (x.n && !incNames.some(n => gk(n) === gk(x.n))) incNames.push(x.n); }));
+  incNames.forEach(n => inc.rows.push({ n, vals: ms.map(ym => { const d = S.bsheet[ym]; if (!d) return null; const i = (d.inc || []).findIndex(x => gk(x.n) === gk(n)); const x = d.inc[i];
+    return { v: x && bsOn(x) ? Number(x.a) || 0 : 0, edit: { ym, sec: 'i', n, i } }; }) }));
+  groups.push(inc);
+  /* budget sections (normal budget, then one-offs) in the order of the newest sheet */
+  const ref = ms.map(ym => S.bsheet[ym]).filter(Boolean)[0]; const secs = [];
+  ms.forEach(ym => ((S.bsheet[ym] || {}).secs || []).forEach(s => { if (s.kind !== 'list' && !secs.some(x => x.k === s.k)) secs.push({ k: s.k, t: s.t, kind: s.kind }); }));
+  secs.sort((a, b) => (a.kind === 'extra') - (b.kind === 'extra'));
+  secs.forEach(sec => {
+    const names = []; ms.forEach(ym => { const s = ((S.bsheet[ym] || {}).secs || []).find(x => x.k === sec.k); (s ? s.rows : []).forEach(r => { if (r.n && !names.some(n => gk(n) === gk(r.n))) names.push(r.n); }); });
+    groups.push({ t: sec.t, cls: sec.kind === 'extra' ? 'one' : 'out', rows: names.map(n => ({ n, vals: ms.map(ym => { const d = S.bsheet[ym]; if (!d) return null; const si = d.secs.findIndex(x => x.k === sec.k), s = d.secs[si];
+      const ri = s ? s.rows.findIndex(r => gk(r.n) === gk(n)) : -1, r = ri >= 0 ? s.rows[ri] : null;
+      return { v: r && bsOn(r) ? bsAmt(r) : 0, edit: r && r.u != null ? null : { ym, sec: sec.k, n, i: ri } }; }) })) });
+  });
+  /* Zilch, one row per plan */
+  const zl = (ZL().items || []).filter(it => ms.some(ym => zlPays(it).some(x => x.ym === ym)));
+  if (zl.length) groups.push({ t: 'Zilch repayments', cls: 'out', note: 'Change on Money → Bills → Zilch', rows: zl.map(it => ({ n: `${it.n} (${ZWHO[it.who] || ''})`, vals: ms.map(ym => ({ v: zlPays(it).filter(x => x.ym === ym).reduce((a, x) => a + x.a, 0) })) })) });
+  /* trips and Christmas, one row per item */
+  const pi = []; ms.forEach(ym => plannerItems(ym).forEach(x => { const key = `${x.p.id}|${gk(x.n)}`; let r = pi.find(y => y.key === key); if (!r) { r = { key, n: `${x.n} · ${occName(x.p)}`, by: {} }; pi.push(r); } r.by[ym] = (r.by[ym] || 0) + x.a; }));
+  if (pi.length) groups.push({ t: 'Trips and Christmas', cls: 'out', note: 'Change in Treats', rows: pi.map(r => ({ n: r.n, vals: ms.map(ym => ({ v: r.by[ym] || 0 })) })) });
+  /* extra spends */
+  if (ms.some(ym => Math.abs(buysNet(ym)) > 0.004)) groups.push({ t: 'Extra spends', cls: 'out', rows: [{ n: 'Unplanned spending (after food-shop cuts)', vals: ms.map(ym => ({ v: buysNet(ym) })) }] });
+  return groups;
+}
+function viewGrid() {
+  const seg = UI.gseg === 'cal' ? 'cal' : 'sheet';
+  const tabs = `<div class="seg" role="group" aria-label="Show"><button data-act="gseg" data-v="sheet" aria-pressed="${seg === 'sheet'}">Spreadsheet</button><button data-act="gseg" data-v="cal" aria-pressed="${seg === 'cal'}">Calendar</button></div>`;
+  return tabs + (seg === 'cal' ? gridCalendar() : gridSheet());
+}
+function gridSheet() {
+  const ms = gridMonths(), groups = gridRows(ms), f = v => Math.abs(v) < 0.005 ? '' : money(v, 2).replace('£', '');
+  const tot = ms.map(ym => S.bsheet[ym] ? bsTotals(S.bsheet[ym], ym) : null);
+  let run = 0; const carried = tot.map(t => t ? (run += t.left) : null);
+  const head = `<tr><th class="gn">£</th>${ms.map(ym => `<th>${esc(monShort(ym).slice(0, 3))} pay${S.bsheet[ym] ? '' : '<small>no sheet</small>'}</th>`).join('')}</tr>`;
+  const cell = c => { if (!c) return '<td class="na">–</td>'; if (c.edit) return `<td><input class="gc" inputmode="decimal" data-gcell="${esc(JSON.stringify(c.edit))}" value="${c.v ? Number(c.v).toFixed(2) : ''}" aria-label="Amount"></td>`; return `<td>${f(c.v)}</td>`; };
+  const body = groups.map(g => {
+    const sums = ms.map((ym, i) => g.rows.reduce((a, r) => a + (r.vals[i] ? r.vals[i].v || 0 : 0), 0));
+    return `<tr class="gh ${g.cls}"><th class="gn">${esc(g.t)}${g.note ? `<small>${esc(g.note)}</small>` : ''}</th>${sums.map(v => `<td>${f(v)}</td>`).join('')}</tr>` + g.rows.map(r => `<tr><th class="gn gi">${esc(r.n)}</th>${r.vals.map(cell).join('')}</tr>`).join('');
+  }).join('');
+  const foot = `<tr class="gt"><th class="gn">Going out</th>${tot.map(t => `<td>${t ? f(t.base + t.extra) : '–'}</td>`).join('')}</tr>
+    <tr class="gt big"><th class="gn">Left this month</th>${tot.map(t => `<td class="${t && t.left < 0 ? 'neg' : 'pos'}">${t ? money(t.left, 2) : '–'}</td>`).join('')}</tr>
+    <tr class="gt big"><th class="gn">In the bank, carried over</th>${carried.map(v => `<td class="${v != null && v < 0 ? 'neg' : 'pos'}">${v == null ? '–' : money(v, 2)}</td>`).join('')}</tr>`;
+  return `<section class="panel gpanel"><div class="gwrap"><table class="gtab"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>
+    <p class="note">One column per pay: from that payday to the day before the next. Type in a shaded box to change that month's amount; it saves straight away. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>`;
+}
+async function gridSave(inp) {
+  let e; try { e = JSON.parse(inp.dataset.gcell); } catch (x) { return; }
+  const v = num(inp.value), d = S.bsheet[e.ym] ? bsClone(S.bsheet[e.ym]) : null; if (!d) return;
+  const a = v === null ? 0 : Math.round(v * 100) / 100;
+  if (e.sec === 'i') { const i = d.inc.findIndex(x => gk(x.n) === gk(e.n)); if (i >= 0) d.inc[i] = { ...d.inc[i], a, off: false }; else d.inc.push({ n: e.n, a }); }
+  else { const s = d.secs.find(x => x.k === e.sec); if (!s) return; const i = s.rows.findIndex(r => gk(r.n) === gk(e.n)); if (i >= 0) { s.rows[i] = { ...s.rows[i], a }; delete s.rows[i].off; } else s.rows.push({ n: e.n, a }); }
+  UI.bs = null; await put(`bsheet/${e.ym}`, d); toast(`${monShort(e.ym)} saved`);
+}
+document.addEventListener('change', e => { const t = e.target; if (t && t.matches && t.matches('input[data-gcell]')) gridSave(t); });
+/* what lands on each day of a calendar month */
+function gridEvents(ym) {
+  const ev = {}, add = (d, x) => { if (d && d.slice(0, 7) === ym) (ev[d] = ev[d] || []).push(x); };
+  const days = new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0).getDate(), dOf = n => `${ym}-${pad(Math.min(n, days))}`;
+  add(payday(ym), { k: 'in', t: 'Payday', a: null });
+  (S.bills || []).forEach(b => { const due = String(b.due || ''); if (!/^\d{4}-\d\d-\d\d$/.test(due)) return; const day = +due.slice(8), a = Number(b.amount) || 0, m = (+ym.slice(0, 4)) * 12 + (+ym.slice(5, 7)), m0 = (+due.slice(0, 4)) * 12 + (+due.slice(5, 7));
+    if (b.freq === 'weekly') { for (let d = due; d.slice(0, 7) <= ym; d = addDays(d, 7)) add(d, { k: 'bill', t: b.name, a }); }
+    else if (b.freq === 'annual' ? (m - m0) % 12 === 0 : b.freq === 'quarterly' ? (m - m0) % 3 === 0 : true) add(dOf(day), { k: 'bill', t: b.name, a }); });
+  (ZL().items || []).forEach(it => zlPays(it).forEach(x => { if (x.d) add(x.d, { k: 'zil', t: `Zilch: ${it.n}`, a: x.a }); else if (x.ym === ym && /car work/i.test(it.n)) add(dOf(26), { k: 'zil', t: `Zilch: ${it.n}`, a: x.a }); }));
+  [ym, ymAdd(ym, -1)].forEach(pm => shopSlots(pm).forEach(s => add(s.d, { k: 'food', t: s.n, a: shopTarget(s) })));
+  (S.plans || []).filter(p => p.kind !== 'year' && p.from).forEach(p => { for (let d = p.from; d <= (p.to || p.from) && d.slice(0, 7) <= ym; d = addDays(d, 1)) add(d, { k: 'trip', t: occName(p), a: null }); });
+  Object.values(S.kids || {}).forEach(k => (k.events || []).forEach(e => add(e.d, { k: 'kid', t: e.t || 'School', a: null })));
+  return ev;
+}
+function gridCalendar() {
+  const ym = UI.gcal || (UI.gcal = ymOf(today())), ev = gridEvents(ym), first = new Date(+ym.slice(0, 4), +ym.slice(5, 7) - 1, 1), days = new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0).getDate();
+  const lead = (first.getDay() + 6) % 7, t = today(), out = d => (ev[d] || []).filter(x => x.a).reduce((a, x) => a + x.a, 0);
+  let cells = ''; for (let i = 0; i < lead; i++) cells += '<div class="gd empty"></div>';
+  for (let n = 1; n <= days; n++) { const d = `${ym}-${pad(n)}`, L = ev[d] || [], o = out(d);
+    cells += `<button type="button" class="gd${d === t ? ' today' : ''}${UI.gday === d ? ' on' : ''}" data-act="gday" data-d="${d}"><b>${n}</b>${L.slice(0, 3).map(x => `<i class="k-${x.k}">${esc(x.t)}</i>`).join('')}${L.length > 3 ? `<i class="more">+${L.length - 3}</i>` : ''}${o ? `<em>−${money(o, 0)}</em>` : ''}</button>`; }
+  const sel = UI.gday && ev[UI.gday] ? `<section class="panel"><h2>${esc(dayShort(UI.gday))}</h2><div class="list">${ev[UI.gday].map(x => `<div class="rowbtn static"><span class="gdot k-${x.k}"></span><div class="grow"><div class="t">${esc(x.t)}</div></div>${x.a ? `<div class="amt">${money(x.a, 2)}</div>` : ''}</div>`).join('')}</div></section>` : '';
+  const monthOut = Object.keys(ev).reduce((a, d) => a + out(d), 0);
+  return `<section class="panel"><div class="calhead xnav"><button class="iconbtn" data-act="gcal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="gcal" data-v="1" aria-label="Next month">›</button></div>
+    <div class="gcal"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>${cells}</div>
+    <div class="gleg"><span><i class="gdot k-in"></i>Payday</span><span><i class="gdot k-bill"></i>Bills</span><span><i class="gdot k-zil"></i>Zilch</span><span><i class="gdot k-food"></i>Food shop</span><span><i class="gdot k-trip"></i>Trips</span><span><i class="gdot k-kid"></i>School</span></div>
+    <p class="note">${money(monthOut, 0)} of bills, Zilch and food shops land in ${esc(MONTHS[first.getMonth()])}. Tap a day to see what's on it.</p></section>${sel}`;
 }
 
 /* ----- title block: the grid of labelled boxes that opens each page ----- */
@@ -7881,6 +8011,9 @@ document.addEventListener('click', async e => {
   if (a==='ciok') { el.disabled = true; return ciSet(el.dataset.k); }
   if (a==='ciinc') return ciIncForm();
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; if (el.dataset.id) UI.occ = el.dataset.id; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='gseg') { UI.gseg = el.dataset.v; keepUI(); return render(); }
+  if (a==='gcal') { UI.gcal = ymAdd(UI.gcal || ymOf(today()), Number(el.dataset.v)); UI.gday = null; return render(); }
+  if (a==='gday') { UI.gday = UI.gday === el.dataset.d ? null : el.dataset.d; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
   if (a==='plan') return tripPlanForm(el.dataset.id, el.dataset.kind);
   if (a==='plpast') { UI.plpast = UI.plpast === el.dataset.id ? null : el.dataset.id; render(); if (UI.plpast) setTimeout(() => { const r = document.querySelector(`[data-act="plpast"][data-id="${UI.plpast}"]`); if (r) r.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 30); return; }
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
