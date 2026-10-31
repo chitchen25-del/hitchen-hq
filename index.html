@@ -77,7 +77,7 @@ main{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-lef
   padding-block:6px calc(96px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--sheet);border-top:1px solid var(--rule-2);
   padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));padding-bottom:env(safe-area-inset-bottom,0px);
-  display:grid;grid-template-columns:repeat(6,1fr)}
+  display:grid;grid-template-columns:repeat(5,1fr)}
 nav.tabs button{position:relative;border:0;background:none;padding:10px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.76rem;font-stretch:87%;font-weight:600;color:var(--muted);cursor:pointer}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button[aria-current="page"]{color:var(--ink);font-weight:750}
@@ -814,6 +814,14 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .xsec{border-top:1px solid var(--rule-2)}
 .xh{display:flex;align-items:center;gap:8px;width:100%;border:0;background:var(--sheet);padding:12px 12px;text-align:left;color:var(--ink);cursor:pointer;font:inherit}
 .xh.static{cursor:default}
+.hs-panel h2{margin-bottom:8px}
+.hs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hs{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:86px;padding:10px;border:1px solid var(--rule-2);border-radius:14px;background:var(--sheet);font:inherit;color:inherit;text-align:left;cursor:pointer}
+.hs:active{transform:scale(.98)}
+.hs-i{font-size:1.25rem;line-height:1}
+.hs-l{font-weight:700;font-size:.86rem;line-height:1.2}
+.hs-s{font-size:.7rem;color:var(--muted);line-height:1.25}
+
 .gpanel{padding:8px}
 .gwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule-2);border-radius:12px}
 .gtab{border-collapse:separate;border-spacing:0;font-size:.8rem;min-width:100%;font-variant-numeric:tabular-nums}
@@ -1778,7 +1786,7 @@ header.top .askbtn + .iconbtn{margin-left:6px}
 :root[data-tab="me"]{--acc:#E2445C;--acc2:#FF9F43}
 nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 :root[data-user="chris"] nav.tabs button[data-tab="me"]{display:flex}
-:root[data-user="chris"] nav.tabs{grid-template-columns:repeat(7,1fr)}
+:root[data-user="chris"] nav.tabs{grid-template-columns:repeat(6,1fr)}
 .me-log{max-height:48vh;min-height:90px}
 .me-kind{display:block;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .me-quick{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -1899,7 +1907,6 @@ nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 <main id="app"><div class="skel tall"></div><div class="skel"></div><div class="skel"></div></main>
 
 <nav class="tabs" aria-label="Sections">
-  <button data-tab="grid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg>Sheet</button>
   <button data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Home</button>
   <button data-tab="work"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.2c3 .3 5.4 2.7 5.4 5.8"/></svg>Family</button>
   <button data-tab="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16v11H4z"/><path d="M4 8l2-4h12l2 4"/><circle cx="12" cy="13.5" r="2.5"/></svg>Money</button>
@@ -1947,9 +1954,9 @@ const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).
 
 /* ---------- state ---------- */
 const S = { settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, loaded:0 };
-const UI = { tab:'grid', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
-try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.gseg) UI.gseg=saved.gseg; /* the app always opens on the Sheet */ if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; if (saved.csub) UI.csub=saved.csub; } catch(e) {}
-const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, gseg:UI.gseg, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode, kidTab:UI.kidTab, csub:UI.csub})); } catch(e) {} };
+const UI = { tab:'home', who:'chris', cal: ymOf(today()), money:'bills', carSeg:'service', bmonth: ymOf(today()), ai:'', aiBusy:false };
+try { const saved = JSON.parse(localStorage.getItem('hhq-ui')||'{}'); if (saved.tab && saved.tab !== 'grid') UI.tab=saved.tab; if (saved.who) UI.who=saved.who; if (saved.money) UI.money=saved.money; if (saved.carSeg) UI.carSeg=saved.carSeg; if (saved.occ) UI.occ=saved.occ; if (saved.kid) UI.kid=saved.kid; if (saved.vsub) UI.vsub=saved.vsub; if (saved.kidTab) UI.kidTab=saved.kidTab; if (saved.vcmode) UI.vcmode=saved.vcmode; if (saved.csub) UI.csub=saved.csub; } catch(e) {}
+const keepUI = () => { try { localStorage.setItem('hhq-ui', JSON.stringify({tab:UI.tab, who:UI.who, money:UI.money, carSeg:UI.carSeg, pltab:UI.pltab, occ:UI.occ, kid:UI.kid, vsub:UI.vsub, vcmode:UI.vcmode, kidTab:UI.kidTab, csub:UI.csub})); } catch(e) {} };
 let sb = null, session = null, offline = false;
 const LOGIN_DOMAIN = 'hitchen.example.com'; // usernames map to <username>@this (never emailed)
 const userName = () => { const u = session && session.user; if (!u) return ''; return (u.user_metadata && u.user_metadata.username) || (u.email||'').split('@')[0]; };
@@ -2110,10 +2117,10 @@ function render() {
   if (!session) { $('#title').textContent = 'Hitchen HQ'; $('#subtitle').textContent = 'Family work, money and car'; $('#app').innerHTML = viewLogin(); return; }
   if (UI.kid) { $('nav.tabs').hidden = true; $('.fab').hidden = true; $('[data-act="settings"]').hidden = true; $('[data-act="ask"]').hidden = true; $('#title').textContent = `${UI.kid}'s corner`; $('#subtitle').textContent = UI.kidTab === 'jobs' ? 'Tick off your jobs to earn stars' : UI.kidTab === 'save' ? 'What you\'re saving up for' : 'Christmas is coming!'; $('#app').innerHTML = viewKid(); return; }
   if (UI.tab === 'me' && !meOwner()) UI.tab = 'home';
-  const titles = {grid:['Sheet','Money by month, and the calendar'], me:['Me','Your better-me coach'], home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Tap one to open it'], car:['The Evoque','Service, checks, fuel and trips']};
+  const titles = {me:['Me','Your better-me coach'], home:['Hitchen HQ','The Hitchen family'], work:['Family','Work, school and who\'s where'], money:['Money','Bills, budget and savings'], trips:['Treats','Tap one to open it'], car:['The Evoque','Service, checks, fuel and trips']};
   $('#title').textContent = titles[UI.tab][0]; $('#subtitle').textContent = UI.tab === 'trips' && UI.pltab ? 'Plans, budgets and lists' : titles[UI.tab][1];
   const banner = offline ? `<div class="banner">You're offline, so this is the last saved copy. Changes won't sync until you're back online.</div>` : '';
-  const views = { grid: viewGrid, me: viewMe, home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
+  const views = { me: viewMe, home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   /* keep the coach chat where it was across a redraw: same scroll spot, half-typed message and focus, unless something new arrived */
   const ml0 = $('#meLog'), mq0 = $('#meQ'), keep = ml0 ? { top: ml0.scrollTop, n: ml0.querySelectorAll('.ask-msg').length, q: mq0 ? mq0.value : '', f: document.activeElement === mq0 } : null;
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
@@ -2414,11 +2421,10 @@ function runCountUp() {
 
 /* shared lists: shopping and to-do */
 function listPanel() {
-  const which = UI.list || 'shopping';
+  const which = 'shopping';
   const items = S.list.filter(x => (x.list||'shopping')===which).sort((a,b) => (a.done?1:0)-(b.done?1:0) || (a.at||0)-(b.at||0));
   const open = items.filter(x => !x.done).length, ticked = items.length - open;
-  return `<section class="panel"><h2>Lists <span class="sub">${open} to get</span></h2>
-    <div class="seg" role="group" aria-label="Which list">${[['shopping','Shopping'],['todo','To-do']].map(([k,l]) => `<button data-act="listseg" data-v="${k}" aria-pressed="${which===k}">${l}</button>`).join('')}</div>
+  return `<section class="panel"><h2>Shopping list <span class="sub">${open} to get</span></h2>
     <form class="listadd" id="listAdd" autocomplete="off"><input id="listText" placeholder="${which==='shopping'?'Add something to get':'Add a job'}" aria-label="New item" enterkeyhint="done"><button class="btn small" type="submit">Add</button></form>
     ${items.length ? `<div class="list">${items.map(x => `<label class="check ${x.done?'done':''}"><input type="checkbox" data-act="listtick" data-id="${esc(x.id)}" ${x.done?'checked':''}><span class="grow">${esc(x.text)}</span>${x.by ? badge(x.by) : ''}</label>`).join('')}</div>` : `<p class="empty">${which==='shopping' ? 'The shopping list is empty. Anything added here shows on both phones straight away.' : 'Nothing on the to-do list.'}</p>`}
     ${ticked ? `<div class="btnrow"><button class="btn small ghost" data-act="listclear">Clear ${ticked} ticked</button></div>` : ''}
@@ -2556,7 +2562,28 @@ function viewHome() {
     foot: kidsDob().length ? [r.salary ? `<span><b>Payday ${payTxt === 'Today' || payTxt === 'Tomorrow' ? payTxt.toLowerCase() : payTxt.replace(/^In/, 'in')}</b>${toPay > 1 ? ` (${esc(dayShort(pd))})` : ''}, Viki about ${money(vp.net,0)}</span>` : '', tonight ? `<span class="hint">${mealIcon(tonight.n)} Tonight: ${esc(tonight.n)}</span>` : ''].filter(Boolean).join('') + foot : foot, bg: hpic });
   setTimeout(runCountUp, 30); updateBadge();
   /* calm by default: today, payday and the week first; other panels only when there's something in them */
-  return hero + yearlyUpdateNudge() + clashHome() + yearHome() + checkinCard() + pushNudge() + glanceCard(true) + countRibbon('Coming up') + week + listPanel() + tiles + (bills.length ? billsPanel : '') + carPanel;
+  /* the home page is a set of shortcuts into every part of the app */
+  return hero + glanceCard(true) + homeShortcuts() + week;
+}
+
+/* ----- home shortcuts: one tap into every part of the app ----- */
+function homeShortcuts() {
+  const t = (ic, l, sub, attrs) => `<button type="button" class="hs" ${attrs}><span class="hs-i" aria-hidden="true">${ic}</span><span class="hs-l">${l}</span>${sub ? `<span class="hs-s">${sub}</span>` : ''}</button>`;
+  const m = (seg, ic, l, sub) => t(ic, l, sub, `data-act="tab" data-v="money" data-seg="${seg}"`);
+  const kids = kidsDob();
+  const groups = [
+    ['Money', [m('grid', '📊', 'Spreadsheet', 'Every month side by side'), m('gcal', '📅', 'Calendar', 'What goes out when'), m('sheet', '🧮', 'Budget sheet', 'This month in detail'),
+      m('overview', '🛒', 'Food shops and spends', 'Add a purchase, shop done'), m('bills', '💷', 'Direct debits', 'Bills and due dates'), m('owed', '🔁', 'Zilch', 'What we owe and when'),
+      m('planner', '🗓️', 'Planner', 'Trips and Christmas money'), m('meals', '🍽️', 'Dinners and shopping', 'Meal plan and shopping list'), m('goals', '🎯', 'Savings goals', '')]],
+    ['Family', [t('👷', 'Chris', 'Work, hours and leave', 'data-act="tab" data-v="work" data-who="chris"'), t('🩺', 'Viki', 'Rota, on call and pay', 'data-act="tab" data-v="work" data-who="viki"'),
+      ...kids.map(k => t('🎒', esc(k.name), 'School and clubs', `data-act="tab" data-v="work" data-who="${esc(wishKey(k.name))}"`))]],
+    ['Treats', PL_KINDS.map(([k, l]) => t(TR_ICON[k] || '✦', l, '', `data-act="opentrip" data-kind="${k}"`))],
+    ['Car', [t('🚙', 'Car details', 'Tax, insurance, finance', 'data-act="tab" data-v="car" data-seg="details"'), t('🔧', 'Service log', '', 'data-act="tab" data-v="car" data-seg="service"'),
+      t('⛽', 'Fuel and costs', '', 'data-act="tab" data-v="car" data-seg="fuel"'), t('📄', 'Documents', '', 'data-act="tab" data-v="car" data-seg="docs"')]],
+    ['Other', [t('✨', 'Ask', 'Questions, or add things', 'data-act="ask"'), t('🔔', 'Ring', 'Doorbell cameras', 'data-act="ring"'),
+      ...(meOwner() ? [t('💪', 'Me', 'Your coach', 'data-act="tab" data-v="me"')] : []), t('⚙️', 'Settings', '', 'data-act="settings"')]],
+  ];
+  return groups.map(([h, list]) => `<section class="panel hs-panel"><h2>${h}</h2><div class="hs-grid">${list.join('')}</div></section>`).join('');
 }
 function goalBar(g) {
   const pct = g.target ? Math.min(100, Math.round((Number(g.saved)||0)/g.target*100)) : 0;
@@ -2921,7 +2948,7 @@ function pwRowSheet(id) {
 
 /* ----- Blue Light Card: state/blc = { on, holder, checked, src, offers:[{ id, n, grp, m (regex text), kind:'pct'|'off'|'tiers'|'info'|'none', pct, off, tiers:[[min, off]], upto, deal, terms, scope }] }
    Offers live in Supabase so they can be refreshed without touching the app. Savings shown are estimates; book through the Blue Light Card app or site. */
-const blcOn = () => !!(S.blc && S.blc.on !== false && (S.blc.offers || []).length);
+const blcOn = () => false; /* deal suggestions switched off */
 const blcRe = o => { try { return o._re || (o._re = new RegExp(o.m, 'i')); } catch (e) { return /$^/; } };
 function blcFind(text, scope) {
   if (!blcOn() || !text) return null;
@@ -3799,7 +3826,7 @@ function viewMeals() {
     + `<section class="panel"><div class="calhead"><button class="iconbtn" data-act="mweek" data-v="-1" aria-label="Previous week">‹</button><b>${esc(dayShort(ws))} – ${esc(dayShort(addDays(ws, 6)))}</b><button class="iconbtn" data-act="mweek" data-v="1" aria-label="Next week">›</button></div>
       <div class="list">${meals.map(([d, m]) => `<button class="rowbtn meal${d === t ? ' today' : ''}" data-act="meal" data-date="${d}"><span class="kic" style="--c:${m ? 'var(--gold)' : 'var(--muted)'}">${m ? mealIcon(m.n) : '＋'}</span><span class="grow"><span class="t" style="display:block">${d === t ? 'Tonight' : DOWS[parse(d).getDay()]}</span><span class="m" style="display:block">${m ? esc(m.n) : 'Not planned yet'}${m && (m.items || []).length ? ` · ${m.items.length} ingredients` : ''}</span></span><span class="amt">${m && m.cost ? m2(m.cost) : ''}</span></button>`).join('')}</div>
       <div class="btnrow">${items.size ? `<button class="btn small" data-act="meals2list" data-ws="${ws}">Add ${items.size} ingredients to the shopping list</button>` : ''}<button class="btn small ghost" data-act="mealcopy" data-ws="${ws}">Copy last week's dinners</button></div></section>`
-    + `<section class="panel"><h2>Our dinners <span class="sub">${M.lib.length} saved</span></h2>${M.lib.length ? `<div class="list">${M.lib.slice().sort((a, b) => used(b.id) - used(a.id) || (a.n < b.n ? -1 : 1)).map(x => `<button class="rowbtn" data-act="meallib" data-id="${esc(x.id)}"><span class="kic" style="--c:var(--gold)">${mealIcon(x.n)}</span><span class="grow"><span class="t" style="display:block">${esc(x.n)}</span><span class="m" style="display:block">${(x.items || []).length ? esc(x.items.slice(0, 4).join(', ')) + (x.items.length > 4 ? '…' : '') : 'No ingredients yet'}</span></span><span class="amt">${x.cost ? m2(x.cost) : ''}<small>${used(x.id)}×</small></span></button>`).join('')}</div>` : `<p class="note">Dinners you plan are saved here with their ingredients, so next time it's one tap.</p>`}</section>`;
+    + `<section class="panel"><h2>Our dinners <span class="sub">${M.lib.length} saved</span></h2>${M.lib.length ? `<div class="list">${M.lib.slice().sort((a, b) => used(b.id) - used(a.id) || (a.n < b.n ? -1 : 1)).map(x => `<button class="rowbtn" data-act="meallib" data-id="${esc(x.id)}"><span class="kic" style="--c:var(--gold)">${mealIcon(x.n)}</span><span class="grow"><span class="t" style="display:block">${esc(x.n)}</span><span class="m" style="display:block">${(x.items || []).length ? esc(x.items.slice(0, 4).join(', ')) + (x.items.length > 4 ? '…' : '') : 'No ingredients yet'}</span></span><span class="amt">${x.cost ? m2(x.cost) : ''}<small>${used(x.id)}×</small></span></button>`).join('')}</div>` : `<p class="note">Dinners you plan are saved here with their ingredients, so next time it's one tap.</p>`}</section>` + listPanel();
 }
 function mealForm(date) {
   const M = mealsDoc(), m = mealOn(date), opts = M.lib.map(x => `<option value="${esc(x.n)}">`).join('') + MEAL_IDEAS.filter(n => !M.lib.some(x => x.n.toLowerCase() === n.toLowerCase())).map(n => `<option value="${esc(n)}">`).join('');
@@ -4195,7 +4222,7 @@ function viewVikiMetrics() {
     ${bothHtml}${hol || '<p class="empty">Holiday prices from the price watch show up here.</p>'}
     <p class="note">Prices come from the price watch (Treats → Planner), checked every Monday. The July prices are for somewhere to stay only, so leave room for ferries and fuel.</p></section>`;
 
-  return hero + history + forecast + budget + holiday;
+  return hero + history + forecast + budget;
 }
 /* ===== Viki → Contract & rises: her contract terms and what each agreed pay rise is worth =====
    Terms come from settings/main → viki.contract, rises from viki.awards; money from the same takeHome engine as her payslip estimate. */
@@ -4622,6 +4649,7 @@ function planFor(ym) {
 
 const MONEY_GROUPS = [
   { k:'overview', l:'Overview', pages:[['overview','Overview']] },
+  { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['gcal','Calendar']] },
   { k:'planner', l:'Planner', pages:[['planner','Planner']] },
   { k:'month', l:'This month', pages:[['sheet','Sheet'],['meals','Dinners'],['plan','Plan'],['spending','Spending'],['budget','Budget']] },
   { k:'debts', l:'Bills', pages:[['bills','Direct debits'],['owed','Zilch'],['old','Old debts']] },
@@ -4643,7 +4671,7 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body = {overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
+  const body = {grid:gridSheet, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
   return (S.bsheet[ym] ? sheetHero(ym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -6046,7 +6074,7 @@ function viewPlanner() {
   const word = k === 'summer' ? 'holidays' : k === 'city' ? 'trips' : 'visits';
   if (open) return head + `<div class="btnrow" style="margin:0 0 10px"><button type="button" class="btn small ghost" data-act="occ" data-id="">‹ All ${word}</button></div>` + plPanel(open);
   const cards = up.length ? `<div class="tripcards">${up.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="occ" data-id="${esc(p.id)}" aria-label="Open ${esc(p.name || 'trip')}"` })).join('')}</div>` : '';
-  return head + cards + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : k === 'city' ? 'a trip' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k === 'city' ? 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + (k === 'summer' ? priceWatchPanel() : '') + plPastPanel(past) + plOverview();
+  return head + cards + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : k === 'city' ? 'a trip' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k === 'city' ? 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + plPastPanel(past) + plOverview();
 }
 
 /* Birthdays: everyone's, from the family calendar and the girls' dates, soonest first; tap one to plan it or open its list */
@@ -6955,9 +6983,9 @@ function glanceCard(compact = false) {
   const t = bsTotals(doc, cur), ns = nextShop(), buys = buysIn(cur), extra = buys.reduce((s, b) => s + (Number(b.a) || 0), 0), dp = daysToPay();
   const nsT = ns ? shopTarget(ns) : 0, cut = ns ? ns.base - nsT : 0;
   const tiles = `<div class="od-tiles gl-tiles">
-    <button type="button" class="od-t" data-act="${ns ? 'shopdone' : 'mseg'}" ${ns ? `data-ym="${ns.ym}" data-slot="${ns.slot}"` : 'data-v="sheet"'}><span>🛒</span><b>${ns ? m2(nsT) : '–'}</b><em>${ns ? `${esc(ns.n)}${cut > .5 ? ` · ${m2(cut)} off` : ''}` : 'No shops in the sheet'}</em></button>
-    <div class="od-t"><span>🧾</span><b>${m2(extra)}</b><em>${buys.length ? `${buys.length} extra spend${buys.length === 1 ? '' : 's'}` : 'No extra spends'}</em></div>
-    <div class="od-t"><span>📅</span><b>${dp}</b><em>day${dp === 1 ? '' : 's'} to payday</em></div></div>`;
+    <button type="button" class="od-t" ${compact ? 'data-act="tab" data-v="money" data-seg="overview"' : ns ? `data-act="shopdone" data-ym="${ns.ym}" data-slot="${ns.slot}"` : 'data-act="mseg" data-v="sheet"'}><span>🛒</span><b>${ns ? m2(nsT) : '–'}</b><em>${ns ? `${esc(ns.n)}${cut > .5 ? ` · ${m2(cut)} off` : ''}` : 'No shops in the sheet'}</em></button>
+    <${compact ? 'button type="button" data-act="tab" data-v="money" data-seg="overview"' : 'div'} class="od-t"><span>🧾</span><b>${m2(extra)}</b><em>${buys.length ? `${buys.length} extra spend${buys.length === 1 ? '' : 's'}` : 'No extra spends'}</em></${compact ? 'button' : 'div'}>
+    <${compact ? 'button type="button" data-act="tab" data-v="money" data-seg="grid"' : 'div'} class="od-t"><span>📅</span><b>${dp}</b><em>day${dp === 1 ? '' : 's'} to payday</em></${compact ? 'button' : 'div'}></div>`;
   return `<section class="panel nopad glance">${headCard({ tone: t.left >= 0 ? 'good' : 'zilch', kicker: compact ? 'Budget at a glance' : `The ${monShort(cur)} pay at a glance`, title: t.left >= 0 ? `${money(t.left, 0)} spare this month` : `${money(-t.left, 0)} to find this month`,
     body: tiles, actions: hcBtn('＋ Add a purchase', 'buyadd') + (ns ? hcBtn('Shop done', 'shopdone', `data-ym="${ns.ym}" data-slot="${ns.slot}"`) : '') + (compact ? hcBtn('Details', 'tab', 'data-v="money" data-seg="overview"') : '') })}</section>`;
 }
@@ -8010,7 +8038,7 @@ document.addEventListener('click', async e => {
   if (a==='packedit') return packEditForm(el.dataset.plan, el.dataset.id);
   if (a==='ciok') { el.disabled = true; return ciSet(el.dataset.k); }
   if (a==='ciinc') return ciIncForm();
-  if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; if (el.dataset.id) UI.occ = el.dataset.id; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; UI.occ = el.dataset.id || null; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='gseg') { UI.gseg = el.dataset.v; keepUI(); return render(); }
   if (a==='gcal') { UI.gcal = ymAdd(UI.gcal || ymOf(today()), Number(el.dataset.v)); UI.gday = null; return render(); }
   if (a==='gday') { UI.gday = UI.gday === el.dataset.d ? null : el.dataset.d; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
