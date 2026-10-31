@@ -826,7 +826,7 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .hs-s{font-size:.7rem;color:var(--muted);line-height:1.25}
 
 .gpanel{padding:8px}
-.yp-hero{border-radius:22px;padding:18px 18px 14px;color:#fff;background:linear-gradient(135deg,#14263A,#1F4E6B 60%,#1F7A55);margin-bottom:14px}
+.yp-hero{border-radius:22px;padding:18px 18px 14px;color:#fff;background:linear-gradient(135deg,#2563A8,#1E8F8A 60%,#2FA866);margin-bottom:14px}
 .yp-hk{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8}.yp-hv{font-size:2.6rem;font-weight:900;letter-spacing:-.02em;line-height:1.1}.yp-hv.neg{color:#FFB4B4}
 .yp-hs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.yp-hs div{background:rgba(255,255,255,.12);border-radius:12px;padding:8px 10px}.yp-hs span{display:block;font-size:.72rem;opacity:.8}.yp-hs b{font-size:1.05rem}
 .yp-hero p{margin:10px 0 0;font-size:.82rem;opacity:.85}
@@ -839,7 +839,13 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .yp-trip.has-art .yp-row{padding:14px 16px 16px}
 .yp-scene{position:relative;height:200px}
 .yp-scene .yp-art{position:absolute;inset:0;width:100%;height:100%}
-.yp-scene::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,var(--c) 100%)}
+.yp-scene::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,var(--c) 100%)}
+.yp-scene .yp-art{filter:brightness(1.35) saturate(1.15)}
+.yp-now{display:flex;gap:12px;align-items:center;border-radius:18px;padding:14px 16px;margin:0 0 6px;background:var(--gold-soft);border:2px solid #E8B93A}.yp-now>div{flex:1;min-width:0}.yp-now b{display:block;font-size:1.15rem}.yp-now span{display:block;font-size:.88rem;color:var(--ink-2);margin-top:2px}
+.yp-now.go{background:#DDF5E6;border-color:#2FA866}.yp-now.go b{font-size:1.35rem;color:#126B3A}.yp-now.quiet{background:var(--sheet-2);border-color:transparent}
+.yp-do{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--sheet-2);margin:8px 0}.yp-do b{font-size:1.2rem}.yp-do small{grid-column:1/-1;color:var(--muted);font-size:.8rem}
+.yp-do.big{background:#DDF5E6}.yp-do.big b{font-size:1.7rem;color:#126B3A}.yp-do.warn{background:var(--red-soft)}.yp-do.warn b{color:var(--red)}.yp-do.keep{background:var(--gold-soft)}
+.yp-steps{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:.84rem}.yp-steps .ok{color:var(--good);font-weight:600}.yp-steps .bad{color:var(--red);font-weight:600}
 .yp-st{position:absolute;left:16px;right:16px;bottom:10px;z-index:1}
 .yp-trip.has-art .yp-tn{font-size:1.75rem;text-shadow:0 2px 12px rgba(0,0,0,.6);letter-spacing:.01em}
 .yp-trip.has-art .yp-tw{text-shadow:0 1px 6px rgba(0,0,0,.6)}
@@ -2341,9 +2347,9 @@ function ypCalc() {
   const rows = Y.months.slice().sort((a, b) => a.ym < b.ym ? -1 : 1).map(m => {
     const slip = (S.payslips || []).find(x => x.id === m.ym && x.net), viki = slip ? Number(slip.net) : Number(m.viki) || 0;
     const out = (Number(m.base) || 0) + (m.items || []).reduce((s, x) => s + (Number(x.a) || 0), 0), inc = (Number(m.chris) || 0) + viki, left = inc - out;
-    const buf = left > 0 ? left * bf : 0, saved = left - buf; run += saved; bufRun += buf;
+    const buf = left > 0 ? left * bf : 0, saved = left - buf, chk = (Y.checks || {})[m.ym], adj = chk ? Number(chk.moved) || 0 : 0; run += saved + adj; bufRun += buf;
     if (m.ym <= cur) { now = run; nowBuf = bufRun; }
-    return { ...m, slip, viki, pred: Number(m.viki) || 0, inc, out, left, buf, saved, run, bufRun };
+    return { ...m, slip, viki, pred: Number(m.viki) || 0, inc, out, left, buf, saved, adj, chk, moved: (Y.moved || {})[m.ym] || null, run, bufRun };
   });
   return { rows, now, nowBuf, end: rows.length ? rows[rows.length - 1] : null, cur };
 }
@@ -2418,12 +2424,73 @@ const YP_ART = {
       <g fill="#05212E"><path d="M48 260 C52 210 58 170 70 128 L76 130 C64 170 60 214 60 260Z"/><path d="M72 128 C50 112 22 116 6 130 C30 120 52 124 70 134Z"/><path d="M72 128 C88 104 118 100 138 110 C112 108 92 116 76 134Z"/><path d="M72 128 C60 98 40 88 20 92 C42 98 58 110 70 132Z"/><path d="M73 128 C96 120 124 128 140 146 C118 134 96 132 76 136Z"/><path d="M72 128 C78 102 96 86 112 82 C98 96 88 112 78 134Z"/></g>`,
 };
 const ypArt = t => { const f = YP_ART[t.art || t.id]; return f ? `<svg class="yp-art" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${f()}</svg>` : ''; };
-const YP_BG = { europe: '#120A26', chess: '#2A0E30', tenerife: '#062F4D' };
+const YP_BG = { europe: '#3A2D86', chess: '#8E2A6B', tenerife: '#0F78A8' };
 const ypOpen = t => { const p = t.plan && (S.plans || []).find(x => x.id === t.plan); return p ? `<button type="button" class="yp-open" data-act="opentrip" data-kind="${esc(p.kind || '')}" data-id="${esc(p.id)}">Open the trip</button>` : ''; };
 const ypCard = (t, col, pct, ghost, line, tag, warn, goal) => { const art = YP_ART[t.art || t.id], bg = YP_BG[t.art || t.id] || col;
   const body = `<div class="yp-tbody">${art ? '' : `<div class="yp-tt"><span class="yp-em" aria-hidden="true">${esc(t.emoji || '✈️')}</span><div class="grow"><div class="yp-tn">${esc(t.n)}</div><div class="yp-tw">${esc(t.when || '')}</div></div></div>`}
     <div class="yp-big">${Math.round(Math.max(0, Math.min(100, pct)))}%</div><div class="yp-tl"><span>${line}</span>${tag ? `<span class="${warn ? 'warn' : ''}">${esc(tag)}</span>` : ''}</div>${ghost != null ? '<div class="yp-key"><i></i>Striped: what the plan says you\'ll have by then</div>' : ''}${ypOpen(t)}</div>`;
   return `<div class="yp-trip${art ? ' has-art' : ''}" style="--c:${art ? bg : col}">${art ? `<div class="yp-scene">${ypArt(t)}<div class="yp-st"><div class="yp-tn">${esc(t.n)}</div><div class="yp-tw">${esc(t.when || '')}</div></div></div>` : ''}<div class="yp-row">${body}${ypThermoSvg(pct, ghost, goal)}</div></div>`; };
+/* what to do with this month's pay: savings transfer, the holiday pot, and any trip paid from savings */
+const ypIsPot = (x, Y) => (Y.trips || []).some(t => t.kind === 'pot' && /holiday saving|pot/i.test(x.n));
+const ypIsTrip = (x, Y) => (Y.trips || []).some(t => t.kind === 'save' && x.n.toLowerCase().includes(String(t.n).toLowerCase().split(' ')[0]));
+function ypMoveText(r) {
+  const Y = S.yearplan, pot = (r.items || []).filter(x => ypIsPot(x, Y)).reduce((s, x) => s + x.a, 0), trip = (r.items || []).filter(x => ypIsTrip(x, Y)), tripA = trip.reduce((s, x) => s + x.a, 0);
+  const potT = (Y.trips || []).find(t => t.kind === 'pot');
+  return { pot, potName: potT ? potT.n : 'holiday', trip, tripA, save: r.saved, keep: r.out - pot - tripA + r.buf, buf: r.buf };
+}
+function ypMoveSheet(ym) {
+  const C = ypCalc(), r = C && C.rows.find(x => x.ym === ym); if (!r) return;
+  const m = ypMoveText(r), steps = [];
+  const into = m.save + m.tripA;
+  if (into > 0) steps.push(`<div class="yp-do big"><span>Move to savings</span><b>${money(into, 2)}</b></div>`);
+  if (m.pot > 0) steps.push(`<div class="yp-do"><span>Move to the ${esc(m.potName)} pot</span><b>${money(m.pot, 2)}</b></div>`);
+  if (m.tripA > 0) steps.push(`<div class="yp-do"><span>Pay for ${esc(m.trip.map(x => x.n.replace(/ \(all costs\)| trip/g, '')).join(' and '))} from savings</span><b>${money(m.tripA, 2)}</b><small>So savings ${m.save >= 0 ? 'still go up' : 'go down'} by ${money(Math.abs(m.save), 0)} overall this month.</small></div>`);
+  if (into < 0) steps.push(`<div class="yp-do warn"><span>Take from savings to cover this month</span><b>${money(-into, 2)}</b></div>`);
+  steps.push(`<div class="yp-do keep"><span>Leave in the main account</span><b>${money(m.keep, 2)}</b><small>For this month's bills, food and fuel${(r.items || []).filter(x => !ypIsPot(x, S.yearplan) && !ypIsTrip(x, S.yearplan)).length ? `, plus ${esc((r.items || []).filter(x => !ypIsPot(x, S.yearplan) && !ypIsTrip(x, S.yearplan)).map(x => `${x.n} ${money(x.a, 0)}`).join(', '))}` : ''}${m.buf ? `, including the ${money(m.buf, 2)} buffer (10% of what's left over)` : ''}.</small></div>`);
+  openSheet(`${monthName(ym)} pay: what to do now`, `<p class="note" style="margin-top:0">Viki's pay is ${r.slip ? `in: ${money(r.viki, 2)}` : `predicted at ${money(r.viki, 0)}`}. Coming in ${money(r.inc, 2)} with Chris's pay.</p>${steps.join('')}
+    <div class="btnrow"><button type="button" class="btn" data-act="ypmoved" data-v="${esc(ym)}" data-a="${Math.round(m.save * 100) / 100}">Done, all sorted</button></div>`, null, { noSave: true });
+}
+/* the bank check on the 5th: read the screenshots, then compare the main account with what's still to come out before payday */
+const YPC = { res: null, busy: false };
+const ypCheckDate = ym => `${ymAdd(ym, 1)}-05`;
+function ypCheckBody(ym) {
+  const C = ypCalc(), r = C && C.rows.find(x => x.ym === ym); if (!r) return '';
+  if (YPC.busy) return '<p class="empty">Reading the screenshots… about 20 seconds.</p>';
+  const b = BANK.res; if (!b) return `<p class="note" style="margin-top:0">Take screenshots of the Nationwide main account showing the balance and this month's spending since payday. The app reads them and tells you whether you're ahead or behind.</p>`;
+  const Y = S.yearplan, left = (r.items || []).filter(x => !ypIsPot(x, Y) && !ypIsTrip(x, Y)), come = bankToCome(), bal = b.available ?? b.balance;
+  const still = left.filter(x => (YPC.unpaid || {})[x.n] !== false).reduce((s, x) => s + x.a, 0), toCome = come.tot + still, spare = bal != null ? Math.round((bal - toCome - r.buf) * 100) / 100 : null;
+  const lines = (b.lines || []).map(l => ({ ...l, m: bankMatch(l) })), miss = lines.filter(l => l.m.k === 'new');
+  YPC.res = { balance: bal, toCome: Math.round(toCome * 100) / 100, buffer: Math.round(r.buf * 100) / 100, spare, extra: Math.round(miss.reduce((s, l) => s + (Number(l.amount) || 0), 0) * 100) / 100 };
+  const verdict = spare == null ? '' : spare >= 0 ? `<div class="yp-do big"><span>You're ahead. Move to savings</span><b>${money(spare, 2)}</b><small>That still leaves enough for everything to come and the ${money(r.buf, 0)} buffer.</small></div>` : `<div class="yp-do warn big"><span>You're behind by</span><b>${money(-spare, 2)}</b><small>${-spare <= r.buf ? 'The buffer covers it this month. Go easy until payday.' : `The buffer doesn't cover it all. Move ${money(-spare, 2)} back from savings, or cut back until payday.`}</small></div>`;
+  return `<div class="bk-sum"><div><span>In the main account</span><b>${bal != null ? money(bal, 2) : '–'}</b></div><div><span>Still to go out before ${esc(shortDate(come.next))}</span><b>${money(toCome, 0)}</b></div><div><span>Buffer to keep</span><b>${money(r.buf, 0)}</b></div><div><span>Spends not in the plan</span><b>${money(YPC.res.extra, 0)}</b></div></div>${verdict}
+    ${left.length ? `<h4 class="qh">Still to pay this month?</h4>${left.map(x => `<label class="toggle"><input type="checkbox" data-ypunpaid="${esc(x.n)}" ${(YPC.unpaid || {})[x.n] === false ? '' : 'checked'}> ${esc(x.n)} (${money(x.a, 0)})</label>`).join('')}` : ''}
+    ${miss.length ? `<details><summary>Spends not in the app (${miss.length})</summary>${miss.map(l => `<div class="bk-row"><span class="grow">${esc(l.text)}<small>${esc(l.date ? shortDate(l.date) : '')}</small></span><b>−${money(Number(l.amount) || 0, 2)}</b></div>`).join('')}</details>` : ''}
+    ${come.out.length ? `<details><summary>Still to go out before payday (${come.out.length})</summary>${come.out.map(x => `<div class="bk-row"><span class="grow">${esc(x.n)}<small>${esc(shortDate(x.d))}</small></span><b>${money(x.a, 2)}</b></div>`).join('')}</details>` : ''}
+    ${spare != null ? `<div class="btnrow"><button type="button" class="btn" data-act="ypcdone" data-v="${esc(ym)}" data-a="${spare}">${spare >= 0 ? `Done, I've moved ${money(spare, 0)}` : `Done, I've moved ${money(-spare, 0)} back`}</button><button type="button" class="btn ghost" data-act="ypcdone" data-v="${esc(ym)}" data-a="0">Save without moving</button></div>` : ''}`;
+}
+function ypCheckSheet(ym) {
+  YPC.unpaid = {};
+  openSheet(`Bank check, ${monthName(ym)} pay`, `<div id="ypcOut">${ypCheckBody(ym)}</div><div class="btnrow"><button type="button" class="btn ${BANK.res ? 'ghost' : ''}" data-act="ypcpick" data-v="${esc(ym)}">${BANK.res ? 'Use new screenshots' : 'Choose screenshots'}</button></div>`, null, { noSave: true });
+  $('#sheetForm').addEventListener('change', e => { const n = e.target.dataset && e.target.dataset.ypunpaid; if (n == null) return; YPC.unpaid[n] = e.target.checked; const o = $('#ypcOut'); if (o) o.innerHTML = ypCheckBody(ym); });
+}
+function ypCheckPick(ym) {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+  inp.onchange = async () => { const fs = [...(inp.files || [])].slice(0, 6); if (!fs.length) return; YPC.busy = true; const o = $('#ypcOut'); if (o) o.innerHTML = ypCheckBody(ym);
+    try { const imgs = []; for (const f of fs) imgs.push((await askShrink(f)).b64); BANK.res = await askCall({ action: 'bank', images: imgs }); BANK.at = Date.now(); }
+    catch (e) { toast(/nokey/.test(e.message) ? 'Ask needs its Claude key first: open Ask to add it' : `Couldn't read them: ${e.message}`); }
+    YPC.busy = false; const o2 = $('#ypcOut'); if (o2) o2.innerHTML = ypCheckBody(ym); else ypCheckSheet(ym); };
+  inp.click();
+}
+/* the one thing to do now, at the top of the year plan */
+function ypNow(C) {
+  const t = today(), cur = C.cur, r = C.rows.find(x => x.ym === cur), next = C.rows.find(x => x.ym > cur);
+  if (r && !r.slip) return `<div class="yp-now"><div><b>Payday is here</b><span>Add Viki's ${esc(monthName(cur))} payslip and the app will tell you exactly what to move to savings.</span></div><button class="btn" data-act="ypslip" data-v="${esc(cur)}">Add payslip</button></div>`;
+  if (r && !r.moved) { const m = ypMoveText(r); return `<div class="yp-now go"><div><b>${m.save + m.tripA > 0 ? `Move ${money(m.save + m.tripA, 2)} to savings` : `Take ${money(-(m.save + m.tripA), 0)} from savings`}</b><span>${m.pot ? `Plus ${money(m.pot, 0)} to the ${esc(m.potName)} pot. ` : ''}${m.tripA ? `Then pay for the trip (${money(m.tripA, 0)}) from savings. ` : ''}Leave ${money(m.keep, 0)} in the main account${r.buf ? `, including a ${money(r.buf, 0)} buffer` : ''}.</span></div><button class="btn" data-act="ypmove" data-v="${esc(cur)}">Show me</button></div>`; }
+  if (r && !r.chk && t >= ypCheckDate(cur)) return `<div class="yp-now"><div><b>Time for the bank check</b><span>Upload screenshots of the main account and see if you're ahead or behind this month.</span></div><button class="btn" data-act="ypcheck" data-v="${esc(cur)}">Check the bank</button></div>`;
+  if (r && !r.chk) return `<div class="yp-now quiet"><div><b>All done for now</b><span>Bank check on ${esc(dayShort(ypCheckDate(cur)))}.</span></div></div>`;
+  if (next) return `<div class="yp-now quiet"><div><b>All done for now</b><span>Next: Viki's ${esc(monthName(next.ym))} payslip on ${esc(dayShort(payday(next.ym)))}.</span></div></div>`;
+  return '';
+}
 function viewYearPlan() {
   const C = ypCalc();
   if (!C) return `<section class="panel"><p class="empty">No year plan yet. Ask Claude to set one up from the money plan.</p></section>`;
@@ -2437,8 +2504,9 @@ function viewYearPlan() {
     return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
       <div class="yp-viki">${r.slip ? `<span class="chip ok">Payslip in</span> Viki <b>${money(r.viki, 2)}</b> <small>${diff >= 0 ? '+' : '−'}${money(Math.abs(diff), 0)} on the guess</small>` : `<span class="chip">Predicted</span> Viki <b>${money(r.pred, 0)}</b>`}<button type="button" class="btn small ${r.slip ? 'ghost' : ''}" data-act="ypslip" data-v="${esc(r.ym)}">${r.slip ? 'Change' : 'Add payslip'}</button></div>
       <dl class="yp-dl"><div><dt>Coming in</dt><dd>${money(r.inc, 0)}</dd></div><div><dt>Going out</dt><dd>${money(r.out, 0)}</dd></div><div><dt>Left over</dt><dd class="${r.left < 0 ? 'neg' : 'pos'}">${money(r.left, 0)}</dd></div><div><dt>10% buffer</dt><dd>${r.buf ? money(r.buf, 0) : '–'}</dd></div><div><dt>Saved</dt><dd class="${r.saved < 0 ? 'neg' : 'pos'}">${money(r.saved, 0)}</dd></div></dl>
+      ${r.slip || r.chk ? `<div class="yp-steps">${r.slip ? (r.moved ? `<span class="ok">✓ Pay sorted</span>` : `<button type="button" class="linkbtn" data-act="ypmove" data-v="${esc(r.ym)}">What to move</button>`) : ''}${r.chk ? `<span class="${r.chk.spare >= 0 ? 'ok' : 'bad'}">✓ Bank check: ${r.chk.spare >= 0 ? `${money(r.chk.spare, 0)} ahead` : `${money(-r.chk.spare, 0)} behind`}${r.adj ? `, ${r.adj > 0 ? 'moved' : 'took back'} ${money(Math.abs(r.adj), 0)}` : ''}</span>` : r.slip && today() >= ypCheckDate(r.ym) ? `<button type="button" class="linkbtn" data-act="ypcheck" data-v="${esc(r.ym)}">Bank check</button>` : ''}</div>` : ''}
       ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}</article>`; }).join('');
-  return head + `<h2 class="yp-h">The trips</h2>` + trips + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
+  return head + ypNow(C) + `<h2 class="yp-h">The trips</h2>` + trips + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
     <p class="note">Going out is the bills, kids' extras, food and fuel from each month's Budget Sheet, plus the one-offs and trip money shown. Chris's pay is as on the Budget Sheets. 10% of whatever is left over each month stays in the account as a buffer.</p>`;
 }
 
@@ -4756,7 +4824,7 @@ function leavePanel() {
     <div class="gauge" style="padding-top:0"><div class="gh"><span class="t" style="font-stretch:125%;font-weight:800;font-size:1.5rem">${fh(left)} hours left</span><span class="amt"><small>about ${Math.floor(left/9.5)} days</small></span></div>${gauge(used/r.leaveHours,'lg')}
     <div class="m">${fh(past)}h taken, ${fh(used-past)}h booked, of ${fh(r.leaveHours)}h. Leave days count the hours in her calendar entry (such as “AL 9.5”), otherwise 9.5 hours.</div></div></section>`;
 }
-function slipForm(ym) {
+function slipForm(ym, after) {
   const x = S.payslips.find(p => p.id===ym) || {};
   openSheet(`Payslip, ${monthName(ym)}`, `<p class="note">Enter the net pay from her payslip. The app compares it with its estimate and uses the difference to make future estimates more accurate.</p>
     <div class="fields2">${fld('psNet','Take-home (net pay) £', x.net ?? '', 'number','step="0.01" inputmode="decimal"')}${fld('psGross','Total payments £ (optional)', x.gross ?? '', 'number','step="0.01" inputmode="decimal"')}</div>${photoField('psPh', 'Photo of the payslip (optional)', x.img)}`, async () => {
@@ -4765,6 +4833,7 @@ function slipForm(ym) {
     const ph = getPh(); if (ph) data.img = await uploadPhoto(ph); else if (x.img && !($('#psPhDel') && $('#psPhDel').checked)) data.img = x.img;
     await put(`payslips/${ym}`, data);
     const sh = S.bsheet[ym]; if (sh && sh.viki && !sh.viki.off) await put(`bsheet/${ym}`, { ...sh, viki: { ...sh.viki, actual: net } }); /* one entry updates both */
+    if (after) setTimeout(after, 350);
   }, x.net ? { onDelete: () => remove(`payslips/${ym}`) } : {});
   const getPh = photoWatch('psPh');
 }
@@ -8389,7 +8458,12 @@ document.addEventListener('click', async e => {
   if (a==='shopdone') return shopDoneForm(el.dataset.ym, Number(el.dataset.slot));
   if (a==='qfuel') { closeSheet(); return fuelForm(); }
   if (a==='qbill') { closeSheet(); return billForm(); }
-  if (a==='ypslip') return slipForm(el.dataset.v);
+  if (a==='ypslip') { const ym = el.dataset.v; return slipForm(ym, () => ypMoveSheet(ym)); }
+  if (a==='ypmove') return ypMoveSheet(el.dataset.v);
+  if (a==='ypmoved') { const Y = S.yearplan, ym = el.dataset.v; closeSheet(); await put('state/yearplan', { ...Y, moved: { ...(Y.moved || {}), [ym]: { a: Number(el.dataset.a) || 0, d: today() } } }); toast('Marked as done'); return; }
+  if (a==='ypcheck') return ypCheckSheet(el.dataset.v);
+  if (a==='ypcpick') return ypCheckPick(el.dataset.v);
+  if (a==='ypcdone') { const Y = S.yearplan, ym = el.dataset.v, c = YPC.res; if (!c) return; closeSheet(); await put('state/yearplan', { ...Y, checks: { ...(Y.checks || {}), [ym]: { ...c, moved: Number(el.dataset.a) || 0, d: today() } } }); YPC.res = null; toast('Bank check saved'); return; }
   if (a==='qtrip') return quickTrip();
   if (a==='qzl') return zlForm(null);
   if (a==='qinc') return incomeForm();
