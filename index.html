@@ -826,6 +826,28 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .hs-s{font-size:.7rem;color:var(--muted);line-height:1.25}
 
 .gpanel{padding:8px}
+.yp-hero{border-radius:22px;padding:18px 18px 14px;color:#fff;background:linear-gradient(135deg,#14263A,#1F4E6B 60%,#1F7A55);margin-bottom:14px}
+.yp-hk{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;opacity:.8}.yp-hv{font-size:2.6rem;font-weight:900;letter-spacing:-.02em;line-height:1.1}.yp-hv.neg{color:#FFB4B4}
+.yp-hs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.yp-hs div{background:rgba(255,255,255,.12);border-radius:12px;padding:8px 10px}.yp-hs span{display:block;font-size:.72rem;opacity:.8}.yp-hs b{font-size:1.05rem}
+.yp-hero p{margin:10px 0 0;font-size:.82rem;opacity:.85}
+.yp-h{font-size:1.05rem;margin:18px 2px 8px}
+.yp-trips{display:grid;gap:12px}
+.yp-trip{border-radius:22px;padding:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 92%,#000),color-mix(in srgb,var(--c) 70%,#FFD54F));color:#fff;box-shadow:0 10px 24px -12px var(--c)}
+.yp-tt{display:flex;gap:12px;align-items:center}.yp-em{font-size:2.4rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.yp-tn{font-size:1.45rem;font-weight:900;letter-spacing:-.01em;line-height:1.1;text-transform:uppercase}.yp-tw{font-size:.85rem;opacity:.9;margin-top:2px}
+.yp-open{background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:999px;padding:6px 12px;font-weight:700}
+.yp-th{display:flex;align-items:center;margin:14px 0 8px}.yp-bulb{width:26px;height:26px;border-radius:50%;background:#fff;flex:none;position:relative;z-index:1;box-shadow:inset 0 0 0 6px #FFD54F}
+.yp-tube{flex:1;height:16px;margin-left:-6px;border-radius:0 999px 999px 0;background:rgba(255,255,255,.25);position:relative;overflow:hidden}
+.yp-tube i{position:absolute;left:0;top:0;bottom:0;border-radius:0 999px 999px 0}.yp-tube .ghost{background:repeating-linear-gradient(45deg,rgba(255,255,255,.35) 0 6px,rgba(255,255,255,.15) 6px 12px)}.yp-tube .fill{background:#FFD54F}
+.yp-tl{display:flex;justify-content:space-between;gap:10px;font-size:.85rem;flex-wrap:wrap}.yp-tl b{font-size:1.05rem}.yp-tl .warn{background:rgba(0,0,0,.25);border-radius:8px;padding:0 6px}
+.yp-months{display:grid;gap:10px}
+.yp-m{background:var(--sheet);border-radius:18px;padding:12px 14px;border:1px solid var(--rule-2)}.yp-m.cur{border:2px solid var(--good)}.yp-m.past{opacity:.75}
+.yp-m header{display:flex;justify-content:space-between;align-items:flex-start}.yp-m header small{display:block;color:var(--muted);font-size:.78rem}
+.yp-run{text-align:right;font-weight:800;font-size:1.15rem;color:var(--good)}.yp-run.neg{color:var(--red)}
+.yp-viki{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0;font-size:.92rem}.yp-viki small{color:var(--muted)}.yp-viki .btn{margin-left:auto}
+.yp-dl{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:0}.yp-dl dt{font-size:.68rem;color:var(--muted)}.yp-dl dd{margin:0;font-weight:700;font-size:.9rem}.yp-dl .neg{color:var(--red)}.yp-dl .pos{color:var(--good)}
+.yp-items{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.yp-items span{background:var(--sheet-2);border-radius:999px;padding:3px 9px;font-size:.78rem}
+@media (max-width:420px){.yp-dl{grid-template-columns:repeat(3,1fr)}}
 .subtabs.wrap{flex-wrap:wrap}
 .chip.warn{background:var(--red-soft);color:var(--red)}
 .gck{margin:6px 0 0;padding:0 0 0 18px;display:grid;gap:8px;font-size:.92rem;line-height:1.4}
@@ -2039,14 +2061,14 @@ function applyLocal(path, data) {
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; }
+  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
@@ -2291,6 +2313,65 @@ function gridCalendar() {
     <div class="gcal"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>${cells}</div>
     <div class="gleg"><span><i class="gdot k-in"></i>Payday</span><span><i class="gdot k-bill"></i>Bills</span><span><i class="gdot k-zil"></i>Zilch</span><span><i class="gdot k-food"></i>Food shop</span><span><i class="gdot k-trip"></i>Trips</span><span><i class="gdot k-kid"></i>School</span></div>
     <p class="note">${money(monthOut, 0)} of bills, Zilch and food shops land in ${esc(MONTHS[first.getMonth()])}. Tap a day to see what's on it.</p></section>${sel}`;
+}
+
+/* ===== Year plan: the money plan from now to September, month by month, with the three trips.
+   state/yearplan = { start, buffer, months:[{ ym, viki, chris, base, items:[{n, a}] }], trips:[{ id, n, when, emoji, kind:'save'|'pot', cost, ym, monthly, from, to, target, plan }] }
+   viki is the predicted take-home; once her payslip for that pay month is in (payslips/<ym>), the real figure replaces it.
+   Each month: left = Chris + Viki - bills and day to day - one-offs and plans; 10% of anything left over is kept as a buffer, the rest is saved.
+   The figures live only in the database, never in this code. ===== */
+function ypCalc() {
+  const Y = S.yearplan; if (!Y || !Array.isArray(Y.months)) return null;
+  const cur = plCur(), bf = Y.buffer ?? 0.1; let run = Number(Y.start) || 0, bufRun = 0, now = run, nowBuf = 0;
+  const rows = Y.months.slice().sort((a, b) => a.ym < b.ym ? -1 : 1).map(m => {
+    const slip = (S.payslips || []).find(x => x.id === m.ym && x.net), viki = slip ? Number(slip.net) : Number(m.viki) || 0;
+    const out = (Number(m.base) || 0) + (m.items || []).reduce((s, x) => s + (Number(x.a) || 0), 0), inc = (Number(m.chris) || 0) + viki, left = inc - out;
+    const buf = left > 0 ? left * bf : 0, saved = left - buf; run += saved; bufRun += buf;
+    if (m.ym <= cur) { now = run; nowBuf = bufRun; }
+    return { ...m, slip, viki, pred: Number(m.viki) || 0, inc, out, left, buf, saved, run, bufRun };
+  });
+  return { rows, now, nowBuf, end: rows.length ? rows[rows.length - 1] : null, cur };
+}
+const ypThermo = (pct, ghost, col) => `<div class="yp-th" style="--c:${col}"><span class="yp-bulb"></span><div class="yp-tube">${ghost != null ? `<i class="ghost" style="width:${Math.max(0, Math.min(100, ghost))}%"></i>` : ''}<i class="fill" style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
+function ypTrips(C) {
+  const Y = S.yearplan, cur = C.cur, save = (Y.trips || []).filter(t => t.kind === 'save').sort((a, b) => a.ym < b.ym ? -1 : 1);
+  let pool = Math.max(0, C.now);
+  const COL = ['#E8502E', '#8E24AA', '#0B8FB0'];
+  return (Y.trips || []).map((t, i) => {
+    let have, ghost = null, line, tag;
+    if (t.kind === 'pot') {
+      const ms = C.rows.filter(r => r.ym >= t.from && r.ym <= t.to), done = ms.filter(r => r.ym <= cur).length, target = Number(t.target) || ms.length * (Number(t.monthly) || 0);
+      have = done * (Number(t.monthly) || 0);
+      line = `<b>${money(have, 0)}</b> of ${money(target, 0)} put aside`; tag = done >= ms.length ? 'All paid in' : done ? `${done} of ${ms.length} payments` : `${money(t.monthly, 0)} a month from ${monShort(t.from)}`;
+      return ypCard(t, COL[i % 3], target ? have / target * 100 : 0, null, line, tag);
+    }
+    const cost = Number(t.cost) || 0, paid = t.ym < cur;
+    if (paid) { have = cost; } else { have = Math.min(pool, cost); pool -= have; }
+    const due = C.rows.find(r => r.ym === t.ym), ready = due ? due.run + cost : null;
+    ghost = ready != null && cost ? ready / cost * 100 : null;
+    line = paid ? `<b>Paid</b> · ${money(cost, 0)}` : `<b>${money(have, 0)}</b> of ${money(cost, 0)} saved so far`;
+    tag = paid ? 'Done' : ready == null ? '' : ready >= cost ? `On track: about ${money(ready, 0)} ready by the ${monShort(t.ym)} pay` : `${money(cost - ready, 0)} short by the ${monShort(t.ym)} pay`;
+    return ypCard(t, COL[i % 3], cost ? have / cost * 100 : 0, ghost, line, tag, ready != null && ready < cost);
+  }).join('');
+}
+const ypCard = (t, col, pct, ghost, line, tag, warn) => `<div class="yp-trip" style="--c:${col}"><div class="yp-tt"><span class="yp-em" aria-hidden="true">${esc(t.emoji || '✈️')}</span><div class="grow"><div class="yp-tn">${esc(t.n)}</div><div class="yp-tw">${esc(t.when || '')}</div></div>${(() => { const p = t.plan && (S.plans || []).find(x => x.id === t.plan); return p ? `<button type="button" class="yp-open" data-act="opentrip" data-kind="${esc(p.kind || '')}" data-id="${esc(p.id)}">Open</button>` : ''; })()}</div>
+  ${ypThermo(pct, ghost, col)}<div class="yp-tl"><span>${line}</span><span class="${warn ? 'warn' : ''}">${esc(tag)}</span></div></div>`;
+function viewYearPlan() {
+  const C = ypCalc();
+  if (!C) return `<section class="panel"><p class="empty">No year plan yet. Ask Claude to set one up from the money plan.</p></section>`;
+  const Y = S.yearplan, e = C.end, cur = C.cur, pot = (Y.trips || []).find(t => t.kind === 'pot');
+  const potEnd = pot ? C.rows.filter(r => r.ym >= pot.from && r.ym <= pot.to).length * (Number(pot.monthly) || 0) : 0;
+  const head = `<section class="yp-hero"><div class="yp-hk">Saved by the end of ${esc(monthName(e.ym).replace(/ \d{4}$/, ''))}</div><div class="yp-hv ${e.run < 0 ? 'neg' : ''}">${money(e.run, 0)}</div>
+    <div class="yp-hs"><div><span>Saved now</span><b>${money(C.now, 0)}</b></div><div><span>Buffer by ${esc(monShort(e.ym))}</span><b>${money(e.bufRun, 0)}</b></div>${pot ? `<div><span>${esc(pot.n)} pot</span><b>${money(potEnd, 0)}</b></div>` : ''}</div>
+    <p>Viki's pay is a best guess until her payslip is in. Add it each month and everything below updates.</p></section>`;
+  const trips = `<div class="yp-trips">${ypTrips(C)}</div>`;
+  const months = C.rows.map(r => { const isCur = r.ym === cur, diff = r.slip ? r.viki - r.pred : 0;
+    return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
+      <div class="yp-viki">${r.slip ? `<span class="chip ok">Payslip in</span> Viki <b>${money(r.viki, 2)}</b> <small>${diff >= 0 ? '+' : '−'}${money(Math.abs(diff), 0)} on the guess</small>` : `<span class="chip">Predicted</span> Viki <b>${money(r.pred, 0)}</b>`}<button type="button" class="btn small ${r.slip ? 'ghost' : ''}" data-act="ypslip" data-v="${esc(r.ym)}">${r.slip ? 'Change' : 'Add payslip'}</button></div>
+      <dl class="yp-dl"><div><dt>Coming in</dt><dd>${money(r.inc, 0)}</dd></div><div><dt>Going out</dt><dd>${money(r.out, 0)}</dd></div><div><dt>Left over</dt><dd class="${r.left < 0 ? 'neg' : 'pos'}">${money(r.left, 0)}</dd></div><div><dt>10% buffer</dt><dd>${r.buf ? money(r.buf, 0) : '–'}</dd></div><div><dt>Saved</dt><dd class="${r.saved < 0 ? 'neg' : 'pos'}">${money(r.saved, 0)}</dd></div></dl>
+      ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}</article>`; }).join('');
+  return head + `<h2 class="yp-h">The trips</h2>` + trips + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
+    <p class="note">Going out is the bills, kids' extras, food and fuel from each month's Budget Sheet, plus the one-offs and trip money shown. Chris's pay is as on the Budget Sheets. 10% of whatever is left over each month stays in the account as a buffer.</p>`;
 }
 
 /* ----- title block: the grid of labelled boxes that opens each page ----- */
@@ -4610,12 +4691,14 @@ function leavePanel() {
 function slipForm(ym) {
   const x = S.payslips.find(p => p.id===ym) || {};
   openSheet(`Payslip, ${monthName(ym)}`, `<p class="note">Enter the net pay from her payslip. The app compares it with its estimate and uses the difference to make future estimates more accurate.</p>
-    <div class="fields2">${fld('psNet','Take-home (net pay) £', x.net ?? '', 'number','step="0.01" inputmode="decimal"')}${fld('psGross','Total payments £ (optional)', x.gross ?? '', 'number','step="0.01" inputmode="decimal"')}</div>`, async () => {
+    <div class="fields2">${fld('psNet','Take-home (net pay) £', x.net ?? '', 'number','step="0.01" inputmode="decimal"')}${fld('psGross','Total payments £ (optional)', x.gross ?? '', 'number','step="0.01" inputmode="decimal"')}</div>${photoField('psPh', 'Photo of the payslip (optional)', x.img)}`, async () => {
     const net = num(v('psNet')); if (!net || net < 0) throw new Error('Enter the take-home figure, such as 6233.92');
-    const data = { net }; const g = num(v('psGross')); if (g) data.gross = g;
+    const data = { ...(x.paid ? { paid: x.paid } : {}), net }; const g = num(v('psGross')); if (g) data.gross = g;
+    const ph = getPh(); if (ph) data.img = await uploadPhoto(ph); else if (x.img && !($('#psPhDel') && $('#psPhDel').checked)) data.img = x.img;
     await put(`payslips/${ym}`, data);
     const sh = S.bsheet[ym]; if (sh && sh.viki && !sh.viki.off) await put(`bsheet/${ym}`, { ...sh, viki: { ...sh.viki, actual: net } }); /* one entry updates both */
   }, x.net ? { onDelete: () => remove(`payslips/${ym}`) } : {});
+  const getPh = photoWatch('psPh');
 }
 function printClaim(ym) {
   const m = vikiMonth(ym), rows = claimRows(m);
@@ -4784,7 +4867,7 @@ function planFor(ym) {
 }
 
 const MONEY_GROUPS = [
-  { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['gcal','Calendar']] },
+  { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['yplan','Year plan'],['gcal','Calendar']] },
   { k:'zilch', l:'Zilch', pages:[['owed','Zilch']] },
   { k:'planner', l:'Planner', pages:[['planner','Planner']] },
   { k:'more', l:'More', pages:[['sheet','Budget Sheet'],['bills','Bills'],['meals','Dinners and shopping'],['overview','Food shops and spends'],['old','Old debts'],['plan','Pay and plan'],['spending','Spending'],['budget','Budget'],['goals','Goals'],['year','Year ahead'],['save','Tips']] },
@@ -4805,8 +4888,9 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money${grp.k === 'more' ? ' wrap' : ''}" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body = {grid:gridSheet, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
+  const body = {grid:gridSheet, yplan:viewYearPlan, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
   const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : ym; /* on the spreadsheet the header shows the month last tapped or edited */
+  if (UI.money === 'yplan') return seg + body; /* the year plan has its own header */
   return (S.bsheet[hym] ? sheetHero(hym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -8237,6 +8321,7 @@ document.addEventListener('click', async e => {
   if (a==='shopdone') return shopDoneForm(el.dataset.ym, Number(el.dataset.slot));
   if (a==='qfuel') { closeSheet(); return fuelForm(); }
   if (a==='qbill') { closeSheet(); return billForm(); }
+  if (a==='ypslip') return slipForm(el.dataset.v);
   if (a==='qtrip') return quickTrip();
   if (a==='qzl') return zlForm(null);
   if (a==='qinc') return incomeForm();
