@@ -833,8 +833,13 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .yp-h{font-size:1.05rem;margin:18px 2px 8px}
 .yp-trips{display:grid;gap:12px}
 .yp-trip{border-radius:22px;padding:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 92%,#000),color-mix(in srgb,var(--c) 70%,#FFD54F));color:#fff;box-shadow:0 10px 24px -12px var(--c)}
-.yp-tt{display:flex;gap:12px;align-items:center}.yp-em{font-size:2.4rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
-.yp-tn{font-size:1.45rem;font-weight:900;letter-spacing:-.01em;line-height:1.1;text-transform:uppercase}.yp-tw{font-size:.85rem;opacity:.9;margin-top:2px}
+.yp-trip{display:grid;grid-template-columns:1fr 112px;gap:12px;align-items:stretch}.yp-tbody{display:flex;flex-direction:column;min-width:0}
+.yp-svg{width:112px;height:auto;align-self:center;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
+.yp-big{font-size:3rem;font-weight:900;line-height:1;margin:auto 0 6px;letter-spacing:-.03em}
+.yp-tl{flex-direction:column;align-items:flex-start;gap:4px}
+.yp-key{font-size:.72rem;opacity:.85;margin-top:6px;display:flex;align-items:center;gap:6px}.yp-key i{width:14px;height:10px;border-radius:2px;background:repeating-linear-gradient(45deg,#F7C6C2 0 3px,#E9837B 3px 6px)}
+.yp-tt{display:flex;gap:10px;align-items:flex-start}.yp-tbody .yp-open{align-self:flex-start;margin-top:10px}.yp-em{font-size:2.4rem;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.yp-tn{font-size:1.3rem;font-weight:900;letter-spacing:-.01em;line-height:1.1;text-transform:uppercase}.yp-tw{font-size:.85rem;opacity:.9;margin-top:2px}
 .yp-open{background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:999px;padding:6px 12px;font-weight:700}
 .yp-th{display:flex;align-items:center;margin:14px 0 8px}.yp-bulb{width:26px;height:26px;border-radius:50%;background:#fff;flex:none;position:relative;z-index:1;box-shadow:inset 0 0 0 6px #FFD54F}
 .yp-tube{flex:1;height:16px;margin-left:-6px;border-radius:0 999px 999px 0;background:rgba(255,255,255,.25);position:relative;overflow:hidden}
@@ -2332,6 +2337,26 @@ function ypCalc() {
   });
   return { rows, now, nowBuf, end: rows.length ? rows[rows.length - 1] : null, cur };
 }
+/* a fundraising-style thermometer: a goal ribbon at the top, a glass tube with tick marks, and a red bulb.
+   Solid red is what's saved now; the striped part is what the plan says will be there by the time it's due. */
+let ypTid = 0;
+function ypThermoSvg(pct, ghost, goal) {
+  const id = `ypg${++ypTid}`, top = 74, bot = 250, H = bot - top, c = x => Math.max(0, Math.min(100, x || 0));
+  const fy = bot - H * c(pct) / 100, gy = ghost != null ? bot - H * c(ghost) / 100 : bot;
+  let ticks = ''; for (let i = 0; i <= 20; i++) { const y = bot - H * i / 20, big = i % 2 === 0; ticks += `<line x1="66" x2="${big ? 92 : 80}" y1="${y}" y2="${y}" stroke="#222" stroke-width="${big ? 1.6 : 1.1}"/>`; if (i % 4 === 0 && i) ticks += `<text x="94" y="${y + 3}" font-size="7.5" fill="#444">${i * 5}%</text>`; }
+  return `<svg class="yp-svg" viewBox="0 0 124 300" role="img" aria-label="${Math.round(c(pct))}% of the goal saved">
+    <defs><pattern id="${id}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#F7C6C2"/><rect width="3" height="6" fill="#E9837B"/></pattern></defs>
+    <rect x="2" y="2" width="120" height="296" rx="6" fill="#fff" stroke="#333" stroke-width="2"/>
+    <polygon points="6,22 18,22 18,46 6,46 12,34" fill="#B71C1C"/><polygon points="118,22 106,22 106,46 118,46 112,34" fill="#B71C1C"/>
+    <rect x="14" y="14" width="96" height="28" fill="#D32F2F" stroke="#222" stroke-width="1.5"/><text x="62" y="35" text-anchor="middle" font-size="19" font-weight="900" fill="#fff" letter-spacing="1">GOAL</text>
+    <text x="62" y="62" text-anchor="middle" font-size="12" font-weight="800" fill="#222">${esc(goal)}</text><line x1="22" x2="102" y1="66" y2="66" stroke="#555" stroke-width="1"/>
+    ${ticks}
+    <rect x="40" y="${top - 6}" width="26" height="${H + 30}" rx="13" fill="#fff" stroke="#9E9E9E" stroke-width="4"/>
+    ${ghost != null && gy < fy ? `<rect x="46" y="${gy}" width="14" height="${bot - gy + 12}" fill="url(#${id})"/>` : ''}
+    <rect x="46" y="${fy}" width="14" height="${bot - fy + 12}" fill="#D32F2F"/>
+    <circle cx="53" cy="270" r="22" fill="#D32F2F" stroke="#9E9E9E" stroke-width="4"/><rect x="45" y="${bot}" width="16" height="12" fill="#D32F2F"/>
+    <path d="M40 262 q-2 8 2 14" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`;
+}
 const ypThermo = (pct, ghost, col) => `<div class="yp-th" style="--c:${col}"><span class="yp-bulb"></span><div class="yp-tube">${ghost != null ? `<i class="ghost" style="width:${Math.max(0, Math.min(100, ghost))}%"></i>` : ''}<i class="fill" style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
 function ypTrips(C) {
   const Y = S.yearplan, cur = C.cur, save = (Y.trips || []).filter(t => t.kind === 'save').sort((a, b) => a.ym < b.ym ? -1 : 1);
@@ -2343,7 +2368,7 @@ function ypTrips(C) {
       const ms = C.rows.filter(r => r.ym >= t.from && r.ym <= t.to), done = ms.filter(r => r.ym <= cur).length, target = Number(t.target) || ms.length * (Number(t.monthly) || 0);
       have = done * (Number(t.monthly) || 0);
       line = `<b>${money(have, 0)}</b> of ${money(target, 0)} put aside`; tag = done >= ms.length ? 'All paid in' : done ? `${done} of ${ms.length} payments` : `${money(t.monthly, 0)} a month from ${monShort(t.from)}`;
-      return ypCard(t, COL[i % 3], target ? have / target * 100 : 0, null, line, tag);
+      return ypCard(t, COL[i % 3], target ? have / target * 100 : 0, null, line, tag, false, money(target, 0));
     }
     const cost = Number(t.cost) || 0, paid = t.ym < cur;
     if (paid) { have = cost; } else { have = Math.min(pool, cost); pool -= have; }
@@ -2351,11 +2376,11 @@ function ypTrips(C) {
     ghost = ready != null && cost ? ready / cost * 100 : null;
     line = paid ? `<b>Paid</b> · ${money(cost, 0)}` : `<b>${money(have, 0)}</b> of ${money(cost, 0)} saved so far`;
     tag = paid ? 'Done' : ready == null ? '' : ready >= cost ? `On track: about ${money(ready, 0)} ready by the ${monShort(t.ym)} pay` : `${money(cost - ready, 0)} short by the ${monShort(t.ym)} pay`;
-    return ypCard(t, COL[i % 3], cost ? have / cost * 100 : 0, ghost, line, tag, ready != null && ready < cost);
+    return ypCard(t, COL[i % 3], cost ? have / cost * 100 : 0, ghost, line, tag, ready != null && ready < cost, money(cost, 0));
   }).join('');
 }
-const ypCard = (t, col, pct, ghost, line, tag, warn) => `<div class="yp-trip" style="--c:${col}"><div class="yp-tt"><span class="yp-em" aria-hidden="true">${esc(t.emoji || '✈️')}</span><div class="grow"><div class="yp-tn">${esc(t.n)}</div><div class="yp-tw">${esc(t.when || '')}</div></div>${(() => { const p = t.plan && (S.plans || []).find(x => x.id === t.plan); return p ? `<button type="button" class="yp-open" data-act="opentrip" data-kind="${esc(p.kind || '')}" data-id="${esc(p.id)}">Open</button>` : ''; })()}</div>
-  ${ypThermo(pct, ghost, col)}<div class="yp-tl"><span>${line}</span><span class="${warn ? 'warn' : ''}">${esc(tag)}</span></div></div>`;
+const ypCard = (t, col, pct, ghost, line, tag, warn, goal) => `<div class="yp-trip" style="--c:${col}"><div class="yp-tbody"><div class="yp-tt"><span class="yp-em" aria-hidden="true">${esc(t.emoji || '✈️')}</span><div class="grow"><div class="yp-tn">${esc(t.n)}</div><div class="yp-tw">${esc(t.when || '')}</div></div></div>
+  <div class="yp-big">${Math.round(Math.max(0, Math.min(100, pct)))}%</div><div class="yp-tl"><span>${line}</span>${tag ? `<span class="${warn ? 'warn' : ''}">${esc(tag)}</span>` : ''}</div>${ghost != null ? '<div class="yp-key"><i></i>Striped: what the plan says you\'ll have by then</div>' : ''}${(() => { const p = t.plan && (S.plans || []).find(x => x.id === t.plan); return p ? `<button type="button" class="yp-open" data-act="opentrip" data-kind="${esc(p.kind || '')}" data-id="${esc(p.id)}">Open the trip</button>` : ''; })()}</div>${ypThermoSvg(pct, ghost, goal)}</div>`;
 function viewYearPlan() {
   const C = ypCalc();
   if (!C) return `<section class="panel"><p class="empty">No year plan yet. Ask Claude to set one up from the money plan.</p></section>`;
