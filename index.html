@@ -833,7 +833,17 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .yp-h{font-size:1.05rem;margin:18px 2px 8px}
 .yp-trips{display:grid;gap:12px}
 .yp-trip{border-radius:22px;padding:16px;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 92%,#000),color-mix(in srgb,var(--c) 70%,#FFD54F));color:#fff;box-shadow:0 10px 24px -12px var(--c)}
-.yp-trip{display:grid;grid-template-columns:1fr 112px;gap:12px;align-items:stretch}.yp-tbody{display:flex;flex-direction:column;min-width:0}
+.yp-trip{position:relative;overflow:hidden}
+.yp-row{display:grid;grid-template-columns:1fr 112px;gap:12px;align-items:stretch}
+.yp-trip.has-art{padding:0;background:var(--c);box-shadow:0 16px 32px -16px rgba(0,0,0,.7)}
+.yp-trip.has-art .yp-row{padding:14px 16px 16px}
+.yp-scene{position:relative;height:200px}
+.yp-scene .yp-art{position:absolute;inset:0;width:100%;height:100%}
+.yp-scene::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,var(--c) 100%)}
+.yp-st{position:absolute;left:16px;right:16px;bottom:10px;z-index:1}
+.yp-trip.has-art .yp-tn{font-size:1.75rem;text-shadow:0 2px 12px rgba(0,0,0,.6);letter-spacing:.01em}
+.yp-trip.has-art .yp-tw{text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.yp-tbody{display:flex;flex-direction:column;min-width:0}
 .yp-svg{width:112px;height:auto;align-self:center;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25))}
 .yp-big{font-size:3rem;font-weight:900;line-height:1;margin:auto 0 6px;letter-spacing:-.03em}
 .yp-tl{flex-direction:column;align-items:flex-start;gap:4px}
@@ -2379,8 +2389,41 @@ function ypTrips(C) {
     return ypCard(t, COL[i % 3], cost ? have / cost * 100 : 0, ghost, line, tag, ready != null && ready < cost, money(cost, 0));
   }).join('');
 }
-const ypCard = (t, col, pct, ghost, line, tag, warn, goal) => `<div class="yp-trip" style="--c:${col}"><div class="yp-tbody"><div class="yp-tt"><span class="yp-em" aria-hidden="true">${esc(t.emoji || '✈️')}</span><div class="grow"><div class="yp-tn">${esc(t.n)}</div><div class="yp-tw">${esc(t.when || '')}</div></div></div>
-  <div class="yp-big">${Math.round(Math.max(0, Math.min(100, pct)))}%</div><div class="yp-tl"><span>${line}</span>${tag ? `<span class="${warn ? 'warn' : ''}">${esc(tag)}</span>` : ''}</div>${ghost != null ? '<div class="yp-key"><i></i>Striped: what the plan says you\'ll have by then</div>' : ''}${(() => { const p = t.plan && (S.plans || []).find(x => x.id === t.plan); return p ? `<button type="button" class="yp-open" data-act="opentrip" data-kind="${esc(p.kind || '')}" data-id="${esc(p.id)}">Open the trip</button>` : ''; })()}</div>${ypThermoSvg(pct, ghost, goal)}</div>`;
+/* full-bleed scenes behind the trip cards: original artwork, no logos or characters */
+function ypStars(n, w, h, seed) { let o = '', x = seed; for (let i = 0; i < n; i++) { x = (x * 9301 + 49297) % 233280; const a = x / 233280; x = (x * 9301 + 49297) % 233280; const b = x / 233280; o += `<circle cx="${(a * w).toFixed(1)}" cy="${(b * h).toFixed(1)}" r="${(0.4 + (i % 3) * 0.35).toFixed(2)}" fill="#fff" opacity="${(0.35 + (i % 4) * 0.15).toFixed(2)}"/>`; } return o; }
+function ypBurst(cx, cy, r, col, n) { let o = `<circle cx="${cx}" cy="${cy}" r="${r * 0.9}" fill="${col}" opacity=".08"/>`; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, x1 = cx + Math.cos(a) * r * 0.25, y1 = cy + Math.sin(a) * r * 0.25, x2 = cx + Math.cos(a) * r, y2 = cy + Math.sin(a) * r; o += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="1.6" stroke-linecap="round" opacity=".9"/><circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="1.6" fill="${col}"/>`; } return o; }
+function ypTower(x, base, w, h, spire, col) { return `<rect x="${x}" y="${base - h}" width="${w}" height="${h}" fill="${col}"/><polygon points="${x - 2},${base - h} ${x + w / 2},${base - h - spire} ${x + w + 2},${base - h}" fill="${col}"/>`; }
+const YP_ART = {
+  europe: () => { const C = '#07040F', win = '#FFD27A';
+    const castle = [ypTower(258, 196, 16, 70, 34, C), ypTower(280, 196, 22, 104, 46, C), ypTower(306, 196, 14, 82, 36, C), ypTower(322, 196, 18, 58, 30, C), ypTower(242, 196, 12, 46, 24, C), ypTower(342, 196, 10, 40, 22, C)].join('')
+      + `<rect x="236" y="150" width="130" height="50" fill="${C}"/><path d="M236 150 h8 v-6 h8 v6 h8 v-6 h8 v6 h8 v-6 h8 v6 h8 v-6 h8 v6 h8 v-6 h8 v6 h8 v-6 h8 v6 h8 v-6 h8 v6 h10" fill="${C}"/>`
+      + [[286, 110], [293, 110], [286, 124], [293, 124], [262, 140], [310, 128], [326, 152], [250, 166], [270, 172], [300, 168], [340, 170]].map(([x, y]) => `<rect x="${x}" y="${y}" width="3" height="5" rx="1" fill="${win}" opacity=".9"/>`).join('');
+    return `<defs><linearGradient id="ype1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05081C"/><stop offset=".45" stop-color="#22184A"/><stop offset=".75" stop-color="#6E2A6E"/><stop offset="1" stop-color="#F08A4B"/></linearGradient><radialGradient id="ype2" cx=".72" cy=".72" r=".5"><stop offset="0" stop-color="#FFB86B" stop-opacity=".55"/><stop offset="1" stop-color="#FFB86B" stop-opacity="0"/></radialGradient></defs>
+      <rect width="400" height="260" fill="url(#ype1)"/><rect width="400" height="260" fill="url(#ype2)"/>${ypStars(60, 400, 150, 7)}
+      ${ypBurst(330, 62, 34, '#FFD27A', 18)}${ypBurst(250, 44, 22, '#FF7AB6', 14)}${ypBurst(370, 118, 18, '#8FD3FF', 12)}
+      <path d="M0 210 L40 170 L80 196 L130 150 L180 190 L220 165 L240 180 L260 196 L400 160 L400 260 L0 260Z" fill="#1B1236" opacity=".9"/>
+      <g transform="translate(-60 -39) scale(1.2)">${castle}</g>
+      <path d="M200 260 C220 220 250 200 300 196 C350 192 380 200 400 205 L400 260Z" fill="${C}"/><path d="M0 260 L0 228 C60 214 120 222 180 236 C200 242 210 250 214 260Z" fill="#0B0718"/>`; },
+  chess: () => `<defs><linearGradient id="ypc1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1A1F5C"/><stop offset=".55" stop-color="#C2367A"/><stop offset="1" stop-color="#FFB45A"/></linearGradient><radialGradient id="ypc2" cx=".2" cy=".85" r=".45"><stop offset="0" stop-color="#FFE29A" stop-opacity=".8"/><stop offset="1" stop-color="#FFE29A" stop-opacity="0"/></radialGradient></defs>
+      <rect width="400" height="260" fill="url(#ypc1)"/><rect width="400" height="260" fill="url(#ypc2)"/>${ypStars(25, 400, 80, 3)}
+      <g fill="none" stroke="#120A1E" stroke-width="5" stroke-linecap="round"><path d="M-10 210 C40 210 70 120 120 120 C170 120 170 200 215 200 C250 200 250 90 300 70 C345 52 360 120 330 150 C305 175 270 150 285 120 C300 92 345 100 360 140 C372 172 400 175 420 170"/><path d="M-10 222 C40 222 72 132 120 132 C168 132 172 212 215 212 C255 212 258 100 300 82 C338 66 350 120 326 142 C306 160 282 142 294 122 C306 104 340 110 350 142 C362 180 400 186 420 182" stroke-width="2"/></g>
+      <g stroke="#120A1E" stroke-width="2.4">${[30, 60, 90, 120, 150, 180, 215, 255, 280, 300, 345, 380].map((x, i) => `<line x1="${x}" y1="${[205, 178, 140, 124, 150, 196, 202, 120, 86, 78, 150, 176][i]}" x2="${x}" y2="260"/>`).join('')}</g>
+      <g fill="#120A1E">${[0, 1, 2, 3].map(i => `<rect x="${236 + i * 13}" y="${110 - i * 10}" width="11" height="8" rx="2" transform="rotate(${-38 - i * 4} ${241 + i * 13} ${114 - i * 10})"/>`).join('')}</g>
+      <path d="M0 260 L0 236 C40 226 80 240 120 232 C170 222 220 240 270 230 C320 220 360 236 400 228 L400 260Z" fill="#0C0614"/>`,
+  tenerife: () => `<defs><linearGradient id="ypt1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0A4F8A"/><stop offset=".6" stop-color="#3FA9D6"/><stop offset="1" stop-color="#FFD9A0"/></linearGradient><radialGradient id="ypt2" cx=".78" cy=".22" r=".35"><stop offset="0" stop-color="#FFF6C9"/><stop offset=".25" stop-color="#FFE07A" stop-opacity=".9"/><stop offset="1" stop-color="#FFE07A" stop-opacity="0"/></radialGradient><linearGradient id="ypt3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0C7DB0"/><stop offset="1" stop-color="#05385E"/></linearGradient></defs>
+      <rect width="400" height="260" fill="url(#ypt1)"/><rect width="400" height="260" fill="url(#ypt2)"/>
+      <path d="M60 176 L170 92 C178 86 186 86 194 92 L330 176Z" fill="#4A3A3A"/><path d="M160 100 L170 92 C178 86 186 86 194 92 L206 101 L192 106 L182 98 L172 106Z" fill="#F4F1EC"/><path d="M0 182 L60 170 L120 176 L200 166 L280 174 L400 168 L400 190 L0 190Z" fill="#2E3E3A"/>
+      <rect y="186" width="400" height="74" fill="url(#ypt3)"/>${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${20 + i * 66} ${204 + (i % 2) * 18} q12 -5 24 0" stroke="#fff" stroke-width="1.6" fill="none" opacity=".5"/>`).join('')}
+      <path d="M260 196 h120" stroke="#FFF2C2" stroke-width="3" opacity=".6"/><path d="M280 208 h80" stroke="#FFF2C2" stroke-width="2" opacity=".4"/>
+      <g fill="#05212E"><path d="M48 260 C52 210 58 170 70 128 L76 130 C64 170 60 214 60 260Z"/><path d="M72 128 C50 112 22 116 6 130 C30 120 52 124 70 134Z"/><path d="M72 128 C88 104 118 100 138 110 C112 108 92 116 76 134Z"/><path d="M72 128 C60 98 40 88 20 92 C42 98 58 110 70 132Z"/><path d="M73 128 C96 120 124 128 140 146 C118 134 96 132 76 136Z"/><path d="M72 128 C78 102 96 86 112 82 C98 96 88 112 78 134Z"/></g>`,
+};
+const ypArt = t => { const f = YP_ART[t.art || t.id]; return f ? `<svg class="yp-art" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${f()}</svg>` : ''; };
+const YP_BG = { europe: '#120A26', chess: '#2A0E30', tenerife: '#062F4D' };
+const ypOpen = t => { const p = t.plan && (S.plans || []).find(x => x.id === t.plan); return p ? `<button type="button" class="yp-open" data-act="opentrip" data-kind="${esc(p.kind || '')}" data-id="${esc(p.id)}">Open the trip</button>` : ''; };
+const ypCard = (t, col, pct, ghost, line, tag, warn, goal) => { const art = YP_ART[t.art || t.id], bg = YP_BG[t.art || t.id] || col;
+  const body = `<div class="yp-tbody">${art ? '' : `<div class="yp-tt"><span class="yp-em" aria-hidden="true">${esc(t.emoji || '✈️')}</span><div class="grow"><div class="yp-tn">${esc(t.n)}</div><div class="yp-tw">${esc(t.when || '')}</div></div></div>`}
+    <div class="yp-big">${Math.round(Math.max(0, Math.min(100, pct)))}%</div><div class="yp-tl"><span>${line}</span>${tag ? `<span class="${warn ? 'warn' : ''}">${esc(tag)}</span>` : ''}</div>${ghost != null ? '<div class="yp-key"><i></i>Striped: what the plan says you\'ll have by then</div>' : ''}${ypOpen(t)}</div>`;
+  return `<div class="yp-trip${art ? ' has-art' : ''}" style="--c:${art ? bg : col}">${art ? `<div class="yp-scene">${ypArt(t)}<div class="yp-st"><div class="yp-tn">${esc(t.n)}</div><div class="yp-tw">${esc(t.when || '')}</div></div></div>` : ''}<div class="yp-row">${body}${ypThermoSvg(pct, ghost, goal)}</div></div>`; };
 function viewYearPlan() {
   const C = ypCalc();
   if (!C) return `<section class="panel"><p class="empty">No year plan yet. Ask Claude to set one up from the money plan.</p></section>`;
