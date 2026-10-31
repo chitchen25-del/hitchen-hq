@@ -830,6 +830,8 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .gtab{border-collapse:separate;border-spacing:0;font-size:.8rem;min-width:100%;font-variant-numeric:tabular-nums}
 .gtab th,.gtab td{padding:5px 8px;border-bottom:1px solid var(--rule-2);border-right:1px solid var(--rule-2);text-align:right;white-space:nowrap;background:var(--sheet)}
 .gtab thead th{position:sticky;top:0;z-index:2;background:var(--sheet-2);font-weight:700}
+.gmb{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.gtab thead th.gsel{background:color-mix(in srgb,var(--acc) 18%,var(--sheet-2))}
 .gtab thead th small{display:block;font-weight:500;color:var(--muted);font-size:.68rem}
 .gtab .gn{position:sticky;left:0;z-index:1;text-align:left;max-width:150px;min-width:120px;white-space:normal;font-weight:500;background:var(--sheet)}
 .gtab thead .gn{z-index:3;background:var(--sheet-2)}
@@ -2126,7 +2128,9 @@ function render() {
   const views = { me: viewMe, home: viewHome, work: viewWork, money: viewMoney, trips: viewPlanner, car: viewCar };
   /* keep the coach chat where it was across a redraw: same scroll spot, half-typed message and focus, unless something new arrived */
   const ml0 = $('#meLog'), mq0 = $('#meQ'), keep = ml0 ? { top: ml0.scrollTop, n: ml0.querySelectorAll('.ask-msg').length, q: mq0 ? mq0.value : '', f: document.activeElement === mq0 } : null;
+  const gw0 = $('.gwrap'), gx = gw0 ? gw0.scrollLeft : 0;
   const app = $('#app'); app.innerHTML = banner + views[UI.tab]();
+  const gw1 = $('.gwrap'); if (gw1 && gx) gw1.scrollLeft = gx;
   if (UI.tab === 'me') { const ml = $('#meLog'), mq = $('#meQ');
     if (ml) { if (keep && keep.n === ml.querySelectorAll('.ask-msg').length) ml.scrollTop = keep.top; else meScroll(ml); }
     if (keep && mq) { if (keep.q) mq.value = keep.q; if (keep.f) mq.focus({ preventScroll: true }); } }
@@ -2179,7 +2183,8 @@ function gridSheet() {
   const ms = gridMonths(), groups = gridRows(ms), f = v => Math.abs(v) < 0.005 ? '' : money(v, 2).replace('£', '');
   const tot = ms.map(ym => S.bsheet[ym] ? bsTotals(S.bsheet[ym], ym) : null);
   let run = 0; const carried = tot.map(t => t ? (run += t.left) : null);
-  const head = `<tr><th class="gn">£</th>${ms.map(ym => `<th>${esc(monShort(ym).slice(0, 3))} pay${S.bsheet[ym] ? '' : '<small>no sheet</small>'}</th>`).join('')}</tr>`;
+  const hm = UI.hym && S.bsheet[UI.hym] ? UI.hym : ms[0];
+  const head = `<tr><th class="gn">£</th>${ms.map(ym => `<th class="${ym === hm ? 'gsel' : ''}">${S.bsheet[ym] ? `<button type="button" class="gmb" data-act="ghm" data-v="${ym}" aria-pressed="${ym === hm}">${esc(monShort(ym).slice(0, 3))} pay</button>` : `${esc(monShort(ym).slice(0, 3))} pay<small>no sheet</small>`}</th>`).join('')}</tr>`;
   const cell = c => { if (!c) return '<td class="na">–</td>'; if (c.edit) return `<td><input class="gc" inputmode="decimal" data-gcell="${esc(JSON.stringify(c.edit))}" value="${c.v ? Number(c.v).toFixed(2) : ''}" aria-label="Amount"></td>`; return `<td>${f(c.v)}</td>`; };
   const body = groups.map(g => {
     const sums = ms.map((ym, i) => g.rows.reduce((a, r) => a + (r.vals[i] ? r.vals[i].v || 0 : 0), 0));
@@ -2189,7 +2194,7 @@ function gridSheet() {
     <tr class="gt big"><th class="gn">Left this month</th>${tot.map(t => `<td class="${t && t.left < 0 ? 'neg' : 'pos'}">${t ? money(t.left, 2) : '–'}</td>`).join('')}</tr>
     <tr class="gt big"><th class="gn">In the bank, carried over</th>${carried.map(v => `<td class="${v != null && v < 0 ? 'neg' : 'pos'}">${v == null ? '–' : money(v, 2)}</td>`).join('')}</tr>`;
   return `<section class="panel gpanel"><div class="gwrap"><table class="gtab"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>
-    <p class="note">One column per pay: from that payday to the day before the next. Type in a shaded box to change that month's amount; it saves straight away. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>`;
+    <p class="note">One column per pay: from that payday to the day before the next. Tap a month's name to show it in the header at the top. Type in a shaded box to change that month's amount; it saves straight away and the header updates. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>`;
 }
 async function gridSave(inp) {
   let e; try { e = JSON.parse(inp.dataset.gcell); } catch (x) { return; }
@@ -2197,7 +2202,7 @@ async function gridSave(inp) {
   const a = v === null ? 0 : Math.round(v * 100) / 100;
   if (e.sec === 'i') { const i = d.inc.findIndex(x => gk(x.n) === gk(e.n)); if (i >= 0) d.inc[i] = { ...d.inc[i], a, off: false }; else d.inc.push({ n: e.n, a }); }
   else { const s = d.secs.find(x => x.k === e.sec); if (!s) return; const i = s.rows.findIndex(r => gk(r.n) === gk(e.n)); if (i >= 0) { s.rows[i] = { ...s.rows[i], a }; delete s.rows[i].off; } else s.rows.push({ n: e.n, a }); }
-  UI.bs = null; await put(`bsheet/${e.ym}`, d); toast(`${monShort(e.ym)} saved`);
+  UI.bs = null; UI.hym = e.ym; await put(`bsheet/${e.ym}`, d); toast(`${monShort(e.ym)} saved, see the total at the top`);
 }
 document.addEventListener('change', e => { const t = e.target; if (t && t.matches && t.matches('input[data-gcell]')) gridSave(t); });
 /* what lands on each day of a calendar month */
@@ -4675,7 +4680,8 @@ function viewMoney() {
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
   const body = {grid:gridSheet, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
-  return (S.bsheet[ym] ? sheetHero(ym) : hero) + seg + body;
+  const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : ym; /* on the spreadsheet the header shows the month last tapped or edited */
+  return (S.bsheet[hym] ? sheetHero(hym) : hero) + seg + body;
 }
 function sheetHero(ym) {
   const f = sheetFlow(ym), t = f.t, spare = t.left, g = k => f.outs.filter(o => k.includes(o.k)).reduce((s, o) => s + o.v, 0);
@@ -7882,7 +7888,7 @@ async function startSession(s) {
 let toastTimer;
 function toast(msg) { let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role','status'); document.body.appendChild(t); } t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 2400); }
 document.addEventListener('click', async e => {
-  const tabBtn = e.target.closest('nav.tabs button'); if (tabBtn) { UI.tab = tabBtn.dataset.tab; if (UI.tab === 'trips') UI.pltab = ''; keepUI(); render(); window.scrollTo(0,0); return; }
+  const tabBtn = e.target.closest('nav.tabs button'); if (tabBtn) { UI.tab = tabBtn.dataset.tab; if (UI.tab === 'trips') UI.pltab = ''; if (UI.tab === 'money') { UI.money = 'grid'; UI.hym = null; } keepUI(); render(); window.scrollTo(0,0); return; }
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
   if (a==='close') { if (e.target === el || el.tagName==='BUTTON') closeSheet(); return; }
@@ -7894,7 +7900,7 @@ document.addEventListener('click', async e => {
   if (a.startsWith('mx') && await meAct(a, el)) return;
   if (a.startsWith('pp') && await ppAct(a, el)) return;
   if (a==='leg') return legForm(el.dataset.plan, Number(el.dataset.d), Number(el.dataset.l));
-  if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (UI.tab === 'money' && !el.dataset.seg) UI.money = 'grid'; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='corange') { UI.coRange = el.dataset.v; return render(); }
   if (a==='vday') return vikiDayForm(el.dataset.date);
   if (a==='lvwho') { UI.lvWho = el.dataset.v; return render(); }
@@ -8042,6 +8048,7 @@ document.addEventListener('click', async e => {
   if (a==='ciok') { el.disabled = true; return ciSet(el.dataset.k); }
   if (a==='ciinc') return ciIncForm();
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; UI.occ = el.dataset.id || null; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='ghm') { UI.hym = el.dataset.v; render(); return; }
   if (a==='gseg') { UI.gseg = el.dataset.v; keepUI(); return render(); }
   if (a==='gcal') { UI.gcal = ymAdd(UI.gcal || ymOf(today()), Number(el.dataset.v)); UI.gday = null; return render(); }
   if (a==='gday') { UI.gday = UI.gday === el.dataset.d ? null : el.dataset.d; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
