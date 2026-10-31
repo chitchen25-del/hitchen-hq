@@ -815,6 +815,9 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .xh{display:flex;align-items:center;gap:8px;width:100%;border:0;background:var(--sheet);padding:12px 12px;text-align:left;color:var(--ink);cursor:pointer;font:inherit}
 .xh.static{cursor:default}
 .hs-panel h2{margin-bottom:8px}
+.tb-link{font:inherit;color:inherit;text-align:left;background:none;border-top:0;border-right:0;border-bottom:0;cursor:pointer;width:100%}
+.tb-link .lb::after{content:' ›';opacity:.7}
+.tb-link:active{background:rgba(255,255,255,.08)}
 .hs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .hs{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:86px;padding:10px;border:1px solid var(--rule-2);border-radius:14px;background:var(--sheet);font:inherit;color:inherit;text-align:left;cursor:pointer}
 .hs:active{transform:scale(.98)}
@@ -2558,15 +2561,17 @@ function viewHome() {
   ].filter(Boolean).join('');
   const hs = homeSlot(), hpic = media(hs) ? mediaBg(hs, 'tb-bg') + photoBtn(hs) : '', tonight = mealOn(t);
   const hero = tblock({ kicker: greet, title: `${DOWS[td.getDay()]} ${td.getDate()} ${MONTHS[td.getMonth()]}`,
-    cells: kidsDob().length ? [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), ...kidsDob().map(kidCell) ] : [ liveCell('Viki', 'viki'), liveCell('Chris', 'chris'), payCell ], two: kidsDob().length > 0,
+    cells: kidsDob().length ? [ homeLink(liveCell('Viki', 'viki'), 'viki'), homeLink(liveCell('Chris', 'chris'), 'chris'), ...kidsDob().map(k => homeLink(kidCell(k), wishKey(k.name))) ] : [ homeLink(liveCell('Viki', 'viki'), 'viki'), homeLink(liveCell('Chris', 'chris'), 'chris'), payCell ], two: kidsDob().length > 0,
     foot: kidsDob().length ? [r.salary ? `<span><b>Payday ${payTxt === 'Today' || payTxt === 'Tomorrow' ? payTxt.toLowerCase() : payTxt.replace(/^In/, 'in')}</b>${toPay > 1 ? ` (${esc(dayShort(pd))})` : ''}, Viki about ${money(vp.net,0)}</span>` : '', tonight ? `<span class="hint">${mealIcon(tonight.n)} Tonight: ${esc(tonight.n)}</span>` : ''].filter(Boolean).join('') + foot : foot, bg: hpic });
   setTimeout(runCountUp, 30); updateBadge();
   /* calm by default: today, payday and the week first; other panels only when there's something in them */
   /* the home page is a set of shortcuts into every part of the app */
-  return hero + glanceCard(true) + homeShortcuts() + week;
+  return hero + week + glanceCard(true) + homeShortcuts();
 }
 
 /* ----- home shortcuts: one tap into every part of the app ----- */
+/* a person's box on the home header opens their page in Family */
+const homeLink = (cell, who) => cell.replace('<div class="tb-cell">', `<button type="button" class="tb-cell tb-link" data-act="tab" data-v="work" data-who="${esc(who)}" aria-label="Open ${esc(who)}'s page">`).replace(/<\/div>$/, '</button>');
 function homeShortcuts() {
   const t = (ic, l, sub, attrs) => `<button type="button" class="hs" ${attrs}><span class="hs-i" aria-hidden="true">${ic}</span><span class="hs-l">${l}</span>${sub ? `<span class="hs-s">${sub}</span>` : ''}</button>`;
   const m = (seg, ic, l, sub) => t(ic, l, sub, `data-act="tab" data-v="money" data-seg="${seg}"`);
@@ -2575,8 +2580,6 @@ function homeShortcuts() {
     ['Money', [m('grid', '📊', 'Spreadsheet', 'Every month side by side'), m('gcal', '📅', 'Calendar', 'What goes out when'), m('sheet', '🧮', 'Budget sheet', 'This month in detail'),
       m('overview', '🛒', 'Food shops and spends', 'Add a purchase, shop done'), m('bills', '💷', 'Direct debits', 'Bills and due dates'), m('owed', '🔁', 'Zilch', 'What we owe and when'),
       m('planner', '🗓️', 'Planner', 'Trips and Christmas money'), m('meals', '🍽️', 'Dinners and shopping', 'Meal plan and shopping list'), m('goals', '🎯', 'Savings goals', '')]],
-    ['Family', [t('👷', 'Chris', 'Work, hours and leave', 'data-act="tab" data-v="work" data-who="chris"'), t('🩺', 'Viki', 'Rota, on call and pay', 'data-act="tab" data-v="work" data-who="viki"'),
-      ...kids.map(k => t('🎒', esc(k.name), 'School and clubs', `data-act="tab" data-v="work" data-who="${esc(wishKey(k.name))}"`))]],
     ['Treats', PL_KINDS.map(([k, l]) => t(TR_ICON[k] || '✦', l, '', `data-act="opentrip" data-kind="${k}"`))],
     ['Car', [t('🚙', 'Car details', 'Tax, insurance, finance', 'data-act="tab" data-v="car" data-seg="details"'), t('🔧', 'Service log', '', 'data-act="tab" data-v="car" data-seg="service"'),
       t('⛽', 'Fuel and costs', '', 'data-act="tab" data-v="car" data-seg="fuel"'), t('📄', 'Documents', '', 'data-act="tab" data-v="car" data-seg="docs"')]],
