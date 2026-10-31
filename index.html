@@ -826,6 +826,18 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .hs-s{font-size:.7rem;color:var(--muted);line-height:1.25}
 
 .gpanel{padding:8px}
+.subtabs.wrap{flex-wrap:wrap}
+.chip.warn{background:var(--red-soft);color:var(--red)}
+.gck{margin:6px 0 0;padding:0 0 0 18px;display:grid;gap:8px;font-size:.92rem;line-height:1.4}
+.gck.bad li::marker{content:'⚠︎ ';color:var(--red)} .gck.good li::marker{content:'✓ ';color:var(--good)} .gck.good{color:var(--ink-2)}
+.dupe{margin:4px 0 10px;padding:10px 12px;border-radius:12px;background:var(--gold-soft);font-size:.9rem;line-height:1.4;display:grid;gap:6px}
+.dupe-b{white-space:nowrap}
+.rc{gap:10px;align-items:center} .rc .m{font-size:.8rem;color:var(--muted);white-space:nowrap}
+.rc-who{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.8rem;flex:none;background:var(--sheet-2)}
+.rc-viki{background:#F8D7E3;color:#A0285A} .rc-chris{background:#D6E6FB;color:#1D5BAA} .rc-claude{background:#F3E2D2;color:#9A4F17}
+h4.qh{margin:10px 2px 4px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.bk-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0} .bk-sum div{background:var(--sheet-2);border-radius:12px;padding:10px} .bk-sum span{display:block;font-size:.78rem;color:var(--muted)} .bk-sum b{font-size:1.15rem}
+.bk-row{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-2);font-size:.9rem} .bk-row .grow small{display:block;color:var(--muted)} .bk-ok{color:var(--good)} .bk-new{color:var(--red)}
 .gwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule-2);border-radius:12px}
 .gtab{border-collapse:separate;border-spacing:0;font-size:.8rem;min-width:100%;font-variant-numeric:tabular-nums}
 .gtab th,.gtab td{padding:5px 8px;border-bottom:1px solid var(--rule-2);border-right:1px solid var(--rule-2);text-align:right;white-space:nowrap;background:var(--sheet)}
@@ -2167,7 +2179,7 @@ function gridRows(ms) {
   });
   /* Zilch, one row per plan */
   const zl = (ZL().items || []).filter(it => ms.some(ym => zlPays(it).some(x => x.ym === ym)));
-  if (zl.length) groups.push({ t: 'Zilch repayments', cls: 'out', note: 'Change on Money → Bills → Zilch', rows: zl.map(it => ({ n: `${it.n} (${ZWHO[it.who] || ''})`, vals: ms.map(ym => ({ v: zlPays(it).filter(x => x.ym === ym).reduce((a, x) => a + x.a, 0) })) })) });
+  if (zl.length) groups.push({ t: 'Zilch repayments', cls: 'out', note: 'Change on Money → Zilch', rows: zl.map(it => ({ n: `${it.n} (${ZWHO[it.who] || ''})`, vals: ms.map(ym => ({ v: zlPays(it).filter(x => x.ym === ym).reduce((a, x) => a + x.a, 0) })) })) });
   /* trips and Christmas, one row per item */
   const pi = []; ms.forEach(ym => plannerItems(ym).forEach(x => { const key = `${x.p.id}|${gk(x.n)}`; let r = pi.find(y => y.key === key); if (!r) { r = { key, n: `${x.n} · ${occName(x.p)}`, by: {} }; pi.push(r); } r.by[ym] = (r.by[ym] || 0) + x.a; }));
   if (pi.length) groups.push({ t: 'Trips and Christmas', cls: 'out', note: 'Change in Treats', rows: pi.map(r => ({ n: r.n, vals: ms.map(ym => ({ v: r.by[ym] || 0 })) })) });
@@ -2195,8 +2207,55 @@ function gridSheet() {
     <tr class="gt big"><th class="gn">Left this month</th>${tot.map(t => `<td class="${t && t.left < 0 ? 'neg' : 'pos'}">${t ? money(t.left, 2) : '–'}</td>`).join('')}</tr>
     <tr class="gt big"><th class="gn">In the bank, carried over</th>${carried.map(v => `<td class="${v != null && v < 0 ? 'neg' : 'pos'}">${v == null ? '–' : money(v, 2)}</td>`).join('')}</tr>`;
   return `<section class="panel gpanel"><div class="gwrap"><table class="gtab"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>
-    <p class="note">One column per pay: from that payday to the day before the next. Tap a month's name to show it in the header at the top. Type in a shaded box to change that month's amount; it saves straight away and the header updates. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>`;
+    <p class="note">One column per pay: from that payday to the day before the next. Tap a month's name to show it in the header at the top. Type in a shaded box to change that month's amount; it saves straight away and the header updates. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>${gridCheck(ms, tot, carried)}${recentPanel()}`;
 }
+/* "Does it add up?": the things that usually go wrong, checked every time the spreadsheet is drawn */
+function gridCheck(ms, tot, carried) {
+  const warn = [], ok = [];
+  const neg = ms.map((ym, i) => ({ ym, c: carried[i], l: tot[i] ? tot[i].left : null })).filter(x => x.c != null && x.c < -0.5);
+  if (neg.length) { const w = neg.reduce((a, x) => x.c < a.c ? x : a); warn.push(`<b>The money runs short.</b> After the ${esc(monthName(neg[0].ym))} pay you'd be ${money(-neg[0].c, 0)} down in total${w.ym !== neg[0].ym ? `, and ${money(-w.c, 0)} down by ${esc(monthName(w.ym))}` : ''}. Cut something in ${esc(neg.length > 1 ? `${monShort(neg[0].ym)} to ${monShort(w.ym)}` : monShort(neg[0].ym))}, or move a payment later.`); }
+  else if (carried.some(c => c != null)) ok.push('The money lasts every month shown, counting what carries over.');
+  const short = ms.map((ym, i) => ({ ym, l: tot[i] ? tot[i].left : null, c: carried[i] })).filter(x => x.l != null && x.l < -0.5 && x.c >= -0.5);
+  short.forEach(x => ok.push(`${esc(monthName(x.ym))} is ${money(-x.l, 0)} short on its own, but what's left from earlier months covers it.`));
+  (S.plans || []).filter(p => !p.idea).forEach(p => plDupes(p).forEach(([a, b]) => warn.push(`<b>Same thing twice in ${esc(occName(p))}?</b> “${esc(a.n)}” (${money(Number(a.a) || 0, 0)}) and “${esc(b.n)}” (${money(Number(b.a) || 0, 0)}). <span class="dupe-b"><button type="button" class="linkbtn" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(b.id)}">Open it</button> · <button type="button" class="linkbtn" data-act="dupeok" data-plan="${esc(p.id)}" data-v="${esc(dupeKey(a.id, b.id))}">They're different</button></span>`)));
+  buyDupes(ms).forEach(([a, b]) => warn.push(`<b>Bought twice?</b> ${money(Number(a.a) || 0, 2)} for “${esc(a.n)}” (${esc(shortDate(a.d))}) and “${esc(b.n)}” (${esc(shortDate(b.d))}). <span class="dupe-b"><button type="button" class="linkbtn" data-act="buyedit" data-id="${esc(b.id)}">Open it</button> · <button type="button" class="linkbtn" data-act="buyok" data-v="${esc(a.id)}|${esc(b.id)}">They're different</button></span>`));
+  const over = zlOverMonths(ms);
+  ['chris', 'viki'].forEach(w => { const L = over.filter(x => x.who === w); if (!L.length) return; const top = L.reduce((a, x) => x.use > a.use ? x : a);
+    warn.push(`<b>${ZWHO[w]}'s Zilch limit is over-stretched</b> in ${L.map(x => esc(monShort(x.ym))).join(', ')}: ${money(top.use, 0)} in use against a ${money(top.lim, 0)} limit. Zilch only frees the limit once a whole purchase is paid off, so the extra would be taken on the day. <button type="button" class="linkbtn" data-act="mseg" data-v="owed">See Zilch</button>`); });
+  if (!over.length) ok.push('Both Zilch limits are within bounds every month.');
+  const none = ms.filter(ym => !S.bsheet[ym]); if (none.length) warn.push(`No Budget Sheet yet for ${none.map(ym => esc(monShort(ym))).join(', ')}, so ${none.length > 1 ? 'those months aren\'t' : 'that month isn\'t'} counted.`);
+  return `<section class="panel gcheck"><h2>Does it add up? ${warn.length ? `<span class="chip warn">${warn.length} to look at</span>` : '<span class="chip ok">All good</span>'}</h2>
+    ${warn.length ? `<ul class="gck bad">${warn.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}${ok.length ? `<ul class="gck good">${ok.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}<div class="btnrow"><button type="button" class="btn small ghost" data-act="qbank">Check against the bank</button></div></section>`;
+}
+/* who changed what: the last few money changes, from the docs table's updated_at / updated_by */
+const RECENT = { at: 0, rows: [], busy: false };
+async function recentLoad(force) {
+  if (!sb || !session || RECENT.busy || (!force && Date.now() - RECENT.at < 60000)) return;
+  RECENT.busy = true;
+  try { const { data, error } = await sb.from('docs').select('path,updated_at,updated_by').in('coll', ['bsheet', 'plans', 'state', 'buys', 'bills', 'shops', 'debts']).order('updated_at', { ascending: false }).limit(30);
+    if (!error) { RECENT.rows = (data || []).filter(r => !/^state\/(?!zilch)/.test(r.path)); RECENT.at = Date.now(); } } catch (e) {}
+  RECENT.busy = false; if (UI.tab === 'money' && UI.money === 'grid') { const b = $('#recentBox'); if (b) b.innerHTML = recentList(); }
+}
+const whoBy = by => { const b = String(by || '').toLowerCase(); return b.startsWith('viki') ? 'Viki' : b.startsWith('chris') ? 'Chris' : b === 'claude' || b === 'ask' ? 'Claude' : b ? b.split('@')[0] : 'Someone'; };
+function recentWhat(path) {
+  const [c, id] = path.split('/');
+  if (c === 'bsheet') return `the ${monthName(id)} Budget Sheet`;
+  if (c === 'plans') { const p = (S.plans || []).find(x => x.id === id); return p ? p.name : 'a trip'; }
+  if (c === 'state') return 'Zilch';
+  if (c === 'buys') { const b = (S.buys || []).find(x => x.id === id); return b ? `a purchase: ${b.n}` : 'a purchase (removed)'; }
+  if (c === 'bills') { const b = (S.bills || []).find(x => x.id === id); return b ? `the ${b.name} bill` : 'a bill (removed)'; }
+  if (c === 'shops') return `the ${monthName(id)} food shops`;
+  if (c === 'debts') return 'money owed';
+  return path;
+}
+function recentList() {
+  if (!RECENT.at) return '<p class="empty">Loading…</p>';
+  const g = []; RECENT.rows.forEach(r => { const who = whoBy(r.updated_by), m = String(r.updated_at).slice(0, 16), c = r.path.split('/')[0], last = g[g.length - 1];
+    if (last && last.who === who && last.m === m && last.c === c) last.paths.push(r.path); else g.push({ who, m, c, at: r.updated_at, paths: [r.path] }); });
+  const when = iso => { const d = new Date(iso), day = ymd(d), t = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); return day === today() ? t : day === addDays(today(), -1) ? `yesterday ${t}` : `${shortDate(day)} ${t}`; };
+  return `<div class="list">${g.slice(0, 10).map(x => `<div class="row rc"><span class="rc-who rc-${x.who.toLowerCase()}">${esc(x.who[0])}</span><span class="grow">${esc(x.who)} changed ${esc(x.paths.length > 1 ? `${x.paths.length} ${x.c === 'bsheet' ? 'Budget Sheets' : 'things'}` : recentWhat(x.paths[0]))}</span><span class="m">${esc(when(x.at))}</span></div>`).join('') || '<p class="empty">Nothing yet.</p>'}</div>`;
+}
+function recentPanel() { setTimeout(() => recentLoad(), 0); return `<section class="panel"><h2>Recent changes</h2><div id="recentBox">${recentList()}</div></section>`; }
 async function gridSave(inp) {
   let e; try { e = JSON.parse(inp.dataset.gcell); } catch (x) { return; }
   const v = num(inp.value), d = S.bsheet[e.ym] ? bsClone(S.bsheet[e.ym]) : null; if (!d) return;
@@ -2441,18 +2500,86 @@ function listPanel() {
 }
 const me = () => (userName()||'').toLowerCase().startsWith('v') ? 'viki' : 'chris';
 
-/* quick add, from anywhere */
+/* one + button for everything: it asks what it is, then opens the right form */
 function quickAdd() {
-  const items = [
-    ['qbuy', 'money', 'Add a purchase', 'Something that wasn\'t in the budget'],
-    ['qcallout', 'moon', 'Log a call-out for Viki', 'Opens her most recent on-call day'],
-    ['qspend', 'money', 'Add spending', 'After a shop or a fill-up'],
-    ['qlist', 'cart', 'Add to the shopping list', 'Shows on both phones'],
-    ['qzilch', 'money', 'Zilch calculator', 'What you’d pay today and after'],
-    ['qfuel', 'car', 'Add a fill-up', 'Mileage, litres and cost'],
-    ['qbill', 'doc', 'Add a bill', 'Direct debit or standing order'],
-  ];
-  openSheet('Add', `<div class="list">${items.map(([a,i,t,m]) => `<button type="button" class="rowbtn" data-act="${a}"><span class="qi">${icon(i)}</span><div class="grow"><div class="t">${t}</div><div class="m">${m}</div></div></button>`).join('')}</div>`, null, { noSave:true });
+  const money3 = [
+    ['qbuy', 'money', 'Something we bought', 'Not in the budget: food, a treat, a one-off'],
+    ['qbill', 'doc', 'A bill', 'A direct debit or standing order'],
+    ['qtrip', 'sun', 'A trip or Christmas cost', 'Hotel, tickets, presents…'],
+    ['qzl', 'money', 'Something on Zilch', 'Works out the payments and checks the limit'],
+    ['qinc', 'plus', 'Money coming in', 'Extra pay, a refund, a gift'],
+    ['qbank', 'check', 'Check against the bank', 'Screenshots of the Nationwide app'],
+  ], other = [
+    ['qlist', 'cart', 'Shopping list', 'Shows on both phones'],
+    ['qfuel', 'car', 'A fill-up', 'Mileage, litres and cost'],
+    ['qcallout', 'moon', 'A call-out for Viki', 'Opens her most recent on-call day'],
+    ['qzilch', 'money', 'Zilch calculator', 'Just to see what you’d pay'],
+  ], row = ([a,i,t,m]) => `<button type="button" class="rowbtn" data-act="${a}"><span class="qi">${icon(i)}</span><div class="grow"><div class="t">${t}</div><div class="m">${m}</div></div></button>`;
+  openSheet('What is it?', `<h4 class="qh">Money</h4><div class="list">${money3.map(row).join('')}</div><h4 class="qh">Other</h4><div class="list">${other.map(row).join('')}</div>`, null, { noSave:true });
+}
+/* a trip or Christmas cost: pick which plan, then the usual form */
+function quickTrip() {
+  const t = today(), L = (S.plans || []).filter(p => p.kind !== 'year' && (!p.to || p.to >= t)).sort((a, b) => (a.from || '9').localeCompare(b.from || '9'));
+  if (!L.length) { closeSheet(); UI.tab = 'trips'; keepUI(); render(); toast('Add the trip first, then its costs'); return; }
+  openSheet('Which one is it for?', `<div class="list">${L.map(p => `<button type="button" class="rowbtn" data-act="plitem" data-plan="${esc(p.id)}"><div class="grow"><div class="t">${esc(p.name)}</div><div class="m">${p.from ? esc(shortDate(p.from)) : 'No date yet'}${p.idea ? ' · just an idea' : ''}</div></div></button>`).join('')}</div>`, null, { noSave:true });
+}
+/* money coming in: adds a line to that month's Budget Sheet */
+function incomeForm() {
+  const ms = gridMonths().filter(ym => S.bsheet[ym]);
+  if (!ms.length) { toast('There\'s no Budget Sheet to add it to yet'); return; }
+  openSheet('Money coming in', fld('qiN', 'What', '', 'text', 'placeholder="e.g. Overtime, refund, birthday money"') + `<div class="fields2">${fld('qiA', 'Amount (£)', '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${sel('qiM', 'Which pay month', ms[0], ms.map(ym => [ym, `${monthName(ym)} pay`]))}</div><p class="note">It's added to that month's Budget Sheet, so the spreadsheet and the to spare / to find figure include it.</p>`, async () => {
+    const n = v('qiN').trim(), a = num(v('qiA')), ym = v('qiM'); if (!n) throw new Error('Say what it is'); if (!a) throw new Error('Put in the amount');
+    const d = bsClone(S.bsheet[ym]); d.inc = d.inc || [];
+    if (d.inc.some(x => gk(x.n) === gk(n)) && !confirm(`${monthName(ym)} already has “${n}”. Add this as well?`)) throw new Error('Not saved');
+    d.inc.push({ n: d.inc.some(x => gk(x.n) === gk(n)) ? `${n} (2)` : n, a }); UI.hym = ym; await put(`bsheet/${ym}`, d); window.__toastAfter = `Added to the ${monthName(ym)} pay`;
+  });
+}
+/* ----- check against the bank: screenshots of the Nationwide app are read by the ask function (balance + lines), then
+   each line is matched here against what the app already knows: purchases, bills, Zilch, Budget Sheet rows, trip costs. ----- */
+const BANK = { res: null, busy: false, imgs: [] };
+function bankMatch(l) {
+  if (l.dir !== 'out') return { k: 'in', t: 'Money in' };
+  const a = Math.round((Number(l.amount) || 0) * 100) / 100, d = /^\d{4}-\d\d-\d\d$/.test(l.date || '') ? l.date : today(), ym = payYm(d), eq = x => Math.abs((Number(x) || 0) - a) < 0.01;
+  const b = liveBuys().find(x => eq(x.a) && Math.abs(daysBetween(x.d || d, d)) <= 4); if (b) return { k: 'ok', t: `Purchase: ${b.n}` };
+  const bill = (S.bills || []).find(x => eq(x.amount)); if (bill) return { k: 'ok', t: `Bill: ${bill.name}` };
+  for (const it of ZL().items || []) if (zlPays(it).some(x => (x.ym === ym || x.ym === ymAdd(ym, 1)) && eq(x.a))) return { k: 'ok', t: `Zilch: ${it.n}` };
+  const sh = shopSlots(ym).find(s2 => eq((shopDone(ym, s2.slot) || {}).a) || eq(shopTarget(s2))); if (sh) return { k: 'ok', t: sh.n };
+  const doc = S.bsheet[ym]; if (doc) for (const sec of doc.secs || []) { const r = (sec.rows || []).find(r2 => bsOn(r2) && eq(bsAmt(r2))); if (r) return { k: 'ok', t: `${monShort(ym)} sheet: ${r.n}` }; }
+  for (const p of S.plans || []) { const it = (p.items || []).find(x => eq(x.a) || plItemPays(x, p).some(y => y.ym === ym && eq(y.amount))); if (it) return { k: 'ok', t: `${occName(p)}: ${it.n}` }; }
+  return { k: 'new', t: 'Not in the app' };
+}
+/* what the app still expects to leave the account before next payday (rough: bills and Zilch with a date, food shops not done) */
+function bankToCome() {
+  const t = today(), next = payday(ymAdd(plCur(), 1)), out = []; let tot = 0;
+  const months = [ymOf(t), ymOf(next)].filter((x, i, a) => a.indexOf(x) === i);
+  months.forEach(ym => Object.entries(gridEvents(ym)).forEach(([d, L]) => { if (d > t && d < next) L.filter(x => (x.k === 'bill' || x.k === 'zil') && x.a).forEach(x => { out.push({ d, n: x.t, a: x.a }); tot += x.a; }); }));
+  const cur = plCur(); shopSlots(cur).forEach(s2 => { if (!shopDone(cur, s2.slot) && s2.d >= t) { const a = shopTarget(s2); out.push({ d: s2.d, n: s2.n, a }); tot += a; } });
+  return { out: out.sort((a, b) => a.d.localeCompare(b.d)), tot: Math.round(tot * 100) / 100, next };
+}
+function bankBody() {
+  if (BANK.busy) return '<p class="empty">Reading the screenshots… this takes about 20 seconds.</p>';
+  const r = BANK.res; if (!r) return `<p class="note">Take screenshots of the Nationwide app showing the balance and the latest transactions (scroll and take a few if needed). The app reads them, ticks off what it already knows and lists anything missing.</p>`;
+  const lines = (r.lines || []).map(l => ({ ...l, m: bankMatch(l) })), miss = lines.filter(l => l.m.k === 'new'), seen = lines.filter(l => l.m.k !== 'new');
+  const cur = plCur(), t = S.bsheet[cur] ? bsTotals(S.bsheet[cur], cur) : null, come = bankToCome(), bal = r.available ?? r.balance;
+  const after = bal != null ? Math.round((bal - come.tot) * 100) / 100 : null;
+  const row = (l, extra) => `<div class="bk-row"><span class="${l.m.k === 'new' ? 'bk-new' : 'bk-ok'}">${l.m.k === 'new' ? '●' : l.m.k === 'in' ? '+' : '✓'}</span><span class="grow">${esc(l.text)}${l.pending ? ' <small style="display:inline">(pending)</small>' : ''}<small>${esc(l.date ? shortDate(l.date) : '')} · ${esc(l.m.t)}</small></span><b>${l.dir === 'in' ? '+' : '−'}${money(Number(l.amount) || 0, 2)}</b>${extra || ''}</div>`;
+  return `<div class="bk-sum"><div><span>In the bank now</span><b>${bal != null ? money(bal, 2) : '–'}</b></div><div><span>Still to go out before ${esc(shortDate(come.next))}</span><b>${money(come.tot, 0)}</b></div>
+      <div><span>So left on payday, roughly</span><b class="${after != null && after < 0 ? 'neg' : ''}">${after != null ? money(after, 0) : '–'}</b></div><div><span>The app says ${esc(monthName(cur))} has</span><b>${t ? `${money(Math.abs(t.left), 0)} ${t.left >= 0 ? 'spare' : 'to find'}` : '–'}</b></div></div>
+    ${after != null && t ? `<p class="note">${Math.abs(after - t.left) < 25 ? 'The bank and the app agree, give or take a few pounds.' : after < t.left ? `The bank is about ${money(t.left - after, 0)} lower than the app expects. The lines marked ● below are the usual reason: add them and the app will catch up.` : `The bank is about ${money(after - t.left, 0)} higher than the app expects: something planned may not have gone out yet, or money came in that isn't on the sheet.`} “Still to go out” counts bills and Zilch with a date, and food shops not marked done.</p>` : ''}
+    <h4 class="qh">Not in the app (${miss.length})</h4>${miss.map(l => row(l, `<button type="button" class="btn small" data-act="bkadd" data-a="${esc(l.amount)}" data-n="${esc(l.text)}" data-d="${esc(l.date || '')}">Add</button>`)).join('') || '<p class="empty">Everything going out is already in the app.</p>'}
+    <details><summary>Already in the app (${seen.length})</summary>${seen.map(l => row(l)).join('')}</details>
+    ${come.out.length ? `<details><summary>Still to go out before payday (${come.out.length})</summary>${come.out.map(x => `<div class="bk-row"><span class="grow">${esc(x.n)}<small>${esc(shortDate(x.d))}</small></span><b>${money(x.a, 2)}</b></div>`).join('')}</details>` : ''}`;
+}
+function bankForm() {
+  openSheet('Check against the bank', `<div id="bkOut">${bankBody()}</div><div class="btnrow"><button type="button" class="btn" data-act="bkpick">${BANK.res ? 'Check new screenshots' : 'Choose screenshots'}</button></div>`, null, { noSave: true });
+}
+function bankPick() {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+  inp.onchange = async () => { const fs = [...(inp.files || [])].slice(0, 6); if (!fs.length) return; BANK.busy = true; const o = $('#bkOut'); if (o) o.innerHTML = bankBody();
+    try { const imgs = []; for (const f of fs) imgs.push((await askShrink(f)).b64); BANK.res = await askCall({ action: 'bank', images: imgs }); BANK.at = Date.now(); }
+    catch (e) { toast(/nokey/.test(e.message) ? 'Ask needs its Claude key first: open Ask to add it' : `Couldn't read them: ${e.message}`); }
+    BANK.busy = false; const o2 = $('#bkOut'); if (o2) o2.innerHTML = bankBody(); else bankForm(); };
+  inp.click();
 }
 function lastOncallDay() { const t = today(); for (let i=0;i<=4;i++) { const d = addDays(t,-i), r = dayRec('viki', d); if (r && r.oncall) return d; } return t; }
 
@@ -4657,12 +4784,10 @@ function planFor(ym) {
 }
 
 const MONEY_GROUPS = [
-  { k:'overview', l:'Overview', pages:[['overview','Overview']] },
   { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['gcal','Calendar']] },
+  { k:'zilch', l:'Zilch', pages:[['owed','Zilch']] },
   { k:'planner', l:'Planner', pages:[['planner','Planner']] },
-  { k:'month', l:'This month', pages:[['sheet','Sheet'],['meals','Dinners'],['plan','Plan'],['spending','Spending'],['budget','Budget']] },
-  { k:'debts', l:'Bills', pages:[['bills','Direct debits'],['owed','Zilch'],['old','Old debts']] },
-  { k:'goals', l:'Goals', pages:[['goals','Goals'],['year','Year ahead'],['save','Tips']] },
+  { k:'more', l:'More', pages:[['sheet','Budget Sheet'],['bills','Bills'],['meals','Dinners and shopping'],['overview','Food shops and spends'],['old','Old debts'],['plan','Pay and plan'],['spending','Spending'],['budget','Budget'],['goals','Goals'],['year','Year ahead'],['save','Tips']] },
 ];
 const moneyGroupOf = page => MONEY_GROUPS.find(g => g.pages.some(([k]) => k === page)) || MONEY_GROUPS[0];
 function viewMoney() {
@@ -4670,16 +4795,16 @@ function viewMoney() {
   const parts = [['Bills', P.bills, '#3F51B5'], ['Spending budget', P.budget, '#0B8043'], ['Owed', P.owed, '#D50000'], ['Savings', P.save, '#039BE5'], ['Treats', P.trips, '#8E24AA'], ['Left over', Math.max(0,P.left), 'var(--rule-2)']].filter(x => x[1] > 0);
   const base = Math.max(P.inc.total, P.bills + P.budget + P.owed + P.save + P.trips, 1);
   const flow = `<div class="mix" aria-hidden="true">${parts.map(([n,v,c]) => `<i title="${esc(n)}" style="width:${v/base*100}%;background:${c}"></i>`).join('')}</div>`;
-  const hero = tblock({ kicker: `${MONTHS[parse(t).getMonth()]} plan`, title: P.inc.total ? `${money(P.left,0)} ${P.left >= 0 ? 'spare' : 'short'}` : `${money(P.bills,0)} of bills a month`,
+  const hero = tblock({ kicker: `${MONTHS[parse(t).getMonth()]} plan`, title: P.inc.total ? `${money(Math.abs(P.left),0)} ${P.left >= 0 ? 'to spare' : 'to find'}` : `${money(P.bills,0)} of bills a month`,
     side: P.inc.total ? `<span class="tb-kicker">Coming in</span><span class="big" style="font-size:1.35rem">${money(P.inc.total,0)}</span>` : '',
     cells: [ tbCell('Bills', money(P.bills,0), '#3F51B5'), tbCell('Budget', money(P.budget,0), '#0B8043'), tbCell(P.save ? 'Savings' : 'Owed', money(P.save || P.owed,0), P.save ? '#039BE5' : '#D50000') ],
     after: P.inc.total ? `<div style="padding:12px 0 2px">${flow}</div>` : '',
     foot: P.inc.total ? `<span>${(() => { const l = ['bills', 'the spending budget', ...(P.owed?['money owed']:[]), ...(P.save?['savings']:[]), ...(P.trips?['trip savings']:[])]; return `What's left once ${l.slice(0,-1).join(', ')} and ${l[l.length-1]} are covered.`; })()}</span>` : `<span><button class="linkbtn" data-act="mseg" data-v="plan">Add your pay to see what's spare each month</button></span>` });
   /* four groups, each with its own sub-tabs; UI.money is still the page inside the group */
-  if (!MONEY_GROUPS.some(g => g.pages.some(([k]) => k === UI.money))) UI.money = 'overview';
+  if (!MONEY_GROUPS.some(g => g.pages.some(([k]) => k === UI.money))) UI.money = 'grid';
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
-    + (grp.pages.length > 1 ? `<div class="subtabs money" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
+    + (grp.pages.length > 1 ? `<div class="subtabs money${grp.k === 'more' ? ' wrap' : ''}" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
   const body = {grid:gridSheet, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
   const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : ym; /* on the spreadsheet the header shows the month last tapped or edited */
   return (S.bsheet[hym] ? sheetHero(hym) : hero) + seg + body;
@@ -4885,7 +5010,7 @@ function planForm() {
 /* ----- Zilch calculator: how a purchase splits into payments ----- */
 const ZILCH_DEFAULT = { limit:2250, threshold:75, upfront:25, feePct:1.8, partnerFee:1.6, shortFee:0 };
 const zs = () => ({ ...ZILCH_DEFAULT, ...(S.settings.zilch||{}) });
-const zAvail = () => zlFree('chris', ymAdd(plCur(), -1));
+const zAvail = () => zlFreeIn('chris', plCur());
 /* Zilch (help.zilch.com, Pay monthly and Boost): the credit part is split into four equal payments. Under £75: every 2 weeks over 6 weeks.
    From £75: a quarter at checkout, then a quarter on the same date each month for 3 months, each with a monthly fee of a % of the
    total purchase (up to 1.6% enabling the card at a partner shop, 1.8% Zilch Anywhere). Boost: anything above the available limit
@@ -4895,7 +5020,7 @@ function zilchPlan(amount, opts) {
   const r2 = x => Math.round(x*100)/100;
   if (a <= 0) return null;
   const onPlan = Math.min(a, avail), excess = r2(a - onPlan), q = r2(onPlan * z.upfront/100), last = r2(onPlan - q*3);
-  const long = a >= z.threshold, mfee = long ? r2(a * z.feePct/100) : 0, start = (opts && opts.start) || t;
+  const long = z.plan === '3m' || z.plan === '6w' ? z.plan === '3m' : a >= z.threshold, mfee = long ? r2(a * z.feePct/100) : 0, start = (opts && opts.start) || t;
   const dates = long ? [start, addMonths(start,1), addMonths(start,2), addMonths(start,3)] : [0,14,28,42].map(d => addDays(start,d));
   const pays = dates.map((date,i) => ({ date, amount: r2((i===3 ? last : q) + (i ? mfee : 0)), fee: i ? mfee : 0, share: i===3 ? last : q, excess:0 }));
   pays[0] = { ...pays[0], amount: r2(q + excess + (long ? 0 : z.shortFee)), excess };
@@ -5427,7 +5552,7 @@ const ZWHO = { chris: 'Chris', viki: 'Viki' };
 const zLimit = who => { const l = (ZL().limits || {})[who]; return l != null && l !== '' ? Number(l) || 0 : zs().limit; };
 function zlPays(it) {
   if (it.mode === 'set') return (it.pays || []).filter(x => /^\d{4}-\d\d$/.test(x.ym || '') && Number(x.a)).map(x => ({ ym: x.ym, a: Number(x.a) }));
-  const p = zilchPlan(Number(it.a) || 0, { avail: zLimit(it.who), start: it.d || today(), ...(it.fee ? { feePct: Number(it.fee) } : {}) }); if (!p) return [];
+  const p = zilchPlan(Number(it.a) || 0, { avail: zLimit(it.who), start: it.d || today(), ...(it.plan ? { plan: it.plan } : {}), ...(it.fee ? { feePct: Number(it.fee) } : {}) }); if (!p) return [];
   return p.pays.map(x => ({ ym: payYm(x.date), a: x.amount, d: x.date }));
 }
 function zlMonth(ym) {
@@ -5436,12 +5561,24 @@ function zlMonth(ym) {
 }
 const zlTripMonth = ym => (S.plans || []).filter(p => !p.idea && !p.payplan).reduce((s, p) => s + (p.items || []).filter(it => it.how === 'zilch').reduce((a, it) => a + plItemPays(it, p).filter(x => x.ym === ym).reduce((b, x) => b + x.amount, 0), 0), 0)
   + (S.plans || []).filter(p => !p.idea && p.payplan).reduce((s, p) => s + (ppBooked(p, p.items)[ym] || 0), 0);
-/* what each of you still has to pay Zilch after a pay month, and so how much of the limit is free then (trip bookings count on Chris's) */
-function zlOwedAfter(who, ym) {
-  let owed = 0; (ZL().items || []).filter(it => it.who === who).forEach(it => zlPays(it).forEach(x => { if (x.ym > ym) owed += x.a; }));
-  if (who === 'chris') (S.plans || []).filter(p => !p.idea).forEach(p => (p.items || []).filter(it => it.how === 'zilch' && (it.paid || !p.payplan)).forEach(it => plItemPays(it, p).forEach(x => { if (x.ym > ym) owed += x.amount; })));
-  return Math.round(owed * 100) / 100;
+/* Zilch's limit only frees up once a whole purchase is paid off (help.zilch.com), so a purchase uses its full amount
+   of the limit from its first payment until its last. zlSpans lists each purchase with that amount and those months. */
+function zlSpans(who) {
+  const out = [], add = (id, n, pays) => { const ms = pays.map(x => x.ym).filter(Boolean).sort(); if (!ms.length) return;
+    out.push({ id, n, total: Math.round(pays.reduce((s, x) => s + (x.a ?? x.amount ?? 0), 0) * 100) / 100, first: ms[0], last: ms[ms.length - 1] }); };
+  (ZL().items || []).filter(it => it.who === who).forEach(it => add(it.id, it.n, zlPays(it)));
+  if (who === 'chris') (S.plans || []).filter(p => !p.idea).forEach(p => (p.items || []).filter(it => it.how === 'zilch' && (it.paid || !p.payplan)).forEach(it => add(it.id, `${it.n} · ${occName(p)}`, plItemPays(it, p))));
+  return out;
 }
+/* how much of the limit is taken after a pay month: every purchase not fully paid off by then counts in full */
+function zlOwedAfter(who, ym) { return Math.round(zlSpans(who).filter(x => x.last > ym).reduce((s, x) => s + x.total, 0) * 100) / 100; }
+/* how much of the limit is in use during a pay month (purchases already made and not yet paid off), leaving one out if asked;
+   a purchase whose last payment falls in that month counts as paid off (months are too coarse to say which came first),
+   unless it's also bought that month, and in the current month anything ending this month is taken as done */
+const zlFreeIn = (who, ym) => Math.max(0, zLimit(who) - zlInUse(who, ym));
+function zlInUse(who, ym, except) { const cur = plCur(); return Math.round(zlSpans(who).filter(x => x.id !== except && x.first <= ym && (x.last > ym || (x.first === ym && ym > cur))).reduce((s, x) => s + x.total, 0) * 100) / 100; }
+/* pay months in the spreadsheet where a limit is over-stretched */
+function zlOverMonths(ms) { const out = []; ['chris', 'viki'].forEach(w => ms.forEach(ym => { const u = zlInUse(w, ym), L = zLimit(w); if (u > L + 0.5) out.push({ who: w, ym, use: u, lim: L }); })); return out; }
 const zlFree = (who, ym) => Math.max(0, zLimit(who) - zlOwedAfter(who, ym));
 const zlLeft = it => zlPays(it).filter(x => x.ym >= plCur()).reduce((s, x) => s + x.a, 0);
 
@@ -5450,7 +5587,7 @@ function zlPanel() {
   const nextYm = it => (zlPays(it).find(x => x.ym >= cur) || {}).ym || '9999', live = items.filter(it => zlLeft(it) > 0.5).sort((a, b) => nextYm(a).localeCompare(nextYm(b)) || String(a.n).localeCompare(String(b.n))), done = items.filter(it => zlLeft(it) <= 0.5);
   const who = w => { const l = live.filter(it => it.who === w); if (!l.length) return '';
     return `<div class="ti-group"><div class="ti-gh"><i style="background:${w === 'viki' ? ZCOL.viki : ZCOL.chris}"></i>${ZWHO[w]}<span>${money(l.reduce((s, it) => s + zlLeft(it), 0), 0)} to go</span></div><div class="list">${l.map(zlRow).join('')}</div></div>`; };
-  const freeNow = w => zlFree(w, ymAdd(cur, -1)), clearBy = w => { for (let i = 0; i < 24; i++) { const ym = ymAdd(cur, i); if (zlOwedAfter(w, ym) < 0.5) return ym; } return null; };
+  const freeNow = w => zlFreeIn(w, cur), clearBy = w => { for (let i = 0; i < 24; i++) { const ym = ymAdd(cur, i); if (zlOwedAfter(w, ym) < 0.5) return ym; } return null; };
   const lim = ['chris', 'viki'].map(w => { const f = freeNow(w), L = zLimit(w), c = clearBy(w);
     return `<div class="zl-box"><div class="zl-h">${ZWHO[w]}'s limit</div><div class="zl-bar"><i style="width:${L ? Math.min(100, (L - f) / L * 100) : 0}%;background:${w === 'viki' ? ZCOL.viki : ZCOL.chris}"></i></div><div class="zl-leg"><span><b>${money(L - f, 0)}</b> in use</span><span><b>${money(f, 0)}</b> free of ${money(L, 0)}</span></div><div class="m">${c ? (c === cur ? 'Nothing left to pay after this month.' : `All paid off after the ${monShort(c)} pay.`) : 'Still paying for over two years.'}</div></div>`; }).join('');
   return `<section class="panel"><h2>What's on Zilch <button class="btn small" data-act="zlitem">Add</button></h2>
@@ -5471,21 +5608,23 @@ function zlForm(id, preset) {
   const setBox = rows.map((x, i) => `<div class="fields2">${fld(`zlM${i}`, i ? '' : 'Pay month', x.ym || '', 'month')}${fld(`zlA${i}`, i ? '' : 'Amount (£)', x.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}</div>`).join('');
   openSheet(id ? it.n : 'Add something on Zilch', sel('zlW', 'Whose Zilch', it.who, [['chris', 'Chris'], ['viki', 'Viki']]) + fld('zlN', 'What', it.n || '', 'text', 'placeholder="e.g. Car work, sofa, Amazon"')
     + sel('zlMode', 'Payments', it.mode, [['auto', 'Work them out (a new purchase)'], ['set', 'Type them in (already set)']])
-    + `<div id="zlAuto" ${it.mode === 'set' ? 'hidden' : ''}><div class="fields2">${fld('zlAmt', 'Price (£)', it.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('zlD', 'Bought on', it.d || today(), 'date')}</div>${fld('zlF', 'Monthly fee (% of the price)', it.fee ?? zs().feePct, 'number', 'step="0.1" min="0" inputmode="decimal"')}<p class="note" id="zlHint"></p></div>`
+    + `<div id="zlAuto" ${it.mode === 'set' ? 'hidden' : ''}><div class="fields2">${fld('zlAmt', 'Price (£)', it.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('zlD', 'Bought on', it.d || today(), 'date')}</div>${sel('zlP', "How it's paid", it.plan || 'x', [['x', 'Zilch decides (under £75: 6 weeks, else 3 months)'], ['6w', 'Over 6 weeks (every 2 weeks)'], ['3m', 'Over 3 months (monthly, with a fee)']])}${fld('zlF', 'Monthly fee on 3-month plans (% of the price)', it.fee ?? zs().feePct, 'number', 'step="0.1" min="0" inputmode="decimal"')}<p class="note" id="zlHint"></p></div>`
     + `<div id="zlSet" ${it.mode === 'set' ? '' : 'hidden'}><p class="note" style="margin-top:0">Each payment still to come, and the pay month it comes out of. Leave spare rows empty.</p>${setBox}</div>`
     + fld('zlNote', 'Note', it.note || '', 'text', 'placeholder="Optional"'), async () => {
     const n = v('zlN').trim(); if (!n) throw new Error('Say what it was');
     const x = { id: it.id || uid('zl'), who: v('zlW'), n, mode: v('zlMode') };
-    if (x.mode === 'auto') { const a = num(v('zlAmt')); if (!a) throw new Error('Put in the price'); x.a = a; x.d = v('zlD') || today(); const f = num(v('zlF')); if (f !== null && f !== zs().feePct) x.fee = f; }
+    if (x.mode === 'auto') { const a = num(v('zlAmt')); if (!a) throw new Error('Put in the price'); x.a = a; x.d = v('zlD') || today(); const f = num(v('zlF')); if (f !== null && f !== zs().feePct) x.fee = f; if (v('zlP') !== 'x') x.plan = v('zlP');
+      const lim = zLimit(x.who), use = zlInUse(x.who, payYm(x.d), x.id); if (use + a > lim + 0.5 && !confirm(`${ZWHO[x.who]}'s Zilch limit is ${money(lim, 0)} and ${money(use, 0)} of it is still in use then (the limit only frees once a whole purchase is paid off). ${money(use + a - lim, 0)} of this would be over, and Zilch takes that on the day. Save anyway?`)) throw new Error('Not saved'); }
     else { x.pays = rows.map((_, i) => ({ ym: v(`zlM${i}`), a: num(v(`zlA${i}`)) })).filter(p => /^\d{4}-\d\d$/.test(p.ym) && p.a).sort((a, b) => a.ym < b.ym ? -1 : 1); if (!x.pays.length) throw new Error('Add at least one payment'); }
     if (v('zlNote').trim()) x.note = v('zlNote').trim();
     const items = [...(Z.items || [])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
     await put('state/zilch', { ...Z, items });
   }, id ? { onDelete: async () => { await put('state/zilch', { ...Z, items: (Z.items || []).filter(y => y.id !== id) }); } } : {});
-  const hint = () => { const box = $('#zlHint'); if (!box) return; const p = zilchPlan(num(v('zlAmt')) || 0, { avail: zLimit(v('zlW')), start: v('zlD') || today(), feePct: num(v('zlF')) ?? zs().feePct });
-    box.textContent = p ? `${money(p.upfront, 2)} on the day, then ${p.kind === '3m' ? 'three monthly payments' : 'three payments every two weeks'} of ${money(p.pays[1].amount, 2)}. ${money(p.fee, 2)} in fees${p.excess ? `, and ${money(p.excess, 2)} over the free limit is taken on the day` : ''}.` : ''; };
+  const hint = () => { const box = $('#zlHint'); if (!box) return; const pl = v('zlP'), a = num(v('zlAmt')) || 0, w = v('zlW'), d = v('zlD') || today(), p = zilchPlan(a, { avail: zLimit(w), start: d, feePct: num(v('zlF')) ?? zs().feePct, ...(pl !== 'x' ? { plan: pl } : {}) });
+    const use = zlInUse(w, payYm(d), it.id), free = Math.max(0, zLimit(w) - use);
+    box.textContent = p ? `${money(p.upfront, 2)} on the day, then ${p.kind === '3m' ? 'three monthly payments' : 'three payments every two weeks'} of ${money(p.pays[1].amount, 2)}: ${p.pays.slice(1).map(x => dayShort(x.date)).join(', ')}. ${money(p.fee, 2)} in fees. ${a > free + 0.5 ? `Warning: only ${money(free, 0)} of ${ZWHO[w]}'s ${money(zLimit(w), 0)} limit is free then, because the limit only frees once a whole purchase is paid off.` : `${money(free - a, 0)} of ${ZWHO[w]}'s limit still free after.`}` : ''; };
   const sw = () => { const m = v('zlMode'); $('#zlAuto').hidden = m === 'set'; $('#zlSet').hidden = m !== 'set'; hint(); };
-  $('#sheetForm').addEventListener('input', hint); $('#zlMode').addEventListener('change', sw); hint();
+  $('#sheetForm').addEventListener('input', hint); $('#sheetForm').addEventListener('change', hint); $('#zlMode').addEventListener('change', sw); hint();
 }
 function bsZilchSection(ym) {
   const m = zlMonth(ym), trip = zlTripMonth(ym); if (!m.rows.length && trip < 0.5) return '';
@@ -6177,6 +6316,24 @@ function tripPlanForm(id, kind) {
   }, id ? { onDelete: () => remove(`plans/${id}`) } : {});
   const getPh = photoWatch('plPh');
 }
+/* ----- duplicates: two things in one plan that look like the same thing (two or more shared words of 4+ letters), or two
+   purchases of the same amount within two days. A pair someone has said is fine is kept in the plan's dupeOk list. ----- */
+const DUPE_SKIP = new Set(['with','from','for','the','and','pay','paid','zilch','save','trip','money','deposit','extra','extras','christmas','presents','present','food','park','tickets']);
+const dupeWords = n => new Set(String(n || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(w => w.length >= 4 && !DUPE_SKIP.has(w)));
+const dupeLike = (a, b) => { const A = dupeWords(a); let n = 0; dupeWords(b).forEach(w => { if (A.has(w)) n++; }); return n >= 2 || (A.size === 1 && n === 1 && dupeWords(b).size === 1); };
+const dupeKey = (a, b) => [a, b].sort().join('|');
+function plDupes(p) {
+  const it = (p.items || []).filter(x => !isGift(p) || !xIsPerson(x)), ok = new Set(p.dupeOk || []), out = [];
+  for (let i = 0; i < it.length; i++) for (let j = i + 1; j < it.length; j++) if (dupeLike(it[i].n, it[j].n) && !ok.has(dupeKey(it[i].id, it[j].id))) out.push([it[i], it[j]]);
+  return out;
+}
+function buyDupes(ms) {
+  const L = liveBuys().filter(b => ms.includes(b.ym)), out = [];
+  for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) { const a = L[i], b = L[j];
+    if (Math.abs((Number(a.a) || 0) - (Number(b.a) || 0)) < 0.01 && Math.abs(daysBetween(a.d || today(), b.d || today())) <= 2 && !(a.ok && b.ok)) out.push([a, b]); }
+  return out;
+}
+const dupeNote = (p, pairs) => pairs.length ? `<div class="dupe">${pairs.map(([a, b]) => `<div><b>Same thing twice?</b> “${esc(a.n)}” (${money(Number(a.a) || 0, 0)}) and “${esc(b.n)}” (${money(Number(b.a) || 0, 0)}) look alike, so both are being paid for. <span class="dupe-b"><button type="button" class="linkbtn" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(b.id)}">Open the second one</button> · <button type="button" class="linkbtn" data-act="dupeok" data-plan="${esc(p.id)}" data-v="${esc(dupeKey(a.id, b.id))}">They're different</button></span></div>`).join('')}</div>` : '';
 function planItemForm(planId, itemId, name) {
   const p = (S.plans||[]).find(x => x.id===planId); if (!p) return;
   const it = (p.items||[]).find(x => x.id===itemId) || { n: name || '', how: 'save', ym: p.from ? payYm(p.from) : ymAdd(plCur(), 1), from: '' };
@@ -6195,8 +6352,10 @@ function planItemForm(planId, itemId, name) {
     const x = { id: it.id || uid('pi'), n, a, how: v('pliH'), ym }; if (x.how === 'save' && v('pliF') && v('pliF') !== (p.saveFrom || '')) x.from = v('pliF');
     if (v('pliNote').trim()) x.note = v('pliNote').trim(); if ($('#pliP').checked) x.paid = true; if (it.zdate) x.zdate = it.zdate; else if (x.paid && x.how === 'zilch') x.zdate = today();
     x.cat = v('pliC'); if (x.how !== 'zilch') x.via = v('pliV'); const ph = getPh(); if (ph) x.img = await uploadPhoto(ph); else if (it.img && !($('#pliPhDel') && $('#pliPhDel').checked)) x.img = it.img;
+    const twin = (p.items||[]).find(y => y.id !== x.id && dupeLike(y.n, x.n) && !(p.dupeOk || []).includes(dupeKey(y.id, x.id)));
+    if (twin && !confirm(`${p.name} already has “${twin.n}” (${money(Number(twin.a) || 0, 0)}). Is this a different thing? OK saves both, Cancel goes back.`)) throw new Error('Not saved: check the one already there');
     const items = [...(p.items||[])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
-    const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items });
+    const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items, ...(twin ? { dupeOk: [...(p.dupeOk || []), dupeKey(twin.id, x.id)] } : {}) });
   }, itemId ? { onDelete: async () => { const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, items: (p.items||[]).filter(y => y.id !== itemId) }); } } : {});
   $('#sheetForm').addEventListener('input', showFrom); $('#sheetForm').addEventListener('change', showFrom); showFrom();
   const getPh = photoWatch('pliPh');
@@ -6410,7 +6569,7 @@ function plPanel(p) {
     ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + drivePanel(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : p.kind === 'celebration' ? 'celebration' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
     ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">${p.payplan ? 'Following your plan from the Planner. ' : ''}Already counted in each month's Budget Sheet in Money. <button type="button" class="linkbtn" data-act="tab" data-v="money" data-seg="planner">${p.payplan ? 'Change the plan' : 'Plan it on the Planner'}</button></p></section>` : ''}
-    ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>${blcBanner(items.filter(it => !it.paid).map(it => [`${it.n} ${it.note || ''}`, it.a]), 'in this plan')}
+    ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>${dupeNote(p, plDupes(p))}${blcBanner(items.filter(it => !it.paid).map(it => [`${it.n} ${it.note || ''}`, it.a]), 'in this plan')}
     ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.slice().sort((a, b) => (a.ym || '').localeCompare(b.ym || '') || String(a.n || '').localeCompare(String(b.n || ''))).map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
     <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
     ${items.some(i => !i.paid && i.how !== 'save') ? `<div class="btnrow"><button class="btn small ghost" data-act="plspread" data-id="${esc(p.id)}">Spread it all evenly from ${esc(monthName(p.saveFrom || cur))}</button></div>` : ''}
@@ -7014,8 +7173,8 @@ function foodPanel() {
       : `<p class="empty">Bought something that wasn't planned? Add it here and pick how to cover it. Usually it comes off the next food shop.</p>`}
     ${buys.length || Math.abs(net) > .5 ? `<p class="note">${net > .5 ? `This month's Budget Sheet has ${m2(net)} more going out because of these.` : net < -.5 ? `The month is ${m2(-net)} better off, because shops came in under.` : 'All covered by the food shops, so the month still adds up the same.'}</p>` : ''}</section>`;
 }
-function buyForm(id) {
-  const b = liveBuys().find(x => x.id === id) || { d: today(), cover: 'food' };
+function buyForm(id, preset) {
+  const b = liveBuys().find(x => x.id === id) || { d: today(), cover: 'food', ...(preset || {}) };
   const opts = () => { const a = num(v('byA')) || 0, cur = plCur(), doc = S.bsheet[cur], left = doc ? bsTotals(doc, cur).left + (b.id && b.cover !== 'pot' && b.cover !== 'planned' ? (Number(b.a) || 0) - (b.cuts || []).filter(c => c.ym === cur).reduce((s, c) => s + c.a, 0) : 0) : 0;
     const desc = k => { if (!a) return { food: 'Like you normally do', spread: 'A little off each shop', spare: `${money(left, 0)} spare this month`, pot: `${money(potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0), 0)} in the pot`, planned: 'Nothing changes' }[k];
       if (k === 'food' || k === 'spread') { const pc = planCuts(a, k, b.id); if (!pc.cuts.length) return 'No shops left to take it from'; const first = pc.cuts.map(c => { const s = shopSlots(c.ym)[c.slot]; return s ? `${s.n} ${m2(shopTarget(s, b.id))} → ${m2(shopTarget(s, b.id) - c.a)}` : ''; }).slice(0, 3).join(' · '); return first + (pc.extra ? ` · ${m2(pc.extra)} too big for the shops, so from spare` : ''); }
@@ -7026,9 +7185,11 @@ function buyForm(id) {
   openSheet(id ? (b.n || 'Purchase') : 'Add a purchase', `<div class="zinput"><span>£</span><input id="byA" name="byA" inputmode="decimal" placeholder="0" value="${b.a ?? ''}" aria-label="How much"></div>` + fld('byN', 'What was it', b.n || '', 'text', 'placeholder="e.g. School trip, trainers, takeaway"') + fld('byD', 'When', b.d, 'date') +
     `<input type="hidden" id="byC" value="${esc(b.cover)}"><div class="field"><label>How shall we cover it?</label><div class="bc-list" id="byOpts"></div></div>`, async () => {
     const a = num(v('byA')), n = v('byN').trim(), cover = v('byC'), d = v('byD') || today(); if (!a || a <= 0) throw new Error('Enter how much it was');
-    const x = { d, a, n: n || 'Purchase', ym: payYm(d), cover }; if (cover === 'food' || cover === 'spread') Object.assign(x, planCuts(a, cover, b.id)); else { x.cuts = []; x.extra = 0; }
+    const twin = liveBuys().find(y => y.id !== b.id && Math.abs((Number(y.a) || 0) - a) < 0.01 && Math.abs(daysBetween(y.d || d, d)) <= 2);
+    if (twin && !confirm(`There's already ${money(a, 2)} for “${twin.n}” on ${shortDate(twin.d)}. Is this a different purchase? OK saves it, Cancel goes back.`)) throw new Error('Not saved: it looks like it\'s already in');
+    const x = { d, a, n: n || 'Purchase', ym: payYm(d), cover, ...(twin ? { ok: true } : {}) }; if (cover === 'food' || cover === 'spread') Object.assign(x, planCuts(a, cover, b.id)); else { x.cuts = []; x.extra = 0; }
     if (x.extra) x.extra = Math.round(x.extra * 100) / 100;
-    const bid = b.id || uid('by'); await put(`buys/${bid}`, x);
+    const bid = b.id || uid('by'); await put(`buys/${bid}`, x); if (preset && preset.back === 'bank') setTimeout(() => bankForm(), 400);
     const es = potEntries().filter(e => e.buy !== bid); if (cover === 'pot') es.push({ id: uid('pe'), d, a: -a, n: `Covered ${x.n}`, buy: bid }); if (es.length !== potEntries().length || cover === 'pot') await savePot(es);
   }, id ? { onDelete: async () => { await remove(`buys/${id}`); if (potEntries().some(e => e.buy === id)) await savePot(potEntries().filter(e => e.buy !== id)); } } : {});
   const draw = () => { const o = $('#byOpts'); if (o) o.innerHTML = opts(); };
@@ -8076,7 +8237,15 @@ document.addEventListener('click', async e => {
   if (a==='shopdone') return shopDoneForm(el.dataset.ym, Number(el.dataset.slot));
   if (a==='qfuel') { closeSheet(); return fuelForm(); }
   if (a==='qbill') { closeSheet(); return billForm(); }
-  if (a==='qlist') { closeSheet(); UI.tab = 'home'; UI.list = 'shopping'; keepUI(); render(); setTimeout(() => { const i = $('#listText'); if (i) { i.focus(); i.scrollIntoView({block:'center'}); } }, 50); return; }
+  if (a==='qtrip') return quickTrip();
+  if (a==='qzl') return zlForm(null);
+  if (a==='qinc') return incomeForm();
+  if (a==='qbank') return bankForm();
+  if (a==='bkpick') return bankPick();
+  if (a==='bkadd') { const d = /^\d{4}-\d\d-\d\d$/.test(el.dataset.d) ? el.dataset.d : today(); return buyForm(null, { a: Number(el.dataset.a) || '', n: el.dataset.n, d, cover: 'spare', back: 'bank' }); }
+  if (a==='dupeok') { const p = (S.plans || []).find(x => x.id === el.dataset.plan); if (!p) return; const { id, ...rest } = p; await put(`plans/${p.id}`, { ...rest, dupeOk: [...(p.dupeOk || []), el.dataset.v] }); toast('Got it, both stay'); return; }
+  if (a==='buyok') { for (const id of String(el.dataset.v).split('|')) { const b = (S.buys || []).find(x => x.id === id); if (b) { const { id: _i, ...r } = b; await put(`buys/${id}`, { ...r, ok: true }); } } toast('Got it, both stay'); return; }
+  if (a==='qlist') { closeSheet(); UI.tab = 'money'; UI.money = 'meals'; UI.list = 'shopping'; keepUI(); render(); setTimeout(() => { const i = $('#listText'); if (i) { i.focus(); i.scrollIntoView({block:'center'}); } }, 50); return; }
   if (a==='listseg') { UI.list = el.dataset.v; return render(); }
   if (a==='listclear') { const which = UI.list||'shopping'; for (const x of S.list.filter(x => x.done && (x.list||'shopping')===which)) await remove(`list/${x.id}`); return; }
   if (a==='signout') { closeSheet(); await sb.auth.signOut(); return; }

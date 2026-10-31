@@ -144,6 +144,25 @@ Deno.serve(async (req: Request) => {
     if (!use) return json({ error: out.stop_reason === 'max_tokens' ? 'That was too much to read in one go. Try a clearer or smaller photo.' : `No changes came back (${out.stop_reason || 'unknown'})` }, 502);
     return json({ summary: use.input.summary || '', changes: Array.isArray(use.input.changes) ? use.input.changes : [], usage: out.usage });
   }
+  if (body.action === 'bank') {
+    /* read screenshots of the bank app: the balance and every transaction line, nothing else. Matching is done in the app. */
+    const key = await getKey(); if (!key) return json({ error: 'nokey' }, 400);
+    const imgs = (Array.isArray(body.images) ? body.images : []).filter((x: any) => typeof x === 'string' && x.length < 6_000_000).slice(0, 6);
+    if (!imgs.length) return json({ error: 'Add a screenshot of the bank app' }, 400);
+    const n = localNow();
+    const content: any[] = imgs.map((d: string) => ({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: d } }));
+    content.push({ type: 'text', text: `Today is ${n.date}. Read these bank app screenshots. Give the account balance shown (the main "balance" figure; if there's also an "available" figure give that as available). List every transaction line exactly once (screenshots may overlap: don't repeat a line that appears on two screenshots), with its date as YYYY-MM-DD (work out the year from today; "Today"/"Yesterday" count back from today), the payee text as shown, the amount as a positive number, dir "out" for money leaving and "in" for money arriving, and pending true if it's marked pending. Don't guess anything you can't read.` });
+    const tool = { name: 'bank_lines', description: 'The balance and transactions read from the screenshots', input_schema: { type: 'object', properties: {
+      balance: { type: 'number', description: 'The balance shown, negative if overdrawn' }, available: { type: 'number' },
+      lines: { type: 'array', items: { type: 'object', properties: { date: { type: 'string' }, text: { type: 'string' }, amount: { type: 'number' }, dir: { type: 'string', enum: ['in', 'out'] }, pending: { type: 'boolean' } }, required: ['text', 'amount', 'dir'] } } }, required: ['lines'] } };
+    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: MODEL, max_tokens: 6000, output_config: { effort: 'low' }, tools: [tool], tool_choice: { type: 'tool', name: 'bank_lines' }, messages: [{ role: 'user', content }] }) });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) { const m = out?.error?.message || `Claude answered ${res.status}`; return json({ error: res.status === 401 ? 'The API key was turned down. Add a new one in Ask settings.' : m }, 502); }
+    const use = (out.content || []).find((c: any) => c.type === 'tool_use');
+    if (!use) return json({ error: 'Couldn\'t read those screenshots. Try clearer ones.' }, 502);
+    return json({ balance: use.input.balance ?? null, available: use.input.available ?? null, lines: Array.isArray(use.input.lines) ? use.input.lines : [] });
+  }
   const q = String(body.q || '').trim().slice(0, 1500); if (!q) return json({ error: 'Ask a question' }, 400);
   const key = await getKey(); if (!key) return json({ error: 'nokey' }, 400);
   const n = localNow(), ctx = await context(auth, n.date);

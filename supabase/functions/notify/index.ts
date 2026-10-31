@@ -55,7 +55,7 @@ async function loadData(today: string) {
     if (c === 'days') D.days[id] = r.data; else if (c === 'plans') D.plans.push({ ...r.data, id }); else if (c === 'bills') D.bills.push({ ...r.data, id }); else if (c === 'carrem') D.carrem.push({ ...r.data, id });
     else if (c === 'settings') D.settings = r.data; else if (r.path === 'private/calendar') D.cal = r.data; else if (r.path === 'state/checks') D.checks = r.data;
     else if (c === 'kids') D.kids[id] = r.data; else if (r.path === 'state/cover') D.cover = r.data; else if (r.path === 'meals/main') D.meals = r.data;
-    else if (r.path === 'state/hours') D.hours = r.data; else if (r.path === 'state/carlog') D.carlog = r.data; else if (r.path === 'state/pricewatch') D.pricewatch = r.data;
+    else if (r.path === 'state/hours') D.hours = r.data; else if (r.path === 'state/carlog') D.carlog = r.data; else if (r.path === 'state/pricewatch') D.pricewatch = r.data; else if (r.path === 'state/zilch') D.zilch = r.data;
   }
   // calendar events for the next 16 days (the week ahead looks two weeks out for childcare gaps)
   D.events = [];
@@ -91,6 +91,16 @@ function moneyJobs(D: any, ym: string) {
   }
   return jobs;
 }
+/* the Zilch list (state/zilch): each purchase's payments, the same way the app works them out. 'set' ones only know the pay month. */
+const r2 = (x: number) => Math.round(x * 100) / 100;
+const payYm = (d: string) => { const ym = d.slice(0, 7); if (d >= payday(ym)) return ym; const t = parse(`${ym}-01`); t.setUTCMonth(t.getUTCMonth() - 1); return ymd(t).slice(0, 7); };
+function zlPays(D: any, it: any): { d?: string; ym: string; a: number }[] {
+  if (it.mode === 'set') return (it.pays || []).filter((x: any) => /^\d{4}-\d\d$/.test(x.ym || '') && Number(x.a)).map((x: any) => ({ ym: x.ym, a: Number(x.a) }));
+  const a = Number(it.a) || 0, d = it.d; if (!a || !d) return [];
+  const z = { threshold: 75, upfront: 25, feePct: 1.8, ...((D.settings || {}).zilch || {}) };
+  const long = it.plan === '3m' || it.plan === '6w' ? it.plan === '3m' : a >= z.threshold, q = r2(a * z.upfront / 100), last = r2(a - q * 3), fee = long ? r2(a * (Number(it.fee) || z.feePct) / 100) : 0;
+  return [0, 1, 2, 3].map(i => { const date = long ? addMonths(d, i) : addDays(d, i * 14); return { d: date, ym: payYm(date), a: r2((i === 3 ? last : q) + (i ? fee : 0)) }; });
+}
 function zilchTomorrow(D: any, tm: string) {
   let total = 0; const what: string[] = [];
   for (const p of D.plans) {
@@ -98,12 +108,16 @@ function zilchTomorrow(D: any, tm: string) {
     for (const it of (p.items || [])) { if (it.how !== 'zilch' || !it.zdate) continue; const a = Number(it.a) || 0, q = Math.round(a * 25) / 100, fee = a >= 75 ? Math.round(a * 1.8) / 100 : 0;
       for (let i = 1; i <= 3; i++) if (addMonths(it.zdate, i) === tm) { total += (i === 3 ? a - q * 3 : q) + fee; what.push(it.n); } }
   }
+  for (const it of ((D.zilch && D.zilch.items) || [])) for (const x of zlPays(D, it)) if (x.d === tm && x.d !== it.d) { total += x.a; what.push(`${it.n} (${it.who === 'viki' ? 'Viki' : 'Chris'})`); }
   return { total: Math.round(total * 100) / 100, what };
 }
 function messages(D: any, today: string, mode: string) {
   const out: { title: string; body: string; tag: string }[] = [];
   if (mode === 'moneyam' && payday(today.slice(0, 7)) === today) {
     const jobs = moneyJobs(D, today.slice(0, 7));
+    const ym = today.slice(0, 7), zl = ((D.zilch && D.zilch.items) || []).map((it: any) => ({ it, a: zlPays(D, it).filter(x => x.ym === ym).reduce((s, x) => s + x.a, 0) })).filter((x: any) => x.a > 0.5);
+    const zt = r2(zl.reduce((s: number, x: any) => s + x.a, 0)), bt = D.bills.filter((b: any) => !b.freq || b.freq === 'monthly').reduce((s: number, b: any) => s + (Number(b.amount) || 0), 0);
+    out.push({ title: 'Payday', body: `From this pay: about ${money(Math.round(bt))} of monthly bills${zt ? ` and ${money(zt)} to Zilch (${zl.map((x: any) => x.it.n).slice(0, 3).join(', ')})` : ''}. The spreadsheet in Money shows what's spare after everything.`, tag: `payday-${today}` });
     if (jobs.length) out.push({ title: 'Payday money jobs', body: `${jobs.length} thing${jobs.length === 1 ? '' : 's'} to do from this pay: ${jobs.slice(0, 3).join(', ')}${jobs.length > 3 ? ` and ${jobs.length - 3} more` : ''}. Tick them off in Treats.`, tag: `money-${today}` });
   }
   if (mode === 'moneypm') {
