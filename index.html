@@ -814,6 +814,11 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .xsec{border-top:1px solid var(--rule-2)}
 .xh{display:flex;align-items:center;gap:8px;width:100%;border:0;background:var(--sheet);padding:12px 12px;text-align:left;color:var(--ink);cursor:pointer;font:inherit}
 .xh.static{cursor:default}
+.xexp{margin:-2px 0 6px;padding:0 4px;font-size:.8rem;color:var(--muted)}
+.xgrp{display:flex;justify-content:space-between;gap:8px;padding:8px 4px 2px;font-weight:700;font-size:.85rem}
+.xbreak{grid-column:1/-1;margin:10px 0 2px;padding:10px 12px;border-radius:12px;background:var(--sheet-2)}
+.xbh{font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:4px}
+.xbr{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;padding:2px 0}
 .xh .xt{font-weight:650;font-size:.94rem;line-height:1.25;letter-spacing:-.01em;flex:1;min-width:0}
 .xh .xtag{font-size:.7rem;font-weight:600;color:var(--muted);background:var(--sheet-2);border-radius:999px;padding:2px 8px;white-space:nowrap}
 .xsec.extra .xh .xtag{color:var(--brass);background:var(--brass-soft)}
@@ -4823,19 +4828,42 @@ function bsSection(s, si, t) {
   const tag = s.kind==='extra' ? 'Extras' : s.kind==='list' ? 'Not counted' : '';
   return `<section class="xsec ${s.kind}" data-s="${si}">
     <button type="button" class="xh" data-act="bstog" data-k="${esc(s.k)}" aria-expanded="${open}"><span class="xt">${esc(s.t)}</span>${tag ? `<span class="xtag">${tag}</span>` : ''}<b data-bssec="${esc(s.k)}">${money(t.sec[s.k]||0,2)}</b><span class="chev">${open?'▾':'▸'}</span></button>
-    ${open ? `<div class="xrows">${s.rows.map((x,ri) => bsRow(si, ri, x, s.kind)).join('')}</div>
+    ${open && s.kind==='extra' ? `<p class="xexp">One-offs for this month only. Type them in here.</p>` : ''}${open ? `<div class="xrows">${s.rows.map((x,ri) => bsRow(si, ri, x, s.kind)).join('')}</div>
     <div class="xadd"><button type="button" class="linkbtn" data-act="bsadd" data-s="${si}">+ Add a row</button><button type="button" class="linkbtn" data-act="bsadd" data-s="${si}" data-qty="1">+ Add quantity × price</button><button type="button" class="linkbtn" data-act="bssec" data-s="${si}">Section settings</button></div>` : ''}
   </section>`;
 }
+/* the extras total in plain words: what it is made of */
+function bsExtrasBreak(t) {
+  const one = Math.round((t.extra - t.plan - t.buys - t.zil) * 100) / 100;
+  const parts = [['One-offs', one], ['Trips and Christmas', t.plan], ['Zilch repayments', t.zil], ['Extra spends', t.buys]].filter(([, a]) => Math.abs(a) > 0.004);
+  if (!parts.length) return '';
+  return `<div class="xbreak"><div class="xbh">The extras are made up of</div>${parts.map(([n, a]) => `<div class="xbr"><span>${n}</span><b>${money(a, 2)}</b></div>`).join('')}</div>`;
+}
+/* each trip or Christmas item due this month, one line each (a Christmas list's presents grouped into one line) */
+function plannerItems(ym) {
+  const out = [];
+  (S.plans || []).forEach(p => {
+    if (p.idea) return;
+    if (p.payplan) { const a = plPays(p)[ym] || 0; if (a > 0.004) out.push({ n: 'Saving towards it', p, a }); return; }
+    let gifts = 0, giftN = 0;
+    (p.items || []).forEach(it => { const a = plItemPays(it, p).filter(x => x.ym === ym).reduce((s, x) => s + x.amount, 0); if (a < 0.005) return;
+      if (isGift(p) && xIsPerson(it)) { gifts += a; giftN++; } else out.push({ n: it.n, p, a, it }); });
+    if (gifts > 0.004) out.unshift({ n: `Presents for ${nOf(giftN, 'person', 'people')}`, p, a: gifts });
+  });
+  return out.map(r => ({ ...r, a: Math.round(r.a * 100) / 100 }));
+}
 function bsPlannerSection(ym) {
   const pm = plannerMonth(ym); if (!pm.total) return '';
-  return `<section class="xsec extra"><div class="xh static"><span class="xt">From Treats and Year ahead</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
-    <div class="xrows">${pm.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.p.name)}</span><small>${esc(r.p.kind === 'year' ? 'Year ahead' : kindLabel(r.p.kind||'summer'))}</small></div><span class="xd"></span><output class="xc xa">${money(r.amount,2)}</output><span class="xm"></span></div>`).join('')}</div>
-    <div class="xadd"><button type="button" class="linkbtn" data-act="tab" data-v="trips">Change in Treats</button></div></section>`;
+  const items = plannerItems(ym), by = pm.rows.map(r => ({ r, list: items.filter(x => x.p.id === r.p.id) }));
+  return `<section class="xsec extra"><div class="xh static"><span class="xt">Trips and Christmas</span><span class="xtag">Extras</span><b>${money(pm.total,2)}</b></div>
+    <p class="xexp">Money for trips and Christmas that's due from this month's pay. It comes from the plans in Treats.</p>
+    <div class="xrows">${by.map(({ r, list }) => `<div class="xgrp"><span>${esc(occName(r.p))}</span><b>${money(r.amount,2)}</b></div>` + (list.length ? list : [{ n: r.p.name, a: r.amount }]).map(x => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(x.n)}</span>${x.it && x.it.how === 'save' ? '<small>Saving towards it</small>' : x.it && x.it.how === 'zilch' ? '<small>On Zilch</small>' : ''}</div><span class="xd"></span><output class="xc xa">${money(x.a,2)}</output><span class="xm"></span></div>`).join('')).join('')}</div>
+    <div class="xadd"><button type="button" class="linkbtn" data-act="tab" data-v="trips">Change these in Treats</button></div></section>`;
 }
 function bsBuysSection(ym) {
   const net = buysNet(ym), list = buysIn(ym); if (!list.length && Math.abs(net) < .5) return '';
   return `<section class="xsec extra"><div class="xh static"><span class="xt">Extra spends</span><span class="xtag">Extras</span><b>${money(net,2)}</b></div>
+    <p class="xexp">Things bought this month that weren't in the plan.</p>
     <div class="xrows">${list.map(b => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(b.n)}</span><small>${esc(coverLine(b))}</small></div><span class="xd"></span><output class="xc xa">${money(Number(b.a)||0,2)}</output><span class="xm"></span></div>`).join('')}</div>
     <div class="xadd"><button type="button" class="linkbtn" data-act="buyadd">Add a purchase</button><span class="note"> Food-shop cuts come off this total.</span></div></section>`;
 }
@@ -4862,10 +4890,11 @@ function bsSummary(t, doc) {
   const tot = Math.max(t.inc, t.base + t.extra, 1);
   return `<div class="xsum" id="bsSum">
     <div class="xk"><span>Coming in</span><b data-bst="inc">${money(t.inc,0)}</b></div>
-    <div class="xk"><span>Baseline</span><b data-bst="base">${money(t.base,0)}</b></div>
-    <div class="xk"><span>Monthly extras</span><b data-bst="extra">${money(t.extra,0)}</b></div>
+    <div class="xk"><span>Bills and day to day</span><b data-bst="base">${money(t.base,0)}</b></div>
+    <div class="xk"><span>Extras</span><b data-bst="extra">${money(t.extra,0)}</b></div>
     <div class="xk big ${t.left<0?'neg':''}"><span>Left over</span><b data-bst="left">${money(t.left,2)}</b><em data-bst="delta" class="${dl>0?'up':dl<0?'down':''}">${dl ? `${dl>0?'+':'−'}${money(Math.abs(dl),2).replace('−','')} vs saved` : ''}</em></div>
     <div class="xmix" aria-hidden="true"><i data-bsw="base" style="width:${t.base/tot*100}%;background:var(--g1)"></i><i data-bsw="extra" style="width:${t.extra/tot*100}%;background:var(--g3)"></i><i data-bsw="left" style="width:${Math.max(0,t.left)/tot*100}%;background:var(--good)"></i></div>
+    ${bsExtrasBreak(t)}
     <div class="xsplit"><label for="bsSplit">Split what's left</label><input type="range" id="bsSplit" min="0" max="100" step="5" value="${t.split}" data-bs="split">
       <div class="xsp"><span>Savings <b data-bst="save">${money(t.save,2)}</b> <small data-bst="splitA">${t.split}%</small></span><span>Holiday <b data-bst="hol">${money(t.hol,2)}</b> <small data-bst="splitB">${100-t.split}%</small></span></div></div>
   </div>`;
@@ -5292,7 +5321,8 @@ function zlForm(id, preset) {
 }
 function bsZilchSection(ym) {
   const m = zlMonth(ym), trip = zlTripMonth(ym); if (!m.rows.length && trip < 0.5) return '';
-  return `<section class="xsec extra"><div class="xh static"><span class="xt">Zilch payments</span><span class="xtag">Extras</span><b>${money(m.total, 2)}</b></div>
+  return `<section class="xsec extra"><div class="xh static"><span class="xt">Zilch repayments</span><span class="xtag">Extras</span><b>${money(m.total, 2)}</b></div>
+    <p class="xexp">What's due to Zilch from this month's pay, for things already bought.</p>
     <div class="xrows">${m.rows.map(r => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(r.it.n)}</span><small>${esc(ZWHO[r.it.who] || '')}${r.d ? ` · ${esc(dayShort(r.d))}` : ''}</small></div><span class="xd"></span><output class="xc xa">${money(r.a, 2)}</output><span class="xm"></span></div>`).join('')}
     ${trip > 0.5 ? `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">Trip bookings on Zilch</span><small>Already counted in Treats above</small></div><span class="xd"></span><output class="xc xa" style="opacity:.6">${money(trip, 2)}</output><span class="xm"></span></div>` : ''}</div>
     <div class="xadd"><button type="button" class="linkbtn" data-act="mseg" data-v="owed">Change on the Zilch page</button></div></section>`;
