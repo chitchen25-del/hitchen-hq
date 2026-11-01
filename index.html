@@ -171,7 +171,7 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-1
 .st-work{background:var(--chris-soft)!important;color:var(--chris)} .st-shift{background:var(--viki-soft)!important;color:var(--viki)}
 .st-oncall{background:var(--oc-soft)!important;color:var(--oc)}
 .st-callout{background:var(--gold-soft)!important;color:var(--gold)} .st-holiday{background:var(--good-soft)!important;color:var(--good)}
-.st-sick{background:var(--bad-soft)!important;color:var(--bad)} .st-off{background:var(--sheet-2)!important;color:var(--muted)}
+.st-sick{background:var(--bad-soft)!important;color:var(--bad)} .st-bh{background:color-mix(in srgb,#C2185B 15%,var(--sheet))!important;color:color-mix(in srgb,#C2185B 85%,var(--ink))!important;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,#C2185B 45%,transparent)} .st-off{background:var(--sheet-2)!important;color:var(--muted)}
 .fromcal{border-style:dashed!important}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--gold-bar);display:inline-block}
 .moon{color:var(--oc);font-size:.8rem;line-height:1}
@@ -2940,11 +2940,13 @@ function deriveDays() {
         d.oncall = { kind:'first', start: d.status==='shift' ? d.end : '18:30', end:'08:00' }; }
     }
     if (d.oc && d.who==='chris' && !d.status) d.status = 'callout';
+    /* Chris is off on Isle of Man bank holidays, even if his rota repeats that day */
+    if (d.who==='chris' && isBH(d.date) && (!d.status || d.status==='work')) { d.status = 'off'; d.bh = true; delete d.start; delete d.end; }
     if (!d.status) d.status = 'off'; delete d.oc;
   });
   CAL.days = out;
 }
-const dayRec = (who, date) => S.days[`${who}_${date}`] || (CAL.days||{})[`${who}_${date}`] || (who==='viki' && S.leave && leaveDay(date)==='al' && !isWeekend(date) ? { who, date, status:'holiday', fromLeave:true } : undefined);
+const dayRec = (who, date) => S.days[`${who}_${date}`] || (CAL.days||{})[`${who}_${date}`] || (who==='chris' && isBH(date) ? { who, date, status:'off', bh:true, auto:true } : undefined) || (who==='viki' && S.leave && leaveDay(date)==='al' && !isWeekend(date) ? { who, date, status:'holiday', fromLeave:true } : undefined);
 
 /* everything happening on each day: calendar events (coloured) plus on call logged only in the app */
 function agenda(from, to) {
@@ -3421,8 +3423,9 @@ function viewWork() {
   for (let i=0;i<lead;i++) cells += `<button class="pad" tabindex="-1" aria-hidden="true"></button>`;
   for (let d=1; d<=daysIn; d++) {
     const date = `${ym}-${pad(d)}`; const rec = dayRec(who, date);
-    const cls = rec ? `st-${rec.status}` : ''; const tcls = date===today() ? ' today' : '';
-    let label = rec ? SHORT[rec.status] || '' : '';
+    const offBH = who==='chris' && rec && rec.bh && rec.status==='off';
+    const cls = offBH ? 'st-bh' : rec ? `st-${rec.status}` : ''; const tcls = date===today() ? ' today' : '';
+    let label = offBH ? 'BH off' : rec ? SHORT[rec.status] || '' : '';
     let extra = '';
     if (rec && who==='chris' && rec.status==='callout' && rec.callouts) label = `Call ×${rec.callouts}`;
     if (rec && who==='chris' && rec.status==='work' && rec.start && rec.end) label = `${parseInt(rec.start,10)}–${parseInt(rec.end,10)}`;
@@ -3442,7 +3445,7 @@ function viewWork() {
                tbCell('Sick days', `${count(yearDays,'sick')}`, 'var(--bad)'),
                tbCell('Call-out shifts', `${count(yearDays,'callout')} <small>${callouts} attended</small>`, 'var(--gold-bar)') ] });
   }
-  const legend = STATUS[who].map(([k,l]) => `<span class="chip st-${k}">${l}</span>`).join('');
+  const legend = STATUS[who].map(([k,l]) => `<span class="chip st-${k}">${l}</span>`).join('') + (who==='chris' ? '<span class="chip st-bh">Bank holiday (off)</span>' : '');
   return `
   ${whoSeg}
   ${who==='chris' ? personHero('chris') + chTabs : ''}
