@@ -950,6 +950,19 @@ table.xs td.sel{outline:2px solid #1E7B45;outline-offset:-2px;background:#F2FAF4
 h4.qh{margin:10px 2px 4px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .bk-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0} .bk-sum div{background:var(--sheet-2);border-radius:12px;padding:10px} .bk-sum span{display:block;font-size:.78rem;color:var(--muted)} .bk-sum b{font-size:1.15rem}
 .bk-row{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-2);font-size:.9rem} .bk-row .grow small{display:block;color:var(--muted)} .bk-ok{color:var(--good)} .bk-new{color:var(--red)}
+.fin-list{display:grid;gap:10px}
+.fin-c{display:block;width:100%;text-align:left;border:1px solid var(--rule);background:var(--sheet);border-radius:16px;padding:12px 14px;cursor:pointer;color:var(--ink);font:inherit}
+.fin-top{display:flex;gap:10px;align-items:flex-start}
+.fin-n{font-weight:800;font-size:1.02rem}.fin-w{font-size:.8rem;color:var(--muted)}
+.fin-a{text-align:right;font-weight:800;font-size:1.1rem;white-space:nowrap}.fin-a small{display:block;font-size:.7rem;color:var(--muted);font-weight:600}
+.fin-d{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}
+.fin-d span{background:var(--sheet-2);border-radius:10px;padding:6px 7px;min-width:0}.fin-d small{display:block;font-size:.66rem;color:var(--muted);font-weight:650}.fin-d b{font-size:.84rem}
+.fin-bar{height:6px;border-radius:99px;background:var(--sheet-2);margin-top:10px;overflow:hidden}.fin-bar i{display:block;height:100%;background:linear-gradient(90deg,#0B8043,#33B679);border-radius:99px}
+.fin-p{font-size:.72rem;color:var(--muted);margin-top:3px}
+.fin-note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.fin-free{display:flex;flex-direction:column}
+.fin-fr{display:grid;grid-template-columns:72px 1fr auto;gap:8px;padding:9px 0;border-top:1px solid var(--rule);font-size:.88rem;align-items:baseline}
+.fin-fr:first-child{border-top:0}.fin-fr strong{color:#0B8043}.fin-fr em{font-style:normal;color:var(--muted);font-size:.78rem}
 .gstart{display:block;margin:3px auto 0;border:0;border-radius:99px;background:var(--ink);color:var(--sheet);font-size:.7rem;font-weight:700;padding:3px 9px;cursor:pointer}
 .gwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule-2);border-radius:12px}
 .gtab{border-collapse:separate;border-spacing:0;font-size:.8rem;min-width:100%;font-variant-numeric:tabular-nums}
@@ -2153,14 +2166,14 @@ function applyLocal(path, data) {
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
   else if (c === 'xsheet') { S.xsheet = S.xsheet || {}; if (data) S.xsheet[id] = data; else delete S.xsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; }
+  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; if (id==='finance') S.finance = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, xsheet:{}, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, finance:null, xsheet:{}, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
@@ -4092,6 +4105,60 @@ function loansPanel() {
     <p class="ln-note">${s.left ? `${nOf(s.left, 'payment')} left, about ${s.leftTxt}. Next one ${esc(dayShort(s.next))}.` : 'All paid off. It\'s yours!'}${s.extra != null ? ` Over the whole plan that's ${money(s.total, 0)}, ${money(s.extra, 0)} more than the ${money(L.price, 0)} price.` : ''}${L.note ? ` ${esc(L.note)}` : ''}</p></div>`).join('');
   return `<section class="panel"><h2>Car finance <span class="sub">${money(owed, 0)} still to pay${monthly ? `, ${money(monthly, 0)} a month` : ''}</span></h2><div class="ln-list">${cards}</div></section>`;
 }
+/* ===== Finance: every finance agreement we're paying, what it costs a month, when it started and when it finishes.
+   The car loans come from the Car page (car/main.loans); everything else lives in state/finance = { items:[{ id, n, grp, pay, start, end, lender, holder, note }] }
+   (start and end are months, YYYY-MM; end is the month of the last payment). Zilch plans come from the Zilch page. Figures live only in the database. ===== */
+const FIN_GRP = [['car', 'Cars and bikes', '🚗'], ['tech', 'Phones and tech', '📱'], ['zilch', 'Pay later (Zilch)', '🔁'], ['other', 'Other finance', '📄']];
+const finMonths = (a, b) => a && b ? ymDiff(a.slice(0, 7), b.slice(0, 7)) + 1 : null;
+function finItems() {
+  const t = today(), cur = payCur(), out = [];
+  (S.car.loans || []).forEach(L => { const s = loanStat(L); out.push({ id: L.id, src: 'car', grp: 'car', n: L.name, pay: s.pay, start: L.start.slice(0, 7), end: s.last.slice(0, 7), lender: L.lender || '', holder: L.holder || '', note: L.note || '', left: s.left, n2: s.n, leftAmt: s.leftAmt }); });
+  ((S.finance && S.finance.items) || []).forEach(x => { const n = finMonths(x.start, x.end), curM = ymOf(t);
+    const lft = x.end ? (x.end < curM ? 0 : ymDiff(curM, x.end) + 1) : null;
+    out.push({ ...x, src: 'fin', pay: Number(x.pay) || 0, left: lft, n2: n, leftAmt: lft != null && Number(x.pay) ? lft * Number(x.pay) : null }); });
+  (ZL().items || []).forEach(it => { const ps = zlPays(it).filter(x => x.a > 0); if (!ps.length) return; const rest = ps.filter(x => x.d ? x.d >= t : x.ym > cur); if (!rest.length) return; /* dated payments still to come; plans set by pay month count this pay's as gone */
+    const nextP = rest[0]; out.push({ id: it.id, src: 'zilch', grp: 'zilch', n: it.n, pay: nextP.a, varies: rest.some(x => Math.abs(x.a - nextP.a) > 0.01), start: (ps[0].d || ps[0].ym).slice(0, 7), end: (ps[ps.length - 1].d || ps[ps.length - 1].ym).slice(0, 7), holder: ZWHO[it.who] ? `${ZWHO[it.who]}’s Zilch` : '', left: rest.length, n2: ps.length, leftAmt: Math.round(rest.reduce((a, x) => a + x.a, 0) * 100) / 100, payWord: 'payment' }); });
+  return out.filter(x => x.left == null || x.left > 0);
+}
+const finWhen = ym => ym ? `${MONTHS[Number(ym.slice(5, 7)) - 1].slice(0, 3)} ${ym.slice(0, 4)}` : '';
+function viewFinance() {
+  const L = finItems(), monthly = L.filter(x => x.src !== 'zilch').reduce((a, x) => a + x.pay, 0), zil = L.filter(x => x.src === 'zilch').reduce((a, x) => a + (x.leftAmt || 0), 0);
+  const owed = L.filter(x => x.src !== 'zilch').reduce((a, x) => a + (x.leftAmt || 0), 0), unknownLeft = L.filter(x => x.leftAmt == null).length;
+  const ends = L.filter(x => x.end && x.src !== 'zilch').sort((a, b) => a.end.localeCompare(b.end)), first = ends[0];
+  const hero = tblock({ kicker: 'Finance we pay every month', title: `${money(monthly, 2)} a month`, two: true,
+    cells: [tbCell('Agreements', `${L.length}`, '#3F51B5'), tbCell('Still to pay', `${money(owed, 0)}${unknownLeft ? ` <small>+${unknownLeft} unknown</small>` : ''}`, '#D50000'),
+      tbCell('Next to finish', first ? `${esc(first.n)} <small>${esc(finWhen(first.end))}</small>` : '–', '#0B8043'), tbCell('Zilch still to pay', zil ? money(zil, 2) : '£0', '#F09300')] });
+  /* when money frees up: the month after each last payment */
+  const byEnd = {}; ends.forEach(x => { (byEnd[x.end] = byEnd[x.end] || []).push(x); });
+  let run = monthly; const free = Object.entries(byEnd).map(([ym, xs]) => { const g = xs.reduce((a, x) => a + x.pay, 0); run -= g; return `<div class="fin-fr"><b>${esc(finWhen(ymAdd(ym, 1)))}</b><span>${esc(xs.map(x => x.n).join(', '))} finished${g ? `: <strong>+${money(g, 2)}</strong> a month back` : ''}</span><em>${money(Math.max(0, run), 0)}/mo left</em></div>`; }).join('');
+  const card = x => { const total = x.n2, paid = total != null && x.left != null ? total - x.left : null, pct = total ? Math.max(0, Math.min(1, paid / total)) : null;
+    return `<button type="button" class="fin-c" data-act="finedit" data-src="${x.src}" data-id="${esc(x.id)}">
+      <div class="fin-top"><div class="grow"><div class="fin-n">${esc(x.n)}</div><div class="fin-w">${esc([x.lender, x.holder ? (x.src === 'zilch' ? x.holder : `in ${x.holder.split(' (')[0]}’s name`) : ''].filter(Boolean).join(' · '))}</div></div>
+        <div class="fin-a">${x.pay ? money(x.pay, 2) : '<small>amount not set</small>'}<small>${x.src === 'zilch' ? (x.varies ? 'next payment' : 'a payment') : 'a month'}</small></div></div>
+      <div class="fin-d"><span><small>Started</small><b>${x.start ? esc(finWhen(x.start)) : 'Not known'}</b></span><span><small>Finishes</small><b>${x.end ? esc(finWhen(x.end)) : 'Not known'}</b></span><span><small>${x.src === 'zilch' ? 'Payments left' : 'Months left'}</small><b>${x.left != null ? x.left : '–'}</b></span><span><small>Still to pay</small><b>${x.leftAmt != null ? money(x.leftAmt, 0) : '–'}</b></span></div>
+      ${pct != null ? `<div class="fin-bar"><i style="width:${(pct * 100).toFixed(1)}%"></i></div><div class="fin-p">${paid} of ${total} paid</div>` : ''}${x.note ? `<p class="fin-note">${esc(x.note)}</p>` : ''}</button>`; };
+  const groups = FIN_GRP.map(([k, t, ic]) => { const xs = L.filter(x => (x.grp || 'other') === k).sort((a, b) => (a.end || '9999').localeCompare(b.end || '9999')); if (!xs.length) return '';
+    return `<section class="panel"><h2>${ic} ${esc(t)} <span class="sub">${k === 'zilch' ? `${money(xs.reduce((a, x) => a + (x.leftAmt || 0), 0), 0)} left` : `${money(xs.reduce((a, x) => a + x.pay, 0), 2)} a month`}</span></h2><div class="fin-list">${xs.map(card).join('')}</div></section>`; }).join('');
+  return hero + groups + (free ? `<section class="panel"><h2>When money frees up</h2><div class="fin-free">${free}</div><p class="note">The month after each last payment. Zilch isn't counted here.</p></section>` : '')
+    + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="finedit" data-src="fin" data-id="">Add a finance agreement</button></div><p class="note">Tap any agreement to change it. Car loans also show on the Car page, and Zilch plans are changed on the Zilch page.</p></section>`;
+}
+function finForm(src, id) {
+  if (src === 'zilch') { UI.money = 'owed'; keepUI(); return render(); }
+  const car = src === 'car', loans = S.car.loans || [], L = car ? loans.find(x => x.id === id) : null, items = (S.finance && S.finance.items) || [], x = car ? null : items.find(y => y.id === id);
+  const v0 = car ? { n: L.name, pay: loanStat(L).pay, start: L.start.slice(0, 7), end: loanStat(L).last.slice(0, 7), lender: L.lender || '', holder: L.holder || '', note: L.note || '', grp: 'car' } : x || { grp: 'other' };
+  openSheet(id ? v0.n : 'Add a finance agreement', fld('fiN', 'What is it', v0.n || '', 'text', 'placeholder="e.g. iPhone 16, sofa, car loan"')
+    + `<div class="fields2">${fld('fiA', 'Monthly payment (£)', v0.pay ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${car ? '' : sel('fiG', 'Kind', v0.grp || 'other', FIN_GRP.filter(g => g[0] !== 'zilch').map(g => [g[0], g[1]]))}</div>`
+    + `<div class="fields2">${fld('fiS', 'First payment (month)', v0.start || '', 'month')}${fld('fiE', 'Last payment (month)', v0.end || '', 'month')}</div>`
+    + `<div class="fields2">${fld('fiL', 'Lender', v0.lender || '', 'text', 'placeholder="e.g. Manx Telecom"')}${fld('fiH', 'In whose name', v0.holder || '', 'text')}</div>` + fld('fiT', 'Note', v0.note || ''), async () => {
+    const n = v('fiN').trim(), pay = num(v('fiA')), start = v('fiS'), end = v('fiE');
+    if (!n) throw new Error('Give it a name'); if (start && end && end < start) throw new Error('The last payment is before the first one');
+    if (car) { if (!start || !end) throw new Error('A car loan needs its first and last payment');
+      const nl = loans.map(y => y.id !== id ? y : { ...y, name: n, pay: pay ?? y.pay, start: `${start}-${(y.start || '').slice(8) || '25'}`, months: finMonths(start, end), lender: v('fiL').trim(), holder: v('fiH').trim(), note: v('fiT').trim() });
+      return put('car/main', { ...S.car, loans: nl }); }
+    const it = { id: id || uid('fi'), n, grp: v('fiG') || 'other', pay: pay || 0, start: start || '', end: end || '', lender: v('fiL').trim(), holder: v('fiH').trim(), note: v('fiT').trim() };
+    await put('state/finance', { ...(S.finance || {}), items: id ? items.map(y => y.id === id ? it : y) : [...items, it] });
+  }, !car && id ? { onDelete: () => put('state/finance', { ...(S.finance || {}), items: items.filter(y => y.id !== id) }) } : {});
+}
 function viewDetails() {
   const secs = ((S.car.details || {}).sections) || [], t = today();
   const docBtn = id => { const f = S.files.find(x => x.id === id); return f ? `<button class="dt-doc" data-act="docopen" data-id="${esc(id)}">${icon('doc')}<span>${esc(f.name)}</span></button>` : ''; };
@@ -5507,6 +5574,7 @@ function planFor(ym) {
 const MONEY_GROUPS = [
   { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['yplan','Year plan'],['past','Past months'],['gcal','Calendar']] },
   { k:'zilch', l:'Zilch', pages:[['owed','Zilch']] },
+  { k:'finance', l:'Finance', pages:[['finance','Finance']] },
   { k:'planner', l:'Planner', pages:[['planner','Planner']] },
   { k:'more', l:'More', pages:[['bills','Bills'],['meals','Dinners and shopping'],['overview','Food shops and spends'],['old','Old debts'],['plan','Pay and plan'],['spending','Spending'],['budget','Budget'],['goals','Goals'],['year','Year ahead'],['save','Tips']] },
 ];
@@ -5526,9 +5594,9 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money${grp.k === 'more' ? ' wrap' : ''}" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body = {grid:gridSheet, yplan:viewYearPlan, basic:viewXSheet, past:viewPast, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
+  const body = {finance:viewFinance, grid:gridSheet, yplan:viewYearPlan, basic:viewXSheet, past:viewPast, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
   const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : S.bsheet[payCur()] ? payCur() : ym; /* the pay we're living on: 1 Nov is still the October pay */ /* on the spreadsheet the header shows the month last tapped or edited */
-  if (UI.money === 'yplan' || UI.money === 'basic' || UI.money === 'past') return seg + body; /* the year plan has its own header */
+  if (UI.money === 'yplan' || UI.money === 'basic' || UI.money === 'past' || UI.money === 'finance') return seg + body; /* the year plan has its own header */
   return (S.bsheet[hym] ? sheetHero(hym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -8959,6 +9027,7 @@ document.addEventListener('click', async e => {
   if (a==='ciinc') return ciIncForm();
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; UI.occ = el.dataset.id || null; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='ghm') { UI.hym = el.dataset.v; render(); return; }
+  if (a==='finedit') return finForm(el.dataset.src, el.dataset.id);
   /* start a month in the Spreadsheet: a copy of the month before, without its one-offs */
   if (a==='gstart') { const ym = el.dataset.v, prev = Object.keys(S.bsheet).filter(k => k < ym).sort().pop(), src = prev ? S.bsheet[prev] : Object.values(S.bsheet)[0];
     const doc = src ? bsClone(src) : { v:1, inc:[], secs:[{k:'dd',t:'Direct debits and standing orders',kind:'base',rows:[]},{k:'mex',t:'Monthly extras',kind:'extra',rows:[]}], split:50 };
