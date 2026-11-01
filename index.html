@@ -2678,10 +2678,14 @@ function ypCalc() {
     if (d) { const t = bsTotals(d, m0.ym), one = (d.secs || []).filter(x => x.kind === 'extra').flatMap(x => x.rows.filter(bsOn).map(r => ({ n: r.n, a: bsAmt(r), sheet: 1 }))).filter(x => x.a);
       m = { ...m0, chris: (d.inc || []).filter(bsOn).reduce((s, x) => s + (Number(x.a) || 0), 0), base: t.base, viki: vikiB && d.viki && !d.viki.off ? bsViki({ ...d, viki: { ...d.viki, actual: null } }, m0.ym) : m0.viki, items: [...one, ...(m0.items || [])] }; }
     const slip = (S.payslips || []).find(x => x.id === m.ym && x.net), viki = slip ? Number(slip.net) : Number(m.viki) || 0;
+    /* purchases: what comes out of the month's spare counts as going out; ones taken from the buffer or savings come off those */
+    const bn = buysNet(m.ym); if (Math.abs(bn) > 0.004) m = { ...m, items: [...(m.items || []), { n: bn > 0 ? 'Extra spends' : 'Shops came in under', a: Math.round(bn * 100) / 100, buys: 1 }] };
+    const first = m.ym === Y.months.reduce((x, y) => y.ym < x ? y.ym : x, m.ym), from = k => first ? liveBuys().filter(b => b.cover === k && b.ym <= m.ym) : buysFrom(m.ym, k); /* earlier purchases land on the first month */
+    const fb = from('buffer'), fs = from('savings'), fromBuf = fb.reduce((s, x) => s + (Number(x.a) || 0), 0), fromSav = fs.reduce((s, x) => s + (Number(x.a) || 0), 0);
     const out = (Number(m.base) || 0) + (m.items || []).reduce((s, x) => s + (Number(x.a) || 0), 0), inc = (Number(m.chris) || 0) + viki, left = inc - out;
-    const buf = left > 0 ? left * bf : 0, saved = left - buf, chk = (Y.checks || {})[m.ym], adj = chk ? Number(chk.moved) || 0 : 0; run += saved + adj; bufRun += buf;
+    const buf = left > 0 ? left * bf : 0, saved = left - buf, chk = (Y.checks || {})[m.ym], adj = chk ? Number(chk.moved) || 0 : 0; run += saved + adj - fromSav; bufRun += buf - fromBuf;
     if (m.ym <= cur) { now = run; nowBuf = bufRun; }
-    return { ...m, slip, viki, pred: Number(m.viki) || 0, inc, out, left, buf, saved, adj, chk, moved: (Y.moved || {})[m.ym] || null, run, bufRun };
+    return { ...m, slip, viki, pred: Number(m.viki) || 0, inc, out, left, buf, saved, adj, chk, fb, fs, fromBuf, fromSav, moved: (Y.moved || {})[m.ym] || null, run, bufRun };
   });
   return { rows, now, nowBuf, end: rows.length ? rows[rows.length - 1] : null, cur, vikiB };
 }
@@ -2836,9 +2840,10 @@ function viewYearPlan() {
   const months = C.rows.map(r => { const isCur = r.ym === cur, diff = r.slip ? r.viki - r.pred : 0;
     return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
       <div class="yp-viki">${r.slip ? `<span class="chip ok">Payslip in</span> Viki <b>${money(r.viki, 2)}</b> <small>${diff >= 0 ? '+' : '−'}${money(Math.abs(diff), 0)} on the guess</small>` : `<span class="chip">Predicted</span> Viki <b>${money(r.pred, 0)}</b>`}<button type="button" class="btn small ${r.slip ? 'ghost' : ''}" data-act="ypslip" data-v="${esc(r.ym)}">${r.slip ? 'Change' : 'Add payslip'}</button></div>
-      <dl class="yp-dl"><div><dt>Coming in</dt><dd>${money(r.inc, 0)}</dd></div><div><dt>Going out</dt><dd>${money(r.out, 0)}</dd></div><div><dt>Left over</dt><dd class="${r.left < 0 ? 'neg' : 'pos'}">${money(r.left, 0)}</dd></div><div><dt>10% buffer</dt><dd>${r.buf ? money(r.buf, 0) : '–'}</dd></div><div><dt>Saved</dt><dd class="${r.saved < 0 ? 'neg' : 'pos'}">${money(r.saved, 0)}</dd></div></dl>
+      <dl class="yp-dl"><div><dt>Coming in</dt><dd>${money(r.inc, 0)}</dd></div><div><dt>Going out</dt><dd>${money(r.out, 0)}</dd></div><div><dt>Left over</dt><dd class="${r.left < 0 ? 'neg' : 'pos'}">${money(r.left, 0)}</dd></div><div><dt>10% buffer</dt><dd>${r.buf ? money(r.buf, 0) : '–'}${r.fromBuf ? `<small class="${r.buf - r.fromBuf < 0 ? 'neg' : ''}"> ${money(r.buf - r.fromBuf, 0)} after spends</small>` : ''}</dd></div><div><dt>Saved</dt><dd class="${r.saved < 0 ? 'neg' : 'pos'}">${money(r.saved, 0)}</dd></div></dl>
       ${r.slip || r.chk ? `<div class="yp-steps">${r.slip ? (r.moved ? `<span class="ok">✓ Pay sorted</span>` : `<button type="button" class="linkbtn" data-act="ypmove" data-v="${esc(r.ym)}">What to move</button>`) : ''}${r.chk ? `<span class="${r.chk.spare >= 0 ? 'ok' : 'bad'}">✓ Bank check: ${r.chk.spare >= 0 ? `${money(r.chk.spare, 0)} ahead` : `${money(-r.chk.spare, 0)} behind`}${r.adj ? `, ${r.adj > 0 ? 'moved' : 'took back'} ${money(Math.abs(r.adj), 0)}` : ''}</span>` : r.slip && today() >= ypCheckDate(r.ym) ? `<button type="button" class="linkbtn" data-act="ypcheck" data-v="${esc(r.ym)}">Bank check</button>` : ''}</div>` : ''}
-      ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}</article>`; }).join('');
+      ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}
+      ${r.fb.length || r.fs.length ? `<div class="yp-items yp-from">${r.fb.map(x => `<span>🛟 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>buffer</small></span>`).join('')}${r.fs.map(x => `<span>🏦 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>savings</small></span>`).join('')}</div>` : ''}</article>`; }).join('');
   return head + ypNow(C) + src + `<h2 class="yp-h">The trips</h2>` + trips + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
     <p class="note">Going out is each month's bills, kids' extras, food and fuel from the Spreadsheet, plus the one-offs and trip money shown. Change anything in the Spreadsheet and this updates. 10% of whatever is left over each month stays in the account as a buffer.</p>`;
 }
@@ -7649,17 +7654,23 @@ function countRibbon(title = '') {
 }
 
 /* ===== Budget at a glance: food shops, purchases and how each one is covered =====
-   buys/<id>  = { d, a, n, ym, cover: 'food'|'spread'|'spare'|'pot'|'planned', cuts:[{ym, slot, a}], extra }
+   buys/<id>  = { d, a, n, ym, cover: 'buffer'|'spread'|'savings'|'food'|'planned' (older: 'spare'|'pot'), cuts:[{ym, slot, a}], extra }
    shops/<ym> = { done: { <slot>: { at, actual } } } */
 const liveBuys = () => (S.buys || []).filter(b => !b.void); // void = removed (e.g. turned out to be before payday)
 const SHOP_FLOOR = 0.3; // a shop is never cut below 30% of its usual amount
 const BUY_COVER = {
+  buffer: ['🛟', 'Take it out of the buffer'],
+  spread: ['🧺', 'Adjust the remaining monthly shops'],
+  savings: ['🏦', 'Take it out of savings'],
   food: ['🛒', 'Take it off the next food shop'],
-  spread: ['🧺', 'Spread it over the rest of the month\'s shops'],
+  planned: ['✅', 'It was already in the budget'],
   spare: ['💷', 'Use this month\'s spare money'],
   pot: ['🏝️', 'Take it from the holiday pot'],
-  planned: ['✅', 'It was already in the budget'],
 };
+const BUY_OLD = ['spare', 'pot']; // older choices: still shown on purchases that used them, not offered for new ones
+const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings']; // covered outside the month's budget, so the Budget Sheet doesn't change
+/* purchases in a pay month taken from the buffer or from savings (the Year plan takes them off those) */
+const buysFrom = (ym, cover) => liveBuys().filter(b => b.ym === ym && b.cover === cover);
 function shopSlots(ym) {
   const doc = S.bsheet[ym]; if (!doc) return [];
   const rows = (doc.secs || []).filter(s => s.kind === 'base' || s.kind === 'extra').flatMap(s => s.rows.filter(bsOn)).filter(r => /food|shop|groceries|big monthly/i.test(r.n || '') && !/school|dinner|pet|dog|cat/i.test(r.n || ''));
@@ -7689,7 +7700,7 @@ function planCuts(amount, cover, skip) {
 // what the purchases do to a month's Budget Sheet: the spend goes in, food-shop cuts come off, and shops that came in over or under count too
 function buysNet(ym) {
   let net = 0;
-  liveBuys().forEach(b => { if (b.ym === ym && b.cover !== 'pot' && b.cover !== 'planned') net += Number(b.a) || 0; (b.cuts || []).forEach(c => { if (c.ym === ym) net -= c.a; }); });
+  liveBuys().forEach(b => { if (b.ym === ym && !BUY_ASIDE.includes(b.cover)) net += Number(b.a) || 0; (b.cuts || []).forEach(c => { if (c.ym === ym) net -= c.a; }); });
   shopSlots(ym).forEach(s => { const d = shopDone(ym, s.slot); if (d && d.actual != null) net += Number(d.actual) - shopTarget(s); });
   return Math.round(net * 100) / 100;
 }
@@ -7698,7 +7709,7 @@ const daysToPay = () => { const t = today(); let pd = payday(plCur()); if (pd <=
 function coverLine(b) {
   if ((b.cover === 'food' || b.cover === 'spread') && (b.cuts || []).length > 1 && b.cuts.every(c => Math.abs(c.a - b.cuts[0].a) < .02)) return `${m2(b.cuts[0].a)} off each of the next ${b.cuts.length} food shops${b.extra ? `, ${m2(b.extra)} from spare` : ''}`;
   if (b.cover === 'food' || b.cover === 'spread') { const parts = (b.cuts || []).map(c => { const s = shopSlots(c.ym)[c.slot]; return s ? `${m2(c.a)} off the ${s.n.toLowerCase()}${c.ym !== b.ym ? ` (${monShort(c.ym)})` : ''}` : ''; }).filter(Boolean); return parts.join(', ') + (b.extra ? `${parts.length ? ', ' : ''}${m2(b.extra)} from spare` : '') || 'From spare'; }
-  return { spare: 'From this month\'s spare', pot: 'From the holiday pot', planned: 'Already in the budget' }[b.cover] || '';
+  return { spare: 'From this month\'s spare', pot: 'From the holiday pot', planned: 'Already in the budget', buffer: 'Out of the buffer', savings: 'Out of savings' }[b.cover] || '';
 }
 
 function glanceCard(compact = false) {
@@ -7728,14 +7739,18 @@ function foodPanel() {
     ${buys.length || Math.abs(net) > .5 ? `<p class="note">${net > .5 ? `This month's Budget Sheet has ${m2(net)} more going out because of these.` : net < -.5 ? `The month is ${m2(-net)} better off, because shops came in under.` : 'All covered by the food shops, so the month still adds up the same.'}</p>` : ''}</section>`;
 }
 function buyForm(id, preset) {
-  const b = liveBuys().find(x => x.id === id) || { d: today(), cover: 'food', ...(preset || {}) };
-  const opts = () => { const a = num(v('byA')) || 0, cur = plCur(), doc = S.bsheet[cur], left = doc ? bsTotals(doc, cur).left + (b.id && b.cover !== 'pot' && b.cover !== 'planned' ? (Number(b.a) || 0) - (b.cuts || []).filter(c => c.ym === cur).reduce((s, c) => s + c.a, 0) : 0) : 0;
-    const desc = k => { if (!a) return { food: 'Like you normally do', spread: 'A little off each shop', spare: `${money(left, 0)} spare this month`, pot: `${money(potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0), 0)} in the pot`, planned: 'Nothing changes' }[k];
+  const b = liveBuys().find(x => x.id === id) || { d: today(), cover: 'spread', ...(preset || {}) };
+  const opts = () => { const a = num(v('byA')) || 0, cur = plCur(), doc = S.bsheet[cur], left = doc ? bsTotals(doc, cur).left + (b.id && !BUY_ASIDE.includes(b.cover) ? (Number(b.a) || 0) - (b.cuts || []).filter(c => c.ym === cur).reduce((s, c) => s + c.a, 0) : 0) : 0;
+    const C = ypCalc(), mine = k => b.id && b.cover === k ? Number(b.a) || 0 : 0, bufNow = C ? C.nowBuf + mine('buffer') : null, savNow = C ? C.now + mine('savings') : null;
+    const desc = k => { if (k === 'buffer' && bufNow == null) return 'Set up the Year plan first'; if (k === 'savings' && savNow == null) return 'Set up the Year plan first';
+      if (!a) return { food: 'Like you normally do', spread: 'A little off each shop left this month', spare: `${money(left, 0)} spare this month`, pot: `${money(potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0), 0)} in the pot`, planned: 'Nothing changes', buffer: `${money(bufNow, 0)} in the buffer now`, savings: `${money(savNow, 0)} saved now` }[k];
+      if (k === 'buffer') return bufNow - a >= 0 ? `Buffer goes from ${money(bufNow, 0)} to ${money(bufNow - a, 0)}. Savings don't change` : `Only ${money(bufNow, 0)} in the buffer, so it would be ${money(a - bufNow, 0)} under`;
+      if (k === 'savings') return `Savings go from ${money(savNow, 0)} to ${money(savNow - a, 0)}. Move ${money(a, 2)} from savings to the main account`;
       if (k === 'food' || k === 'spread') { const pc = planCuts(a, k, b.id); if (!pc.cuts.length) return 'No shops left to take it from'; const first = pc.cuts.map(c => { const s = shopSlots(c.ym)[c.slot]; return s ? `${s.n} ${m2(shopTarget(s, b.id))} → ${m2(shopTarget(s, b.id) - c.a)}` : ''; }).slice(0, 3).join(' · '); return first + (pc.extra ? ` · ${m2(pc.extra)} too big for the shops, so from spare` : ''); }
       if (k === 'spare') return left - a >= 0 ? `Leaves ${money(left - a, 0)} spare this month` : `Leaves the month ${money(a - left, 0)} short`;
       if (k === 'pot') { const pb = potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0); return `Pot goes from ${money(pb, 0)} to ${money(pb - a, 0)}`; }
       return 'Nothing changes'; };
-    return Object.entries(BUY_COVER).map(([k, [ic, lbl]]) => `<button type="button" class="bc ${v('byC') === k ? 'on' : ''}" data-act="buyc" data-v="${k}" aria-pressed="${v('byC') === k}"><span class="bc-i">${ic}</span><span class="grow"><b>${lbl}</b><small>${esc(desc(k))}</small></span></button>`).join(''); };
+    return Object.entries(BUY_COVER).filter(([k]) => !BUY_OLD.includes(k) || b.cover === k).map(([k, [ic, lbl]]) => `<button type="button" class="bc ${v('byC') === k ? 'on' : ''}" data-act="buyc" data-v="${k}" aria-pressed="${v('byC') === k}"><span class="bc-i">${ic}</span><span class="grow"><b>${lbl}</b><small>${esc(desc(k))}</small></span></button>`).join(''); };
   openSheet(id ? (b.n || 'Purchase') : 'Add a purchase', `<div class="zinput"><span>£</span><input id="byA" name="byA" inputmode="decimal" placeholder="0" value="${b.a ?? ''}" aria-label="How much"></div>` + fld('byN', 'What was it', b.n || '', 'text', 'placeholder="e.g. School trip, trainers, takeaway"') + fld('byD', 'When', b.d, 'date') +
     `<input type="hidden" id="byC" value="${esc(b.cover)}"><div class="field"><label>How shall we cover it?</label><div class="bc-list" id="byOpts"></div></div>`, async () => {
     const a = num(v('byA')), n = v('byN').trim(), cover = v('byC'), d = v('byD') || today(); if (!a || a <= 0) throw new Error('Enter how much it was');
@@ -7745,6 +7760,7 @@ function buyForm(id, preset) {
     if (x.extra) x.extra = Math.round(x.extra * 100) / 100;
     const bid = b.id || uid('by'); await put(`buys/${bid}`, x); if (preset && preset.back === 'bank') setTimeout(() => bankForm(), 400);
     const es = potEntries().filter(e => e.buy !== bid); if (cover === 'pot') es.push({ id: uid('pe'), d, a: -a, n: `Covered ${x.n}`, buy: bid }); if (es.length !== potEntries().length || cover === 'pot') await savePot(es);
+    if (cover === 'savings') window.__toastAfter = `Move ${money(a, 2)} from savings to the main account`; else if (cover === 'buffer') window.__toastAfter = `Taken out of the buffer`;
   }, id ? { onDelete: async () => { await remove(`buys/${id}`); if (potEntries().some(e => e.buy === id)) await savePot(potEntries().filter(e => e.buy !== id)); } } : {});
   const draw = () => { const o = $('#byOpts'); if (o) o.innerHTML = opts(); };
   $('#sheetForm').addEventListener('input', e => { if (e.target.id === 'byA') draw(); }); draw(); setTimeout(() => { const i = $('#byA'); if (i && !id) i.focus(); }, 60);
