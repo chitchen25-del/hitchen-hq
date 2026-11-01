@@ -950,6 +950,7 @@ table.xs td.sel{outline:2px solid #1E7B45;outline-offset:-2px;background:#F2FAF4
 h4.qh{margin:10px 2px 4px;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .bk-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0} .bk-sum div{background:var(--sheet-2);border-radius:12px;padding:10px} .bk-sum span{display:block;font-size:.78rem;color:var(--muted)} .bk-sum b{font-size:1.15rem}
 .bk-row{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule-2);font-size:.9rem} .bk-row .grow small{display:block;color:var(--muted)} .bk-ok{color:var(--good)} .bk-new{color:var(--red)}
+.gstart{display:block;margin:3px auto 0;border:0;border-radius:99px;background:var(--ink);color:var(--sheet);font-size:.7rem;font-weight:700;padding:3px 9px;cursor:pointer}
 .gwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule-2);border-radius:12px}
 .gtab{border-collapse:separate;border-spacing:0;font-size:.8rem;min-width:100%;font-variant-numeric:tabular-nums}
 .gtab th,.gtab td{padding:5px 8px;border-bottom:1px solid var(--rule-2);border-right:1px solid var(--rule-2);text-align:right;white-space:nowrap;background:var(--sheet)}
@@ -2266,10 +2267,10 @@ function render() {
 
 
 /* ===== Sheet: the money as one spreadsheet (a column per pay month) and a calendar of what goes out when =====
-   Everything reads the same records as the rest of the app (Budget Sheets, Zilch, Treats), so the numbers always agree.
-   Typed amounts save straight into that month's Budget Sheet. */
+   Everything reads the same records as the rest of the app (Spreadsheet months, Zilch, Treats), so the numbers always agree.
+   Typed amounts save straight into that month in the Spreadsheet. */
 const GRID_MONTHS = 6;
-function gridMonths() { const c = plCur(); return Array.from({ length: GRID_MONTHS }, (_, i) => ymAdd(c, i)); }
+function gridMonths() { const c = payCur(), n = Math.max(GRID_MONTHS, UI.hym && UI.hym > c ? ymDiff(c, UI.hym) + 1 : 0); return Array.from({ length: Math.min(n, 24) }, (_, i) => ymAdd(c, i)); } /* six pays, or as far as the month last opened */
 const gk = s => String(s || '').trim().toLowerCase();
 function gridRows(ms) {
   const groups = [];
@@ -2300,6 +2301,8 @@ function gridRows(ms) {
   if (ms.some(ym => Math.abs(buysNet(ym)) > 0.004)) groups.push({ t: 'Extra spends', cls: 'out', rows: [{ n: 'Unplanned spending (after food-shop cuts)', vals: ms.map(ym => ({ v: buysNet(ym) })) }] });
   return groups;
 }
+/* bring a month's column into view on the Spreadsheet */
+function gridScrollTo(ym) { setTimeout(() => { const w = $('.gwrap'), th = w && ym ? w.querySelector(`[data-v="${ym}"]`) : null; if (w && th) { const c = th.closest('th'), g = w.querySelector('th.gn'); w.scrollLeft = Math.max(0, c.offsetLeft - (g ? g.offsetWidth : 0) - 8); } }, 30); }
 function viewGrid() {
   const seg = UI.gseg === 'cal' ? 'cal' : 'sheet';
   const tabs = `<div class="seg" role="group" aria-label="Show"><button data-act="gseg" data-v="sheet" aria-pressed="${seg === 'sheet'}">Spreadsheet</button><button data-act="gseg" data-v="cal" aria-pressed="${seg === 'cal'}">Calendar</button></div>`;
@@ -2310,7 +2313,7 @@ function gridSheet() {
   const tot = ms.map(ym => S.bsheet[ym] ? bsTotals(S.bsheet[ym], ym) : null);
   let run = 0; const carried = tot.map(t => t ? (run += t.left) : null);
   const hm = UI.hym && S.bsheet[UI.hym] ? UI.hym : ms[0];
-  const head = `<tr><th class="gn">£</th>${ms.map(ym => `<th class="${ym === hm ? 'gsel' : ''}">${S.bsheet[ym] ? `<button type="button" class="gmb" data-act="ghm" data-v="${ym}" aria-pressed="${ym === hm}">${esc(monShort(ym).slice(0, 3))} pay</button>` : `${esc(monShort(ym).slice(0, 3))} pay<small>no sheet</small>`}</th>`).join('')}</tr>`;
+  const head = `<tr><th class="gn">£</th>${ms.map(ym => `<th class="${ym === hm ? 'gsel' : ''}">${S.bsheet[ym] ? `<button type="button" class="gmb" data-act="ghm" data-v="${ym}" aria-pressed="${ym === hm}">${esc(monShort(ym).slice(0, 3))} pay</button>` : `${esc(monShort(ym).slice(0, 3))} pay<button type="button" class="gstart" data-act="gstart" data-v="${ym}">Start</button>`}</th>`).join('')}</tr>`;
   const cell = c => { if (!c) return '<td class="na">–</td>'; if (c.edit) return `<td><input class="gc" inputmode="decimal" data-gcell="${esc(JSON.stringify(c.edit))}" value="${c.v ? Number(c.v).toFixed(2) : ''}" aria-label="Amount"></td>`; return `<td>${f(c.v)}</td>`; };
   const body = groups.map(g => {
     const sums = ms.map((ym, i) => g.rows.reduce((a, r) => a + (r.vals[i] ? r.vals[i].v || 0 : 0), 0));
@@ -2337,7 +2340,7 @@ function gridCheck(ms, tot, carried) {
   ['chris', 'viki'].forEach(w => { const L = over.filter(x => x.who === w); if (!L.length) return; const top = L.reduce((a, x) => x.use > a.use ? x : a);
     warn.push(`<b>${ZWHO[w]}'s Zilch limit is over-stretched</b> in ${L.map(x => esc(monShort(x.ym))).join(', ')}: ${money(top.use, 0)} in use against a ${money(top.lim, 0)} limit. Zilch only frees the limit once a whole purchase is paid off, so the extra would be taken on the day. <button type="button" class="linkbtn" data-act="mseg" data-v="owed">See Zilch</button>`); });
   if (!over.length) ok.push('Both Zilch limits are within bounds every month.');
-  const none = ms.filter(ym => !S.bsheet[ym]); if (none.length) warn.push(`No Budget Sheet yet for ${none.map(ym => esc(monShort(ym))).join(', ')}, so ${none.length > 1 ? 'those months aren\'t' : 'that month isn\'t'} counted.`);
+  const none = ms.filter(ym => !S.bsheet[ym]); if (none.length) warn.push(`Nothing in the Spreadsheet yet for ${none.map(ym => esc(monShort(ym))).join(', ')}, so ${none.length > 1 ? 'those months aren\'t' : 'that month isn\'t'} counted.`);
   return `<section class="panel gcheck"><h2>Does it add up? ${warn.length ? `<span class="chip warn">${warn.length} to look at</span>` : '<span class="chip ok">All good</span>'}</h2>
     ${warn.length ? `<ul class="gck bad">${warn.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}${ok.length ? `<ul class="gck good">${ok.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}<div class="btnrow"><button type="button" class="btn small ghost" data-act="qbank">Check against the bank</button></div></section>`;
 }
@@ -2353,7 +2356,7 @@ async function recentLoad(force) {
 const whoBy = by => { const b = String(by || '').toLowerCase(); return b.startsWith('viki') ? 'Viki' : b.startsWith('chris') ? 'Chris' : b === 'claude' || b === 'ask' ? 'Claude' : b ? b.split('@')[0] : 'Someone'; };
 function recentWhat(path) {
   const [c, id] = path.split('/');
-  if (c === 'bsheet') return `the ${monthName(id)} Budget Sheet`;
+  if (c === 'bsheet') return `the ${monthName(id)} Spreadsheet`;
   if (c === 'plans') { const p = (S.plans || []).find(x => x.id === id); return p ? p.name : 'a trip'; }
   if (c === 'state') return 'Zilch';
   if (c === 'buys') { const b = (S.buys || []).find(x => x.id === id); return b ? `a purchase: ${b.n}` : 'a purchase (removed)'; }
@@ -2367,7 +2370,7 @@ function recentList() {
   const g = []; RECENT.rows.forEach(r => { const who = whoBy(r.updated_by), m = String(r.updated_at).slice(0, 16), c = r.path.split('/')[0], last = g[g.length - 1];
     if (last && last.who === who && last.m === m && last.c === c) last.paths.push(r.path); else g.push({ who, m, c, at: r.updated_at, paths: [r.path] }); });
   const when = iso => { const d = new Date(iso), day = ymd(d), t = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); return day === today() ? t : day === addDays(today(), -1) ? `yesterday ${t}` : `${shortDate(day)} ${t}`; };
-  return `<div class="list">${g.slice(0, 10).map(x => `<div class="row rc"><span class="rc-who rc-${x.who.toLowerCase()}">${esc(x.who[0])}</span><span class="grow">${esc(x.who)} changed ${esc(x.paths.length > 1 ? `${x.paths.length} ${x.c === 'bsheet' ? 'Budget Sheets' : 'things'}` : recentWhat(x.paths[0]))}</span><span class="m">${esc(when(x.at))}</span></div>`).join('') || '<p class="empty">Nothing yet.</p>'}</div>`;
+  return `<div class="list">${g.slice(0, 10).map(x => `<div class="row rc"><span class="rc-who rc-${x.who.toLowerCase()}">${esc(x.who[0])}</span><span class="grow">${esc(x.who)} changed ${esc(x.paths.length > 1 ? `${x.paths.length} ${x.c === 'bsheet' ? 'Spreadsheet months' : 'things'}` : recentWhat(x.paths[0]))}</span><span class="m">${esc(when(x.at))}</span></div>`).join('') || '<p class="empty">Nothing yet.</p>'}</div>`;
 }
 function recentPanel() { setTimeout(() => recentLoad(), 0); return `<section class="panel"><h2>Recent changes</h2><div id="recentBox">${recentList()}</div></section>`; }
 /* add, change or delete a whole line of the spreadsheet, for one month or from that month on */
@@ -2896,13 +2899,13 @@ function viewYearPlan() {
     <p>Viki's pay is a best guess until her payslip is in. Add it each month and everything below updates.</p></section>`;
   const src = `<div class="yp-src"><span>Every month comes from the <button type="button" class="linkbtn" data-act="mseg" data-v="grid">Spreadsheet</button>: Chris's pay, bills, day to day and one-offs. Viki's predicted pay:</span><div class="seg"><button data-act="ypsrc" data-v="basic" aria-pressed="${C.vikiB}">From her on-call days</button><button data-act="ypsrc" data-v="history" aria-pressed="${!C.vikiB}">Her last 15 months</button></div></div>`;
   const months = C.rows.map(r => { const isCur = r.ym === cur, diff = r.slip ? r.viki - r.pred : 0;
-    return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}" data-act="plsheet" data-v="${esc(r.ym)}" role="button" tabindex="0" aria-label="Open the ${esc(monthName(r.ym))} Budget Sheet"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
+    return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}" data-act="plsheet" data-v="${esc(r.ym)}" role="button" tabindex="0" aria-label="Open the ${esc(monthName(r.ym))} Spreadsheet"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
       <div class="yp-viki">${r.slip ? `<span class="chip ok">Payslip in</span> Viki <b>${money(r.viki, 2)}</b> <small>${diff >= 0 ? '+' : '−'}${money(Math.abs(diff), 0)} on the guess</small>` : `<span class="chip">Predicted</span> Viki <b>${money(r.pred, 0)}</b>`}<button type="button" class="btn small ${r.slip ? 'ghost' : ''}" data-act="ypslip" data-v="${esc(r.ym)}">${r.slip ? 'Change' : 'Add payslip'}</button></div>
       <dl class="yp-dl"><div><dt>Coming in</dt><dd>${money(r.inc, 0)}</dd></div><div><dt>Going out</dt><dd>${money(r.out, 0)}</dd></div><div><dt>Left over</dt><dd class="${r.left < 0 ? 'neg' : 'pos'}">${money(r.left, 0)}</dd></div><div><dt>10% buffer</dt><dd>${r.buf ? money(r.buf, 0) : '–'}${r.fromBuf ? `<small class="${r.buf - r.fromBuf < 0 ? 'neg' : ''}"> ${money(r.buf - r.fromBuf, 0)} after spends</small>` : ''}</dd></div><div><dt>Saved</dt><dd class="${r.saved < 0 ? 'neg' : 'pos'}">${money(r.saved, 0)}</dd></div></dl>
       ${r.slip || r.chk ? `<div class="yp-steps">${r.slip ? (r.moved ? `<span class="ok">✓ Pay sorted</span>` : `<button type="button" class="linkbtn" data-act="ypmove" data-v="${esc(r.ym)}">What to move</button>`) : ''}${r.chk ? `<span class="${r.chk.spare >= 0 ? 'ok' : 'bad'}">✓ Bank check: ${r.chk.spare >= 0 ? `${money(r.chk.spare, 0)} ahead` : `${money(-r.chk.spare, 0)} behind`}${r.adj ? `, ${r.adj > 0 ? 'moved' : 'took back'} ${money(Math.abs(r.adj), 0)}` : ''}</span>` : r.slip && today() >= ypCheckDate(r.ym) ? `<button type="button" class="linkbtn" data-act="ypcheck" data-v="${esc(r.ym)}">Bank check</button>` : ''}</div>` : ''}
       ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}
       ${r.fb.length || r.fs.length ? `<div class="yp-items yp-from">${r.fb.map(x => `<span>🛟 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>buffer</small></span>`).join('')}${r.fs.map(x => `<span>🏦 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>savings</small></span>`).join('')}</div>` : ''}<div class="yp-sheet">Open the spreadsheet ›</div></article>`; }).join('');
-  return head + ypNow(C) + src + `<p class="note yp-tripnote">The trip cards and their thermometers are in Treats, under <button type="button" class="linkbtn" data-act="opentrip" data-kind="summer" data-id="">Holidays</button> and <button type="button" class="linkbtn" data-act="opentrip" data-kind="family" data-id="">Visits</button>. Tap a month to open its Budget Sheet.</p>` + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
+  return head + ypNow(C) + src + `<p class="note yp-tripnote">The trip cards and their thermometers are in Treats, under <button type="button" class="linkbtn" data-act="opentrip" data-kind="summer" data-id="">Holidays</button> and <button type="button" class="linkbtn" data-act="opentrip" data-kind="family" data-id="">Visits</button>. Tap a month to open its Spreadsheet.</p>` + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
     <p class="note">Going out is each month's bills, kids' extras, food and fuel from the Spreadsheet, plus the one-offs and trip money shown. Change anything in the Spreadsheet and this updates. 10% of whatever is left over each month stays in the account as a buffer.</p>`;
 }
 
@@ -3178,11 +3181,11 @@ function quickTrip() {
   if (!L.length) { closeSheet(); UI.tab = 'trips'; keepUI(); render(); toast('Add the trip first, then its costs'); return; }
   openSheet('Which one is it for?', `<div class="list">${L.map(p => `<button type="button" class="rowbtn" data-act="plitem" data-plan="${esc(p.id)}"><div class="grow"><div class="t">${esc(p.name)}</div><div class="m">${p.from ? esc(shortDate(p.from)) : 'No date yet'}${p.idea ? ' · just an idea' : ''}</div></div></button>`).join('')}</div>`, null, { noSave:true });
 }
-/* money coming in: adds a line to that month's Budget Sheet */
+/* money coming in: adds a line to that month in the Spreadsheet */
 function incomeForm() {
   const ms = gridMonths().filter(ym => S.bsheet[ym]);
-  if (!ms.length) { toast('There\'s no Budget Sheet to add it to yet'); return; }
-  openSheet('Money coming in', fld('qiN', 'What', '', 'text', 'placeholder="e.g. Overtime, refund, birthday money"') + `<div class="fields2">${fld('qiA', 'Amount (£)', '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${sel('qiM', 'Which pay month', ms[0], ms.map(ym => [ym, `${monthName(ym)} pay`]))}</div><p class="note">It's added to that month's Budget Sheet, so the spreadsheet and the to spare / to find figure include it.</p>`, async () => {
+  if (!ms.length) { toast('There\'s no Spreadsheet to add it to yet'); return; }
+  openSheet('Money coming in', fld('qiN', 'What', '', 'text', 'placeholder="e.g. Overtime, refund, birthday money"') + `<div class="fields2">${fld('qiA', 'Amount (£)', '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${sel('qiM', 'Which pay month', ms[0], ms.map(ym => [ym, `${monthName(ym)} pay`]))}</div><p class="note">It's added to that month in the Spreadsheet, so the spreadsheet and the to spare / to find figure include it.</p>`, async () => {
     const n = v('qiN').trim(), a = num(v('qiA')), ym = v('qiM'); if (!n) throw new Error('Say what it is'); if (!a) throw new Error('Put in the amount');
     const d = bsClone(S.bsheet[ym]); d.inc = d.inc || [];
     if (d.inc.some(x => gk(x.n) === gk(n)) && !confirm(`${monthName(ym)} already has “${n}”. Add this as well?`)) throw new Error('Not saved');
@@ -3190,7 +3193,7 @@ function incomeForm() {
   });
 }
 /* ----- check against the bank: screenshots of the Nationwide app are read by the ask function (balance + lines), then
-   each line is matched here against what the app already knows: purchases, bills, Zilch, Budget Sheet rows, trip costs. ----- */
+   each line is matched here against what the app already knows: purchases, bills, Zilch, Spreadsheet rows, trip costs. ----- */
 const BANK = { res: null, busy: false, imgs: [] };
 function bankMatch(l) {
   if (l.dir !== 'out') return { k: 'in', t: 'Money in' };
@@ -3331,7 +3334,7 @@ function viewHome() {
   // tiles
   const goal = S.goals[0];
   const gp = goal && goal.target ? (Number(goal.saved)||0)/goal.target : 0;
-  /* tiles only for things that are set up; budget lives in the glance card when there's a Budget Sheet */
+  /* tiles only for things that are set up; budget lives in the glance card when there's a Spreadsheet */
   const tileList = [
     r.salary ? `<button class="tile" data-act="tab" data-v="work" data-who="viki">
       <span class="tl">${badge('viki')} On call this claim</span><span class="tv" data-count="${Math.round(vNow.oc+vNow.co)}">${money(vNow.oc+vNow.co,0)}</span>
@@ -3380,8 +3383,7 @@ function homeShortcuts() {
   const m = (seg, ic, l, sub) => t(ic, l, sub, `data-act="tab" data-v="money" data-seg="${seg}"`);
   const kids = kidsDob();
   const groups = [
-    ['Money', [m('grid', '📊', 'Spreadsheet', 'Every month side by side'), m('gcal', '📅', 'Calendar', 'What goes out when'), m('sheet', '🧮', 'Budget sheet', 'This month in detail'),
-      m('overview', '🛒', 'Food shops and spends', 'Add a purchase, shop done'), m('bills', '💷', 'Direct debits', 'Bills and due dates'), m('owed', '🔁', 'Zilch', 'What we owe and when'),
+    ['Money', [m('grid', '📊', 'Spreadsheet', 'Every month side by side'), m('gcal', '📅', 'Calendar', 'What goes out when'), m('overview', '🛒', 'Food shops and spends', 'Add a purchase, shop done'), m('bills', '💷', 'Direct debits', 'Bills and due dates'), m('owed', '🔁', 'Zilch', 'What we owe and when'),
       m('planner', '🗓️', 'Planner', 'Trips and Christmas money'), m('meals', '🍽️', 'Dinners and shopping', 'Meal plan and shopping list'), m('goals', '🎯', 'Savings goals', '')]],
     ['Treats', PL_KINDS.map(([k, l]) => t(TR_ICON[k] || '✦', l, '', `data-act="opentrip" data-kind="${k}"`))],
     ['Car', [t('🚙', 'Car details', 'Tax, insurance, finance', 'data-act="tab" data-v="car" data-seg="details"'), t('🔧', 'Service log', '', 'data-act="tab" data-v="car" data-seg="service"'),
@@ -4347,7 +4349,7 @@ function kidMoneyPanel(k) {
   let note = '';
   if (sp || sm) { const bits = [sp ? `${esc(sp.n)} ${m2(sp.a)}` : '', sm ? `${esc(sm.n)} ${m2(sm.a)}` : ''].filter(Boolean).join(' and ');
     const diffs = [sp && Math.abs(sp.a - wantPocket) > .01 ? `pocket money comes to ${m2(wantPocket)} this month (${m.n} ${DOWS[m.day]}s)` : '', sm && Math.abs(sm.a - wantPhone) > .01 ? `phones come to ${m2(wantPhone)}` : ''].filter(Boolean);
-    note = `This month's Budget Sheet has ${bits} for both girls.${diffs.length ? ` For both of them, ${diffs.join(' and ')}.` : ' That matches.'}`; }
+    note = `This month in the Spreadsheet has ${bits} for both girls.${diffs.length ? ` For both of them, ${diffs.join(' and ')}.` : ' That matches.'}`; }
   return `<section class="panel"><h2>Money <button class="btn small ghost" data-act="kmoney" data-k="${key}">Edit</button></h2><div class="list">
     ${m.pa ? `<div class="row"><span class="kic" style="--c:var(--gold)">💷</span><span class="grow"><span class="t">Pocket money</span><span class="m">${money(m.pa)} every ${DOWS[m.day]}${m.via ? ` to ${esc(m.via)}` : ''} · next ${nxl}</span></span><span class="amt">${m2(m.pocket)}<small>${m.n} ${DOWS[m.day]}s in ${mon.slice(0, 3)}</small></span></div>` : ''}
     ${m.pha ? `<div class="row"><span class="kic" style="--c:var(--chris-bar)">📱</span><span class="grow"><span class="t">Phone</span><span class="m">${money(m.pha)} a month${m.phvia ? ` · ${esc(m.phvia)}` : ''}</span></span><span class="amt">${m2(m.pha)}<small>a month</small></span></div>` : ''}
@@ -5506,7 +5508,7 @@ const MONEY_GROUPS = [
   { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['yplan','Year plan'],['past','Past months'],['gcal','Calendar']] },
   { k:'zilch', l:'Zilch', pages:[['owed','Zilch']] },
   { k:'planner', l:'Planner', pages:[['planner','Planner']] },
-  { k:'more', l:'More', pages:[['sheet','Budget Sheet'],['bills','Bills'],['meals','Dinners and shopping'],['overview','Food shops and spends'],['old','Old debts'],['plan','Pay and plan'],['spending','Spending'],['budget','Budget'],['goals','Goals'],['year','Year ahead'],['save','Tips']] },
+  { k:'more', l:'More', pages:[['bills','Bills'],['meals','Dinners and shopping'],['overview','Food shops and spends'],['old','Old debts'],['plan','Pay and plan'],['spending','Spending'],['budget','Budget'],['goals','Goals'],['year','Year ahead'],['save','Tips']] },
 ];
 const moneyGroupOf = page => MONEY_GROUPS.find(g => g.pages.some(([k]) => k === page)) || MONEY_GROUPS[0];
 function viewMoney() {
@@ -5536,7 +5538,7 @@ function sheetHero(ym) {
     side: `<span class="tb-kicker">Coming in</span><span class="big" style="font-size:1.35rem">${money(t.inc,0)}</span>`,
     cells: [ tbCell('Bills', money(g(['dd']),0), FLOW_COL.dd), tbCell('Day to day', money(g(['ex1','ex2']),0), FLOW_COL.ex2), tbCell('Extras', money(g(['mex','trips']),0), FLOW_COL.trips) ],
     after: `<div style="padding:12px 0 2px"><div class="mix" aria-hidden="true">${all.map(o => `<i title="${esc(o.name)}" style="width:${o.v/base*100}%;background:${o.c}"></i>`).join('')}</div></div>`,
-    foot: `<span>${spare >= 0 ? 'Bills paid, kids sorted, treats planned, and some left over.' : 'Everything is planned. This bit just needs finding before payday.'} From the ${esc(monthName(ym))} Budget Sheet.</span>` });
+    foot: `<span>${spare >= 0 ? 'Bills paid, kids sorted, treats planned, and some left over.' : 'Everything is planned. This bit just needs finding before payday.'} From the ${esc(monthName(ym))} Spreadsheet.</span>` });
 }
 /* ----- bank statements: transactions loaded from the Nationwide statements (stmt/<yyyy-mm> docs) ----- */
 const GROUP = {
@@ -5659,7 +5661,7 @@ function viewSpending() {
     ${budgetPanel}${txList}`;
 }
 
-/* the payday plan comes from the month's Budget Sheet when there is one, so the app only ever has one "left over" */
+/* the payday plan comes from the month in the Spreadsheet when there is one, so the app only ever has one "left over" */
 function viewPlanSheet(ym, f) {
   const t = f.t, bonus = moneyIn(ym).items.filter(x => x.bonus);
   const row = (sw, name, note, amt, act) => `<${act?`button class="rowbtn" data-act="${act}"`:'div class="row"'}><span class="sw" style="background:${sw}"></span><div class="grow"><div class="t">${esc(name)}</div>${note?`<div class="m">${note}</div>`:''}</div><div class="amt">${money(amt,0)}</div></${act?'button':'div'}>`;
@@ -5672,7 +5674,7 @@ function viewPlanSheet(ym, f) {
     <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow t">Total</div><div class="amt">${money(t.inc,0)}</div></div>
   </section>
   <section class="panel"><h2>Payday plan <span class="sub">${esc(monthName(ym))}</span></h2>
-    <p class="note">When pay lands, this is where it goes. It's the same as this month's Budget Sheet, so change anything there.</p>
+    <p class="note">When pay lands, this is where it goes. It's the same as this month in the Spreadsheet, so change anything there.</p>
     <div class="list">
       ${f.outs.map(o => row(o.c, o.name, o.k === 'trips' ? 'From Treats and Year ahead' : o.k === 'buys' ? 'Purchases this month' : secNote(o.k), o.v, o.k === 'trips' ? 'tab" data-v="trips' : 'mseg" data-v="sheet')).join('')}
       <div class="row" style="border-top:1.5px solid var(--ink)"><div class="grow"><div class="t">${t.left >= 0 ? 'Left over' : 'Short by'}</div><div class="m">${t.left >= 0 ? `${t.split}% to savings (${money(t.save,0)}), ${100 - t.split}% to the holiday pot (${money(t.hol,0)})` : 'The holiday pot can cover it'}</div></div><div class="amt" style="color:${t.left<0?'var(--red)':'var(--good)'}">${money(Math.abs(t.left),0)}</div></div>
@@ -6062,7 +6064,7 @@ function odRow(d) {
 /* ===== Money → Planner: what comes in, the budget, and every trip on one page, with a pay plan for each trip =====
    plan.payplan = { start:'YYYY-MM', n, mode:'pct'|'gbp', v:[…], past:{ym:£}, made:'YYYY-MM' } replaces each unpaid item's own
    dates (Zilch already booked carries on); pct is a share of what was still to put aside when the plan was made.
-   plan.idea = true keeps a trip out of the Budget Sheet. Changes on the Planner stay a draft (UI.pp) until "Use this plan". */
+   plan.idea = true keeps a trip out of the Spreadsheet. Changes on the Planner stay a draft (UI.pp) until "Use this plan". */
 const PP_COL = ['#2F6FDE', '#9B3FD9', '#12A385', '#E07A1F', '#D2477A', '#5E6B7D'];
 const PP_N = 14;
 const ppMonths = () => Array.from({ length: PP_N }, (_, i) => ymAdd(plCur(), i));
@@ -6099,7 +6101,7 @@ function ppTrip(p) {
 }
 const ppDirty = () => !!UI.pp && Object.keys(UI.pp.t).length > 0;
 function ppEdit(id, fn) { const st = ppState(), p = (S.plans || []).find(x => x.id === id); if (!p) return; const T = ppTrip(p), d = st.t[id] = { ...(st.t[id] || {}) }; fn(d, T); render(); }
-/* what's spare each month before any trips: that month's Budget Sheet (or the latest one), less yearly costs */
+/* what's spare each month before any trips: that month in the Spreadsheet (or the latest one), less yearly costs */
 function ppBase(ym) {
   const keys = Object.keys(S.bsheet || {}).sort(); if (!keys.length) return null;
   const own = S.bsheet[ym], k = own ? ym : (keys.filter(x => x <= ym).pop() || keys[0]), doc = S.bsheet[k], t = bsTotals(doc, k);
@@ -6110,7 +6112,7 @@ function ppBase(ym) {
 
 function viewPlanner2() {
   const months = ppMonths(), cur = months[0], b0 = ppBase(cur);
-  if (!b0) return `<section class="panel"><h2>Planner</h2><p class="empty">Start a Budget Sheet for this month first, so the Planner knows what comes in and what goes out.</p><div class="btnrow"><button class="btn small" data-act="mseg" data-v="sheet">Open the Budget Sheet</button></div></section>`;
+  if (!b0) return `<section class="panel"><h2>Planner</h2><p class="empty">Start this month in the Spreadsheet first, so the Planner knows what comes in and what goes out.</p><div class="btnrow"><button class="btn small" data-act="mseg" data-v="sheet">Open the Spreadsheet</button></div></section>`;
   const st = ppState(), all = ppTrips(), col = {}; all.forEach((p, i) => { col[p.id] = PP_COL[Math.min(i, PP_COL.length - 1)]; });
   const T = all.map(ppTrip), on = T.filter(x => x.on);
   if (!st.sel || !all.some(p => p.id === st.sel)) st.sel = (all[0] || {}).id || null;
@@ -6128,13 +6130,13 @@ function viewPlanner2() {
   const doc = S.bsheet[b0.from], t0 = bsTotals(doc, b0.from);
   const incRows = [...(doc.inc || []).filter(bsOn).map(x => [String(x.n || '').replace(/['’]s? wages|\s*wages/i, '').trim() || x.n, Number(x.a) || 0]), ...(t0.viki ? [['Viki', t0.viki]] : [])];
   const incomeCard = `<section class="panel nopad">${headCard({ tone: 'good', kicker: 'Predicted income a month', title: money(b0.inc, 0),
-    meta: `<span>From the ${esc(monthName(b0.from))} Budget Sheet</span>`,
+    meta: `<span>From the ${esc(monthName(b0.from))} Spreadsheet</span>`,
     body: `<div class="pp-inc">${incRows.map(([n, a]) => `<div><span>${esc(n)}</span><b>${money(a, 0)}</b></div>`).join('')}</div><div class="pp-spare"><span>Spare this month, after the budget${b0.zil > 0.5 ? ', Zilch' : ''}${b0.year ? ' and yearly costs' : ''}</span><b>${money(b0.spare - b0.zil, 0)}</b></div>` })}</section>`;
   const vTitle = verdict === 'no' ? `Not yet: ${short.length} month${short.length === 1 ? '' : 's'} come${short.length === 1 ? 's' : ''} up short` : verdict === 'tight' ? 'Yes, but it\'s tight' : 'Yes, it all fits';
   const vText = verdict === 'no' ? `${monthName(months[short[0][1]])} is ${money(-short[0][0], 0)} short${bases[short[0][1]].zil > 0.5 ? `, with ${money(bases[short[0][1]].zil, 0)} going to Zilch` : ''}. Start saving earlier, spread a trip over more months, or move some of it to a quieter month.` : verdict === 'tight' ? `Every month fits, but ${monthName(months[minI])} only has ${money(rests[minI], 0)} left for anything unexpected.` : `Every month still has at least ${money(rests[minI], 0)} left after the trips.`;
   const verdictCard = `<section class="pp-verdict v-${verdict}"><span class="pp-k">Can we afford it?</span><b class="pp-vt">${esc(vTitle)}</b><span>${esc(vText)}</span>
     <div class="pp-stats"><div><span>Trips in the plan</span><b>${money(tripTot, 0)}</b></div><div><span>Of spare money</span><b>${spareTot ? Math.round(tripTot / spareTot * 100) : 0}%</b></div><div><span>Tightest month</span><b>${esc(mon(months[minI]))}</b></div></div>
-    <p class="pp-fine">Over the next ${PP_N} months, using predicted income${bases.some(b => b.est) ? ' (months without a Budget Sheet copy the latest one)' : ''}.</p></section>`;
+    <p class="pp-fine">Over the next ${PP_N} months, using predicted income${bases.some(b => b.est) ? ' (months without a Spreadsheet copy the latest one)' : ''}.</p></section>`;
 
   const secs = (doc.secs || []).filter(s => s.kind !== 'list').map(s => [s.t, t0.sec[s.k] || 0]).filter(x => x[1] > 0);
   if (b0.zil > 0.5) secs.push(['Zilch payments', b0.zil]);
@@ -6142,7 +6144,7 @@ function viewPlanner2() {
   const bTot = secs.reduce((s, x) => s + x[1], 0), bMax = Math.max(1, ...secs.map(x => x[1]));
   const budgetCol = `<section class="panel pp-col"><div class="pp-ch"><span class="pp-k g">Our budget</span><b>${money(bTot, 0)}</b><small>${b0.zil > 0.5 ? 'this month, with Zilch' : 'a month'}</small></div>
     ${secs.map(([n, a]) => `<div class="pp-b"><div><span>${esc(n)}</span><b>${money(a, 0)}</b></div><i><em style="width:${Math.round(a / bMax * 100)}%"></em></i></div>`).join('')}
-    <button type="button" class="linkbtn pp-link" data-act="mseg" data-v="sheet">Change in the Budget Sheet</button></section>`;
+    <button type="button" class="linkbtn pp-link" data-act="mseg" data-v="sheet">Change in the Spreadsheet</button></section>`;
   const tripsCol = `<section class="panel pp-col"><div class="pp-ch"><span class="pp-k p">Trips we're planning</span><b>${money(tripTot, 0)}</b><small>tap one to plan it</small></div>
     ${T.length ? T.map(x => { const c = x.items.reduce((s, it) => s + itemCost(it), 0), sel = x.p.id === st.sel;
       return `<div class="pp-t${sel ? ' on' : ''}"><button type="button" class="pp-tb" data-act="ppsel" data-id="${esc(x.p.id)}" aria-pressed="${sel}"><span class="pp-tn"><i style="background:${col[x.p.id]}"></i>${esc(x.p.name || 'Trip')}</span><small>${esc(plRange(x.p))}</small><b>${money(c, 0)}</b></button>
@@ -6188,7 +6190,7 @@ function viewPlanner2() {
   const monthCard = `<section class="panel"><h2>What's left each month</h2><div class="list">${months.map((ym, i) => `<div class="row"><div class="grow"><div class="t">${esc(monthName(ym))}${bases[i].est ? ' <small class="pp-est">estimate</small>' : ''}</div><div class="m">${pays[i].length || bases[i].zil > 0.5 ? esc([...(bases[i].zil > 0.5 ? [`Zilch ${money(bases[i].zil, 0)}`] : []), ...pays[i].map(y => `${y.x.p.name} ${money(y.a, 0)}`)].join(' · ')) : 'Nothing extra to pay'}</div></div><div class="amt ${rests[i] < -0.5 ? 'pp-bad' : 'pp-good'}">${rests[i] < -0.5 ? `${money(-rests[i], 0)} short` : `${money(rests[i], 0)} spare`}</div></div>`).join('')}</div></section>`;
   const bar = ppDirty() ? `<div class="xbar" role="region" aria-label="Unsaved plan"><span>Trying out a plan</span><button class="btn small ghost" data-act="ppundo">Undo all</button><button class="btn small" data-act="ppuse">Use this plan</button></div>` : '';
   return incomeCard + verdictCard + `<div class="pp-two">${budgetCol}${tripsCol}</div>` + yearCard + payCard + monthCard
-    + `<p class="note" style="padding:0 6px">Nothing here changes the Budget Sheet or the trips until you tap Use this plan.</p>` + bar;
+    + `<p class="note" style="padding:0 6px">Nothing here changes the Spreadsheet or the trips until you tap Use this plan.</p>` + bar;
 }
 
 function ppItemForm(id, itemId) {
@@ -6211,7 +6213,7 @@ async function ppUse() {
     if (d.pp) out.payplan = { start: T.pp.start, n: T.pp.n, mode: T.pp.mode, v: T.pp.v.slice(), past: T.pp.past || {}, made: plCur() };
     await put(`plans/${id}`, out); n++;
   }
-  UI.pp = { sel: st.sel, t: {} }; toast(n ? `Plan saved. The Budget Sheets now follow it` : 'Nothing to save'); render();
+  UI.pp = { sel: st.sel, t: {} }; toast(n ? `Plan saved. The Spreadsheet months now follow it` : 'Nothing to save'); render();
 }
 async function ppAct(a, el) {
   const id = el.dataset.id;
@@ -6265,7 +6267,7 @@ function legForm(planId, di, li) {
 /* ===== Zilch list: everything on Zilch for both of you, and what it takes out each pay month =====
    state/zilch = { limits:{chris, viki}, items:[{ id, who:'chris'|'viki', n, mode:'auto'|'set', a, d, fee, pays:[{ym, a}], note }] }
    'auto' = a purchase the app splits the Zilch way (a quarter on the day, then three monthly with fees; under £75 every two weeks);
-   'set' = payments already known, typed in month by month. Each month's Budget Sheet shows them as "Zilch payments", and they come
+   'set' = payments already known, typed in month by month. Each month in the Spreadsheet shows them as "Zilch payments", and they come
    off what's spare. Trip bookings on Zilch stay with Treats (they're counted there, and shown alongside here). */
 const ZL = () => S.zilch || { items: [] };
 const ZWHO = { chris: 'Chris', viki: 'Viki' };
@@ -6312,9 +6314,9 @@ function zlPanel() {
     return `<div class="zl-box"><div class="zl-h">${ZWHO[w]}'s limit</div><div class="zl-bar"><i style="width:${L ? Math.min(100, (L - f) / L * 100) : 0}%;background:${w === 'viki' ? ZCOL.viki : ZCOL.chris}"></i></div><div class="zl-leg"><span><b>${money(L - f, 0)}</b> in use</span><span><b>${money(f, 0)}</b> free of ${money(L, 0)}</span></div><div class="m">${c ? (c === cur ? 'Nothing left to pay after this month.' : `All paid off after the ${monShort(c)} pay.`) : 'Still paying for over two years.'}</div></div>`; }).join('');
   return `<section class="panel"><h2>What's on Zilch <button class="btn small" data-act="zlitem">Add</button></h2>
     <div class="zl-lims">${lim}</div>
-    ${live.length ? who('chris') + who('viki') : '<p class="empty">Nothing on Zilch. Add anything you buy on Zilch and each month\'s Budget Sheet will take the payments into account.</p>'}
+    ${live.length ? who('chris') + who('viki') : '<p class="empty">Nothing on Zilch. Add anything you buy on Zilch and each month\'s Spreadsheet will take the payments into account.</p>'}
     ${done.length ? `<details class="zl-done"><summary>Paid off <span>${done.length}</span></summary><div class="list">${done.map(zlRow).join('')}</div></details>` : ''}
-    <p class="note">Each month's Budget Sheet shows these under Zilch payments, and they come off what's spare. Trip bookings on Zilch are counted with Treats.</p></section>`;
+    <p class="note">Each month in the Spreadsheet shows these under Zilch payments, and they come off what's spare. Trip bookings on Zilch are counted with Treats.</p></section>`;
 }
 function zlRow(it) {
   const cur = plCur(), pays = zlPays(it), next = pays.filter(x => x.ym >= cur), left = next.reduce((s, x) => s + x.a, 0);
@@ -6892,14 +6894,14 @@ function plOverview() {
   const cur = plCur(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, i));
   const per = months.map(ym => { const parts = PL_KINDS.map(([k,l]) => ({ v: (S.plans||[]).filter(p => kindTab(p)===k).reduce((s,p) => s + (plPays(p)[ym]||0), 0), c: PL_COL[k], name: l })); return { ym, parts, total: parts.reduce((s,x) => s + x.v, 0) }; });
   const any = per.some(x => x.total > 0);
-  if (!any) return `<section class="panel"><h2>Paying for it</h2><p class="note">Add a trip below and cost it up. Each thing you add gets a month and a way to pay, and the planner works out what to put aside each month. It then shows up in that month's Budget Sheet in Money, so you can see whether the month still adds up.</p></section>`;
+  if (!any) return `<section class="panel"><h2>Paying for it</h2><p class="note">Add a trip below and cost it up. Each thing you add gets a month and a way to pay, and the planner works out what to put aside each month. It then shows up in that month in the Spreadsheet in Money, so you can see whether the month still adds up.</p></section>`;
   const peak = Math.max(...per.map(x => x.total)), list = per.filter(x => x.total > 0).slice(0, 6).map(x => { const sh = S.bsheet[x.ym], t = sh ? bsTotals(sh, x.ym) : null;
     return `<button class="rowbtn" data-act="plsheet" data-v="${x.ym}"><span class="sw" style="background:${x.parts.find(p => p.v)?.c || 'var(--rule-2)'}"></span><div class="grow"><div class="t">${monthName(x.ym)}</div><div class="m">${t ? (t.left >= 0 ? `Sheet still ${money(t.left,0)} spare after this` : `Sheet ${money(-t.left,0)} short with this`) : 'No budget sheet for this month yet'}</div></div><div class="amt" ${t && t.left < 0 ? 'style="color:var(--red)"' : ''}>${money(x.total,0)}</div></button>`; }).join('');
   return `<section class="panel"><h2>Paying for it <span class="sub">next 12 months</span></h2>
     <div class="cleg">${PL_KINDS.map(([k,l]) => `<span><i style="background:${PL_COL[k]}"></i>${l}</span>`).join('')}</div>
     ${barChart(per.map(x => ({ label: mon3(x.ym), parts: x.parts })), { label: 'Planner money to put aside each month', fmt: v => v === peak ? `Most ${money(v,0)}` : '' })}
     <div class="list">${list}</div>
-    <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Budget Sheet, and these amounts are already counted in each month's Budget Sheet in Money. Tap a month to open it.</p>
+    <p class="note">The next six months with something to pay. Pay months run payday to payday, like the Spreadsheet, and these amounts are already counted in each month in the Spreadsheet in Money. Tap a month to open it.</p>
     <div class="btnrow"><button class="btn small" data-act="tab" data-v="money" data-seg="planner">Plan it all on the Planner</button></div></section>`;
 }
 /* treats in time order: what's on now and coming up first (soonest at the top), then the ones that are over, most recent first, folded away.
@@ -7009,12 +7011,12 @@ function celebDates() {
 function celebSuggest() {
   const list = celebDates();
   return `<section class="panel"><h2>Coming up</h2><div class="zchips">${list.map(c => `<button type="button" data-act="celeb" data-name="${esc(c.n)}" data-date="${c.d}">${c.ic} ${esc(c.n)} · ${esc(shortDate(c.d).replace(/ \d{4}$/, ''))}</button>`).join('')}${list.some(c => /anniversary/i.test(c.n)) ? '' : `<button type="button" data-act="celeb" data-name="Anniversary">💍 Anniversary</button>`}<button type="button" data-act="celeb">＋ Something else</button></div>
-    <p class="note">Tap one to give it a budget. It saves a little each month until the day, and shows in each month's Budget Sheet.</p></section>`;
+    <p class="note">Tap one to give it a budget. It saves a little each month until the day, and shows in each month in the Spreadsheet.</p></section>`;
 }
 function celebForm(name = '', date = '') {
   openSheet('Add a celebration', fld('ceN', 'What', name, 'text', 'placeholder="e.g. Mother\'s Day"') + fld('ceD', 'Date', date, 'date') + fld('ceW', 'Presents for (optional)', '', 'text', 'placeholder="e.g. Viki"') +
     `<div class="fields2">${fld('ceA', 'Presents (£)', '', 'number', 'step="1" min="0" inputmode="decimal" placeholder="e.g. 50"')}${fld('ceP', 'Meal or day out (£)', '', 'number', 'step="1" min="0" inputmode="decimal" placeholder="Optional"')}</div>
-    <p class="note">The app saves a little each month until the day, and counts it in each month's Budget Sheet.</p>`, async () => {
+    <p class="note">The app saves a little each month until the day, and counts it in each month in the Spreadsheet.</p>`, async () => {
     const n = v('ceN').trim(), d = v('ceD'), w = v('ceW').trim(), a = num(v('ceA')) || 0, party = num(v('ceP')) || 0;
     if (!n) throw new Error('Say what you\'re celebrating'); if (!d) throw new Error('Pick the date');
     let ym = payYm(d); const cur = plCur(); if (ym < cur) ym = cur;
@@ -7262,7 +7264,7 @@ function planOptions(p) {
       <h3 class="po-h">Days out <button type="button" class="btn small ghost" data-act="pldo" data-id="${esc(p.id)}">Add one</button></h3>
       ${days.length ? `<div class="list">${days.map(dRow).join('')}</div>` : '<p class="empty">No days out yet in this option.</p>'}
       ${ideas.length ? `<div class="zchips po-ideas">${ideas.map((x, i) => `<button type="button" data-act="pldo" data-id="${esc(p.id)}" data-idea="${(p.ideas || []).indexOf(x)}">+ ${esc(x.n)}${Number(x.cost) ? ` · ${money(x.cost, 0)}` : ''}</button>`).join('')}</div>` : ''}
-      <p class="note">The drive, hotels and costs below follow whichever option is chosen, and only that one counts in the Budget Sheet. Tap a day out to change it.</p>
+      <p class="note">The drive, hotels and costs below follow whichever option is chosen, and only that one counts in the Spreadsheet. Tap a day out to change it.</p>
     </div></section>`;
 }
 function planDayOutForm(planId, dayId, ideaI) {
@@ -7286,12 +7288,12 @@ function plPanel(p) {
   const row = it => { const k = itemCat(it), col = TCATI[k][2];
     return `<button class="rowbtn tripitem" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}">${it.img ? `<span class="ti-thumb" data-photo="${esc(it.img)}"></span>` : `<span class="ti-ico" style="background:color-mix(in srgb,${col} 16%,transparent);color:${col}">${tcatIcon(k)}</span>`}<div class="grow"><div class="t">${esc(it.n)}${it.paid ? ' <span class="chip ok">Sorted</span>' : ''}</div><div class="m">${esc(plWhen(it, p))}${it.note ? ` · ${esc(it.note)}` : ''}</div>${blcChip(`${it.n} ${it.note || ''}`, it.a)}</div><div class="amt">${money(it.a||0,0)}</div></button>`; };
   const hero = items.filter(it => it.img).slice(0, 3);
-  const ideaCard = p.idea ? `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Just an idea', title: 'Not in the Budget Sheet yet', meta: '<span>Marked as an idea on the Planner, so nothing is being put aside for it.</span>', actions: hcBtn('Put it in the plan', 'ppin', `data-id="${esc(p.id)}"`) + hcBtn('Open the Planner', 'tab', 'data-v="money" data-seg="planner"') })}</section>` : '';
+  const ideaCard = p.idea ? `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Just an idea', title: 'Not in the Spreadsheet yet', meta: '<span>Marked as an idea on the Planner, so nothing is being put aside for it.</span>', actions: hcBtn('Put it in the plan', 'ppin', `data-id="${esc(p.id)}"`) + hcBtn('Open the Planner', 'tab', 'data-v="money" data-seg="planner"') })}</section>` : '';
   return `${tripHero(p, st)}${ideaCard}${p.options ? planOptions(p) : ''}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
     ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + drivePanel(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : p.kind === 'celebration' ? 'celebration' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
-    ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">${p.payplan ? 'Following your plan from the Planner. ' : ''}Already counted in each month's Budget Sheet in Money. <button type="button" class="linkbtn" data-act="tab" data-v="money" data-seg="planner">${p.payplan ? 'Change the plan' : 'Plan it on the Planner'}</button></p></section>` : ''}
+    ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">${p.payplan ? 'Following your plan from the Planner. ' : ''}Already counted in each month in the Spreadsheet in Money. <button type="button" class="linkbtn" data-act="tab" data-v="money" data-seg="planner">${p.payplan ? 'Change the plan' : 'Plan it on the Planner'}</button></p></section>` : ''}
     ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>${dupeNote(p, plDupes(p))}${blcBanner(items.filter(it => !it.paid).map(it => [`${it.n} ${it.note || ''}`, it.a]), 'in this plan')}
     ${groups.length ? groups.map(([c, l]) => `<div class="ti-group"><div class="ti-gh"><i style="background:${c[2]}"></i>${esc(c[1])}<span>${money(l.reduce((s, it) => s + (Number(it.a)||0), 0),0)}</span></div><div class="list">${l.slice().sort((a, b) => (a.ym || '').localeCompare(b.ym || '') || String(a.n || '').localeCompare(String(b.n || ''))).map(row).join('')}</div></div>`).join('') : `<p class="empty">Nothing costed yet. Tap an idea below to start building it.</p>`}
     <div class="zchips" style="margin-top:6px">${PL_IDEAS[p.kind||'summer'].filter(n => !items.some(i => i.n===n)).map(n => `<button type="button" data-act="plitem" data-plan="${esc(p.id)}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="plitem" data-plan="${esc(p.id)}">+ Something else</button></div>
@@ -7334,7 +7336,7 @@ function xmasList(p) {
   const bdKid = p.kind === 'birthday' ? xName(String(p.name || '').replace(/['’]s birthday.*$/i, '')) : '', bdSlot = bdKid && media(`kid-${wishKey(bdKid)}`) ? `kid-${wishKey(bdKid)}` : '';
   const card = headCard({ bg: bdSlot ? mediaBg(bdSlot, 'hc-bg') + '<div class="pp-shade" aria-hidden="true"></div>' : '', tone: p.kind === 'christmas' ? 'xmas' : 'party', kicker: p.kind === 'birthday' ? 'Birthday list' : p.kind === 'celebration' ? `${occName(p)} list` : 'Christmas list', title: left >= 0 ? `${m2(left)} left to spend` : `${m2(-left)} over budget`,
     meta: `<span class="st-pill" style="background:rgba(255,255,255,.22)">${m2(spent)} of ${m2(bud)}</span>${gifts.length ? `${gifts.length} present${gifts.length===1?'':'s'} picked · ${got} bought` : 'Tap a name to start adding presents'}`,
-    body: `<div class="hc-prog"><i style="width:${bud ? Math.min(100, Math.round(spent / bud * 100)) : 0}%"></i></div><div class="hc-note">${howTxt}.${overBy > 0.5 ? ` ${m2(overBy)} over on some people, so the ${monShort(ym)} Budget Sheet counts that extra.` : ' Go over on anyone and the extra shows up in that month\'s Budget Sheet.'}</div>` });
+    body: `<div class="hc-prog"><i style="width:${bud ? Math.min(100, Math.round(spent / bud * 100)) : 0}%"></i></div><div class="hc-note">${howTxt}.${overBy > 0.5 ? ` ${m2(overBy)} over on some people, so the ${monShort(ym)} Spreadsheet counts that extra.` : ' Go over on anyone and the extra shows up in that month\'s Spreadsheet.'}</div>` });
   return `<section class="panel nopad xmas">${card}<div class="xl">
     ${people.length ? `<div class="xl-h">Presents <span>${people.length} ${people.length === 1 ? 'person' : 'people'}</span></div>${people.map((it, i) => xmasRow(p, it, i)).join('')}` : ''}
     <form class="xperson" data-plan="${esc(p.id)}" autocomplete="off"><input name="n" aria-label="Who" placeholder="Add someone"><span class="xadd-a"><i>£</i><input name="a" aria-label="Their budget in pounds" inputmode="decimal" placeholder="Budget"></span><button class="btn small ghost" type="submit">Add</button></form>
@@ -7443,13 +7445,13 @@ function upcomingTrips() {
 }
 function viewMoneyOverview() {
   const cur = plCur(), months = Object.keys(S.bsheet).filter(m => m >= cur).sort().slice(0, 6);
-  if (!months.length) return `<section class="panel"><h2>Where the money goes</h2><p class="empty">Start a Budget Sheet for this month and the pictures fill in here.</p><div class="btnrow"><button class="btn small" data-act="mseg" data-v="sheet">Open the sheet</button></div></section>` + upcomingTrips();
+  if (!months.length) return `<section class="panel"><h2>Where the money goes</h2><p class="empty">Start this month in the Spreadsheet and the pictures fill in here.</p><div class="btnrow"><button class="btn small" data-act="mseg" data-v="sheet">Open the sheet</button></div></section>` + upcomingTrips();
   const sel = months.includes(UI.ovm) ? UI.ovm : (months.includes(cur) ? cur : months[0]), f = sheetFlow(sel);
   const chips = `<div class="seg mchips" role="group" aria-label="Which month">${months.map(m => `<button data-act="ovm" data-v="${m}" aria-pressed="${m===sel}">${mon3(m)}</button>`).join('')}</div>`;
   const spare = f.t.left, msg = spare >= 0 ? `${money(spare,0)} to spare` : `${money(-spare,0)} to find`;
   const ci = checkinCard();
   return glanceCard() + ci + (/ci-s now">[^]*?money jobs/.test(ci) ? '' : nextJobs()) + foodPanel() + milestonePanel() + potPanel() + forecastPanel() + `<section class="panel"><h2>Where ${esc(MONTHS[Number(sel.slice(5,7))-1])}'s money goes <span class="sub ${spare >= 0 ? 'good' : 'find'}">${msg}</span></h2>${chips}${flowChart(f)}
-      <p class="note">Pay comes in on the left and goes out to the right, from the ${esc(monthName(sel))} Budget Sheet${f.t.plan ? ', including treats from Treats' : ''}. ${spare >= 0 ? 'Whatever is spare can go to the holiday pot or savings.' : 'The yellow band is the gap to cover this month.'}</p></section>
+      <p class="note">Pay comes in on the left and goes out to the right, from the ${esc(monthName(sel))} Spreadsheet${f.t.plan ? ', including treats from Treats' : ''}. ${spare >= 0 ? 'Whatever is spare can go to the holiday pot or savings.' : 'The yellow band is the gap to cover this month.'}</p></section>
     <section class="panel"><h2>The months ahead</h2>${monthStrip(cur)}</section>
     ${upcomingTrips()}`;
 }
@@ -7577,7 +7579,7 @@ function calBirthdays() {
 function bdayForm(name = '', date = '') {
   openSheet('Add a birthday', fld('bdN', 'Whose birthday', name, 'text', 'placeholder="Name"') + fld('bdD', 'Date', date, 'date') +
     `<div class="fields2">${fld('bdA', 'Presents (£)', '', 'number', 'step="1" min="0" inputmode="decimal" placeholder="e.g. 150"')}${fld('bdP', 'Party or day out (£)', '', 'number', 'step="1" min="0" inputmode="decimal" placeholder="Optional"')}</div>
-    <p class="note">The app saves a little each month until the day, and counts it in each month's Budget Sheet.</p>`, async () => {
+    <p class="note">The app saves a little each month until the day, and counts it in each month in the Spreadsheet.</p>`, async () => {
     const n = v('bdN').trim(), d = v('bdD'), a = num(v('bdA')) || 0, party = num(v('bdP')) || 0; if (!n) throw new Error('Say whose birthday it is'); if (!d) throw new Error('Pick the date');
     let ym = payYm(d); const cur = plCur(); if (ym < cur) ym = cur;
     const items = [{ id: uid('pi'), n: `Presents for ${n}`, a, how: 'save', ym, cat: 'gift', via: 'card' }];
@@ -7753,7 +7755,7 @@ async function ciSet(k) {
 }
 function ciIncForm() {
   const cur = plCur(), doc = S.bsheet[cur]; if (!doc) return; const tot = bsTotals(doc, cur), incs = (doc.inc || []).map((x, i) => [x, i]).filter(([x]) => bsOn(x));
-  openSheet('What actually came in', incs.map(([x, i]) => fld(`ci${i}`, esc(x.n), Number(x.a) || 0, 'number', 'step="0.01" inputmode="decimal"')).join('') + (doc.viki && !doc.viki.off ? fld('ciV', 'Viki\'s take-home, from her payslip', Math.round(tot.viki * 100) / 100, 'number', 'step="0.01" inputmode="decimal"') : '') + '<p class="note">This updates the month\'s Budget Sheet so the rest of the month adds up, and Viki\'s figure teaches her pay estimate.</p>', async () => {
+  openSheet('What actually came in', incs.map(([x, i]) => fld(`ci${i}`, esc(x.n), Number(x.a) || 0, 'number', 'step="0.01" inputmode="decimal"')).join('') + (doc.viki && !doc.viki.off ? fld('ciV', 'Viki\'s take-home, from her payslip', Math.round(tot.viki * 100) / 100, 'number', 'step="0.01" inputmode="decimal"') : '') + '<p class="note">This updates the month\'s Spreadsheet so the rest of the month adds up, and Viki\'s figure teaches her pay estimate.</p>', async () => {
     const d = JSON.parse(JSON.stringify(doc)); incs.forEach(([, i]) => { const a = num(v(`ci${i}`)); if (a !== null) d.inc[i].a = a; });
     let vNet = null; if ($('#ciV')) { const a = num(v('ciV')); if (a !== null && Math.abs(a - tot.viki) > .5) d.viki.actual = a; if (a !== null && a > 0) vNet = a; }
     d.ci = { ...(d.ci || {}), inc: today() }; await put(`bsheet/${cur}`, d);
@@ -7832,7 +7834,7 @@ const BUY_COVER = {
   pot: ['🏝️', 'Take it from the holiday pot'],
 };
 const BUY_OLD = ['spare', 'pot']; // older choices: still shown on purchases that used them, not offered for new ones
-const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings']; // covered outside the month's budget, so the Budget Sheet doesn't change
+const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings']; // covered outside the month's budget, so the Spreadsheet doesn't change
 /* purchases in a pay month taken from the buffer or from savings (the Year plan takes them off those) */
 const buysFrom = (ym, cover) => liveBuys().filter(b => b.ym === ym && b.cover === cover);
 function shopSlots(ym) {
@@ -7861,7 +7863,7 @@ function planCuts(amount, cover, skip) {
   if (cover === 'food' || cover === 'spread') for (const s of slots) { if (left <= 0) break; take(s, left); }
   return { cuts, extra: left > 0.004 ? left : 0 };
 }
-// what the purchases do to a month's Budget Sheet: the spend goes in, food-shop cuts come off, and shops that came in over or under count too
+// what the purchases do to a month in the Spreadsheet: the spend goes in, food-shop cuts come off, and shops that came in over or under count too
 function buysNet(ym) {
   let net = 0;
   liveBuys().forEach(b => { if (b.ym === ym && !BUY_ASIDE.includes(b.cover)) net += Number(b.a) || 0; (b.cuts || []).forEach(c => { if (c.ym === ym) net -= c.a; }); });
@@ -7896,11 +7898,11 @@ function foodPanel() {
       <div class="fs-amt">${cuts.length ? `<s>${m2(s.base)}</s>` : ''}<b>${m2(tg)}</b></div></div>`; };
   const net = buysNet(cur);
   return `<section class="panel"><h2>Food shops <span class="sub">${monShort(cur)} pay</span></h2>
-    ${slots.length ? `<div class="fs-list">${slots.map(row).join('')}</div>` : '<p class="empty">Add the food shop to this month\'s Budget Sheet and the weekly shops show here.</p>'}
+    ${slots.length ? `<div class="fs-list">${slots.map(row).join('')}</div>` : '<p class="empty">Add the food shop to this month\'s Spreadsheet and the weekly shops show here.</p>'}
     <h2 class="h2b">Extra spends <button class="btn small" data-act="buyadd">Add</button></h2>
     ${buys.length ? `<div class="list">${buys.map(b => `<button class="rowbtn" data-act="buyedit" data-id="${esc(b.id)}"><span class="ti-ico" style="background:color-mix(in srgb,var(--acc) 14%,transparent)">${(BUY_COVER[b.cover] || BUY_COVER.spare)[0]}</span><div class="grow"><div class="t">${esc(b.n || 'Purchase')}</div><div class="m">${esc(dayShort(b.d))} · ${esc(coverLine(b))}</div></div><div class="amt">${m2(Number(b.a) || 0)}</div></button>`).join('')}</div>`
       : `<p class="empty">Bought something that wasn't planned? Add it here and pick how to cover it. Usually it comes off the next food shop.</p>`}
-    ${buys.length || Math.abs(net) > .5 ? `<p class="note">${net > .5 ? `This month's Budget Sheet has ${m2(net)} more going out because of these.` : net < -.5 ? `The month is ${m2(-net)} better off, because shops came in under.` : 'All covered by the food shops, so the month still adds up the same.'}</p>` : ''}</section>`;
+    ${buys.length || Math.abs(net) > .5 ? `<p class="note">${net > .5 ? `This month in the Spreadsheet has ${m2(net)} more going out because of these.` : net < -.5 ? `The month is ${m2(-net)} better off, because shops came in under.` : 'All covered by the food shops, so the month still adds up the same.'}</p>` : ''}</section>`;
 }
 function buyForm(id, preset) {
   const b = liveBuys().find(x => x.id === id) || { d: today(), cover: 'spread', ...(preset || {}) };
@@ -8075,7 +8077,7 @@ function zilchPage() {
     <div class="zm-list">${ms.filter(m => m.total > 0.5).map(m => `<div class="zm"><b>${mon3(m.ym)}</b><span class="zm-bar">${keys.map(k => m.parts[k] > 0.5 ? `<i style="width:${m.parts[k] / peak * 100}%;background:${ZCOL[k]}" title="${ZNAME[k]} ${money(m.parts[k],0)}"></i>` : '').join('')}</span><em>${money(m.total,0)}</em></div>`).join('')}</div>
     ${limitTxt}
     ${lines.length ? `<h3 class="eyebrow" style="margin-top:14px">Trip bookings on Zilch</h3>${lines.map(l => `<div class="zline"><div class="t">${esc(l.name)} <span class="m">${money(l.total,2)} with fees</span></div><div class="m">${esc(l.sub)}</div><div class="plmonths">${l.pays.map(x => `<span><small>${mon3(x.ym)}</small><b>${money(x.a, x.a % 1 ? 2 : 0)}</b></span>`).join('')}</div></div>`).join('')}` : ''}
-    <p class="note">From the list below, any Budget Sheet rows with Zilch in the name, and trip bookings in Treats. Zilch takes each payment on the same date as the purchase.</p></div></section>`;
+    <p class="note">From the list below, any Spreadsheet rows with Zilch in the name, and trip bookings in Treats. Zilch takes each payment on the same date as the purchase.</p></div></section>`;
 }
 
 /* ===== trip wallet: documents, day by day, holiday money ===== */
@@ -8132,7 +8134,7 @@ function viewYear() {
   return `<section class="panel nopad">${headCard({ tone: 'good', kicker: 'The year ahead', title: items.length ? (thisM ? `${money(thisM,0)} a month covers it` : perM ? `${money(perM,0)} a month from ${monShort(firstSave)}` : 'All covered') : 'No big surprises', meta: items.length ? `<span class="st-pill" style="background:rgba(0,0,0,.2)">${items.length} thing${items.length === 1 ? '' : 's'}</span>${money(total,0)} of yearly costs planned` : 'Add the costs that come round every year', body: items.length ? timeline : '' })}</section>
     ${p ? plPanelYear(p) : ''}
     <section class="panel"><h2>Add a yearly cost</h2><div class="zchips">${YEAR_IDEAS.filter(n => !items.some(i => i.n === n)).map(n => `<button type="button" data-act="yearadd" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}<button type="button" data-act="yearadd">+ Something else</button></div>
-    <p class="note">Each one is saved for a little each month until it's due, and counted in that month's Budget Sheet, so it never lands as a shock. Moving money aside each month shows up in the money jobs.</p></section>`;
+    <p class="note">Each one is saved for a little each month until it's due, and counted in that month in the Spreadsheet, so it never lands as a shock. Moving money aside each month shows up in the money jobs.</p></section>`;
 }
 function plPanelYear(p) {
   const items = (p.items||[]).slice().sort((a, b) => (a.ym||'') < (b.ym||'') ? -1 : 1); if (!items.length) return '';
@@ -8880,7 +8882,7 @@ document.addEventListener('click', async e => {
   if (a==='bsdup' || a==='bsup' || a==='bsdown') { const tg = UI.bsMenu; closeSheet(); if (!tg) return; const i = tg.r;
     if (a==='bsdup') tg.list.splice(i+1, 0, bsClone(tg.x)); else { const j = a==='bsup' ? i-1 : i+1; if (j < 0 || j >= tg.list.length) return render(); [tg.list[i], tg.list[j]] = [tg.list[j], tg.list[i]]; }
     return render(); }
-  if (a==='mseg') { closeSheet(); UI.money = el.dataset.v; keepUI(); render(); return; }
+  if (a==='mseg') { closeSheet(); UI.money = el.dataset.v === 'sheet' ? 'grid' : el.dataset.v; if (el.dataset.v === 'sheet') UI.gseg = 'sheet'; keepUI(); render(); if (el.dataset.v === 'sheet') gridScrollTo(UI.hym); return; } /* the Spreadsheet is now the Spreadsheet */
   if (a==='cseg') { UI.carSeg = el.dataset.v; keepUI(); return render(); }
   if (a==='day') return dayForm(el.dataset.date);
   /* pick several days on Chris's calendar and set them all at once */
@@ -8957,6 +8959,11 @@ document.addEventListener('click', async e => {
   if (a==='ciinc') return ciIncForm();
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; UI.occ = el.dataset.id || null; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='ghm') { UI.hym = el.dataset.v; render(); return; }
+  /* start a month in the Spreadsheet: a copy of the month before, without its one-offs */
+  if (a==='gstart') { const ym = el.dataset.v, prev = Object.keys(S.bsheet).filter(k => k < ym).sort().pop(), src = prev ? S.bsheet[prev] : Object.values(S.bsheet)[0];
+    const doc = src ? bsClone(src) : { v:1, inc:[], secs:[{k:'dd',t:'Direct debits and standing orders',kind:'base',rows:[]},{k:'mex',t:'Monthly extras',kind:'extra',rows:[]}], split:50 };
+    (doc.secs || []).filter(x => x.kind === 'extra').forEach(x => { x.rows = []; }); if (doc.viki) doc.viki = { ...doc.viki, actual: null }; delete doc.ci;
+    await put(`bsheet/${ym}`, doc); UI.hym = ym; toast(`${monthName(ym)} started from ${prev ? monthName(prev) : 'scratch'}`); return render(); }
   if (a==='gseg') { UI.gseg = el.dataset.v; keepUI(); return render(); }
   if (a==='gcal') { UI.gcal = ymAdd(UI.gcal || ymOf(today()), Number(el.dataset.v)); UI.gday = null; return render(); }
   if (a==='gday') { UI.gday = UI.gday === el.dataset.d ? null : el.dataset.d; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
@@ -8964,7 +8971,7 @@ document.addEventListener('click', async e => {
   if (a==='plpast') { UI.plpast = UI.plpast === el.dataset.id ? null : el.dataset.id; render(); if (UI.plpast) setTimeout(() => { const r = document.querySelector(`[data-act="plpast"][data-id="${UI.plpast}"]`); if (r) r.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 30); return; }
   if (a==='plitem') return planItemForm(el.dataset.plan, el.dataset.id, el.dataset.name);
   if (a==='plspread') { if (!el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again: this turns Zilch and one-off payments into monthly saving'; return; } return planSpread(el.dataset.id); }
-  if (a==='plsheet') { if (bsDirty()) { toast('Save or undo your sheet changes first'); return; } UI.bym = el.dataset.v; UI.bs = null; UI.tab = 'money'; UI.money = 'sheet'; keepUI(); render(); window.scrollTo(0,0); return; }
+  if (a==='plsheet') { UI.hym = el.dataset.v; UI.tab = 'money'; UI.money = 'grid'; UI.gseg = 'sheet'; keepUI(); render(); window.scrollTo(0,0); gridScrollTo(UI.hym); return; }
   if (a==='import') return importForm();
   if (a==='potgoal') { potGoalForm(); return; }
   if (a==='setphoto') { pickMediaPhoto(el.dataset.slot); return; }
