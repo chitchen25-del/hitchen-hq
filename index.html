@@ -930,7 +930,8 @@ table.xs td.sel{outline:2px solid #1E7B45;outline-offset:-2px;background:#F2FAF4
 .yp-tube i{position:absolute;left:0;top:0;bottom:0;border-radius:0 999px 999px 0}.yp-tube .ghost{background:repeating-linear-gradient(45deg,rgba(255,255,255,.35) 0 6px,rgba(255,255,255,.15) 6px 12px)}.yp-tube .fill{background:#FFD54F}
 .yp-tl{display:flex;justify-content:space-between;gap:10px;font-size:.85rem;flex-wrap:wrap}.yp-tl b{font-size:1.05rem}.yp-tl .warn{background:rgba(0,0,0,.25);border-radius:8px;padding:0 6px}
 .yp-months{display:grid;gap:10px}
-.yp-m{background:var(--sheet);border-radius:18px;padding:12px 14px;border:1px solid var(--rule-2)}.yp-m.cur{border:2px solid var(--good)}.yp-m.past{opacity:.75}
+.yp-sheet{margin-top:8px;font-size:.8rem;font-weight:700;color:var(--muted);text-align:right}
+.yp-m{cursor:pointer;background:var(--sheet);border-radius:18px;padding:12px 14px;border:1px solid var(--rule-2)}.yp-m.cur{border:2px solid var(--good)}.yp-m.past{opacity:.75}
 .yp-m header{display:flex;justify-content:space-between;align-items:flex-start}.yp-m header small{display:block;color:var(--muted);font-size:.78rem}
 .yp-run{text-align:right;font-weight:800;font-size:1.15rem;color:var(--good)}.yp-run.neg{color:var(--red)}
 .yp-viki{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0;font-size:.92rem}.yp-viki small{color:var(--muted)}.yp-viki .btn{margin-left:auto}
@@ -2895,13 +2896,13 @@ function viewYearPlan() {
     <p>Viki's pay is a best guess until her payslip is in. Add it each month and everything below updates.</p></section>`;
   const src = `<div class="yp-src"><span>Every month comes from the <button type="button" class="linkbtn" data-act="mseg" data-v="grid">Spreadsheet</button>: Chris's pay, bills, day to day and one-offs. Viki's predicted pay:</span><div class="seg"><button data-act="ypsrc" data-v="basic" aria-pressed="${C.vikiB}">From her on-call days</button><button data-act="ypsrc" data-v="history" aria-pressed="${!C.vikiB}">Her last 15 months</button></div></div>`;
   const months = C.rows.map(r => { const isCur = r.ym === cur, diff = r.slip ? r.viki - r.pred : 0;
-    return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
+    return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}" data-act="plsheet" data-v="${esc(r.ym)}" role="button" tabindex="0" aria-label="Open the ${esc(monthName(r.ym))} Budget Sheet"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
       <div class="yp-viki">${r.slip ? `<span class="chip ok">Payslip in</span> Viki <b>${money(r.viki, 2)}</b> <small>${diff >= 0 ? '+' : '−'}${money(Math.abs(diff), 0)} on the guess</small>` : `<span class="chip">Predicted</span> Viki <b>${money(r.pred, 0)}</b>`}<button type="button" class="btn small ${r.slip ? 'ghost' : ''}" data-act="ypslip" data-v="${esc(r.ym)}">${r.slip ? 'Change' : 'Add payslip'}</button></div>
       <dl class="yp-dl"><div><dt>Coming in</dt><dd>${money(r.inc, 0)}</dd></div><div><dt>Going out</dt><dd>${money(r.out, 0)}</dd></div><div><dt>Left over</dt><dd class="${r.left < 0 ? 'neg' : 'pos'}">${money(r.left, 0)}</dd></div><div><dt>10% buffer</dt><dd>${r.buf ? money(r.buf, 0) : '–'}${r.fromBuf ? `<small class="${r.buf - r.fromBuf < 0 ? 'neg' : ''}"> ${money(r.buf - r.fromBuf, 0)} after spends</small>` : ''}</dd></div><div><dt>Saved</dt><dd class="${r.saved < 0 ? 'neg' : 'pos'}">${money(r.saved, 0)}</dd></div></dl>
       ${r.slip || r.chk ? `<div class="yp-steps">${r.slip ? (r.moved ? `<span class="ok">✓ Pay sorted</span>` : `<button type="button" class="linkbtn" data-act="ypmove" data-v="${esc(r.ym)}">What to move</button>`) : ''}${r.chk ? `<span class="${r.chk.spare >= 0 ? 'ok' : 'bad'}">✓ Bank check: ${r.chk.spare >= 0 ? `${money(r.chk.spare, 0)} ahead` : `${money(-r.chk.spare, 0)} behind`}${r.adj ? `, ${r.adj > 0 ? 'moved' : 'took back'} ${money(Math.abs(r.adj), 0)}` : ''}</span>` : r.slip && today() >= ypCheckDate(r.ym) ? `<button type="button" class="linkbtn" data-act="ypcheck" data-v="${esc(r.ym)}">Bank check</button>` : ''}</div>` : ''}
       ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}
-      ${r.fb.length || r.fs.length ? `<div class="yp-items yp-from">${r.fb.map(x => `<span>🛟 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>buffer</small></span>`).join('')}${r.fs.map(x => `<span>🏦 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>savings</small></span>`).join('')}</div>` : ''}</article>`; }).join('');
-  return head + ypNow(C) + src + `<p class="note yp-tripnote">The trip cards and their thermometers are in <button type="button" class="linkbtn" data-act="opentrip" data-kind="summer" data-id="">Treats › Holidays</button>.</p>` + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
+      ${r.fb.length || r.fs.length ? `<div class="yp-items yp-from">${r.fb.map(x => `<span>🛟 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>buffer</small></span>`).join('')}${r.fs.map(x => `<span>🏦 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>savings</small></span>`).join('')}</div>` : ''}<div class="yp-sheet">Open the spreadsheet ›</div></article>`; }).join('');
+  return head + ypNow(C) + src + `<p class="note yp-tripnote">The trip cards and their thermometers are in Treats, under <button type="button" class="linkbtn" data-act="opentrip" data-kind="summer" data-id="">Holidays</button> and <button type="button" class="linkbtn" data-act="opentrip" data-kind="family" data-id="">Visits</button>. Tap a month to open its Budget Sheet.</p>` + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
     <p class="note">Going out is each month's bills, kids' extras, food and fuel from the Spreadsheet, plus the one-offs and trip money shown. Change anything in the Spreadsheet and this updates. 10% of whatever is left over each month stays in the account as a buffer.</p>`;
 }
 
@@ -3204,10 +3205,10 @@ function bankMatch(l) {
 }
 /* what the app still expects to leave the account before next payday (rough: bills and Zilch with a date, food shops not done) */
 function bankToCome() {
-  const t = today(), next = payday(ymAdd(plCur(), 1)), out = []; let tot = 0;
+  const t = today(), next = payday(ymAdd(payCur(), 1)), out = []; let tot = 0;
   const months = [ymOf(t), ymOf(next)].filter((x, i, a) => a.indexOf(x) === i);
   months.forEach(ym => Object.entries(gridEvents(ym)).forEach(([d, L]) => { if (d > t && d < next) L.filter(x => (x.k === 'bill' || x.k === 'zil') && x.a).forEach(x => { out.push({ d, n: x.t, a: x.a }); tot += x.a; }); }));
-  const cur = plCur(); shopSlots(cur).forEach(s2 => { if (!shopDone(cur, s2.slot) && s2.d >= t) { const a = shopTarget(s2); out.push({ d: s2.d, n: s2.n, a }); tot += a; } });
+  const cur = payCur(); shopSlots(cur).forEach(s2 => { if (!shopDone(cur, s2.slot) && s2.d >= t) { const a = shopTarget(s2); out.push({ d: s2.d, n: s2.n, a }); tot += a; } });
   return { out: out.sort((a, b) => a.d.localeCompare(b.d)), tot: Math.round(tot * 100) / 100, next };
 }
 function bankBody() {
@@ -5524,7 +5525,7 @@ function viewMoney() {
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money${grp.k === 'more' ? ' wrap' : ''}" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
   const body = {grid:gridSheet, yplan:viewYearPlan, basic:viewXSheet, past:viewPast, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
-  const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : ym; /* on the spreadsheet the header shows the month last tapped or edited */
+  const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : S.bsheet[payCur()] ? payCur() : ym; /* the pay we're living on: 1 Nov is still the October pay */ /* on the spreadsheet the header shows the month last tapped or edited */
   if (UI.money === 'yplan' || UI.money === 'basic' || UI.money === 'past') return seg + body; /* the year plan has its own header */
   return (S.bsheet[hym] ? sheetHero(hym) : hero) + seg + body;
 }
@@ -6854,6 +6855,8 @@ const ymDiff = (a, b) => { const [ay,am] = a.split('-').map(Number), [by,bm] = b
 const payYm = d => d >= payday(ymOf(d)) ? ymOf(d) : ymAdd(ymOf(d), -1);
 const mon3 = ym => MONTHS[Number(ym.slice(5,7))-1].slice(0,3);
 const plCur = () => ymOf(today());
+/* the pay month we're living on right now: from one payday to the day before the next (1 Nov is still the October pay) */
+const payCur = () => payYm(today());
 function plItemPays(it, p) {
   const cost = itemCost(it), ym = it.ym || plCur(); if (!cost) return [];
   if (it.how === 'zilch') { const z = zilchPlan(cost, { avail: zs().limit, start: `${ym}-01` }); return z ? z.pays.map(x => ({ ym: ymOf(x.date), amount: x.amount })) : []; }
@@ -6941,7 +6944,7 @@ function viewPlanner() {
   const open = up.find(p => p.id === UI.occ);
   const word = k === 'summer' ? 'holidays' : k === 'city' ? 'trips' : 'visits';
   if (open) return head + `<div class="btnrow" style="margin:0 0 10px"><button type="button" class="btn small ghost" data-act="occ" data-id="">‹ All ${word}</button></div>` + plPanel(open);
-  const yc = k === 'summer' ? ypTripCards() : {}; /* trips in the Year plan show its savings card, thermometer and all */
+  const yc = ['summer', 'family'].includes(k) ? ypTripCards() : {}; /* trips in the Year plan show its savings card, thermometer and all */
   const cards = up.length ? `<div class="tripcards">${up.map(p => yc[p.id] ? `<div class="yp-trips tr-yp">${yc[p.id].replace(/data-act="opentrip" data-kind="[^"]*"/, 'data-act="occ"')}</div>` : tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="occ" data-id="${esc(p.id)}" aria-label="Open ${esc(p.name || 'trip')}"` })).join('')}</div>` : '';
   return head + cards + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : k === 'city' ? 'a trip' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k === 'city' ? 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + plPastPanel(past) + plOverview();
 }
@@ -7845,7 +7848,7 @@ const shopDone = (ym, slot) => ((S.shops[ym] || {}).done || {})[slot];
 const shopCuts = (ym, slot, skip) => liveBuys().filter(b => b.id !== skip).flatMap(b => (b.cuts || []).filter(c => c.ym === ym && c.slot === slot).map(c => ({ ...c, b })));
 const shopTarget = (s, skip) => Math.round((s.base - shopCuts(s.ym, s.slot, skip).reduce((t, c) => t + c.a, 0)) * 100) / 100;
 function openSlots(fromToday = true) {
-  const cur = plCur(), t = today();
+  const cur = payCur(), t = today();
   return [...shopSlots(cur), ...shopSlots(ymAdd(cur, 1))].filter(s => !shopDone(s.ym, s.slot) && (!fromToday || addDays(s.d, 6) >= t));
 }
 const nextShop = () => { const o = openSlots(); return o.find(s => !s.big || addDays(s.d, 2) >= today()) || o[0] || null; };
@@ -7854,7 +7857,7 @@ function planCuts(amount, cover, skip) {
   const room = s => Math.max(0, shopTarget(s, skip) - cuts.filter(c => c.ym === s.ym && c.slot === s.slot).reduce((t, c) => t + c.a, 0) - s.base * SHOP_FLOOR);
   const take = (s, want) => { const a = Math.round(Math.min(want, room(s)) * 100) / 100; if (a > 0) { const c = cuts.find(x => x.ym === s.ym && x.slot === s.slot); if (c) c.a = Math.round((c.a + a) * 100) / 100; else cuts.push({ ym: s.ym, slot: s.slot, a }); left = Math.round((left - a) * 100) / 100; } };
   const slots = openSlots().filter(s => !s.big); // extra spends come off the weekly shops, never the big monthly one
-  if (cover === 'spread') { const cur = plCur(), mine = slots.filter(s => s.ym === cur), use = mine.length ? mine : slots.slice(0, 1); const each = Math.floor(left / Math.max(1, use.length) * 100) / 100; use.forEach((s, i) => take(s, i === use.length - 1 ? left : each)); }
+  if (cover === 'spread') { const cur = payCur(), mine = slots.filter(s => s.ym === cur), use = mine.length ? mine : slots.slice(0, 1); const each = Math.floor(left / Math.max(1, use.length) * 100) / 100; use.forEach((s, i) => take(s, i === use.length - 1 ? left : each)); }
   if (cover === 'food' || cover === 'spread') for (const s of slots) { if (left <= 0) break; take(s, left); }
   return { cuts, extra: left > 0.004 ? left : 0 };
 }
@@ -7866,7 +7869,7 @@ function buysNet(ym) {
   return Math.round(net * 100) / 100;
 }
 const buysIn = ym => liveBuys().filter(b => b.ym === ym).sort((a, b) => a.d < b.d ? 1 : -1);
-const daysToPay = () => { const t = today(); let pd = payday(plCur()); if (pd <= t) pd = payday(ymAdd(plCur(), 1)); return daysBetween(t, pd); };
+const daysToPay = () => { const t = today(); let pd = payday(payCur()); if (pd <= t) pd = payday(ymAdd(payCur(), 1)); return daysBetween(t, pd); };
 function coverLine(b) {
   if ((b.cover === 'food' || b.cover === 'spread') && (b.cuts || []).length > 1 && b.cuts.every(c => Math.abs(c.a - b.cuts[0].a) < .02)) return `${m2(b.cuts[0].a)} off each of the next ${b.cuts.length} food shops${b.extra ? `, ${m2(b.extra)} from spare` : ''}`;
   if (b.cover === 'food' || b.cover === 'spread') { const parts = (b.cuts || []).map(c => { const s = shopSlots(c.ym)[c.slot]; return s ? `${m2(c.a)} off the ${s.n.toLowerCase()}${c.ym !== b.ym ? ` (${monShort(c.ym)})` : ''}` : ''; }).filter(Boolean); return parts.join(', ') + (b.extra ? `${parts.length ? ', ' : ''}${m2(b.extra)} from spare` : '') || 'From spare'; }
@@ -7874,7 +7877,7 @@ function coverLine(b) {
 }
 
 function glanceCard(compact = false) {
-  const cur = plCur(), doc = S.bsheet[cur]; if (!doc) return '';
+  const cur = payCur(), doc = S.bsheet[cur]; if (!doc) return '';
   const t = bsTotals(doc, cur), ns = nextShop(), buys = buysIn(cur), extra = buys.reduce((s, b) => s + (Number(b.a) || 0), 0), dp = daysToPay();
   const nsT = ns ? shopTarget(ns) : 0, cut = ns ? ns.base - nsT : 0;
   const tiles = `<div class="od-tiles gl-tiles">
@@ -7885,7 +7888,7 @@ function glanceCard(compact = false) {
     body: tiles, actions: hcBtn('＋ Add a purchase', 'buyadd') + (ns ? hcBtn('Shop done', 'shopdone', `data-ym="${ns.ym}" data-slot="${ns.slot}"`) : '') + (compact ? hcBtn('Details', 'tab', 'data-v="money" data-seg="grid"') : '') })}</section>`;
 }
 function foodPanel() {
-  const cur = plCur(), slots = shopSlots(cur), buys = buysIn(cur), t = today(); if (!slots.length && !buys.length) return '';
+  const cur = payCur(), slots = shopSlots(cur), buys = buysIn(cur), t = today(); if (!slots.length && !buys.length) return '';
   const row = s => { const d = shopDone(s.ym, s.slot), tg = shopTarget(s), cuts = shopCuts(s.ym, s.slot), now = !d && t >= s.d && t <= addDays(s.d, 6), past = !d && addDays(s.d, 6) < t;
     return `<div class="fs ${d ? 'done' : ''} ${now ? 'now' : ''} ${past ? 'past' : ''}"><button type="button" class="st-tick" data-act="shopdone" data-ym="${s.ym}" data-slot="${s.slot}" aria-pressed="${!!d}" aria-label="${d ? 'Done' : 'Mark done'}: ${esc(s.n)}">${d ? stepIcon('clear') : ''}</button>
       <div class="grow"><div class="t">${esc(s.n)}${now ? ' <span class="chip ok">This week</span>' : ''}</div><div class="m">From ${esc(dayShort(s.d))}${d && d.actual != null ? ` · came to ${m2(Number(d.actual))}${Math.abs(d.actual - tg) > .5 ? `, ${d.actual > tg ? `${m2(d.actual - tg)} over` : `${m2(tg - d.actual)} under`}` : ''}` : ''}</div>
@@ -7901,7 +7904,7 @@ function foodPanel() {
 }
 function buyForm(id, preset) {
   const b = liveBuys().find(x => x.id === id) || { d: today(), cover: 'spread', ...(preset || {}) };
-  const opts = () => { const a = num(v('byA')) || 0, cur = plCur(), doc = S.bsheet[cur], left = doc ? bsTotals(doc, cur).left + (b.id && !BUY_ASIDE.includes(b.cover) ? (Number(b.a) || 0) - (b.cuts || []).filter(c => c.ym === cur).reduce((s, c) => s + c.a, 0) : 0) : 0;
+  const opts = () => { const a = num(v('byA')) || 0, cur = payCur(), doc = S.bsheet[cur], left = doc ? bsTotals(doc, cur).left + (b.id && !BUY_ASIDE.includes(b.cover) ? (Number(b.a) || 0) - (b.cuts || []).filter(c => c.ym === cur).reduce((s, c) => s + c.a, 0) : 0) : 0;
     const C = ypCalc(), mine = k => b.id && b.cover === k ? Number(b.a) || 0 : 0, bufNow = C ? C.nowBuf + mine('buffer') : null, savNow = C ? C.now + mine('savings') : null;
     const desc = k => { if (k === 'buffer' && bufNow == null) return 'Set up the Year plan first'; if (k === 'savings' && savNow == null) return 'Set up the Year plan first';
       if (!a) return { food: 'Like you normally do', spread: 'A little off each shop left this month', spare: `${money(left, 0)} spare this month`, pot: `${money(potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0), 0)} in the pot`, planned: 'Nothing changes', buffer: `${money(bufNow, 0)} in the buffer now`, savings: `${money(savNow, 0)} saved now` }[k];
