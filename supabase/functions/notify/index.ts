@@ -233,6 +233,19 @@ function familyMessages(D: any, today: string, mode: string) {
   return out;
 }
 
+// ---- school reminders from the family calendar: everything school-ish on today's calendar, at 7am, to both phones ----
+const SCHOOL_RE = /\bschool\b|\bterm\b|\binset\b|training day|parents?['’]?\s*eve|parent.?teacher|residential|world book|non[- ]?uniform|\bmufti\b|nativity|sports day|\bPE kit\b|assembly|harvest|school disco|bake sale|dress (up|down) day|jumper day|book fair|open (evening|day)|transition day|homework|spellings?\b|\bexams?\b|forest school|\bnursery\b|teacher|dinner money|lunch money|primary/i;
+function schoolMessages(D: any, today: string) {
+  const evs = (D.byDate[today] || []).filter((e: any) => !parseRota(e.title) && SCHOOL_RE.test(`${e.title} ${e.location || ''}`))
+    .sort((a: any, b: any) => (a.allDay ? '' : a.start) < (b.allDay ? '' : b.start) ? -1 : 1);
+  const seen = new Set<string>(), lines: string[] = [];
+  for (const e of evs) { const t = String(e.title).trim(); if (seen.has(t.toLowerCase())) continue; seen.add(t.toLowerCase());
+    lines.push(`${t}${e.allDay ? '' : ` at ${hm(localTime(e.start))}`}${e.location ? ` (${String(e.location).split(',')[0]})` : ''}`); }
+  if (!lines.length) return [];
+  return [{ title: lines.length === 1 ? 'School today' : `School today: ${lines.length} things`, body: lines.join('\n'), tag: `school-${today}` }];
+}
+function localTime(iso: string) { const p: any = {}; new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hourCycle: 'h23', hour: '2-digit', minute: '2-digit' }).formatToParts(new Date(iso)).forEach(x => { p[x.type] = x.value; }); return `${p.hour}:${p.minute}`; }
+
 // ---- Chris's hours: a monthly balance on the first Sunday, and a nudge when the car log needs a fresh export ----
 const MON3 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function chrisWeekly(D: any, today: string) {
@@ -266,12 +279,13 @@ Deno.serve(async (req: Request) => {
   const lp = localParts();
   // scheduled run
   if (req.headers.get('x-hhq-cron') && req.headers.get('x-hhq-cron') === sec.notify_secret) {
-    const modes: string[] = body.mode ? [body.mode] : lp.hour === 7 ? ['morning', 'moneyam'] : lp.hour === 19 ? (lp.weekday === 'Sun' ? ['evening', 'moneypm', 'weekly'] : ['evening', 'moneypm']) : [];
+    const modes: string[] = body.mode ? [body.mode] : lp.hour === 7 ? ['morning', 'moneyam', 'school'] : lp.hour === 19 ? (lp.weekday === 'Sun' ? ['evening', 'moneypm', 'weekly'] : ['evening', 'moneypm']) : [];
     if (!modes.length) return json({ skipped: true, hour: lp.hour });
     const D = await loadData(lp.date);
     const subs = await (await rest('push_subs?select=endpoint,sub,who,prefs')).json();
     const out: any = { date: lp.date, modes, sent: [] };
     for (const mode of modes) {
+      if (mode === 'school') { const sm = schoolMessages(D, lp.date); out.school = sm; if (!body.dry && sm.length) out.sent.push(...await send(subs.filter((s: any) => s.prefs?.school !== false), sm, sec)); continue; }
       const msgs = messages(D, lp.date, mode); out[mode] = msgs;
       const fam = ['morning', 'evening', 'weekly'].includes(mode) ? familyMessages(D, lp.date, mode) : []; out[`${mode}_family`] = fam;
       const ch = mode === 'weekly' ? chrisWeekly(D, lp.date) : []; if (mode === 'weekly') out.weekly_chris = ch;

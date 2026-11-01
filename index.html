@@ -8732,7 +8732,8 @@ async function pushPanel() {
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="evening" ${prefs.evening!==false?'checked':''}><span class="grow">7pm: tomorrow's bills, bins, on call, renewals and car jobs</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="weekly" ${prefs.weekly!==false?'checked':''}><span class="grow">Sunday 7pm: the week ahead</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="money" ${prefs.money!==false?'checked':''}><span class="grow">Payday money jobs, and a heads-up the evening before Zilch takes a payment</span></label>
-      <label class="check"><input type="checkbox" data-act="pushpref" data-k="family" ${prefs.family!==false?'checked':''}><span class="grow">The girls: pocket money day, clubs, school holidays, childcare gaps, dinner plans and measuring</span></label></div>
+      <label class="check"><input type="checkbox" data-act="pushpref" data-k="family" ${prefs.family!==false?'checked':''}><span class="grow">The girls: pocket money day, clubs, school holidays, childcare gaps, dinner plans and measuring</span></label>
+      <label class="check"><input type="checkbox" data-act="pushpref" data-k="school" ${prefs.school!==false?'checked':''}><span class="grow">7am: school things on the calendar today (non-uniform, trips, parents' evening and the like)</span></label></div>
     <div class="btnrow"><button class="btn small ghost" type="button" data-act="pushtest">Send a test</button><button class="btn small ghost" type="button" data-act="pushoff">Turn off on this phone</button></div>`;
 }
 async function pushOn() {
