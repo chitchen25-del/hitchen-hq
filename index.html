@@ -2412,8 +2412,11 @@ function repApply(doc, ym) {
   (doc.inc || []).forEach(fix); (doc.secs || []).forEach(sec => (sec.rows || []).forEach(fix)); return doc;
 }
 function growForm(secKey, name) {
-  const ms = gridSheetMonths(), from = UI.hym && ms.includes(UI.hym) ? UI.hym : ms[0];
+  const ms = gridSheetMonths();
   const find = (d, n) => { if (secKey === 'i') return (d.inc || []).find(x => gk(x.n) === gk(n)); const s = (d.secs || []).find(x => x.k === secKey); return s && s.rows.find(r => gk(r.n) === gk(n)); };
+  const has = name ? ms.filter(ym => S.bsheet[ym] && find(S.bsheet[ym], name)) : [];
+  /* an existing line starts from the first month it's in, so nothing earlier gets left behind */
+  const from = has.length ? has[0] : (UI.hym && ms.includes(UI.hym) ? UI.hym : ms[0]);
   const sample = name ? ms.map(ym => S.bsheet[ym] && find(S.bsheet[ym], name)).find(Boolean) : null, qu = sample && sample.u != null, rep0 = sample && sample.rep || null;
   const allMs = Array.from({ length: 36 }, (_, i) => ymAdd(ms[0] || payCur(), i));
   const secT = secKey === 'i' ? 'Coming in' : ((Object.values(S.bsheet).flatMap(d => d.secs || []).find(x => x.k === secKey) || {}).t || 'the sheet');
@@ -2435,7 +2438,8 @@ function growForm(secKey, name) {
       else { const s = (d.secs || []).find(x => x.k === secKey); if (!s) continue; const i = name ? s.rows.findIndex(r => gk(r.n) === gk(name)) : -1; if (i >= 0) { const { d: _d, rep: _r, off: _o, ...old } = s.rows[i]; s.rows[i] = { ...old, ...row }; } else s.rows.push(row); }
       await put(`bsheet/${ym}`, d); }
     window.__toastAfter = rep ? `Saved: ${repText(rep)}` : 'Saved for that month';
-  }, name ? { onDelete: async () => { const fromYm = v('grFrom'), targets = v('grHow') === 'one' ? [fromYm] : ms.filter(ym => ym >= fromYm);
+  }, name ? { onDelete: async () => { const fromYm = v('grFrom'); let targets = v('grHow') === 'one' ? [fromYm] : ms.filter(ym => ym >= fromYm);
+    targets = targets.filter(ym => S.bsheet[ym] && find(S.bsheet[ym], name)); if (!targets.length) targets = has; /* only touch months that have it, and never miss the one it's in */
     for (const ym of targets) { const d = bsClone(S.bsheet[ym]); if (secKey === 'i') d.inc = (d.inc || []).filter(x => gk(x.n) !== gk(name)); else (d.secs || []).forEach(s => { if (s.k === secKey) s.rows = s.rows.filter(r => gk(r.n) !== gk(name)); }); await put(`bsheet/${ym}`, d); } } } : {});
   $('#grHow').addEventListener('change', () => { const r = $('#grRep'); if (r) r.hidden = v('grHow') === 'one'; });
   if (name) { const n = $('#sheetForm .btnrow'); if (n) n.insertAdjacentHTML('beforebegin', '<p class="note">Delete takes it off from the starting month onwards (or just that month if "Just this month" is picked).</p>'); }
@@ -8889,7 +8893,7 @@ document.addEventListener('click', async e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
   if (a==='close') { if (e.target === el || el.tagName==='BUTTON') closeSheet(); return; }
-  if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; closeSheet(); if (fn) { await fn(); toast('Deleted'); } } else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
+  if (a==='delete') { if (el.dataset.confirm) { const fn = sheetDelete; el.disabled = true; try { if (fn) await fn(); } finally { closeSheet(); } if (fn) { toast('Deleted'); render(); } } /* run it while the form is still open, so it can read what was picked */ else { el.dataset.confirm = '1'; el.textContent = 'Tap again to delete'; } return; }
   if (a==='settings') return settingsForm();
   if (a==='ring') return openSheet('Ring', `<p class="note">Ring doesn't let other apps show its cameras, so this takes you to Ring itself.</p>
     <div class="btnrow" style="flex-direction:column;align-items:stretch"><a class="btn" href="ring://">Open the Ring app</a><a class="btn ghost" href="https://account.ring.com/account/dashboard" target="_blank" rel="noopener">Ring in the browser</a></div>
