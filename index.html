@@ -826,6 +826,8 @@ h2 .sub.good{color:var(--good)} h2 .sub.find{color:var(--gold)}
 .hs-s{font-size:.7rem;color:var(--muted);line-height:1.25}
 
 .gpanel{padding:8px}
+.gtab .grow{all:unset;cursor:pointer;display:flex;align-items:center;gap:6px;width:100%}.gtab .grow i{font-style:normal;opacity:.35;font-size:.8em}.gtab .grow:hover i{opacity:.8}
+.gtab .gadd{all:unset;cursor:pointer;margin-left:8px;font-size:.75rem;font-weight:700;color:var(--good);border:1px solid currentColor;border-radius:999px;padding:0 7px}
 .xs-panel{padding:10px}.xs-head{display:flex;flex-direction:column;gap:2px;margin:0 4px 8px}.xs-head b{font-size:1.1rem}.xs-head span{font-size:.82rem;color:var(--muted)}
 .xs-tools{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}.xs-tools button{min-width:36px;height:32px;border-radius:8px;border:1px solid var(--rule-2);background:var(--sheet);color:var(--ink);font:inherit;font-size:.85rem;padding:0 8px}.xs-tools button[aria-pressed="true"]{background:#D7F0DF;border-color:#1E7B45}.xs-tools button:disabled{opacity:.4}.xs-sep{width:8px}
 .xs-bar{display:flex;align-items:center;gap:6px;border:1px solid var(--rule-2);border-radius:8px;background:var(--sheet);padding:0 6px;margin-bottom:6px}.xs-bar span{font:600 .82rem ui-monospace,monospace;min-width:42px;color:var(--muted);border-right:1px solid var(--rule-2);padding-right:6px}.xs-bar i{font-style:italic;color:var(--muted);font-size:.85rem}.xs-bar input{flex:1;border:0;background:none;font:.92rem ui-monospace,monospace;padding:8px 2px;color:var(--ink);outline:none;min-width:0}
@@ -2218,10 +2220,10 @@ const gk = s => String(s || '').trim().toLowerCase();
 function gridRows(ms) {
   const groups = [];
   /* coming in */
-  const inc = { t: 'Coming in', cls: 'in', rows: [] };
-  if (ms.some(ym => S.bsheet[ym] && S.bsheet[ym].viki)) inc.rows.push({ n: "Viki's pay", vals: ms.map(ym => { const d = S.bsheet[ym]; return d && d.viki && !d.viki.off ? { v: bsViki(d, ym) } : null; }) });
+  const inc = { t: 'Coming in', cls: 'in', key: 'i', rows: [] };
+  if (ms.some(ym => S.bsheet[ym] && S.bsheet[ym].viki)) inc.rows.push({ n: "Viki's pay", viki: 1, vals: ms.map(ym => { const d = S.bsheet[ym]; return d && d.viki && !d.viki.off ? { v: bsViki(d, ym) } : null; }) });
   const incNames = []; ms.forEach(ym => ((S.bsheet[ym] || {}).inc || []).forEach(x => { if (x.n && !incNames.some(n => gk(n) === gk(x.n))) incNames.push(x.n); }));
-  incNames.forEach(n => inc.rows.push({ n, vals: ms.map(ym => { const d = S.bsheet[ym]; if (!d) return null; const i = (d.inc || []).findIndex(x => gk(x.n) === gk(n)); const x = d.inc[i];
+  incNames.forEach(n => inc.rows.push({ n, sec: 'i', vals: ms.map(ym => { const d = S.bsheet[ym]; if (!d) return null; const i = (d.inc || []).findIndex(x => gk(x.n) === gk(n)); const x = d.inc[i];
     return { v: x && bsOn(x) ? Number(x.a) || 0 : 0, edit: { ym, sec: 'i', n, i } }; }) }));
   groups.push(inc);
   /* budget sections (normal budget, then one-offs) in the order of the newest sheet */
@@ -2230,7 +2232,7 @@ function gridRows(ms) {
   secs.sort((a, b) => (a.kind === 'extra') - (b.kind === 'extra'));
   secs.forEach(sec => {
     const names = []; ms.forEach(ym => { const s = ((S.bsheet[ym] || {}).secs || []).find(x => x.k === sec.k); (s ? s.rows : []).forEach(r => { if (r.n && !names.some(n => gk(n) === gk(r.n))) names.push(r.n); }); });
-    groups.push({ t: sec.t, cls: sec.kind === 'extra' ? 'one' : 'out', rows: names.map(n => ({ n, vals: ms.map(ym => { const d = S.bsheet[ym]; if (!d) return null; const si = d.secs.findIndex(x => x.k === sec.k), s = d.secs[si];
+    groups.push({ t: sec.t, cls: sec.kind === 'extra' ? 'one' : 'out', key: sec.k, rows: names.map(n => ({ n, sec: sec.k, vals: ms.map(ym => { const d = S.bsheet[ym]; if (!d) return null; const si = d.secs.findIndex(x => x.k === sec.k), s = d.secs[si];
       const ri = s ? s.rows.findIndex(r => gk(r.n) === gk(n)) : -1, r = ri >= 0 ? s.rows[ri] : null;
       return { v: r && bsOn(r) ? bsAmt(r) : 0, edit: r && r.u != null ? null : { ym, sec: sec.k, n, i: ri } }; }) })) });
   });
@@ -2258,13 +2260,14 @@ function gridSheet() {
   const cell = c => { if (!c) return '<td class="na">–</td>'; if (c.edit) return `<td><input class="gc" inputmode="decimal" data-gcell="${esc(JSON.stringify(c.edit))}" value="${c.v ? Number(c.v).toFixed(2) : ''}" aria-label="Amount"></td>`; return `<td>${f(c.v)}</td>`; };
   const body = groups.map(g => {
     const sums = ms.map((ym, i) => g.rows.reduce((a, r) => a + (r.vals[i] ? r.vals[i].v || 0 : 0), 0));
-    return `<tr class="gh ${g.cls}"><th class="gn">${esc(g.t)}${g.note ? `<small>${esc(g.note)}</small>` : ''}</th>${sums.map(v => `<td>${f(v)}</td>`).join('')}</tr>` + g.rows.map(r => `<tr><th class="gn gi">${esc(r.n)}</th>${r.vals.map(cell).join('')}</tr>`).join('');
+    return `<tr class="gh ${g.cls}"><th class="gn">${esc(g.t)}${g.note ? `<small>${esc(g.note)}</small>` : ''}${g.key ? `<button type="button" class="gadd" data-act="growadd" data-sec="${esc(g.key)}" aria-label="Add a line to ${esc(g.t)}">+ Add</button>` : ''}</th>${sums.map(v => `<td>${f(v)}</td>`).join('')}</tr>`
+      + g.rows.map(r => `<tr><th class="gn gi">${r.sec || r.viki ? `<button type="button" class="grow" data-act="${r.viki ? 'gviki' : 'grow'}" data-sec="${esc(r.sec || '')}" data-n="${esc(r.n)}">${esc(r.n)}<i aria-hidden="true">✎</i></button>` : esc(r.n)}</th>${r.vals.map(cell).join('')}</tr>`).join('');
   }).join('');
   const foot = `<tr class="gt"><th class="gn">Going out</th>${tot.map(t => `<td>${t ? f(t.base + t.extra) : '–'}</td>`).join('')}</tr>
     <tr class="gt big"><th class="gn">Left this month</th>${tot.map(t => `<td class="${t && t.left < 0 ? 'neg' : 'pos'}">${t ? money(t.left, 2) : '–'}</td>`).join('')}</tr>
     <tr class="gt big"><th class="gn">In the bank, carried over</th>${carried.map(v => `<td class="${v != null && v < 0 ? 'neg' : 'pos'}">${v == null ? '–' : money(v, 2)}</td>`).join('')}</tr>`;
   return `<section class="panel gpanel"><div class="gwrap"><table class="gtab"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>
-    <p class="note">One column per pay: from that payday to the day before the next. Tap a month's name to show it in the header at the top. Type in a shaded box to change that month's amount; it saves straight away and the header updates. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>${gridCheck(ms, tot, carried)}${recentPanel()}`;
+    <p class="note">One column per pay: from that payday to the day before the next. Type in a shaded box to change that month's amount. Tap a line's name to rename it, change it for every month, or delete it. Use + Add to add a new line. Tap Viki's pay to change her on-call days and hours. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>${gridCheck(ms, tot, carried)}${recentPanel()}`;
 }
 /* "Does it add up?": the things that usually go wrong, checked every time the spreadsheet is drawn */
 function gridCheck(ms, tot, carried) {
@@ -2313,6 +2316,45 @@ function recentList() {
   return `<div class="list">${g.slice(0, 10).map(x => `<div class="row rc"><span class="rc-who rc-${x.who.toLowerCase()}">${esc(x.who[0])}</span><span class="grow">${esc(x.who)} changed ${esc(x.paths.length > 1 ? `${x.paths.length} ${x.c === 'bsheet' ? 'Budget Sheets' : 'things'}` : recentWhat(x.paths[0]))}</span><span class="m">${esc(when(x.at))}</span></div>`).join('') || '<p class="empty">Nothing yet.</p>'}</div>`;
 }
 function recentPanel() { setTimeout(() => recentLoad(), 0); return `<section class="panel"><h2>Recent changes</h2><div id="recentBox">${recentList()}</div></section>`; }
+/* add, change or delete a whole line of the spreadsheet, for one month or from that month on */
+const gridSheetMonths = () => Object.keys(S.bsheet).filter(ym => ym >= plCur()).sort();
+function growForm(secKey, name) {
+  const ms = gridSheetMonths(), from = UI.hym && ms.includes(UI.hym) ? UI.hym : ms[0];
+  const find = (d, n) => { if (secKey === 'i') return (d.inc || []).find(x => gk(x.n) === gk(n)); const s = (d.secs || []).find(x => x.k === secKey); return s && s.rows.find(r => gk(r.n) === gk(n)); };
+  const sample = name ? ms.map(ym => S.bsheet[ym] && find(S.bsheet[ym], name)).find(Boolean) : null, qu = sample && sample.u != null;
+  const secT = secKey === 'i' ? 'Coming in' : ((Object.values(S.bsheet).flatMap(d => d.secs || []).find(x => x.k === secKey) || {}).t || 'the sheet');
+  openSheet(name ? name : `Add to ${secT}`, fld('grN', 'Name', name || '', 'text', 'placeholder="e.g. Netflix"')
+    + (qu ? `<div class="fields2">${fld('grQ', 'How many', sample.q ?? '', 'number', 'step="1" inputmode="decimal"')}${fld('grU', 'Each (£)', sample.u ?? '', 'number', 'step="0.01" inputmode="decimal"')}</div>` : fld('grA', 'Amount (£ a month)', sample ? sample.a ?? '' : '', 'number', 'step="0.01" inputmode="decimal"'))
+    + (secKey === 'i' ? '' : fld('grD', 'Date or note (optional)', sample ? sample.d || '' : '', 'text', 'placeholder="e.g. 28th"'))
+    + sel('grFrom', 'Starting from', from, ms.map(ym => [ym, `${monthName(ym)} pay`]))
+    + sel('grHow', 'Which months', 'on', [['on', 'That month and every month after'], ['one', 'Just that month']]), async () => {
+    const n = v('grN').trim(); if (!n) throw new Error('Give it a name');
+    const fromYm = v('grFrom'), targets = v('grHow') === 'one' ? [fromYm] : ms.filter(ym => ym >= fromYm);
+    for (const ym of targets) { const d = bsClone(S.bsheet[ym]);
+      const row = qu ? { n, q: num(v('grQ')) || 0, u: num(v('grU')) || 0 } : { n, a: num(v('grA')) || 0 }; const dd = secKey === 'i' ? '' : v('grD').trim(); if (dd) row.d = dd;
+      if (secKey === 'i') { d.inc = d.inc || []; const i = name ? d.inc.findIndex(x => gk(x.n) === gk(name)) : -1; if (i >= 0) d.inc[i] = { ...d.inc[i], ...row, off: false }; else d.inc.push(row); }
+      else { const s = (d.secs || []).find(x => x.k === secKey); if (!s) continue; const i = name ? s.rows.findIndex(r => gk(r.n) === gk(name)) : -1; if (i >= 0) { const { d: _d, ...old } = s.rows[i]; s.rows[i] = { ...old, ...row }; delete s.rows[i].off; } else s.rows.push(row); }
+      await put(`bsheet/${ym}`, d); }
+    window.__toastAfter = targets.length > 1 ? `Saved for ${targets.length} months` : 'Saved';
+  }, name ? { onDelete: async () => { const fromYm = v('grFrom'), targets = v('grHow') === 'one' ? [fromYm] : ms.filter(ym => ym >= fromYm);
+    for (const ym of targets) { const d = bsClone(S.bsheet[ym]); if (secKey === 'i') d.inc = (d.inc || []).filter(x => gk(x.n) !== gk(name)); else (d.secs || []).forEach(s => { if (s.k === secKey) s.rows = s.rows.filter(r => gk(r.n) !== gk(name)); }); await put(`bsheet/${ym}`, d); } } } : {});
+  if (name) { const n = $('#sheetForm .btnrow'); if (n) n.insertAdjacentHTML('beforebegin', '<p class="note">Delete uses the months chosen above, so pick "That month and every month after" to stop it for good.</p>'); }
+}
+/* Viki's on-call days and hours, which work out her pay for that month */
+function gvikiForm() {
+  const ms = gridSheetMonths(), from = UI.hym && ms.includes(UI.hym) ? UI.hym : ms[0], d0 = S.bsheet[from], items = ((d0 && d0.viki && d0.viki.items) || []);
+  const LAB = { 'Weekday': 'Weekday on calls', 'Weekend': 'Weekend on calls', '2nd on call (WD)': '2nd on call, weekdays', '2nd on call (WE)': '2nd on call, weekends', '1.5 Hours': 'Call-out hours at time and a half', 'Double hours': 'Call-out hours at double time', 'BH- shift- 1.5': 'Bank holiday shift hours' };
+  openSheet("Viki's pay", `<p class="note" style="margin-top:0">Her pay is worked out from these, with her tax, NI and pension. Her payslip replaces it once it's in.</p>`
+    + sel('gvFrom', 'Starting from', from, ms.map(ym => [ym, `${monthName(ym)} pay`]))
+    + `<div class="fields2">${items.map((it, i) => fld(`gvQ${i}`, `${esc(LAB[it.n] || it.n)} <small>(£${Number(it.r).toFixed(2)})</small>`, it.q ?? 0, 'number', 'step="0.5" min="0" inputmode="decimal"')).join('')}</div>`
+    + `<p class="note" id="gvOut"></p>` + sel('gvHow', 'Which months', 'on', [['on', 'That month and every month after'], ['one', 'Just that month']]), async () => {
+    const fromYm = v('gvFrom'), targets = v('gvHow') === 'one' ? [fromYm] : ms.filter(ym => ym >= fromYm);
+    for (const ym of targets) { const d = bsClone(S.bsheet[ym]); if (!d.viki) continue; d.viki = { ...d.viki, mode: 'calc', items: (d.viki.items || items).map((it, i) => ({ ...it, q: num(v(`gvQ${i}`)) || 0 })) }; delete d.viki.actual; await put(`bsheet/${ym}`, d); }
+    window.__toastAfter = targets.length > 1 ? `Saved for ${targets.length} months` : 'Saved';
+  });
+  const out = () => { const ym = v('gvFrom'), d = S.bsheet[ym]; if (!d || !d.viki) return; const t = bsVikiSlip({ ...d, viki: { ...d.viki, items: (d.viki.items || items).map((it, i) => ({ ...it, q: num(v(`gvQ${i}`)) || 0 })) } }, ym); const o = $('#gvOut'); if (o) o.textContent = `That's about ${money(t.net, 2)} take-home for the ${monthName(ym)} pay.`; };
+  $('#sheetForm').addEventListener('input', out); $('#sheetForm').addEventListener('change', out); out();
+}
 async function gridSave(inp) {
   let e; try { e = JSON.parse(inp.dataset.gcell); } catch (x) { return; }
   const v = num(inp.value), d = S.bsheet[e.ym] ? bsClone(S.bsheet[e.ym]) : null; if (!d) return;
@@ -2545,16 +2587,19 @@ function xsUndo() { const prev = XS.undo.pop(); if (!prev) return; const doc = J
 function ypCalc() {
   const Y = S.yearplan; if (!Y || !Array.isArray(Y.months)) return null;
   const cur = plCur(), bf = Y.buffer ?? 0.1; let run = Number(Y.start) || 0, bufRun = 0, now = run, nowBuf = 0;
-  const BF = basicFigures(), useB = !!BF, vikiB = useB && Y.vikiFrom !== 'history';
+  const vikiB = Y.vikiFrom !== 'history';
+  /* each month comes from that month's row in the Spreadsheet: Chris's pay, bills and day to day, one-offs, and Viki's pay from her on-call days */
   const rows = Y.months.slice().sort((a, b) => a.ym < b.ym ? -1 : 1).map(m0 => {
-    const m = useB ? { ...m0, chris: BF.chris, base: BF.base, viki: vikiB ? BF.viki : m0.viki } : m0;
+    const d = S.bsheet[m0.ym]; let m = m0;
+    if (d) { const t = bsTotals(d, m0.ym), one = (d.secs || []).filter(x => x.kind === 'extra').flatMap(x => x.rows.filter(bsOn).map(r => ({ n: r.n, a: bsAmt(r), sheet: 1 }))).filter(x => x.a);
+      m = { ...m0, chris: (d.inc || []).filter(bsOn).reduce((s, x) => s + (Number(x.a) || 0), 0), base: t.base, viki: vikiB && d.viki && !d.viki.off ? bsViki({ ...d, viki: { ...d.viki, actual: null } }, m0.ym) : m0.viki, items: [...one, ...(m0.items || [])] }; }
     const slip = (S.payslips || []).find(x => x.id === m.ym && x.net), viki = slip ? Number(slip.net) : Number(m.viki) || 0;
     const out = (Number(m.base) || 0) + (m.items || []).reduce((s, x) => s + (Number(x.a) || 0), 0), inc = (Number(m.chris) || 0) + viki, left = inc - out;
     const buf = left > 0 ? left * bf : 0, saved = left - buf, chk = (Y.checks || {})[m.ym], adj = chk ? Number(chk.moved) || 0 : 0; run += saved + adj; bufRun += buf;
     if (m.ym <= cur) { now = run; nowBuf = bufRun; }
     return { ...m, slip, viki, pred: Number(m.viki) || 0, inc, out, left, buf, saved, adj, chk, moved: (Y.moved || {})[m.ym] || null, run, bufRun };
   });
-  return { rows, now, nowBuf, end: rows.length ? rows[rows.length - 1] : null, cur, basic: BF, vikiB };
+  return { rows, now, nowBuf, end: rows.length ? rows[rows.length - 1] : null, cur, vikiB };
 }
 /* a fundraising-style thermometer: a goal ribbon at the top, a glass tube with tick marks, and a red bulb.
    Solid red is what's saved now; the striped part is what the plan says will be there by the time it's due. */
@@ -2703,7 +2748,7 @@ function viewYearPlan() {
     <div class="yp-hs"><div><span>Saved now</span><b>${money(C.now, 0)}</b></div><div><span>Buffer by ${esc(monShort(e.ym))}</span><b>${money(e.bufRun, 0)}</b></div>${pot ? `<div><span>${esc(pot.n)} pot</span><b>${money(potEnd, 0)}</b></div>` : ''}</div>
     <p>Viki's pay is a best guess until her payslip is in. Add it each month and everything below updates.</p></section>`;
   const trips = `<div class="yp-trips">${ypTrips(C)}</div>`;
-  const src = C.basic ? `<div class="yp-src"><span>Every month uses Viki's <button type="button" class="linkbtn" data-act="mseg" data-v="basic">Basic sheet</button>: bills and day to day ${money(C.basic.base, 2)}, Chris ${money(C.basic.chris, 2)}. Viki's predicted pay:</span><div class="seg"><button data-act="ypsrc" data-v="basic" aria-pressed="${C.vikiB}">Basic sheet ${money(C.basic.viki, 0)}</button><button data-act="ypsrc" data-v="history" aria-pressed="${!C.vikiB}">Her last 15 months</button></div></div>` : '';
+  const src = `<div class="yp-src"><span>Every month comes from the <button type="button" class="linkbtn" data-act="mseg" data-v="grid">Spreadsheet</button>: Chris's pay, bills, day to day and one-offs. Viki's predicted pay:</span><div class="seg"><button data-act="ypsrc" data-v="basic" aria-pressed="${C.vikiB}">From her on-call days</button><button data-act="ypsrc" data-v="history" aria-pressed="${!C.vikiB}">Her last 15 months</button></div></div>`;
   const months = C.rows.map(r => { const isCur = r.ym === cur, diff = r.slip ? r.viki - r.pred : 0;
     return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
       <div class="yp-viki">${r.slip ? `<span class="chip ok">Payslip in</span> Viki <b>${money(r.viki, 2)}</b> <small>${diff >= 0 ? '+' : '−'}${money(Math.abs(diff), 0)} on the guess</small>` : `<span class="chip">Predicted</span> Viki <b>${money(r.pred, 0)}</b>`}<button type="button" class="btn small ${r.slip ? 'ghost' : ''}" data-act="ypslip" data-v="${esc(r.ym)}">${r.slip ? 'Change' : 'Add payslip'}</button></div>
@@ -2711,7 +2756,7 @@ function viewYearPlan() {
       ${r.slip || r.chk ? `<div class="yp-steps">${r.slip ? (r.moved ? `<span class="ok">✓ Pay sorted</span>` : `<button type="button" class="linkbtn" data-act="ypmove" data-v="${esc(r.ym)}">What to move</button>`) : ''}${r.chk ? `<span class="${r.chk.spare >= 0 ? 'ok' : 'bad'}">✓ Bank check: ${r.chk.spare >= 0 ? `${money(r.chk.spare, 0)} ahead` : `${money(-r.chk.spare, 0)} behind`}${r.adj ? `, ${r.adj > 0 ? 'moved' : 'took back'} ${money(Math.abs(r.adj), 0)}` : ''}</span>` : r.slip && today() >= ypCheckDate(r.ym) ? `<button type="button" class="linkbtn" data-act="ypcheck" data-v="${esc(r.ym)}">Bank check</button>` : ''}</div>` : ''}
       ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}</article>`; }).join('');
   return head + ypNow(C) + src + `<h2 class="yp-h">The trips</h2>` + trips + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
-    <p class="note">${C.basic ? 'Going out is the BASELINE from the Basic sheet (bills, kids\' extras, food and fuel), plus the one-offs and trip money shown. Chris\'s pay is from the Basic sheet too.' : 'Going out is the bills, kids\' extras, food and fuel from each month\'s Budget Sheet, plus the one-offs and trip money shown. Chris\'s pay is as on the Budget Sheets.'} 10% of whatever is left over each month stays in the account as a buffer.</p>`;
+    <p class="note">Going out is each month's bills, kids' extras, food and fuel from the Spreadsheet, plus the one-offs and trip money shown. Change anything in the Spreadsheet and this updates. 10% of whatever is left over each month stays in the account as a buffer.</p>`;
 }
 
 /* ----- title block: the grid of labelled boxes that opens each page ----- */
@@ -5208,7 +5253,7 @@ function planFor(ym) {
 }
 
 const MONEY_GROUPS = [
-  { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['yplan','Year plan'],['basic','Basic'],['gcal','Calendar']] },
+  { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['yplan','Year plan'],['gcal','Calendar']] },
   { k:'zilch', l:'Zilch', pages:[['owed','Zilch']] },
   { k:'planner', l:'Planner', pages:[['planner','Planner']] },
   { k:'more', l:'More', pages:[['sheet','Budget Sheet'],['bills','Bills'],['meals','Dinners and shopping'],['overview','Food shops and spends'],['old','Old debts'],['plan','Pay and plan'],['spending','Spending'],['budget','Budget'],['goals','Goals'],['year','Year ahead'],['save','Tips']] },
@@ -6543,7 +6588,7 @@ function tripForm(id) {
 }
 
 /* ----- holiday planner: plans/<id> = { kind, name, from, to, note, saveFrom, items:[{id,n,a,how,ym,from,paid,note}] } ----- */
-const PL_KINDS = [['summer','Holidays'],['city','Trips'],['family','Visits'],['christmas','Christmas'],['birthday','Birthdays'],['celebration','Celebrations']];
+const PL_KINDS = [['summer','Holidays'],['family','Visits'],['christmas','Christmas'],['birthday','Birthdays']];
 const PL_COL = { summer:'#E8A33D', family:'#0B8043', city:'#3F51B5', christmas:'#C62828', birthday:'#E5577A', celebration:'#8E44AD', year:'#2E9E62' };
 const PL_IDEAS = {
   summer: ['Flights','Hotel or villa','Car hire','Airport parking','Transfers','Travel insurance','Excursions','Spending money'],
@@ -7242,8 +7287,8 @@ function nextJobs() {
 /* ===== Treats: occasions (Christmas and birthdays), present history, wish lists, packing, on the day ===== */
 const GIFT_KINDS = ['christmas', 'birthday', 'celebration'];
 const isGift = p => !!p && GIFT_KINDS.includes(p.kind);
-const kindTab = p => p.kind || 'summer';
-const PL_TYPES = [['summer','Holiday'],['family','Family visit'],['city','Trip'],['christmas','Christmas'],['birthday','Birthday'],['celebration','Celebration']];
+const kindTab = p => (!p.kind || p.kind === 'city' || p.kind === 'celebration') ? 'summer' : p.kind; /* trips and celebrations now live under Holidays */
+const PL_TYPES = [['summer','Holiday'],['family','Family visit'],['christmas','Christmas'],['birthday','Birthday']];
 const kindLabel = k => (PL_TYPES.find(x => x[0] === k) || [])[1] || '';
 const occName = p => String(p.name || '').replace(/\s+20\d\d$/, '');
 const sleepsN = d => d ? daysBetween(today(), d) : null;
@@ -8664,6 +8709,9 @@ document.addEventListener('click', async e => {
   if (a==='qbill') { closeSheet(); return billForm(); }
   if (a==='ypslip') { const ym = el.dataset.v; return slipForm(ym, () => ypMoveSheet(ym)); }
   if (a==='ypmove') return ypMoveSheet(el.dataset.v);
+  if (a==='grow') return growForm(el.dataset.sec, el.dataset.n);
+  if (a==='growadd') return growForm(el.dataset.sec, '');
+  if (a==='gviki') return gvikiForm();
   if (a==='xsb') return xsBold();
   if (a==='xsundo') return xsUndo();
   if (a==='xsnf') { const doc = JSON.parse(JSON.stringify(xsDoc())), c = doc.cells[XS.sel] || { v: '' }; if (el.dataset.v) c.nf = el.dataset.v; else delete c.nf; doc.cells[XS.sel] = c; await xsSave(doc); xsSelect(XS.sel); return; }
