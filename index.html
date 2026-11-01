@@ -168,6 +168,12 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-1
 .cal button .l{font-size:.64rem;line-height:1.1;font-weight:650;font-stretch:87%;text-align:center;overflow:hidden;max-width:100%;white-space:nowrap;text-overflow:ellipsis}
 .cal button.today{box-shadow:inset 0 0 0 2px var(--red);border-color:var(--red)}
 .cal button.pad{visibility:hidden}
+.cal button.picked{box-shadow:inset 0 0 0 2.5px var(--ink)!important;transform:scale(.94)}
+.msel-bar{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom));margin-top:12px;background:var(--sheet);border:1px solid var(--rule);border-radius:16px;padding:12px;box-shadow:var(--shadow);z-index:5}
+.msel-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.msel-btns{display:flex;flex-wrap:wrap;gap:8px}
+.msel-btns .chip{font-size:.95rem;padding:8px 14px;cursor:pointer;border:0}
+.msel-btns .chip[disabled]{opacity:.45}
 .st-work{background:var(--chris-soft)!important;color:var(--chris)} .st-shift{background:var(--viki-soft)!important;color:var(--viki)}
 .st-oncall{background:var(--oc-soft)!important;color:var(--oc)}
 .st-callout{background:var(--gold-soft)!important;color:var(--gold)} .st-holiday{background:var(--good-soft)!important;color:var(--good)}
@@ -3480,7 +3486,8 @@ function viewWork() {
     if (rec && who==='chris' && rec.status==='work' && rec.start && rec.end) label = `${parseInt(rec.start,10)}–${parseInt(rec.end,10)}`;
     const mk = who === 'chris' ? calMarks(date) : [];
     if (mk.length) extra = `<span class="cmk">${mk.map(x => `<i class="cm-${x.k}${x.tbc ? ' tbc' : ''}"></i>`).join('')}</span>`;
-    cells += `<button class="${cls}${tcls}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${rec?', '+esc(label):''}${mk.length ? ', ' + esc(mk.map(x => x.n).join(', ')) : ''}"><span class="d">${d}</span><span class="l">${esc(label)}</span>${extra||'<span></span>'}</button>`;
+    const pick = who === 'chris' && UI.msel ? UI.msel.includes(date) : false;
+    cells += `<button class="${cls}${tcls}${rec && rec.fromCal ? ' fromcal' : ''}${pick ? ' picked' : ''}" data-act="${who === 'chris' && UI.msel ? 'mpick' : 'day'}" data-date="${date}"${who === 'chris' && UI.msel ? ` aria-pressed="${pick}"` : ''} aria-label="${shortDate(date)}${rec?', '+esc(label):''}${mk.length ? ', ' + esc(mk.map(x => x.n).join(', ')) : ''}"><span class="d">${d}</span><span class="l">${esc(label)}</span>${extra||'<span></span>'}</button>`;
   }
   const ly = leaveYear(`${ym}-01`); const yearDays = daysFor(who, ly.from, ly.to); /* the leave year of the month on screen */
   const count = (arr, st) => arr.filter(d => d.status===st).length;
@@ -3504,8 +3511,11 @@ function viewWork() {
     <div class="cal">${['M','T','W','T','F','S','S'].map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div>
     <div class="legend">${legend}</div>
     ${who === 'chris' ? calMonthMarks(ym, daysIn) : ''}
-    <p class="note">Tap a day to log it.</p>
-    <div class="btnrow"><button class="btn small ghost" data-act="fillweek">Mark empty weekdays this month as work</button></div>
+    ${who === 'chris' && UI.msel ? `<div class="msel-bar"><div class="msel-top"><b>${UI.msel.length} day${UI.msel.length === 1 ? '' : 's'} picked</b><button type="button" class="linkbtn" data-act="mweek">${UI.msel.length ? 'Clear' : 'Pick all weekdays'}</button></div>
+      <div class="msel-btns">${[['work', 'Work'], ['holiday', 'Holiday'], ['sick', 'Sick'], ['off', 'Off']].map(([k, l]) => `<button type="button" class="chip st-${k}" data-act="mset" data-v="${k}" ${UI.msel.length ? '' : 'disabled'}>${l}</button>`).join('')}</div>
+      <div class="btnrow"><button type="button" class="btn small ghost" data-act="mselon">Done</button></div></div>`
+    : `<p class="note">Tap a day to log it${who === 'chris' ? ', or pick several at once' : ''}.</p>
+    <div class="btnrow">${who === 'chris' ? '<button class="btn small" data-act="mselon">Pick several days</button>' : ''}<button class="btn small ghost" data-act="fillweek">Mark empty weekdays this month as work</button></div>`}
   </section>`;
 }
 
@@ -8821,6 +8831,15 @@ document.addEventListener('click', async e => {
   if (a==='mseg') { closeSheet(); UI.money = el.dataset.v; keepUI(); render(); return; }
   if (a==='cseg') { UI.carSeg = el.dataset.v; keepUI(); return render(); }
   if (a==='day') return dayForm(el.dataset.date);
+  /* pick several days on Chris's calendar and set them all at once */
+  if (a==='mselon') { UI.msel = UI.msel ? null : []; return render(); }
+  if (a==='mpick') { const d = el.dataset.date; UI.msel = UI.msel.includes(d) ? UI.msel.filter(x => x !== d) : [...UI.msel, d]; return render(); }
+  if (a==='mweek') { if (UI.msel.length) UI.msel = []; else { const ym = UI.cal, n = new Date(Number(ym.slice(0,4)), Number(ym.slice(5,7)), 0).getDate(); UI.msel = []; for (let d=1; d<=n; d++) { const date = `${ym}-${pad(d)}`; if (!isWeekend(date) && !isBH(date)) UI.msel.push(date); } } return render(); }
+  if (a==='mset') { const st = el.dataset.v, list = [...UI.msel].sort(); if (!list.length) return; el.disabled = true;
+    for (const date of list) { const key = `chris_${date}`, old = S.days[key] || {};
+      if (st === 'off' && !old.note) { if (S.days[key]) await remove(`days/${key}`); continue; }
+      const data = { who: 'chris', date, status: st }; if (old.note) data.note = old.note; await put(`days/${key}`, data); }
+    UI.msel = null; toast(`${list.length} day${list.length === 1 ? '' : 's'} set to ${{ work: 'work', holiday: 'holiday', sick: 'sick', off: 'off' }[st]}`); return render(); }
   if (a==='bill') return billForm(el.dataset.id);
   if (a==='spend') return spendForm(el.dataset.id);
   if (a==='cats') return catsForm();
