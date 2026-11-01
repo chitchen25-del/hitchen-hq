@@ -2762,8 +2762,14 @@ function ypThermoSvg(pct, ghost, goal) {
     <path d="M40 262 q-2 8 2 14" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`;
 }
 const ypThermo = (pct, ghost, col) => `<div class="yp-th" style="--c:${col}"><span class="yp-bulb"></span><div class="yp-tube">${ghost != null ? `<i class="ghost" style="width:${Math.max(0, Math.min(100, ghost))}%"></i>` : ''}<i class="fill" style="width:${Math.max(0, Math.min(100, pct))}%"></i></div></div>`;
-function ypTrips(C) {
-  const Y = S.yearplan, cur = C.cur, save = (Y.trips || []).filter(t => t.kind === 'save').sort((a, b) => a.ym < b.ym ? -1 : 1);
+/* the Year plan's trip cards, keyed by the Treats plan each one belongs to (they show in Treats, in place of that plan's card) */
+function ypTripCards() {
+  const C = ypCalc(); if (!C || !S.yearplan) return {};
+  const out = {}; (S.yearplan.trips || []).forEach((t, i) => { if (t.plan) out[t.plan] = ypTripsList(C)[i]; }); return out;
+}
+const ypTrips = C => ypTripsList(C).join('');
+function ypTripsList(C) {
+  const Y = S.yearplan, cur = C.cur;
   let pool = Math.max(0, C.now);
   const COL = ['#E8502E', '#8E24AA', '#0B8FB0'];
   return (Y.trips || []).map((t, i) => {
@@ -2781,7 +2787,7 @@ function ypTrips(C) {
     line = paid ? `<b>Paid</b> · ${money(cost, 0)}` : `<b>${money(have, 0)}</b> of ${money(cost, 0)} saved so far`;
     tag = paid ? 'Done' : ready == null ? '' : ready >= cost ? `On track: about ${money(ready, 0)} ready by the ${monShort(t.ym)} pay` : `${money(cost - ready, 0)} short by the ${monShort(t.ym)} pay`;
     return ypCard(t, COL[i % 3], cost ? have / cost * 100 : 0, ghost, line, tag, ready != null && ready < cost, money(cost, 0));
-  }).join('');
+  });
 }
 /* full-bleed scenes behind the trip cards: original artwork, no logos or characters */
 function ypStars(n, w, h, seed) { let o = '', x = seed; for (let i = 0; i < n; i++) { x = (x * 9301 + 49297) % 233280; const a = x / 233280; x = (x * 9301 + 49297) % 233280; const b = x / 233280; o += `<circle cx="${(a * w).toFixed(1)}" cy="${(b * h).toFixed(1)}" r="${(0.4 + (i % 3) * 0.35).toFixed(2)}" fill="#fff" opacity="${(0.35 + (i % 4) * 0.15).toFixed(2)}"/>`; } return o; }
@@ -2887,7 +2893,6 @@ function viewYearPlan() {
   const head = `<section class="yp-hero"><div class="yp-hk">Saved by the end of ${esc(monthName(e.ym).replace(/ \d{4}$/, ''))}</div><div class="yp-hv ${e.run < 0 ? 'neg' : ''}">${money(e.run, 0)}</div>
     <div class="yp-hs"><div><span>Saved now</span><b>${money(C.now, 0)}</b></div><div><span>Buffer by ${esc(monShort(e.ym))}</span><b>${money(e.bufRun, 0)}</b></div>${pot ? `<div><span>${esc(pot.n)} pot</span><b>${money(potEnd, 0)}</b></div>` : ''}</div>
     <p>Viki's pay is a best guess until her payslip is in. Add it each month and everything below updates.</p></section>`;
-  const trips = `<div class="yp-trips">${ypTrips(C)}</div>`;
   const src = `<div class="yp-src"><span>Every month comes from the <button type="button" class="linkbtn" data-act="mseg" data-v="grid">Spreadsheet</button>: Chris's pay, bills, day to day and one-offs. Viki's predicted pay:</span><div class="seg"><button data-act="ypsrc" data-v="basic" aria-pressed="${C.vikiB}">From her on-call days</button><button data-act="ypsrc" data-v="history" aria-pressed="${!C.vikiB}">Her last 15 months</button></div></div>`;
   const months = C.rows.map(r => { const isCur = r.ym === cur, diff = r.slip ? r.viki - r.pred : 0;
     return `<article class="yp-m${isCur ? ' cur' : ''}${r.ym < cur ? ' past' : ''}"><header><div><b>${esc(monthName(r.ym))} pay</b><small>${esc(dayShort(payday(r.ym)))}${isCur ? ' · this month' : ''}</small></div><div class="yp-run ${r.run < 0 ? 'neg' : ''}"><small>Saved so far</small>${money(r.run, 0)}</div></header>
@@ -2896,7 +2901,7 @@ function viewYearPlan() {
       ${r.slip || r.chk ? `<div class="yp-steps">${r.slip ? (r.moved ? `<span class="ok">✓ Pay sorted</span>` : `<button type="button" class="linkbtn" data-act="ypmove" data-v="${esc(r.ym)}">What to move</button>`) : ''}${r.chk ? `<span class="${r.chk.spare >= 0 ? 'ok' : 'bad'}">✓ Bank check: ${r.chk.spare >= 0 ? `${money(r.chk.spare, 0)} ahead` : `${money(-r.chk.spare, 0)} behind`}${r.adj ? `, ${r.adj > 0 ? 'moved' : 'took back'} ${money(Math.abs(r.adj), 0)}` : ''}</span>` : r.slip && today() >= ypCheckDate(r.ym) ? `<button type="button" class="linkbtn" data-act="ypcheck" data-v="${esc(r.ym)}">Bank check</button>` : ''}</div>` : ''}
       ${(r.items || []).length ? `<div class="yp-items">${r.items.map(x => `<span>${esc(x.n)} <b>${money(x.a, 0)}</b></span>`).join('')}</div>` : ''}
       ${r.fb.length || r.fs.length ? `<div class="yp-items yp-from">${r.fb.map(x => `<span>🛟 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>buffer</small></span>`).join('')}${r.fs.map(x => `<span>🏦 ${esc(x.n)} <b>−${money(x.a, 0)}</b> <small>savings</small></span>`).join('')}</div>` : ''}</article>`; }).join('');
-  return head + ypNow(C) + src + `<h2 class="yp-h">The trips</h2>` + trips + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
+  return head + ypNow(C) + src + `<p class="note yp-tripnote">The trip cards and their thermometers are in <button type="button" class="linkbtn" data-act="opentrip" data-kind="summer" data-id="">Treats › Holidays</button>.</p>` + `<h2 class="yp-h">Month by month</h2><div class="yp-months">${months}</div>
     <p class="note">Going out is each month's bills, kids' extras, food and fuel from the Spreadsheet, plus the one-offs and trip money shown. Change anything in the Spreadsheet and this updates. 10% of whatever is left over each month stays in the account as a buffer.</p>`;
 }
 
@@ -6936,7 +6941,8 @@ function viewPlanner() {
   const open = up.find(p => p.id === UI.occ);
   const word = k === 'summer' ? 'holidays' : k === 'city' ? 'trips' : 'visits';
   if (open) return head + `<div class="btnrow" style="margin:0 0 10px"><button type="button" class="btn small ghost" data-act="occ" data-id="">‹ All ${word}</button></div>` + plPanel(open);
-  const cards = up.length ? `<div class="tripcards">${up.map(p => tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="occ" data-id="${esc(p.id)}" aria-label="Open ${esc(p.name || 'trip')}"` })).join('')}</div>` : '';
+  const yc = k === 'summer' ? ypTripCards() : {}; /* trips in the Year plan show its savings card, thermometer and all */
+  const cards = up.length ? `<div class="tripcards">${up.map(p => yc[p.id] ? `<div class="yp-trips tr-yp">${yc[p.id].replace(/data-act="opentrip" data-kind="[^"]*"/, 'data-act="occ"')}</div>` : tripHero(p, plStats(p), { mini: true, tag: 'button', attrs: `type="button" data-act="occ" data-id="${esc(p.id)}" aria-label="Open ${esc(p.name || 'trip')}"` })).join('')}</div>` : '';
   return head + cards + `<section class="panel"><div class="btnrow" style="margin-top:0"><button class="btn small" data-act="plan" data-kind="${k}">Add ${k === 'summer' ? 'a holiday' : k === 'city' ? 'a trip' : 'a visit'}</button></div>${up.length ? '' : `<p class="note">${past.length ? 'Nothing coming up yet. ' : ''}${k === 'summer' ? 'For example, two weeks in Spain next August: add flights, the villa, car hire and spending money, and pick when each gets paid.' : k === 'city' ? 'For example, three nights in Liverpool or Dublin: travel, hotel, attractions and food.' : 'For example, a weekend visiting family in the UK: the boat, fuel, a Premier Inn and gifts.'}</p>`}</section>` + plPastPanel(past) + plOverview();
 }
 
