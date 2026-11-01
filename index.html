@@ -2171,8 +2171,8 @@ function nextDue(b) {
   return d;
 }
 const perMonth = b => { const a = Number(b.amount)||0; return b.freq==='weekly' ? a*52/12 : b.freq==='quarterly' ? a/3 : b.freq==='annual' ? a/12 : a; };
-function leaveYear() {
-  const startMM = Number(S.settings.leaveStart || 1); const t = parse(today());
+function leaveYear(on = today()) { /* the leave year a date falls in (today by default) */
+  const startMM = Number(S.settings.leaveStart || 1); const t = parse(on);
   let y = t.getFullYear(); if (t.getMonth()+1 < startMM) y--;
   const from = `${y}-${pad(startMM)}-01`; return { from, to: addDays(addMonths(from,12),-1) };
 }
@@ -3430,7 +3430,7 @@ function viewWork() {
     if (mk.length) extra = `<span class="cmk">${mk.map(x => `<i class="cm-${x.k}${x.tbc ? ' tbc' : ''}"></i>`).join('')}</span>`;
     cells += `<button class="${cls}${tcls}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${rec?', '+esc(label):''}${mk.length ? ', ' + esc(mk.map(x => x.n).join(', ')) : ''}"><span class="d">${d}</span><span class="l">${esc(label)}</span>${extra||'<span></span>'}</button>`;
   }
-  const ly = leaveYear(); const yearDays = daysFor(who, ly.from, ly.to);
+  const ly = leaveYear(`${ym}-01`); const yearDays = daysFor(who, ly.from, ly.to); /* the leave year of the month on screen */
   const count = (arr, st) => arr.filter(d => d.status===st).length;
   let stats;
   if (who==='chris') {
