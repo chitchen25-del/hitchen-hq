@@ -219,7 +219,33 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-1
 /* home */
 .wgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .seg.hview{margin:-2px 0 10px}
-.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.gm{margin:0 -4px;font-feature-settings:'tnum'}
+.gm-dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;text-align:center;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+.gm-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid var(--rule)}
+.gm-c{appearance:none;border:0;border-left:1px solid var(--rule);background:transparent;min-height:88px;padding:4px 2px 5px;display:flex;flex-direction:column;align-items:stretch;gap:2px;min-width:0;cursor:pointer;color:var(--ink);font:inherit;text-align:left;transition:background .15s ease}
+.gm-c:first-child{border-left:0}
+.gm-c.we{background:color-mix(in srgb,var(--ink) 2.5%,transparent)}
+.gm-c.off{background:color-mix(in srgb,#2E9E5B 8%,transparent)}
+.gm-c.sel{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.gm-n{align-self:center;font-size:.8rem;font-weight:650;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;margin-bottom:1px;color:var(--ink)}
+.gm-c.today .gm-n{background:var(--red);color:#fff;font-weight:800}
+.gm-c.we .gm-n{color:var(--muted)}.gm-c.today.we .gm-n{color:#fff}
+.gm-e{display:block;font-size:.6rem;line-height:1.25;font-weight:650;padding:1px 3px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:clip;background:color-mix(in srgb,var(--c) 16%,var(--sheet));color:color-mix(in srgb,var(--c) 62%,var(--ink));letter-spacing:-.01em}
+.gm-more{font-size:.58rem;font-weight:700;color:var(--muted);padding-left:3px}
+.gm-pad{cursor:default}
+.gm-x{margin:8px 4px 10px;background:var(--sheet);border:1px solid var(--rule);border-radius:16px;padding:12px 14px 6px;box-shadow:0 10px 28px -14px rgba(0,0,0,.35);position:relative;animation:gmIn .22s ease both}
+.gm-x::before{content:'';position:absolute;top:-7px;left:calc((100% / 7) * var(--col) + (100% / 14) - 6px);width:12px;height:12px;background:var(--sheet);border-left:1px solid var(--rule);border-top:1px solid var(--rule);transform:rotate(45deg)}
+@keyframes gmIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.gm-xh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.gm-xh b{font-size:1.15rem;font-weight:800;letter-spacing:-.01em}
+.gm-xd{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.gm-xc{border:0;background:var(--sheet-2);width:30px;height:30px;border-radius:50%;font-size:1.1rem;color:var(--muted);cursor:pointer}
+.gm-xe{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--rule)}
+.gm-xt{flex:none;width:64px;white-space:nowrap;font-size:.78rem;color:var(--muted);font-weight:600;padding-left:9px;border-left:3px solid var(--c);align-self:stretch;display:flex;align-items:center}
+.gm-xb{flex:1;min-width:0;display:flex;flex-direction:column}
+.gm-xb b{font-size:.93rem;font-weight:650}
+.gm-xb small{font-size:.78rem;color:var(--muted)}
+.gm-none{color:var(--muted);margin:4px 0 10px}
 .mgrid .mdow{font-size:.72rem;text-align:center;color:var(--muted);font-weight:650}
 .mcell{border:0;background:var(--sheet-2);border-radius:9px;padding:5px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-width:0;min-height:48px;color:var(--ink)}
 .mcell .mn{font-weight:750;font-size:.92rem}
@@ -3021,6 +3047,14 @@ function masterRange(from, to, add) {
     let x = b.due, g = 0; while (x < from && g++ < 600) x = step(x); while (x <= to && g++ < 700) { (due[x] = due[x] || []).push(b); x = step(x); } });
   Object.entries(due).forEach(([d, l]) => add(d, { sort: '~', time: '', title: `${l.length === 1 ? 'Bill' : 'Bills'}: ${l.map(b => b.name).join(', ')} (${money(l.reduce((t, b) => t + (Number(b.amount) || 0), 0), 0)})`, color: '#9E9E9E', who: '', ic: 'doc', bills: true }));
 }
+/* a short label for a day box in the month view */
+function gmShort(x) {
+  let s = niceTitle(x.title).replace(/\s*\([^)]*\)/g, '').trim();
+  if (x.bills) { const m = /\(£([\d,]+)\)/.exec(x.title); return m ? `£${m[1]} bills` : 'Bills'; }
+  if (/no school/i.test(s)) return 'No school';
+  if (x.who === 'chris' || x.who === 'viki') { const w = x.who === 'chris' ? 'Chris' : 'Viki'; if (!s.startsWith(w)) s = `${w} ${s.charAt(0).toLowerCase()}${s.slice(1)}`; }
+  return s.replace(/^Chris /, 'C ').replace(/^Viki /, 'V ').replace(/^(\w+): /, (m, n) => kidsDob().some(k => k.name === n) ? `${n[0]}: ` : m).replace(/^Dinner: /, '🍽 ');
+}
 function niceTitle(title) {
   const m = /^\s*(VH|V|C)\s*[:\-]\s*/i.exec(String(title||'')); if (!m) return title;
   const rest = title.slice(m[0].length).trim().replace(/^(\d{1,2}(?:[:.]\d{2})?)\s*-\s*/, '$1–');
@@ -3262,9 +3296,17 @@ function viewHome() {
       <span class="wbars">${items.slice(0,4).map(x => `<i style="background:${x.color}"></i>`).join('')}${items.length>4?`<em>+${items.length-4}</em>`:''}</span></button>`;
   }
   let mgrid = '';
-  if (mv) { const lead = (parse(mFirst).getDay() + 6) % 7; mgrid = ['M','T','W','T','F','S','S'].map(x => `<div class="mdow">${x}</div>`).join('') + '<span></span>'.repeat(lead);
-    for (let date = mFirst; date <= mLast; date = addDays(date, 1)) { const items = ag[date] || [], offs = items.filter(x => x.off);
-      mgrid += `<button type="button" class="mcell${date === sel ? ' sel' : ''}${date === t ? ' today' : ''}${offs.length ? ' moff' : ''}" data-act="hday" data-date="${date}" aria-pressed="${date === sel}" aria-label="${esc(dayShort(date))}, ${items.length} things"><span class="mn">${parse(date).getDate()}</span><span class="mdots">${items.slice(0, 5).map(x => `<i style="background:${x.color}"></i>`).join('')}</span></button>`; } }
+  if (mv) { /* Google-style month: each day shows short labels; tap a day and it opens out underneath its week */
+    const lead = (parse(mFirst).getDay() + 6) % 7, days = []; for (let i = 0; i < lead; i++) days.push(null);
+    for (let date = mFirst; date <= mLast; date = addDays(date, 1)) days.push(date); while (days.length % 7) days.push(null);
+    const cell = date => { if (!date) return '<div class="gm-c gm-pad"></div>'; const items = ag[date] || [], off = items.some(x => x.off), n = 3;
+      return `<button type="button" class="gm-c${date === sel ? ' sel' : ''}${date === t ? ' today' : ''}${off ? ' off' : ''}${isWeekend(date) ? ' we' : ''}" data-act="hday" data-date="${date}" aria-pressed="${date === sel && !!UI.hexp}" aria-label="${esc(dayShort(date))}, ${items.length} thing${items.length === 1 ? '' : 's'}"><span class="gm-n">${parse(date).getDate()}</span>${items.slice(0, n).map(x => `<span class="gm-e" style="--c:${x.color}">${esc(gmShort(x))}</span>`).join('')}${items.length > n ? `<span class="gm-more">${items.length - n} more</span>` : ''}</button>`; };
+    mgrid = `<div class="gm-dow">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x => `<span>${x}</span>`).join('')}</div>`;
+    for (let w = 0; w < days.length; w += 7) { const wk = days.slice(w, w + 7);
+      mgrid += `<div class="gm-row">${wk.map(cell).join('')}</div>`;
+      if (UI.hexp && wk.includes(sel)) { const its = ag[sel] || [];
+        mgrid += `<div class="gm-x" style="--col:${wk.indexOf(sel)}"><div class="gm-xh"><div><span class="gm-xd">${DOWS[parse(sel).getDay()]}</span><b>${parse(sel).getDate()} ${MONTHS[parse(sel).getMonth()]}</b></div><button type="button" class="gm-xc" data-act="hday" data-date="${sel}" aria-label="Close">×</button></div>
+          ${its.length ? its.map(x => `<div class="gm-xe" style="--c:${x.color}"><span class="gm-xt">${x.time ? esc(x.time) : 'All day'}</span><span class="gm-xb"><b>${esc(/^\d/.test(niceTitle(x.title)) ? `Working ${niceTitle(x.title)}` : niceTitle(x.title))}</b>${x.where ? `<small>${esc(x.where)}</small>` : ''}</span>${badge(x.who)}</div>`).join('') : '<p class="gm-none">Nothing on.</p>'}</div>`; } } }
   const selItems = ag[sel] || [];
   const selLabel = sel===t ? 'Today' : sel===addDays(t,1) ? 'Tomorrow' : `${DOWS[parse(sel).getDay()]} ${parse(sel).getDate()} ${MONTHS[parse(sel).getMonth()]}`;
   const feeds = S.cal.feeds || [];
@@ -3273,11 +3315,11 @@ function viewHome() {
       <h2>${mv ? 'Family calendar' : 'This week'} <button class="btn small ghost" data-act="calset">Calendars</button></h2>
       <div class="seg hview" role="group" aria-label="Calendar view"><button type="button" data-act="hview" data-v="week" aria-pressed="${!mv}">Week</button><button type="button" data-act="hview" data-v="month" aria-pressed="${mv}">Month</button></div>
       ${errs.map(c => `<div class="banner">${esc(c.name)}: ${esc(c.error)}</div>`).join('')}
-      ${mv ? `<div class="calhead"><button class="iconbtn" data-act="hmon" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(mym)}</b><button class="iconbtn" data-act="hmon" data-v="1" aria-label="Next month">›</button></div><div class="mgrid">${mgrid}</div>` : `<div class="wgrid">${cols}</div>`}
-      <div class="agenda"><div class="eyebrow">${esc(selLabel)}</div>
+      ${mv ? `<div class="calhead"><button class="iconbtn" data-act="hmon" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(mym)}</b><button class="iconbtn" data-act="hmon" data-v="1" aria-label="Next month">›</button></div><div class="gm">${mgrid}</div>` : `<div class="wgrid">${cols}</div>`}
+      ${mv ? '' : `<div class="agenda"><div class="eyebrow">${esc(selLabel)}</div>
         ${selItems.length ? selItems.map(x => `<div class="evb" style="--c:${x.color}"><span class="evi">${icon(x.ic||'dot')}</span><div class="grow"><div class="t">${esc(niceTitle(x.title))}</div><div class="m">${x.time ? esc(x.time) : 'All day'}${x.where ? `, ${esc(x.where)}` : ''}</div></div>${badge(x.who)}</div>`).join('')
           : (CAL.at || calBusy ? `<p class="empty">Nothing on.</p>` : `<div class="skel"></div><div class="skel"></div>`)}
-      </div></section>`
+      </div>`}</section>`
     : `<section class="panel"><h2>Family calendar</h2><p class="note">Link your Google Calendar to see the week here, colour-coded, next to Viki's on call.</p><div class="btnrow"><button class="btn small" data-act="calset">Connect Google Calendar</button></div></section>`;
 
   // tiles
@@ -8805,9 +8847,9 @@ document.addEventListener('click', async e => {
   if (a==='vsub') { UI.vsub = el.dataset.v; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='vmshare') { UI.vmshare = Number(el.dataset.v); const y = window.scrollY; render(); window.scrollTo(0,y); return; }
   if (a==='vcmode' || a==='vcyr') { if (a==='vcmode') UI.vcmode = el.dataset.v; else UI.vcyr = el.dataset.v; keepUI(); const y = window.scrollY; render(); window.scrollTo(0,y); return; }
-  if (a==='hday') { UI.hday = el.dataset.date; return render(); }
-  if (a==='hview') { UI.hview = el.dataset.v; UI.hday = null; if (el.dataset.v === 'month') UI.hmon = ymOf(today()); return render(); }
-  if (a==='hmon') { UI.hmon = ymOf(addMonths(`${UI.hmon || ymOf(today())}-01`, Number(el.dataset.v))); UI.hday = null; return render(); }
+  if (a==='hday') { const d = el.dataset.date; if (UI.hview === 'month') UI.hexp = !(UI.hexp && UI.hday === d); UI.hday = d; return render(); }
+  if (a==='hview') { UI.hview = el.dataset.v; UI.hday = null; UI.hexp = false; if (el.dataset.v === 'month') UI.hmon = ymOf(today()); return render(); }
+  if (a==='hmon') { UI.hmon = ymOf(addMonths(`${UI.hmon || ymOf(today())}-01`, Number(el.dataset.v))); UI.hday = null; UI.hexp = false; return render(); }
   if (a==='cal') { UI.cal = ymOf(addMonths(`${UI.cal}-01`, Number(el.dataset.v))); return render(); }
   if (a==='bm') { UI.bmonth = ymOf(addMonths(`${UI.bmonth}-01`, Number(el.dataset.v))); return render(); }
   if (a==='bsym') { if (bsDirty()) { toast('Save or undo your changes first'); return; } UI.bym = ymOf(addMonths(`${UI.bym}-01`, Number(el.dataset.v))); UI.bs = null; return render(); }
