@@ -176,6 +176,16 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-1
 .dot{width:6px;height:6px;border-radius:50%;background:var(--gold-bar);display:inline-block}
 .moon{color:var(--oc);font-size:.8rem;line-height:1}
 .legend{display:flex;flex-wrap:wrap;gap:6px}
+.cmk{display:flex;gap:2px;justify-content:center;min-height:6px}
+.cmk i,.cmk-key i{display:inline-block;width:6px;height:6px;border-radius:50%;flex:none}
+.cm-bhi{background:#D64545}.cm-bhe{background:#2F6FD8}.cm-bh{background:linear-gradient(90deg,#D64545 50%,#2F6FD8 50%)}.cm-sch{background:#2E9E5B}.cm-race{background:#E08A00}
+.cmk i.tbc{background:transparent;box-shadow:inset 0 0 0 1.5px #E08A00}
+.cmk-key{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:10px;font-size:.78rem;color:var(--muted)}
+.cmk-key span{display:inline-flex;align-items:center;gap:5px}
+.cmk-list{margin-top:8px;display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.cmk-list div{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.cmk-list .cmk{min-width:14px}
+.cmk-list small{color:var(--muted)}
 .legend .chip{border:1px solid var(--rule)}
 
 /* sheet (forms) */
@@ -3378,6 +3388,15 @@ function personHero(who) {
   return `<section class="phero ph-${who}" aria-label="${name}">${mediaBg(slot, 'ph-img')}<div class="ph-shade" aria-hidden="true"></div>${photoBtn(slot, `Change ${name}'s picture`)}
     <div class="ph-body"><span class="ph-k">${kick}</span><span class="ph-n">${name}</span><span class="ph-s">${s.live ? '<span class="livedot" aria-hidden="true"></span>' : ''}<b>${esc(s.main)}</b>${s.sub ? ` <small>${esc(s.sub)}</small>` : ''}</span></div></section>`;
 }
+/* the month's bank holidays, school holidays and races as a list under Chris's calendar, runs of days joined up */
+function calMonthMarks(ym, daysIn) {
+  const runs = [];
+  for (let d = 1; d <= daysIn; d++) { const date = `${ym}-${pad(d)}`; calMarks(date).forEach(x => { const key = x.k + x.n, last = runs.find(r => r.key === key && r.to === addDays(date, -1)); if (last) last.to = date; else runs.push({ key, ...x, from: date, to: date }); }); }
+  const key = `<div class="cmk-key"><span><i class="cm-bhi"></i>IoM bank holiday</span><span><i class="cm-bhe"></i>English bank holiday</span><span><i class="cm-sch"></i>School holiday</span><span><i class="cm-race"></i>Racing</span></div>`;
+  if (!runs.length) return key;
+  const when = r => r.a ? (r.a === r.b ? dayShort(r.a) : `${dayShort(r.a)} to ${dayShort(r.b)}`) : r.from === r.to ? dayShort(r.from) : `${dayShort(r.from)} to ${dayShort(r.to)}`;
+  return key + `<div class="cmk-list">${runs.map(r => `<div><span class="cmk">${r.k === 'bh' ? '<i class="cm-bhi"></i><i class="cm-bhe"></i>' : `<i class="cm-${r.k}${r.tbc ? ' tbc' : ''}"></i>`}</span><b>${esc(r.n)}</b> <small>${esc(when(r))}${r.w ? ` · ${esc(r.w)}` : ''}${r.note ? ` · ${esc(r.note)}` : ''}</small></div>`).join('')}</div>`;
+}
 function viewWork() {
   const kids = kidsDob(), ki = kids.findIndex(k => wishKey(k.name) === UI.who), ym = UI.cal;
   if (UI.who === 'co') { UI.who = 'viki'; UI.vsub = 'co'; keepUI(); } /* call-outs now live on Viki's page */
@@ -3407,7 +3426,9 @@ function viewWork() {
     let extra = '';
     if (rec && who==='chris' && rec.status==='callout' && rec.callouts) label = `Call ×${rec.callouts}`;
     if (rec && who==='chris' && rec.status==='work' && rec.start && rec.end) label = `${parseInt(rec.start,10)}–${parseInt(rec.end,10)}`;
-    cells += `<button class="${cls}${tcls}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${rec?', '+esc(label):''}"><span class="d">${d}</span><span class="l">${esc(label)}</span>${extra||'<span></span>'}</button>`;
+    const mk = who === 'chris' ? calMarks(date) : [];
+    if (mk.length) extra = `<span class="cmk">${mk.map(x => `<i class="cm-${x.k}${x.tbc ? ' tbc' : ''}"></i>`).join('')}</span>`;
+    cells += `<button class="${cls}${tcls}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${rec?', '+esc(label):''}${mk.length ? ', ' + esc(mk.map(x => x.n).join(', ')) : ''}"><span class="d">${d}</span><span class="l">${esc(label)}</span>${extra||'<span></span>'}</button>`;
   }
   const ly = leaveYear(); const yearDays = daysFor(who, ly.from, ly.to);
   const count = (arr, st) => arr.filter(d => d.status===st).length;
@@ -3430,6 +3451,7 @@ function viewWork() {
     <div class="calhead"><button class="iconbtn" data-act="cal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="cal" data-v="1" aria-label="Next month">›</button></div>
     <div class="cal">${['M','T','W','T','F','S','S'].map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div>
     <div class="legend">${legend}</div>
+    ${who === 'chris' ? calMonthMarks(ym, daysIn) : ''}
     <p class="note">Tap a day to log it.</p>
     <div class="btnrow"><button class="btn small ghost" data-act="fillweek">Mark empty weekdays this month as work</button></div>
   </section>`;
@@ -4621,6 +4643,35 @@ function ruleBankHols(y) {
   return BH_RULE[y] = new Set(out.map(iso));
 }
 const isBH = s => { const y = String(s).slice(0,4); return BH_KNOWN.has(y) ? BANK_HOLS.has(s) : ruleBankHols(Number(y)).has(s); };
+/* English (England and Wales) bank holidays: the same rules without Tynwald or TT day */
+const ENG_BH = {};
+function engBankHols(y) { return ENG_BH[y] || (ENG_BH[y] = new Set([...ruleBankHols(y)].filter(d => d.slice(5, 7) !== '07'))); }
+const isEngBH = s => engBankHols(Number(String(s).slice(0, 4))).has(s);
+function bhName(s) {
+  const y = Number(s.slice(0, 4)), m = Number(s.slice(5, 7)), d = Number(s.slice(8, 10)), wd = parse(s).getDay();
+  const e = [...ruleBankHols(y)].filter(x => x.slice(5, 7) === '03' || x.slice(5, 7) === '04').sort();
+  if (m === 1) return 'New Year’s Day'; if (e[0] === s) return 'Good Friday'; if (e[1] === s) return 'Easter Monday';
+  if (m === 5 && d <= 7) return 'Early May bank holiday'; if (m === 5) return 'Spring bank holiday'; if (m === 6) return 'TT bank holiday';
+  if (m === 7) return 'Tynwald Day'; if (m === 8) return 'Summer bank holiday';
+  if (m === 12) return d === 25 ? 'Christmas Day' : d === 26 ? 'Boxing Day' : `${wd === 1 && d === 27 ? 'Christmas' : 'Boxing Day'} (substitute day)`;
+  return 'Bank holiday';
+}
+/* Isle of Man road racing. TT 2027 and the Southern 100 / Pre-TT Classic 2027 are the organisers' confirmed dates; TT 2028 is provisional.
+   The Manx Grand Prix and Classic TT 2027 dates aren't out yet; they usually run in the two weeks before the August bank holiday. */
+const RACES = [
+  ['2026-05-25', '2026-06-06', 'TT 2026'], ['2026-08-22', '2026-08-25', 'Manx Grand Prix & Classic TT'],
+  ['2027-05-28', '2027-05-30', 'Pre-TT Classic (Billown)'], ['2027-05-31', '2027-06-12', 'TT 2027', 'Senior TT Saturday 12 June'],
+  ['2027-07-12', '2027-07-15', 'Southern 100 (Billown)'], ['2027-08-16', '2027-08-28', 'Manx Grand Prix & Classic TT', 'Expected: dates not announced yet', 1],
+  ['2028-05-29', '2028-06-10', 'TT 2028', 'Provisional'],
+];
+/* everything to show on a day of Chris's work calendar */
+function calMarks(date) {
+  const out = [], iom = isBH(date), eng = isEngBH(date);
+  if (iom || eng) out.push({ k: iom && eng ? 'bh' : iom ? 'bhi' : 'bhe', n: bhName(date), w: iom && eng ? 'Isle of Man and England' : iom ? 'Isle of Man only' : 'England only' });
+  const sd = schoolDay(date), lastYr = SCHOOL_YEARS[SCHOOL_YEARS.length - 1]; if (sd.summer && date > addDays(lastYr.to, 45)) { /* no term dates published past this summer yet */ } else if (sd.k === 'hol' || sd.k === 'inset' || (sd.k === 'bh' && !iom)) out.push({ k: 'sch', n: sd.k === 'inset' ? 'Staff training day' : sd.n, w: 'No school' });
+  RACES.filter(r => date >= r[0] && date <= r[1]).forEach(r => out.push({ k: 'race', n: r[2], note: r[3], tbc: r[4], a: r[0], b: r[1] }));
+  return out;
+}
 const DOWS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const toMin = t => { const m = /^(\d{1,2}):(\d{2})/.exec(String(t||'')); return m ? Number(m[1])*60 + Number(m[2]) : null; };
 const span = (a,b) => { const x = toMin(a), y = toMin(b); if (x===null || y===null) return 0; let d = y - x; if (d <= 0) d += 1440; return d/60; };
