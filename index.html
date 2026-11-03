@@ -1450,6 +1450,13 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .kmsum{display:flex;gap:18px;flex-wrap:wrap;padding-top:11px;border-top:1px solid var(--rule);color:var(--muted);font-size:.9rem}
 .kmsum b{color:var(--ink);font-weight:750;margin-left:4px}
 .kstats{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 6px}
+.att-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.att{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--rule);border-radius:10px;background:var(--sheet);text-align:left;font:inherit;color:inherit}
+.att-i{flex:none;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:.72rem;font-weight:700;background:var(--sheet-2);color:var(--acc)}
+.att-add{display:inline-flex;align-items:center;gap:4px}
+.peek{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.88);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 8px) 10px calc(env(safe-area-inset-bottom) + 10px)}
+.peek-bar{display:flex;align-items:center;gap:8px;color:#fff;margin-bottom:8px}.peek-bar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.peek img{max-width:100%;max-height:100%;object-fit:contain;margin:auto}.peek iframe{flex:1;width:100%;border:0;border-radius:8px;background:#fff}
 .klph{flex:none;width:44px;height:44px;border-radius:10px;background:var(--sheet-2) center/cover no-repeat}
 .gcharts h3,.gsub{font-size:.84rem;color:var(--muted);margin:14px 0 4px;font-weight:650}
 .pb-kid{color:#fff}
@@ -4174,7 +4181,7 @@ function viewFinance() {
       <div class="fin-top"><div class="grow"><div class="fin-n">${esc(x.n)}</div><div class="fin-w">${esc([x.lender, x.holder ? (x.src === 'zilch' ? x.holder : `in ${x.holder.split(' (')[0]}’s name`) : ''].filter(Boolean).join(' · '))}</div></div>
         <div class="fin-a">${x.pay ? money(x.pay, 2) : '<small>amount not set</small>'}<small>${x.src === 'zilch' ? (x.varies ? 'next payment' : 'a payment') : 'a month'}</small></div></div>
       <div class="fin-d"><span><small>Started</small><b>${x.start ? esc(finWhen(x.start)) : 'Not known'}</b></span><span><small>Finishes</small><b>${x.end ? esc(finWhen(x.end)) : 'Not known'}</b></span><span><small>${x.src === 'zilch' ? 'Payments left' : 'Months left'}</small><b>${x.left != null ? x.left : '–'}</b></span><span><small>Still to pay</small><b>${x.leftAmt != null ? money(x.leftAmt, 0) : '–'}</b></span></div>
-      ${pct != null ? `<div class="fin-bar"><i style="width:${(pct * 100).toFixed(1)}%"></i></div><div class="fin-p">${paid} of ${total} paid</div>` : ''}${x.note ? `<p class="fin-note">${esc(x.note)}</p>` : ''}</button>`; };
+      ${pct != null ? `<div class="fin-bar"><i style="width:${(pct * 100).toFixed(1)}%"></i></div><div class="fin-p">${paid} of ${total} paid</div>` : ''}${x.note ? `<p class="fin-note">${esc(x.note)}</p>` : ''}${clip(`fin_${x.id}`) ? `<p class="fin-note">${clip(`fin_${x.id}`).slice(3)}</p>` : ''}</button>`; };
   const groups = FIN_GRP.map(([k, t, ic]) => { const xs = L.filter(x => (x.grp || 'other') === k).sort((a, b) => (a.end || '9999').localeCompare(b.end || '9999')); if (!xs.length) return '';
     return `<section class="panel"><h2>${ic} ${esc(t)} <span class="sub">${k === 'zilch' ? `${money(xs.reduce((a, x) => a + (x.leftAmt || 0), 0), 0)} left` : `${money(xs.reduce((a, x) => a + x.pay, 0), 2)} a month`}</span></h2><div class="fin-list">${xs.map(card).join('')}</div></section>`; }).join('');
   return hero + groups + (free ? `<section class="panel"><h2>When money frees up</h2><div class="fin-free">${free}</div><p class="note">The month after each last payment. Zilch isn't counted here.</p></section>` : '')
@@ -4183,17 +4190,17 @@ function viewFinance() {
 function finForm(src, id) {
   if (src === 'zilch') { UI.money = 'owed'; keepUI(); return render(); }
   const car = src === 'car', loans = S.car.loans || [], L = car ? loans.find(x => x.id === id) : null, items = (S.finance && S.finance.items) || [], x = car ? null : items.find(y => y.id === id);
-  const v0 = car ? { n: L.name, pay: loanStat(L).pay, start: L.start.slice(0, 7), end: loanStat(L).last.slice(0, 7), lender: L.lender || '', holder: L.holder || '', note: L.note || '', grp: 'car' } : x || { grp: 'other' };
+  const fid = id || uid('fi'), v0 = car ? { n: L.name, pay: loanStat(L).pay, start: L.start.slice(0, 7), end: loanStat(L).last.slice(0, 7), lender: L.lender || '', holder: L.holder || '', note: L.note || '', grp: 'car' } : x || { grp: 'other' };
   openSheet(id ? v0.n : 'Add a finance agreement', fld('fiN', 'What is it', v0.n || '', 'text', 'placeholder="e.g. iPhone 16, sofa, car loan"')
     + `<div class="fields2">${fld('fiA', 'Monthly payment (£)', v0.pay ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${car ? '' : sel('fiG', 'Kind', v0.grp || 'other', FIN_GRP.filter(g => g[0] !== 'zilch').map(g => [g[0], g[1]]))}</div>`
     + `<div class="fields2">${fld('fiS', 'First payment (month)', v0.start || '', 'month')}${fld('fiE', 'Last payment (month)', v0.end || '', 'month')}</div>`
-    + `<div class="fields2">${fld('fiL', 'Lender', v0.lender || '', 'text', 'placeholder="e.g. Manx Telecom"')}${fld('fiH', 'In whose name', v0.holder || '', 'text')}</div>` + fld('fiT', 'Note', v0.note || ''), async () => {
+    + `<div class="fields2">${fld('fiL', 'Lender', v0.lender || '', 'text', 'placeholder="e.g. Manx Telecom"')}${fld('fiH', 'In whose name', v0.holder || '', 'text')}</div>` + fld('fiT', 'Note', v0.note || '') + (src !== 'zilch' ? attachBox(`fin_${fid}`, 'Agreement and letters') : ''), async () => {
     const n = v('fiN').trim(), pay = num(v('fiA')), start = v('fiS'), end = v('fiE');
     if (!n) throw new Error('Give it a name'); if (start && end && end < start) throw new Error('The last payment is before the first one');
     if (car) { if (!start || !end) throw new Error('A car loan needs its first and last payment');
       const nl = loans.map(y => y.id !== id ? y : { ...y, name: n, pay: pay ?? y.pay, start: `${start}-${(y.start || '').slice(8) || '25'}`, months: finMonths(start, end), lender: v('fiL').trim(), holder: v('fiH').trim(), note: v('fiT').trim() });
       return put('car/main', { ...S.car, loans: nl }); }
-    const it = { id: id || uid('fi'), n, grp: v('fiG') || 'other', pay: pay || 0, start: start || '', end: end || '', lender: v('fiL').trim(), holder: v('fiH').trim(), note: v('fiT').trim() };
+    const it = { id: fid, n, grp: v('fiG') || 'other', pay: pay || 0, start: start || '', end: end || '', lender: v('fiL').trim(), holder: v('fiH').trim(), note: v('fiT').trim() };
     await put('state/finance', { ...(S.finance || {}), items: id ? items.map(y => y.id === id ? it : y) : [...items, it] });
   }, !car && id ? { onDelete: () => put('state/finance', { ...(S.finance || {}), items: items.filter(y => y.id !== id) }) } : {});
 }
@@ -4466,7 +4473,7 @@ function kidLogPanel(k) {
   const months = Array.from({ length: 6 }, (_, i) => ymAdd(ymOf(today()), i - 5));
   const chart = log.length ? barChart(months.map(ym => ({ label: mon3(ym), parts: Object.entries(KLOG).map(([t, v]) => ({ v: log.filter(x => x.k === t && x.d.slice(0, 7) === ym).length, c: v[2], name: v[0] })) })), { label: `${k.name}'s achievements by month`, fmt: v => String(v) }) : '';
   const shown = UI.klogAll ? log : log.slice(0, 6);
-  const row = x => { const t = KLOG[x.k] || KLOG.note; return `<button class="rowbtn" data-act="klog" data-k="${key}" data-id="${esc(x.id)}"><span class="kic" style="--c:${t[2]}">${t[1]}</span><span class="grow"><span class="t" style="display:block">${esc(x.t || t[0])}</span><span class="m" style="display:block">${esc(dayShort(x.d))} · ${esc(t[0])}${x.note ? ` · ${esc(x.note)}` : ''}</span></span>${x.ph ? `<span class="klph" data-photo="${esc(x.ph)}" aria-hidden="true"></span>` : ''}</button>`; };
+  const row = x => { const t = KLOG[x.k] || KLOG.note; return `<button class="rowbtn" data-act="klog" data-k="${key}" data-id="${esc(x.id)}"><span class="kic" style="--c:${t[2]}">${t[1]}</span><span class="grow"><span class="t" style="display:block">${esc(x.t || t[0])}</span><span class="m" style="display:block">${esc(dayShort(x.d))} · ${esc(t[0])}${x.note ? ` · ${esc(x.note)}` : ''}${clip(`klog_${x.id}`)}</span></span>${x.ph ? `<span class="klph" data-photo="${esc(x.ph)}" aria-hidden="true"></span>` : ''}</button>`; };
   return `<section class="panel"><h2>Achievements and reports <button class="btn small" data-act="klog" data-k="${key}">Add</button></h2>
     ${log.length ? `<div class="kstats"><span class="chip ks-now">${thisYear.length} this school year</span>${counts.map(([t, n]) => `<span class="chip" style="background:color-mix(in srgb,${KLOG[t][2]} 16%,var(--sheet));color:${KLOG[t][2]}">${KLOG[t][1]} ${n} ${esc(KLOG[t][0].toLowerCase())}</span>`).join('')}</div>
       <div class="cleg">${Object.values(KLOG).map(v => `<span><i style="background:${v[2]}"></i>${esc(v[0])}</span>`).join('')}</div>${chart}
@@ -4491,7 +4498,7 @@ function kidGrowPanel(k, i) {
     <h3 class="gsub">Measurements</h3><div class="list">${shown.map(x => `<button class="rowbtn" data-act="kgrow" data-k="${key}" data-id="${esc(x.id)}"><span class="kic" style="--c:${col}">📏</span><span class="grow"><span class="t" style="display:block">${esc(dayShort(x.d))} ${x.d.slice(0, 4)}</span><span class="m" style="display:block">${[x.h ? `${n1(x.h)} cm (${ftin(x.h)})` : '', x.w ? `${n1(x.w)} kg (${stlb(x.w)})` : ''].filter(Boolean).join(' · ')}</span></span></button>`).join('')}</div>
     ${list.length > 6 ? `<p class="note">Showing the latest 6 of ${list.length}.</p>` : ''}</section>`;
 }
-function viewKidWork(k, i) { return kidHero(k, i) + kidGlance(k, i) + kidWeekPanel(k, i) + kidTimetablePanel(k, i) + kidCalendar() + clashPanel() + kidChoresPanel(k, i) + kidSavePanel(k, i) + kidMoneyPanel(k) + kidLogPanel(k) + kidGrowPanel(k, i) + termDatesPanel(); }
+function viewKidWork(k, i) { return kidHero(k, i) + kidGlance(k, i) + kidWeekPanel(k, i) + kidTimetablePanel(k, i) + kidCalendar() + clashPanel() + kidChoresPanel(k, i) + kidSavePanel(k, i) + kidMoneyPanel(k) + kidLogPanel(k) + docsPanel(`kid_${wishKey(k.name)}`, `Keep ${k.name}'s school reports, certificates and letters from school here, as PDFs or photos.`, 'Reports and certificates') + kidGrowPanel(k, i) + termDatesPanel(); }
 function kidMoneyForm(key) {
   const k = kidByKey(key); if (!k) return; const d = kidDoc(key);
   openSheet(`${k.name}'s money`, `<div class="fields2">${fld('kmA', 'Pocket money each week (£)', d.pocket.a || '', 'number', 'step="0.01" min="0" inputmode="decimal" placeholder="e.g. 5"')}${sel('kmD', 'Paid on', d.pocket.day, [1, 2, 3, 4, 5, 6, 0].map(x => [x, DOWS[x]]))}</div>` +
@@ -4501,11 +4508,11 @@ function kidMoneyForm(key) {
   });
 }
 function kidLogForm(key, id) {
-  const k = kidByKey(key); if (!k) return; const e = id ? kidDoc(key).log.find(x => x.id === id) : null; if (id && !e) return;
+  const k = kidByKey(key); if (!k) return; const e = id ? kidDoc(key).log.find(x => x.id === id) : null; if (id && !e) return; const lid = e ? e.id : uid('kl');
   openSheet(e ? (e.t || 'Entry') : `Add for ${k.name}`, sel('klK', 'What kind', e ? e.k : 'star', Object.entries(KLOG).map(([t, x]) => [t, `${x[1]} ${x[0]}`])) + fld('klD', 'Date', e ? e.d : today(), 'date') +
     fld('klT', 'What happened', e ? e.t || '' : '', 'text', 'placeholder="e.g. Star of the week, swimming badge, end-of-term report"') +
-    `<div class="field"><label for="klN">Details (optional)</label><textarea id="klN" rows="3" placeholder="What the teacher said, grades, anything to remember">${esc(e ? e.note || '' : '')}</textarea></div>` + photoField('klPh', 'Photo of the certificate or report (optional)', e && e.ph), async () => {
-    const t = v('klT').trim(); if (!t) throw new Error('Say what happened'); const x = { id: e ? e.id : uid('kl'), k: v('klK'), d: v('klD') || today(), t }; const note = v('klN').trim(); if (note) x.note = note;
+    `<div class="field"><label for="klN">Details (optional)</label><textarea id="klN" rows="3" placeholder="What the teacher said, grades, anything to remember">${esc(e ? e.note || '' : '')}</textarea></div>` + photoField('klPh', 'Photo of the certificate or report (optional)', e && e.ph) + attachBox(`klog_${lid}`, 'PDFs and more photos (optional)'), async () => {
+    const t = v('klT').trim(); if (!t) throw new Error('Say what happened'); const x = { id: lid, k: v('klK'), d: v('klD') || today(), t }; const note = v('klN').trim(); if (note) x.note = note;
     const ph = getPh(); if (ph) x.ph = await uploadPhoto(ph); else if (e && e.ph && !($('#klPhDel') && $('#klPhDel').checked)) x.ph = e.ph;
     await saveKid(key, d => ({ ...d, log: e ? d.log.map(y => y.id === e.id ? x : y) : [...d.log, x] }));
   }, e ? { onDelete: () => saveKid(key, d => ({ ...d, log: d.log.filter(y => y.id !== e.id) })) } : {});
@@ -5643,6 +5650,15 @@ const MONEY_GROUPS = [
   { k:'planner', l:'Planner', pages:[['planner','Planner']] },
   { k:'more', l:'More', pages:[['bills','Bills'],['meals','Dinners and shopping'],['overview','Food shops and spends'],['old','Old debts'],['plan','Pay and plan'],['spending','Spending'],['budget','Budget'],['goals','Goals'],['year','Year ahead'],['save','Tips']] },
 ];
+/* each money page keeps its own PDFs and photos (statements, agreements, letters) */
+const MONEY_DOCS = {
+  bills: ['bills', 'Bill documents', 'Keep bills, contracts, renewal letters and price-change letters here. Each bill can also have its own: tap the bill.'],
+  finance: ['finance', 'Finance documents', 'Keep finance agreements and settlement letters here. Each agreement can also have its own: tap it.'],
+  owed: ['zilch', 'Zilch documents', 'Keep Zilch statements and screenshots here.'],
+  old: ['olddebts', 'Debt letters', 'Keep letters, statements and payment plans for old debts here.'],
+  plan: ['pay', 'Payslips and pay letters', 'Keep payslips, P60s and pay rise letters here.'],
+  past: ['statements', 'Bank statements', 'Keep bank statements and screenshots here.'],
+};
 const moneyGroupOf = page => MONEY_GROUPS.find(g => g.pages.some(([k]) => k === page)) || MONEY_GROUPS[0];
 function viewMoney() {
   const ym = ymOf(today()), P = planFor(ym), t = today();
@@ -5659,7 +5675,7 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money${grp.k === 'more' ? ' wrap' : ''}" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body = {finance:viewFinance, grid:gridSheet, yplan:viewYearPlan, basic:viewXSheet, past:viewPast, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money]();
+  const body0 = {finance:viewFinance, grid:gridSheet, yplan:viewYearPlan, basic:viewXSheet, past:viewPast, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money](), md = MONEY_DOCS[UI.money], body = body0 + (md ? docsPanel(md[0], md[2], md[1]) : '');
   const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : S.bsheet[payCur()] ? payCur() : ym; /* the pay we're living on: 1 Nov is still the October pay */ /* on the spreadsheet the header shows the month last tapped or edited */
   if (UI.money === 'yplan' || UI.money === 'basic' || UI.money === 'past' || UI.money === 'finance') return seg + body; /* the year plan has its own header */
   return (S.bsheet[hym] ? sheetHero(hym) : hero) + seg + body;
@@ -7972,13 +7988,16 @@ const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings']; // covered outside th
 const buysFrom = (ym, cover) => liveBuys().filter(b => b.ym === ym && b.cover === cover);
 /* weekly food shops on rows marked fri: one shop every Friday between this payday and the next */
 function payFridays(ym) { const out = [], end = payday(ymAdd(ym, 1)); let d = payday(ym); while (parse(d).getDay() !== 5) d = addDays(d, 1); for (; d < end; d = addDays(d, 7)) out.push(d); return out; }
-function foodFri(doc, ym) { (doc.secs || []).forEach(sec => (sec.rows || []).forEach(r => { if (r.fri && r.u != null) r.q = payFridays(ym).length; })); return doc; }
+/* when payday is itself a Friday, the big monthly shop is that Friday's shop */
+const hasBigShop = doc => (doc.secs || []).some(sec => sec.kind !== 'list' && (sec.rows || []).some(r => bsOn(r) && r.u == null && /big|monthly/i.test(r.n || '') && /food|shop|big monthly/i.test(r.n || '') && Number(r.a) > 0));
+const friShops = (doc, ym) => payFridays(ym).filter(d => !(d === payday(ym) && hasBigShop(doc)));
+function foodFri(doc, ym) { const n = friShops(doc, ym).length; (doc.secs || []).forEach(sec => (sec.rows || []).forEach(r => { if (r.fri && r.u != null) r.q = n; })); return doc; }
 function shopSlots(ym) {
   const doc = S.bsheet[ym]; if (!doc) return [];
   const rows = (doc.secs || []).filter(s => s.kind === 'base' || s.kind === 'extra').flatMap(s => s.rows.filter(bsOn)).filter(r => /food|shop|groceries|big monthly/i.test(r.n || '') && !/school|dinner|pet|dog|cat/i.test(r.n || ''));
   const out = [];
   rows.filter(r => r.u == null).forEach(r => out.push({ base: Number(r.a) || 0, big: /big|monthly/i.test(r.n) }));
-  const fr = payFridays(ym);
+  const fr = friShops(doc, ym);
   rows.filter(r => r.u != null).forEach(r => { for (let i = 0; i < (Number(r.q) || 0); i++) out.push({ base: Number(r.u) || 0, fri: r.fri ? fr[i] : null }); });
   const pd = payday(ym);
   return out.filter(x => x.base > 0).map((x, i) => ({ ...x, ym, slot: i, d: x.fri || addDays(pd, i * 7), n: x.big ? 'Big monthly shop' : x.fri ? `Friday shop` : `Week ${i + 1} shop` }));
@@ -8366,7 +8385,7 @@ function viewBills() {
   const byCat = {}; list.forEach(b => (byCat[b.category||'Other'] = byCat[b.category||'Other'] || []).push(b));
   const catBlocks = Object.entries(byCat).map(([c, bs]) => [c, bs, bs.reduce((s,b)=>s+perMonth(b),0)]).sort((a,b) => b[2]-a[2]).map(([c, bs, tot]) =>
     `<div class="cathead"><span class="sw" style="background:${catColor(c)}"></span><span class="nm">${esc(c)}</span><em>${money(tot,0)} a month</em></div>
-     ${bs.sort((a,b) => (Number(b.amount)||0)-(Number(a.amount)||0)).map(b => `<button class="rowbtn" data-act="bill" data-id="${esc(b.id)}"><div class="grow"><div class="t">${esc(b.name)}</div><div class="m">${esc(billWhen(b))}</div></div><div class="amt">${money(b.amount)}</div></button>`).join('')}`).join('');
+     ${bs.sort((a,b) => (Number(b.amount)||0)-(Number(a.amount)||0)).map(b => `<button class="rowbtn" data-act="bill" data-id="${esc(b.id)}"><div class="grow"><div class="t">${esc(b.name)}</div><div class="m">${esc(billWhen(b))}${clip(`bill_${b.id}`)}</div></div><div class="amt">${money(b.amount)}</div></button>`).join('')}`).join('');
   const monthly = S.bills.reduce((s,b)=>s+perMonth(b),0), cm = {}; S.bills.forEach(b => { const c = b.category||'Other'; cm[c] = (cm[c]||0) + perMonth(b); });
   const cats = Object.entries(cm).sort((a,b) => b[1]-a[1]), rn = renewals();
   return `
@@ -8502,15 +8521,46 @@ async function cachedPaths() { try { const c = await caches.open(FILE_CACHE); re
 function docsPanel(group, emptyText, title) {
   const list = S.files.filter(f => (f.group||'car')===group).sort((a,b) => (a.name||'').localeCompare(b.name||''));
   setTimeout(async () => { const have = await cachedPaths(); list.forEach(f => { const el = document.querySelector(`[data-doc="${CSS.escape(f.id)}"] .m`); if (el && have.has(f.path)) el.textContent = `${el.textContent.split('.')[0]}. Saved on this phone`; }); }, 0);
-  return `<section class="panel"><h2>${esc(title || 'Documents')} <label class="btn small" style="display:inline-flex;align-items:center;gap:4px">${icon('plus')}Add<input type="file" id="docUpload" data-group="${group}" accept="image/*,application/pdf" hidden></label></h2>
+  return `<section class="panel"><h2>${esc(title || 'Documents')} <label class="btn small" style="display:inline-flex;align-items:center;gap:4px">${icon('plus')}Add<input type="file" id="docUpload" data-group="${group}" accept="image/*,application/pdf" multiple hidden></label></h2>
     ${list.length ? `<div class="list">${list.map(f => `<button class="rowbtn" data-act="docopen" data-id="${esc(f.id)}" data-doc="${esc(f.id)}"><span class="qi">${icon('doc')}</span><div class="grow"><div class="t">${esc(f.name)}</div><div class="m">${esc((f.type||'').includes('pdf') ? 'PDF' : 'Photo')}, ${Math.max(1, Math.round((f.size||0)/1024))} KB</div></div></button>`).join('')}</div>
       <div class="btnrow"><button class="btn small ghost" data-act="docsave" data-group="${group}">Save all to this phone for offline</button></div>`
       : `<p class="empty">${esc(emptyText || 'Keep the insurance certificate, logbook and breakdown cover details here. Once opened, they\'re saved on the phone, so they work abroad without signal.')}</p>`}
   </section>`;
 }
-async function uploadDoc(file, group) {
+/* attachments inside a form: the files for one bill, agreement or achievement. They save straight away, before the form does */
+const groupFiles = g => S.files.filter(f => f.group === g).sort((a, b) => (a.at || 0) - (b.at || 0));
+const clip = g => { const n = groupFiles(g).length; return n ? ` · 📎 ${n}` : ''; };
+function attachList(g) {
+  const list = groupFiles(g);
+  return (list.length ? `<div class="att-list">${list.map(f => `<button type="button" class="att" data-act="docpeek" data-id="${esc(f.id)}"><span class="att-i">${(f.type || '').includes('pdf') ? 'PDF' : '🖼'}</span><span class="grow">${esc(f.name)}</span></button>`).join('')}</div>` : '')
+    + `<label class="btn small ghost att-add">${icon('plus')}Add a PDF or photo<input type="file" class="docUpload" data-group="${esc(g)}" accept="image/*,application/pdf" multiple hidden></label>`;
+}
+const attachBox = (g, label) => `<div class="field"><label>${esc(label || 'Documents')}</label><div class="dinl" data-group="${esc(g)}">${attachList(g)}</div></div>`;
+function attachRefresh(g) { document.querySelectorAll('.dinl').forEach(el => { if (el.dataset.group === g) el.innerHTML = attachList(g); }); }
+async function docDelete(f) {
+  if (f.media) { await remove(`files/${f.id}`); return remove(`media/${f.media}`); }
+  await sb.storage.from('family-files').remove([f.path]); try { (await caches.open(FILE_CACHE)).delete(`/hhq-file/${f.path}`); } catch(e) {} await remove(`files/${f.id}`);
+}
+/* a viewer that sits over an open form, so the form isn't lost */
+async function docPeek(id) {
+  const f = S.files.find(x => x.id === id); if (!f) return;
+  let url; try { url = URL.createObjectURL(await fileBlob(f)); } catch(e) { toast(navigator.onLine ? 'Couldn\'t open that file' : 'Not saved on this phone yet, and you\'re offline'); return; }
+  const isImg = (f.type || '').startsWith('image/'), o = document.createElement('div'); o.className = 'peek';
+  o.innerHTML = `<div class="peek-bar"><b>${esc(f.name)}</b><a class="btn small ghost" href="${url}" target="_blank" rel="noopener">Full screen</a><button type="button" class="btn small danger" data-pk="del">Delete</button><button type="button" class="btn small" data-pk="close">Close</button></div>`
+    + (isImg ? `<img src="${url}" alt="${esc(f.name)}">` : `<iframe src="${url}" title="${esc(f.name)}"></iframe>`);
+  o.addEventListener('click', async ev => { const k = ev.target.closest('[data-pk]'); if (!k) return; ev.stopPropagation();
+    if (k.dataset.pk === 'del') { if (!confirm(`Delete ${f.name}?`)) return; await docDelete(f); attachRefresh(f.group); }
+    o.remove(); URL.revokeObjectURL(url); });
+  document.body.appendChild(o);
+}
+async function uploadDocs(files, group) {
+  const list = [...(files || [])]; if (!list.length) return;
+  for (const file of list) await uploadDoc(file, group, list.length > 1);
+  attachRefresh(group);
+}
+async function uploadDoc(file, group, quiet) {
   if (!file) return; if (file.size > 20*1024*1024) { toast('That file is over 20 MB'); return; }
-  const name = prompt('Name this document', file.name.replace(/\.[^.]+$/, '')) || file.name;
+  const base = file.name.replace(/\.[^.]+$/, ''), name = quiet ? base : (prompt('Name this document', /^(img|image|photo|scan)[_\- ]?\d/i.test(base) ? '' : base) || base);
   const id = uid('fi'), path = `${group}/${id}-${file.name.replace(/[^\w.\-]+/g,'_')}`;
   toast('Uploading…');
   const { error } = await sb.storage.from('family-files').upload(path, file, { contentType: file.type, upsert: false });
@@ -8523,7 +8573,7 @@ async function openDoc(id) {
   let url; try { url = URL.createObjectURL(await fileBlob(f)); } catch(e) { toast(navigator.onLine ? 'Couldn\'t open that file' : 'Not saved on this phone yet, and you\'re offline'); return; }
   const isImg = (f.type||'').startsWith('image/');
   openSheet(f.name, isImg ? `<img src="${url}" alt="${esc(f.name)}" style="width:100%;border-radius:8px">` : `<iframe src="${url}" title="${esc(f.name)}" style="width:100%;height:60vh;border:1px solid var(--rule);border-radius:8px"></iframe><div class="btnrow"><a class="btn small ghost" href="${url}" target="_blank" rel="noopener">Open full screen</a></div>`,
-    null, { noSave:true, onDelete: async () => { if (f.media) { await remove(`files/${f.id}`); return remove(`media/${f.media}`); } await sb.storage.from('family-files').remove([f.path]); try { (await caches.open(FILE_CACHE)).delete(`/hhq-file/${f.path}`); } catch(e) {} await remove(`files/${f.id}`); } });
+    null, { noSave:true, onDelete: () => docDelete(f) });
   // allow delete from the viewer
   const row = $('#sheetForm .btnrow:last-child'); if (row) row.insertAdjacentHTML('beforeend', '<button class="btn danger" type="button" data-act="delete">Delete</button>');
 }
@@ -8726,13 +8776,13 @@ function dayForm(date) {
 }
 const CATS = ['Home','Utilities','Phones & broadband','Subscriptions','Insurance','Car & bike finance','Car','Kids','Debt','Other'];
 function billForm(id) {
-  const b = S.bills.find(x=>x.id===id) || {};
+  const b = S.bills.find(x=>x.id===id) || {}, bid = id || uid('b');
   openSheet(id ? 'Edit bill' : 'Add a bill', fld('bname','Name', b.name||'') + `<div class="fields2">${fld('bamount','Amount (£)', b.amount??'', 'number','min="0" step="0.01" inputmode="decimal"')}${sel('bfreq','How often', b.freq||'monthly', [['monthly','Monthly'],['weekly','Weekly'],['quarterly','Quarterly'],['annual','Yearly']])}</div>
-    <div class="fields2">${fld('bdue','Next payment date', b.due || today(), 'date')}${sel('bcat','Category', b.category||'Other', CATS.map(c=>[c,c]))}</div>` + fld('brenew','Renews on (for insurance and contracts)', b.renew||'', 'date') + fld('bnote','Note', b.note||''), async () => {
+    <div class="fields2">${fld('bdue','Next payment date', b.due || today(), 'date')}${sel('bcat','Category', b.category||'Other', CATS.map(c=>[c,c]))}</div>` + fld('brenew','Renews on (for insurance and contracts)', b.renew||'', 'date') + fld('bnote','Note', b.note||'') + attachBox(`bill_${bid}`, 'Documents for this bill'), async () => {
     const name = v('bname').trim(), amount = num(v('bamount'));
     if (!name) throw new Error('Enter a name for the bill'); if (amount===null || amount<0) throw new Error('Enter the amount, such as 21.99');
     const data = { name, amount, freq:v('bfreq'), due:v('bdue'), category:v('bcat') }; const note=v('bnote').trim(); if (note) data.note=note; if (Array.isArray(b.steps) && b.steps.length) data.steps = b.steps.filter(x => x.from > today()); /* future price changes carry on */ if (v('brenew')) data.renew = v('brenew');
-    await put(`bills/${id || uid('b')}`, data);
+    await put(`bills/${bid}`, data);
   }, id ? { onDelete: () => remove(`bills/${id}`) } : {});
 }
 function spendForm(id) {
@@ -8951,6 +9001,7 @@ document.addEventListener('click', async e => {
   if (a==='kday') { const d = el.dataset.date, s = schoolDay(d); if (!isWeekend(d) && ['hol', 'bh', 'inset'].includes(s.k) && d >= today()) return coverForm(d); return toast(`${dayShort(d)}: ${s.n}`); }
   if (a==='kmoney') return kidMoneyForm(el.dataset.k);
   if (a==='klog') return kidLogForm(el.dataset.k, el.dataset.id);
+  if (a==='docpeek') return docPeek(el.dataset.id);
   if (a==='kgrow') return kidGrowForm(el.dataset.k, el.dataset.id);
   if (a==='klogall') { UI.klogAll = !UI.klogAll; return render(); }
   if (a==='cover') return coverForm(el.dataset.date);
@@ -9168,7 +9219,7 @@ document.addEventListener('click', async e => {
 });
 document.addEventListener('change', async e => {
   const el = e.target;
-  if (el.id === 'docUpload') { await uploadDoc(el.files[0], el.dataset.group); el.value = ''; return; }
+  if (el.id === 'docUpload' || el.classList.contains('docUpload')) { await uploadDocs(el.files, el.dataset.group); el.value = ''; return; }
   if (el.dataset.bs && bsChange(el)) return;
   if (el.dataset.act === 'zpartner') { UI.zpartner = el.checked; return render(); }
   if (el.dataset.act === 'pushpref') { await pushPref(el.dataset.k, el.checked); return; }
