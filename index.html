@@ -3010,7 +3010,7 @@ async function fetchCal(force) {
     const { data, error } = await sb.functions.invoke('calendar', { body: { from, to } });
     if (error) throw error;
     CAL.calendars = data.calendars || []; CAL.at = Date.now(); CAL.error = '';
-    deriveDays();
+    deriveDays(); fetchCalHistory().catch(() => {});
     /* Viki's leave year can start before the window above: fetch the earlier part too, so its bank holidays are checked against the calendar */
     const ly = lvYearFor(today()); let cals = CAL.calendars, sf = from;
     if (ly && ly.from < from) { try { const r = await sb.functions.invoke('calendar', { body: { from: ly.from, to: addDays(from, -1) } }); if (!r.error && r.data) { sf = ly.from; cals = CAL.calendars.map((c, i) => ({ ...c, events: [...(((r.data.calendars || [])[i] || {}).events || []), ...(c.events || [])] })); } } catch(e) {} }
@@ -3036,9 +3036,31 @@ function parseRota(title) {
     return { who, kind:'shift', start:`${pad(sh)}:${pad(sm)}`, end:`${pad(eh%24)}:${pad(em)}`, note: /\bOT\b/i.test(t) ? 'Overtime' : '' }; }
   return null;
 }
+/* rota history from Google Calendar back to January 2023 (only the "V:" / "VH:" / "C:" entries), kept on the phone and refreshed once a day */
+const CAL_HIST_FROM = '2023-01-01';
+const CALH = (() => { try { const c = JSON.parse(localStorage.getItem('hhq-calhist') || 'null'); if (c && c.v === 1) return c; } catch(e) {} return { v:1, at:0, from:'', to:'', ev:[] }; })();
+let calHistBusy = false;
+async function fetchCalHistory(force) {
+  if (!sb || !session || calHistBusy || !(S.cal.feeds||[]).length) return;
+  const to = addDays(`${ymOf(addMonths(today(),-3))}-01`, -1);
+  if (!force && CALH.to === to && CALH.from === CAL_HIST_FROM && Date.now() - (CALH.at||0) < 24*3600*1000) return;
+  calHistBusy = true;
+  try {
+    const ev = [];
+    for (let a = CAL_HIST_FROM; a <= to; a = addDays(a, 400)) {
+      const b = addDays(a, 399) < to ? addDays(a, 399) : to;
+      const { data, error } = await sb.functions.invoke('calendar', { body: { from: a, to: b } }); if (error) throw error;
+      (data.calendars || []).forEach(c => (c.events || []).forEach(e => { if (!parseRota(e.title)) return; const d = evDate(e); if (d < a || d > b) return; ev.push({ title: e.title, start: e.start, end: e.end, allDay: e.allDay }); }));
+    }
+    Object.assign(CALH, { at: Date.now(), from: CAL_HIST_FROM, to, ev });
+    try { localStorage.setItem('hhq-calhist', JSON.stringify(CALH)); } catch(e) {}
+    deriveDays(); schedule();
+  } catch (e) { /* try again next time */ }
+  calHistBusy = false;
+}
 function deriveDays() {
   const out = {};
-  (CAL.calendars||[]).forEach(c => (c.events||[]).forEach(e => {
+  [{ events: CALH.ev || [] }, ...(CAL.calendars||[])].forEach(c => (c.events||[]).forEach(e => {
     const r = parseRota(e.title); if (!r) return;
     const date = evDate(e), key = `${r.who}_${date}`;
     const d = out[key] || (out[key] = { who:r.who, date, fromCal:true });
@@ -5420,7 +5442,7 @@ async function syncCalLeave(from, to, cals) {
   const wcOf = d => addDays(d, -((parse(d).getDay() + 6) % 7));
   /* a week's hours only go up to cover its leave days (her sheet may already count them), and come down by what the calendar added */
   const alH = (y, wc) => { let t = 0; for (let i = 0; i < 7; i++) { const d = addDays(wc, i); if (y.days[d] === 'al' && !isBH(d)) t += y.cal[d] != null ? y.cal[d] : 9.5; } return t; };
-  const addH = (y, d, h) => { const wc = wcOf(d); y.weeks = y.weeks || []; let w = y.weeks.find(x => x.wc === wc); if (!w) { w = { wc }; y.weeks.push(w); y.weeks.sort((a, b) => a.wc < b.wc ? -1 : 1); }
+  const addH = (y, d, h) => { y.weeks = y.weeks || []; const own = y.weeks.find(x => x.wc <= d && d <= addDays(x.wc, 6)), wc = own ? own.wc : wcOf(d); let w = own || y.weeks.find(x => x.wc === wc); if (!w) { w = { wc }; y.weeks.push(w); y.weeks.sort((a, b) => a.wc < b.wc ? -1 : 1); }
     const cur = Number(w.h) || 0, need = alH(y, wc), added = Number(w.calH) || 0;
     if (h > 0) { const nh = Math.max(cur, need); w.calH = Math.round((added + nh - cur) * 100) / 100; w.h = nh; }
     else { const back = Math.min(-h, added); w.h = Math.max(need, cur - back); w.calH = Math.round((added - back) * 100) / 100; }
@@ -8979,7 +9001,7 @@ async function handleAuth(form) {
 async function startSession(s) {
   const was = session && session.user && session.user.id;
   session = s;
-  if (!session) { resetState(); CAL.calendars = []; CAL.at = 0; CAL.days = {}; try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('hhq-cal'); } catch(e) {} render(); return; }
+  if (!session) { resetState(); CAL.calendars = []; CAL.at = 0; CAL.days = {}; try { localStorage.removeItem(CACHE_KEY); localStorage.removeItem('hhq-cal'); localStorage.removeItem('hhq-calhist'); } catch(e) {} CALH.ev = []; CALH.at = 0; render(); return; }
   if (was === session.user.id && channel) return;
   if (loadCache()) render();
   try { await loadAll(); subscribe(); fetchCal(true); }
