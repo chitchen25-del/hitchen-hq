@@ -2178,14 +2178,14 @@ function applyLocal(path, data) {
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; [ymAdd(id, -1), id].forEach(m => { if (S.bsheet[m]) foodFri(S.bsheet[m], m); }); }
   else if (c === 'xsheet') { S.xsheet = S.xsheet || {}; if (data) S.xsheet[id] = data; else delete S.xsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; if (id==='finance') S.finance = data||null; }
+  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; if (id==='finance') S.finance = data||null; if (id==='pension') S.pension = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, finance:null, xsheet:{}, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, finance:null, pension:null, xsheet:{}, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
@@ -3578,8 +3578,8 @@ function viewWork() {
   </div>`;
   fetchCal();
   if (ki >= 0) return whoSeg + viewKidWork(kids[ki], ki);
-  if (who==='viki') { const sub = ['contract','co','metrics'].includes(UI.vsub) ? UI.vsub : 'pay';
-    return whoSeg + personHero('viki') + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Rota &amp; claims</button><button role="tab" data-act="vsub" data-v="co" aria-selected="${sub==='co'}">Call-outs</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Pay &amp; contract</button><button role="tab" data-act="vsub" data-v="metrics" aria-selected="${sub==='metrics'}">Metrics</button></div>` + (sub==='metrics' ? viewVikiMetrics() : sub==='contract' ? viewVikiContract() : sub==='co' ? `<div class="co-wrap">${viewCallouts()}</div>` : viewViki()); }
+  if (who==='viki') { const sub = ['contract','pension','co','metrics'].includes(UI.vsub) ? UI.vsub : 'pay';
+    return whoSeg + personHero('viki') + `<div class="subtabs" role="tablist" aria-label="Viki"><button role="tab" data-act="vsub" data-v="pay" aria-selected="${sub==='pay'}">Rota &amp; claims</button><button role="tab" data-act="vsub" data-v="co" aria-selected="${sub==='co'}">Call-outs</button><button role="tab" data-act="vsub" data-v="contract" aria-selected="${sub==='contract'}">Pay &amp; contract</button><button role="tab" data-act="vsub" data-v="pension" aria-selected="${sub==='pension'}">Pension</button><button role="tab" data-act="vsub" data-v="metrics" aria-selected="${sub==='metrics'}">Metrics</button></div>` + (sub==='metrics' ? viewVikiMetrics() : sub==='contract' ? viewVikiContract() : sub==='pension' ? viewVikiPension() : sub==='co' ? `<div class="co-wrap">${viewCallouts()}</div>` : viewViki()); }
   if (who==='leave') return whoSeg + viewLeave();
   const chTabs = who==='chris' ? `<div class="subtabs" role="tablist" aria-label="Chris"><button role="tab" data-act="csub" data-v="cal" aria-selected="${UI.csub!=='hours'}">Work calendar</button><button role="tab" data-act="csub" data-v="hours" aria-selected="${UI.csub==='hours'}">Hours &amp; leave</button></div>` : '';
   if (who==='chris' && UI.csub==='hours') return whoSeg + personHero('chris') + chTabs + viewChrisHours();
@@ -4415,6 +4415,30 @@ function trendChart(pts, { label = '', unit = '', color = 'var(--red)' } = {}) {
     ${pts.length > 1 ? `<polygon points="${X(t0)},${H - pb} ${line} ${X(t1)},${H - pb}" fill="${color}" opacity=".12"/><polyline points="${line}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>` : ''}${dots}
     <text x="${X(t1) + 8}" y="${Y(L.v) + 4}" class="val">${n1(L.v)} ${unit}</text>
     <text x="${pl}" y="${H - 6}" class="lbl">${mlab(pts[0].d)}</text>${pts.length > 1 ? `<text x="${W - pr}" y="${H - 6}" class="lbl" text-anchor="end">${mlab(L.d)}</text>` : ''}</svg>`;
+}
+/* ----- Viki's pension: statements (PDFs and photos) plus the pot value from each one, state/pension = { entries:[{ id, d, v, paid, note }] } ----- */
+const penEntries = () => ((S.pension && S.pension.entries) || []).slice().sort((a, b) => a.d < b.d ? -1 : 1);
+function viewVikiPension() {
+  const es = penEntries(), L = es[es.length - 1], P = es[es.length - 2];
+  const hero = tblock({ cls: 'lv-viki', kicker: 'Viki · pension', title: L ? money(L.v, 0) : 'Add a statement', two: true,
+    cells: [tbCell('Last statement', L ? esc(shortDate(L.d)) : '–', 'var(--rule-2)'), tbCell('Since the one before', L && P ? `${L.v - P.v >= 0 ? '+' : '−'}${money(Math.abs(L.v - P.v), 0)}` : '–', L && P && L.v < P.v ? 'var(--red)' : 'var(--good)'),
+      tbCell('Paid in that year', L && L.paid ? money(L.paid, 0) : '–', 'var(--lv-al)'), tbCell('Statements', `${es.length}`, 'var(--gold,#E8A33D)')],
+    foot: `<span>Add the pot value from each statement to see how it grows. The statements themselves go below.</span>` });
+  const chart = es.length > 1 ? `<section class="panel"><h2>Pot value <span class="sub">£ thousands</span></h2>${trendChart(es.map(e => ({ d: e.d, v: Math.round(e.v / 100) / 10 })), { label: "Viki's pension pot over time", unit: 'k', color: 'var(--lv-al)' })}</section>` : '';
+  const list = `<section class="panel"><h2>Statements <button class="btn small" data-act="penedit" data-id="">Add</button></h2>${es.length ? `<div class="list">${es.slice().reverse().map((e, i, a) => { const prev = a[i + 1];
+    return `<button class="rowbtn" data-act="penedit" data-id="${esc(e.id)}"><div class="grow"><div class="t">${esc(shortDate(e.d))}</div><div class="m">${[e.paid ? `${money(e.paid, 0)} paid in` : '', prev ? `${e.v - prev.v >= 0 ? '+' : '−'}${money(Math.abs(e.v - prev.v), 0)} since ${esc(shortDate(prev.d))}` : '', e.note || ''].filter(Boolean).map(esc).join(' · ')}${clip(`pension_${e.id}`)}</div></div><div class="amt">${money(e.v, 0)}</div></button>`; }).join('')}</div>`
+    : '<p class="empty">Tap Add for each statement: the date, the pot value, and attach the PDF or a photo of it.</p>'}</section>`;
+  return hero + chart + list + docsPanel('pension_viki', 'Keep pension statements, annual benefit statements and letters here, as PDFs or photos.', 'Pension documents');
+}
+function penForm(id) {
+  const es = (S.pension && S.pension.entries) || [], e = es.find(x => x.id === id), pid = e ? e.id : uid('pn');
+  openSheet(e ? `Statement ${shortDate(e.d)}` : 'Add a pension statement', `<div class="fields2">${fld('pnD', 'Statement date', e ? e.d : today(), 'date')}${fld('pnV', 'Pot value (£)', e ? e.v : '', 'number', 'step="0.01" min="0" inputmode="decimal"')}</div>`
+    + fld('pnP', 'Paid in that year, if it says (£)', e && e.paid ? e.paid : '', 'number', 'step="0.01" min="0" inputmode="decimal"') + fld('pnN', 'Note', e ? e.note || '' : '', 'text', 'placeholder="e.g. NHS Pension, annual benefit statement"')
+    + attachBox(`pension_${pid}`, 'The statement (PDF or photo)'), async () => {
+    const pv = num(v('pnV')); if (pv === null || pv < 0) throw new Error('Enter the pot value from the statement');
+    const x = { id: pid, d: v('pnD') || today(), v: pv }; const paid = num(v('pnP')); if (paid) x.paid = paid; const n = v('pnN').trim(); if (n) x.note = n;
+    await put('state/pension', { ...(S.pension || {}), entries: e ? es.map(y => y.id === pid ? x : y) : [...es, x] });
+  }, e ? { onDelete: () => put('state/pension', { ...(S.pension || {}), entries: es.filter(y => y.id !== pid) }) } : {});
 }
 function kidHero(k, i) {
   const key = wishKey(k.name), slot = `kid-${key}`, now = schoolNow(), yr = schoolYearOf(k.dob), bd = nextBday(k.dob), bdn = daysBetween(today(), bd.date);
@@ -9164,6 +9188,7 @@ document.addEventListener('click', async e => {
   if (a==='opentrip') { UI.tab = 'trips'; UI.pltab = el.dataset.kind; UI.occ = el.dataset.id || null; keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='ghm') { UI.hym = el.dataset.v; render(); return; }
   if (a==='finedit') return finForm(el.dataset.src, el.dataset.id);
+  if (a==='penedit') return penForm(el.dataset.id);
   /* start a month in the Spreadsheet: a copy of the month before, without its one-offs */
   if (a==='gstart') { const ym = el.dataset.v, prev = Object.keys(S.bsheet).filter(k => k < ym).sort().pop(), src = prev ? S.bsheet[prev] : Object.values(S.bsheet)[0];
     const doc = src ? bsClone(src) : { v:1, inc:[], secs:[{k:'dd',t:'Direct debits and standing orders',kind:'base',rows:[]},{k:'mex',t:'Monthly extras',kind:'extra',rows:[]}], split:50 };
