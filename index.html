@@ -1309,6 +1309,9 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .bc-i{font-size:1.35rem;flex:none}
 .bc b{display:block;font-size:.95rem}
 .bc small{display:block;font-size:.8rem;color:var(--muted);margin-top:2px;line-height:1.3}
+.vpen-bar .chip{cursor:pointer;border:0;font:inherit;font-weight:700;padding:8px 12px}
+.vpen-bar .chip.on{background:var(--viki,#B4443A);color:#fff;box-shadow:0 4px 12px -6px var(--viki,#B4443A)}
+.vpen-bar .chip.vp-oc.on{background:var(--oc,#3F51B5)}
 /* celebration */
 .cele{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(7,11,19,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:opacity .3s}
 .cele.out{opacity:0}
@@ -3254,6 +3257,7 @@ function quickAdd() {
   ], other = [
     ['qlist', 'cart', 'Shopping list', 'Shows on both phones'],
     ['qfuel', 'car', 'A fill-up', 'Mileage, litres and cost'],
+    ['qvshift', 'moon', 'Viki\'s shifts', '8–6:30, 8–6, 8–5:30 or on call, then tap the days'],
     ['qcallout', 'moon', 'A call-out for Viki', 'Opens her most recent on-call day'],
     ['qzilch', 'money', 'Zilch calculator', 'Just to see what you’d pay'],
   ], row = ([a,i,t,m]) => `<button type="button" class="rowbtn" data-act="${a}"><span class="qi">${icon(i)}</span><div class="grow"><div class="t">${t}</div><div class="m">${m}</div></div></button>`;
@@ -5065,13 +5069,17 @@ function viewViki() {
       else { lab = SHORT[rec.status] || ''; cls = `st-${rec.status}`; }
     }
     const mark = rec && rec.oncall ? `<span class="moon">☾${(rec.callouts||[]).length ? '<span class="dot" style="margin-left:2px"></span>' : ''}</span>` : '<span></span>';
-    cells += `<button class="${cls}${date===t?' today':''}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="day" data-date="${date}" aria-label="${shortDate(date)}${lab?', '+esc(lab):''}"><span class="d">${d}</span><span class="l">${esc(lab)}</span>${mark}</button>`;
+    cells += `<button class="${cls}${date===t?' today':''}${rec && rec.fromCal ? ' fromcal' : ''}" data-act="${UI.vpen ? 'vpen' : 'day'}" data-date="${date}" aria-label="${shortDate(date)}${lab?', '+esc(lab):''}"><span class="d">${d}</span><span class="l">${esc(lab)}</span>${mark}</button>`;
   }
+  const penBar = UI.vpen ? `<div class="msel-bar vpen-bar"><div class="msel-top"><b>Pick a shift, then tap the days</b><button type="button" class="btn small ghost" data-act="vpenoff">Done</button></div>
+      <div class="msel-btns">${VPEN.map(([k, l]) => `<button type="button" class="chip vp-${k}${UI.vpen === k ? ' on' : ''}" data-act="vpenset" data-v="${k}" aria-pressed="${UI.vpen === k}">${l}</button>`).join('')}</div>
+      <p class="note" style="margin:6px 0 0">Each tap saves straight away. Tap a day again to clear it. Call-outs and notes already on a day are kept.</p></div>`
+    : `<div class="btnrow" style="margin-top:4px"><button class="btn small" data-act="vpenset" data-v="s1830">Quick add shifts</button></div>`;
   const cal = `<section class="panel">
     <div class="calhead"><button class="iconbtn" data-act="cal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="cal" data-v="1" aria-label="Next month">›</button></div>
     <div class="cal">${['M','T','W','T','F','S','S'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div>
     <div class="legend"><span class="chip st-shift">Shift</span><span class="chip st-oncall">☾ On call day</span><span class="chip cat"><span class="dot"></span> Call-out</span><span class="chip st-holiday">Holiday</span><span class="chip st-sick">Sick</span></div>
-    <p class="note">${Number(r.cutoff) ? `Each claim runs from the ${r.cutoff}th to the ${r.cutoff-1}th, so on call from the ${r.cutoff}th goes on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to add call-outs or change it.</p></section>`;
+    <p class="note">${Number(r.cutoff) ? `Each claim runs from the ${r.cutoff}th to the ${r.cutoff-1}th, so on call from the ${r.cutoff}th goes on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to add call-outs or change it.</p>${penBar}</section>`;
 
   const noRates = !r.salary ? `<div class="banner">Viki's pay rates aren't set yet. <button class="btn small ghost" data-act="vrates">Add them</button></div>` : '';
   return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel();
@@ -5529,6 +5537,21 @@ function printClaim(ym) {
   setTimeout(() => window.print(), 50);
 }
 
+/* quick add: pick a shift, then tap days on her calendar */
+const VPEN = [['s1830','8–6:30'],['s18','8–6'],['s1730','8–5:30'],['oc','On call (8–6:30 + call)'],['off','Off'],['holiday','Holiday'],['sick','Sick']];
+async function vikiPenApply(date, pen) {
+  const key = `viki_${date}`, old = S.days[key] || (CAL.days||{})[key] || null, bh = isBH(date), wkend = isWeekend(date);
+  const keep = {}; if (old) { if (old.callouts && old.callouts.length) keep.callouts = old.callouts; if (old.note) keep.note = old.note; if (old.ot) keep.ot = old.ot; }
+  const same = old && !old.fromCal && ((pen === 'oc' && old.oncall) || (pen === 's1830' && old.status === 'shift' && !old.oncall && old.end === '18:30') || (pen === 's18' && old.status === 'shift' && !old.oncall && old.end === '18:00') || (pen === 's1730' && old.status === 'shift' && !old.oncall && old.end === '17:30') || (['off','holiday','sick'].includes(pen) && old.status === pen && !old.oncall));
+  if (same && S.days[key]) { if (keep.callouts || keep.note) { await put(`days/${key}`, { who: 'viki', date, status: 'off', ...keep }); } else await remove(`days/${key}`); return; }
+  const data = { who: 'viki', date, ...keep }; if (bh) data.bh = true;
+  const end = { s1830: '18:30', s18: '18:00', s1730: '17:30' }[pen];
+  if (end) Object.assign(data, { status: 'shift', start: '08:00', end, lunch: 30 });
+  else if (pen === 'oc') { if (wkend || bh) Object.assign(data, { status: 'off', oncall: { kind: 'first', start: '08:00', end: '08:00' } }); else Object.assign(data, { status: 'shift', start: '08:00', end: '18:30', lunch: 30, oncall: { kind: 'first', start: '18:30', end: '08:00' } }); }
+  else data.status = pen;
+  if (old && old.exg && data.oncall) data.exg = old.exg;
+  await put(`days/${key}`, data);
+}
 function vikiDayForm(date) {
   const key = `viki_${date}`, rec = S.days[key];
   const wkend = isWeekend(date), bh = isBH(date);
@@ -9113,6 +9136,10 @@ document.addEventListener('click', async e => {
   if (a==='day') return dayForm(el.dataset.date);
   /* pick several days on Chris's calendar and set them all at once */
   if (a==='mselon') { UI.msel = UI.msel ? null : []; return render(); }
+  if (a==='vpenset') { UI.vpen = el.dataset.v; return render(); }
+  if (a==='vpenoff') { UI.vpen = null; return render(); }
+  if (a==='vpen') { if (!UI.vpen) return; return vikiPenApply(el.dataset.date, UI.vpen); }
+  if (a==='qvshift') { closeSheet(); UI.tab = 'work'; UI.who = 'viki'; UI.vsub = 'pay'; UI.vpen = 's1830'; keepUI(); render(); setTimeout(() => { const c = document.querySelector('.vpen-bar'); if (c) c.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 80); return; }
   if (a==='mpick') { const d = el.dataset.date; UI.msel = UI.msel.includes(d) ? UI.msel.filter(x => x !== d) : [...UI.msel, d]; return render(); }
   if (a==='mweek') { if (UI.msel.length) UI.msel = []; else { const ym = UI.cal, n = new Date(Number(ym.slice(0,4)), Number(ym.slice(5,7)), 0).getDate(); UI.msel = []; for (let d=1; d<=n; d++) { const date = `${ym}-${pad(d)}`; if (!isWeekend(date) && !isBH(date)) UI.msel.push(date); } } return render(); }
   if (a==='mset') { const st = el.dataset.v, list = [...UI.msel].sort(); if (!list.length) return; el.disabled = true;
