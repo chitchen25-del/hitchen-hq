@@ -2175,7 +2175,7 @@ function applyLocal(path, data) {
   else if (c === 'wish') S.wish = data || {lists:{}};
   else if (c === 'kids') { S.kids = S.kids || {}; if (data) S.kids[id] = data; else delete S.kids[id]; }
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
-  else if (c === 'bsheet') { if (data) S.bsheet[id] = foodFri(data, id); else delete S.bsheet[id]; }
+  else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; [ymAdd(id, -1), id].forEach(m => { if (S.bsheet[m]) foodFri(S.bsheet[m], m); }); }
   else if (c === 'xsheet') { S.xsheet = S.xsheet || {}; if (data) S.xsheet[id] = data; else delete S.xsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; if (id==='finance') S.finance = data||null; }
@@ -7987,7 +7987,9 @@ const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings']; // covered outside th
 /* purchases in a pay month taken from the buffer or from savings (the Year plan takes them off those) */
 const buysFrom = (ym, cover) => liveBuys().filter(b => b.ym === ym && b.cover === cover);
 /* weekly food shops on rows marked fri: a shop every Friday from the 25th (or the first Friday after it) up to the next month's 24th, wherever payday lands */
-function payFridays(ym) { const out = [], end = `${ymAdd(ym, 1)}-25`; let d = `${ym}-25`; while (parse(d).getDay() !== 5) d = addDays(d, 1); for (; d < end; d = addDays(d, 7)) out.push(d); return out; }
+/* a month's sheet can start its shops earlier (foodFrom), e.g. when Viki is paid early in December; the month before then stops there */
+const foodStart = ym => (S.bsheet[ym] && S.bsheet[ym].foodFrom) || `${ym}-25`;
+function payFridays(ym) { const out = [], end = foodStart(ymAdd(ym, 1)); let d = foodStart(ym); while (parse(d).getDay() !== 5) d = addDays(d, 1); for (; d < end; d = addDays(d, 7)) out.push(d); return out; }
 const friShops = (doc, ym) => payFridays(ym);
 function foodFri(doc, ym) { const n = friShops(doc, ym).length; (doc.secs || []).forEach(sec => (sec.rows || []).forEach(r => { if (r.fri && r.u != null) r.q = n; })); return doc; }
 function shopSlots(ym) {
