@@ -7986,11 +7986,9 @@ const BUY_OLD = ['spare', 'pot']; // older choices: still shown on purchases tha
 const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings']; // covered outside the month's budget, so the Spreadsheet doesn't change
 /* purchases in a pay month taken from the buffer or from savings (the Year plan takes them off those) */
 const buysFrom = (ym, cover) => liveBuys().filter(b => b.ym === ym && b.cover === cover);
-/* weekly food shops on rows marked fri: one shop every Friday between this payday and the next */
-function payFridays(ym) { const out = [], end = payday(ymAdd(ym, 1)); let d = payday(ym); while (parse(d).getDay() !== 5) d = addDays(d, 1); for (; d < end; d = addDays(d, 7)) out.push(d); return out; }
-/* when payday is itself a Friday, the big monthly shop is that Friday's shop */
-const hasBigShop = doc => (doc.secs || []).some(sec => sec.kind !== 'list' && (sec.rows || []).some(r => bsOn(r) && r.u == null && /big|monthly/i.test(r.n || '') && /food|shop|big monthly/i.test(r.n || '') && Number(r.a) > 0));
-const friShops = (doc, ym) => payFridays(ym).filter(d => !(d === payday(ym) && hasBigShop(doc)));
+/* weekly food shops on rows marked fri: a shop every Friday from the 25th (or the first Friday after it) up to the next month's 24th, wherever payday lands */
+function payFridays(ym) { const out = [], end = `${ymAdd(ym, 1)}-25`; let d = `${ym}-25`; while (parse(d).getDay() !== 5) d = addDays(d, 1); for (; d < end; d = addDays(d, 7)) out.push(d); return out; }
+const friShops = (doc, ym) => payFridays(ym);
 function foodFri(doc, ym) { const n = friShops(doc, ym).length; (doc.secs || []).forEach(sec => (sec.rows || []).forEach(r => { if (r.fri && r.u != null) r.q = n; })); return doc; }
 function shopSlots(ym) {
   const doc = S.bsheet[ym]; if (!doc) return [];
