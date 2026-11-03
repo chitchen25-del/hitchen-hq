@@ -2168,7 +2168,7 @@ function applyLocal(path, data) {
   else if (c === 'wish') S.wish = data || {lists:{}};
   else if (c === 'kids') { S.kids = S.kids || {}; if (data) S.kids[id] = data; else delete S.kids[id]; }
   else if (c === 'shops') { if (data) S.shops[id] = data; else delete S.shops[id]; }
-  else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; }
+  else if (c === 'bsheet') { if (data) S.bsheet[id] = foodFri(data, id); else delete S.bsheet[id]; }
   else if (c === 'xsheet') { S.xsheet = S.xsheet || {}; if (data) S.xsheet[id] = data; else delete S.xsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
   else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; if (id==='finance') S.finance = data||null; }
@@ -5966,8 +5966,8 @@ function bsRow(si, ri, x, kind) {
   const qty = x.u != null;
   return `<div class="xr${off}" data-s="${si}" data-r="${ri}">
     <label class="xon" aria-label="Include ${esc(x.n)}"><input type="checkbox" data-bs="on" ${x.off?'':'checked'}></label>
-    <div class="xname">${bsCell('n', x.n, 'xn', 'aria-label="Item"')}${qty ? `<small>× ${money(x.u,2)} each</small>` : ''}</div>
-    ${qty ? bsCell('q', x.q, 'xd xq', 'inputmode="decimal" aria-label="How many"') : bsCell('d', x.d, 'xd', 'aria-label="Date or note" placeholder="–"')}
+    <div class="xname">${bsCell('n', x.n, 'xn', 'aria-label="Item"')}${qty ? `<small>× ${money(x.u,2)} ${x.fri ? 'every Friday' : 'each'}</small>` : ''}</div>
+    ${qty ? bsCell('q', x.q, 'xd xq', `inputmode="decimal" aria-label="How many"${x.fri ? ' readonly title="Set by the number of Fridays this pay month"' : ''}`) : bsCell('d', x.d, 'xd', 'aria-label="Date or note" placeholder="–"')}
     ${qty ? `<output class="xc xa" data-bsamt="${si}.${ri}">${money(bsAmt(x),2)}</output>` : bsMoneyIn('a', x.a, `aria-label="Amount for ${esc(x.n)}"`)}
     <button type="button" class="xm" data-act="bsrow" aria-label="More for ${esc(x.n)}">⋯</button></div>`;
 }
@@ -7970,14 +7970,18 @@ const BUY_OLD = ['spare', 'pot']; // older choices: still shown on purchases tha
 const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings']; // covered outside the month's budget, so the Spreadsheet doesn't change
 /* purchases in a pay month taken from the buffer or from savings (the Year plan takes them off those) */
 const buysFrom = (ym, cover) => liveBuys().filter(b => b.ym === ym && b.cover === cover);
+/* weekly food shops on rows marked fri: one shop every Friday between this payday and the next */
+function payFridays(ym) { const out = [], end = payday(ymAdd(ym, 1)); let d = payday(ym); while (parse(d).getDay() !== 5) d = addDays(d, 1); for (; d < end; d = addDays(d, 7)) out.push(d); return out; }
+function foodFri(doc, ym) { (doc.secs || []).forEach(sec => (sec.rows || []).forEach(r => { if (r.fri && r.u != null) r.q = payFridays(ym).length; })); return doc; }
 function shopSlots(ym) {
   const doc = S.bsheet[ym]; if (!doc) return [];
   const rows = (doc.secs || []).filter(s => s.kind === 'base' || s.kind === 'extra').flatMap(s => s.rows.filter(bsOn)).filter(r => /food|shop|groceries|big monthly/i.test(r.n || '') && !/school|dinner|pet|dog|cat/i.test(r.n || ''));
   const out = [];
   rows.filter(r => r.u == null).forEach(r => out.push({ base: Number(r.a) || 0, big: /big|monthly/i.test(r.n) }));
-  rows.filter(r => r.u != null).forEach(r => { for (let i = 0; i < (Number(r.q) || 0); i++) out.push({ base: Number(r.u) || 0 }); });
+  const fr = payFridays(ym);
+  rows.filter(r => r.u != null).forEach(r => { for (let i = 0; i < (Number(r.q) || 0); i++) out.push({ base: Number(r.u) || 0, fri: r.fri ? fr[i] : null }); });
   const pd = payday(ym);
-  return out.filter(x => x.base > 0).map((x, i) => ({ ...x, ym, slot: i, d: addDays(pd, i * 7), n: x.big ? 'Big monthly shop' : `Week ${i + 1} shop` }));
+  return out.filter(x => x.base > 0).map((x, i) => ({ ...x, ym, slot: i, d: x.fri || addDays(pd, i * 7), n: x.big ? 'Big monthly shop' : x.fri ? `Friday shop` : `Week ${i + 1} shop` }));
 }
 const shopDone = (ym, slot) => ((S.shops[ym] || {}).done || {})[slot];
 const shopCuts = (ym, slot, skip) => liveBuys().filter(b => b.id !== skip).flatMap(b => (b.cuts || []).filter(c => c.ym === ym && c.slot === slot).map(c => ({ ...c, b })));
