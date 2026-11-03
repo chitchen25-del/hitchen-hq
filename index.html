@@ -3010,7 +3010,11 @@ async function fetchCal(force) {
     const { data, error } = await sb.functions.invoke('calendar', { body: { from, to } });
     if (error) throw error;
     CAL.calendars = data.calendars || []; CAL.at = Date.now(); CAL.error = '';
-    deriveDays(); syncCalLeave(from, to).catch(() => {});
+    deriveDays();
+    /* Viki's leave year can start before the window above: fetch the earlier part too, so its bank holidays are checked against the calendar */
+    const ly = lvYearFor(today()); let cals = CAL.calendars, sf = from;
+    if (ly && ly.from < from) { try { const r = await sb.functions.invoke('calendar', { body: { from: ly.from, to: addDays(from, -1) } }); if (!r.error && r.data) { sf = ly.from; cals = CAL.calendars.map((c, i) => ({ ...c, events: [...(((r.data.calendars || [])[i] || {}).events || []), ...(c.events || [])] })); } } catch(e) {} }
+    syncCalLeave(sf, to, cals).catch(() => {});
     try { localStorage.setItem('hhq-cal', JSON.stringify(CAL)); } catch(e) {}
   } catch (e) { CAL.error = 'Couldn\'t load the calendar just now.'; }
   calBusy = false; schedule();
@@ -5305,11 +5309,10 @@ const LV_KIND = { al:['Annual leave','var(--lv-al)'], part:['Part day','var(--lv
 const lvYears = () => S.leave ? Object.values(S.leave.years||{}).sort((a,b) => a.from < b.from ? -1 : 1) : [];
 function lvYearFor(date) { return lvYears().find(y => date >= y.from && date <= y.to) || null; }
 const leaveDay = (date) => { const y = lvYearFor(date); return y && y.days ? y.days[date] : null; };
-/* Viki's entitlement includes the bank holidays: each weekday one she isn't working costs a day's hours (9.5) */
+/* Viki's entitlement includes the bank holidays: one costs leave only when her Google calendar says AL that day (9 hours unless it says) */
 function lvBHs(y) {
-  const out = [], dh = Number(S.leave && S.leave.dayHours) || 9.5; for (let d = y.from; d <= y.to; d = addDays(d, 1)) { if (isWeekend(d) || !isBH(d)) continue;
-    const r = S.days[`viki_${d}`] || (CAL.days || {})[`viki_${d}`], worked = ['wk', 'oc'].includes((y.days || {})[d]) || !!(r && (['shift', 'work'].includes(r.status) || r.oncall)); /* working or on call that day: free */
-    out.push({ d, worked, h: worked ? 0 : dh }); }
+  const out = [], bh = y.bhal || {}; for (let d = y.from; d <= y.to; d = addDays(d, 1)) { if (isWeekend(d) || !isBH(d)) continue;
+    out.push({ d, worked: bh[d] == null, h: Number(bh[d]) || 0 }); }
   return out;
 }
 function lvStats(y) {
@@ -5362,7 +5365,7 @@ function viewLeaveViki() {
     side: `<span class="tb-kicker">About</span><span class="big">${over?'−':''}${Math.round(Math.abs(s.left)/dh*10)/10} <small style="font-size:.9rem">days</small></span>`,
     cells: [ tbCell('Entitlement', `${fh(y.ent)}h`, 'var(--rule-2)'), tbCell('Carried over', `${Number(y.carried)>0?'+':Number(y.carried)<0?'−':''}${fh(Math.abs(y.carried))}h`, Number(y.carried) < 0 ? 'var(--red)' : 'var(--good)'), tbCell('Booked', `${fh(s.booked)}h`, 'var(--lv-al)') ],
     after: `<div style="padding:12px 0 2px">${gauge(s.avail ? s.booked/s.avail : 0, 'lg')}</div>`,
-    foot: `<span>${fh(s.taken)}h taken so far, ${fh(s.coming)}h still to come, out of ${fh(s.avail)}h available. Booked includes ${fh(s.bhH)}h for ${s.bhN} bank holiday${s.bhN === 1 ? '' : 's'} off at ${fh(dh)}h each${s.bhWorked ? ` (${s.bhWorked} worked or on call, so free)` : ''}.</span>` });
+    foot: `<span>${fh(s.taken)}h taken so far, ${fh(s.coming)}h still to come, out of ${fh(s.avail)}h available. Booked includes ${fh(s.bhH)}h for ${s.bhN} bank holiday${s.bhN === 1 ? '' : 's'} with AL on the Google calendar. Bank holidays left blank don't use leave.</span>` });
   const blocks = lvBlocks(y), t = today(), next = blocks.filter(b => b.to >= t), past = blocks.filter(b => b.to < t);
   const months = []; for (let i=0;i<12;i++) months.push(ymOf(addMonths(y.from, i)));
   const legend = `<div class="legend">${['al','part','oc','do'].map(k => `<span class="chip"><i class="lvsw" style="background:${LV_KIND[k][1]}"></i>${LV_KIND[k][0]}</span>`).join('')}<span class="chip"><i class="lvsw bhsw"></i>Bank holiday</span><span class="chip"><i class="lvsw chsw"></i>Chris off too</span></div>`;
@@ -5407,12 +5410,12 @@ function viewLeaveChris() {
 /* Viki's annual leave from the Google calendar ("V: AL", "VH: AL", "VH: AL 7.5"): each day goes on her leave card as annual leave,
    with its hours added to that week (9.5 a weekday unless the entry says otherwise). y.cal remembers what came from the calendar,
    so a day taken out of the calendar comes off the card again, and days set by hand are never touched. */
-async function syncCalLeave(from, to) {
+async function syncCalLeave(from, to, cals) {
   if (!S.leave || !S.leave.years) return;
-  const found = {};
-  (CAL.calendars || []).forEach(c => (c.events || []).forEach(e => { const r = parseRota(e.title); if (!r || r.who !== 'viki' || r.kind !== 'holiday') return;
+  const found = {}, bhFound = {};
+  (cals || CAL.calendars || []).forEach(c => (c.events || []).forEach(e => { const r = parseRota(e.title); if (!r || r.who !== 'viki' || r.kind !== 'holiday') return;
     const days = e.allDay ? (() => { const out = []; for (let d = e.start; d < (e.end || addDays(e.start, 1)); d = addDays(d, 1)) out.push(d); return out; })() : [evDate(e)];
-    days.forEach(d => { if (isWeekend(d) || isBH(d)) return; /* bank holidays are counted on their own */ found[d] = r.hours != null ? Number(r.hours) : 9.5; }); }));
+    days.forEach(d => { if (isWeekend(d)) return; if (isBH(d)) { bhFound[d] = r.hours != null ? Number(r.hours) : 9; return; } /* bank holidays are counted on their own */ found[d] = r.hours != null ? Number(r.hours) : 9.5; }); }));
   const doc = JSON.parse(JSON.stringify(S.leave)); let changed = 0;
   const wcOf = d => addDays(d, -((parse(d).getDay() + 6) % 7));
   /* a week's hours only go up to cover its leave days (her sheet may already count them), and come down by what the calendar added */
@@ -5427,6 +5430,11 @@ async function syncCalLeave(from, to) {
     Object.entries(found).forEach(([d, h]) => { if (d < y.from || d > y.to || y.cal[d] != null || y.days[d]) return; y.days[d] = 'al'; y.cal[d] = h; addH(y, d, h); changed++; });
     Object.entries(y.cal).forEach(([d, h]) => { if (d < from || d > to || found[d] != null) return; if (y.days[d] === 'al') delete y.days[d]; delete y.cal[d]; addH(y, d, -h); changed++; });
     if (!Object.keys(y.cal).length) delete y.cal;
+    /* bank holidays: AL on the Google calendar uses the hours (9 unless it says), blank means no leave used */
+    const bh = { ...(y.bhal || {}) };
+    for (let d = from > y.from ? from : y.from; d <= (to < y.to ? to : y.to); d = addDays(d, 1)) { if (isWeekend(d) || !isBH(d)) continue;
+      if (bhFound[d] != null) { if (bh[d] !== bhFound[d]) { bh[d] = bhFound[d]; changed++; } } else if (bh[d] != null) { delete bh[d]; changed++; } }
+    if (Object.keys(bh).length) y.bhal = bh; else delete y.bhal;
   });
   if (changed) await put('leave/main', doc);
 }
@@ -5435,9 +5443,9 @@ function lvDayForm(date) {
   const y0 = lvYearFor(date); if (!y0) { toast('That date is outside the leave years on the card'); return; }
   const y = JSON.parse(JSON.stringify(y0)), k = (y.days||{})[date] || '', wc = addDays(date, -((parse(date).getDay()+6)%7));
   const w = (y.weeks||[]).find(x => x.wc === wc) || { wc };
-  openSheet(dayShort(date), `${sel('lvK','This day', k, [['','Nothing'],['al','Annual leave'],['part','Part day of leave'],['oc','On call request'],['do','Day off request'],['other','Other'],...(isBH(date) ? [['wk','Working this bank holiday']] : [])])}
+  openSheet(dayShort(date), `${sel('lvK','This day', k, [['','Nothing'],['al','Annual leave'],['part','Part day of leave'],['oc','On call request'],['do','Day off request'],['other','Other']])}
     <div class="fields2">${fld('lvH','AL hours that week', w.h ?? '', 'number','step="0.5" min="0" inputmode="decimal"')}${fld('lvN','Note for that week', w.note || '', 'text','placeholder="e.g. Kids off"')}</div>
-    <p class="note">The card counts leave by the week, like her AL balances sheet. ${isBH(date) ? `This is a bank holiday. Unless she's working it, it takes ${fh(Number(S.leave.dayHours) || 9.5)}h from her leave on its own, so don't add it to the week's hours.` : ''}</p>`, async () => {
+    <p class="note">The card counts leave by the week, like her AL balances sheet. ${isBH(date) ? `This is a bank holiday. It only uses leave if her Google calendar says AL that day${y.bhal && y.bhal[date] != null ? ` (it does: ${fh(y.bhal[date])}h)` : ' (it doesn\'t)'}.` : ''}</p>`, async () => {
     y.days = y.days || {}; const nk = v('lvK'); if (nk) y.days[date] = nk; else delete y.days[date];
     if (y.cal && y.cal[date] != null) { delete y.cal[date]; if (!Object.keys(y.cal).length) delete y.cal; } /* changed by hand: the calendar sync leaves it alone from now on */
     const h = num(v('lvH')), n = v('lvN').trim(); const i = (y.weeks||[]).findIndex(x => x.wc === wc);
