@@ -1588,6 +1588,25 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .lp-note{padding:0 16px}
 .lp-viki{padding:4px 16px 14px}.lp-viki h3{font-size:.95rem;margin:6px 0 2px}
 .lp-chips{display:flex;flex-wrap:wrap;gap:6px}
+.rt-how{margin:10px 16px 0;font-size:.84rem;color:var(--muted)}
+.rt-list{list-style:none;margin:0;padding:12px 16px 4px;display:grid;gap:10px;position:relative}
+.rt-list::before{content:"";position:absolute;left:35px;top:26px;bottom:26px;border-left:2px dashed var(--rule-2)}
+.rt-stop{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start;position:relative}
+.rt-pin{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:1.3rem;background:var(--sheet);border:2px solid var(--rule-2);position:relative;z-index:1}
+.rt-stop.done .rt-pin{border-color:var(--good)}.rt-stop.now .rt-pin{border-color:var(--acc);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+.rt-card{display:flex;gap:6px;align-items:stretch;background:var(--sheet-2);border:1px solid var(--rule);border-radius:14px;overflow:hidden}
+.rt-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:10px 12px;text-align:left;background:none;border:0;font:inherit;color:inherit;cursor:pointer}
+div.rt-main{cursor:default}
+.rt-when{font-size:.74rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted)}
+.rt-place{font-size:1.08rem;font-weight:700;line-height:1.2}.rt-cty{font-size:.8rem;color:var(--muted);margin-top:-2px}
+.rt-line{font-size:.86rem;color:var(--ink-2)}.rt-line.todo{color:var(--muted);font-style:italic}
+.rt-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;padding-top:6px;border-top:1px solid var(--rule)}
+.rt-mv{display:flex;flex-direction:column;border-left:1px solid var(--rule)}
+.rt-mv button{flex:1;width:40px;background:none;border:0;color:var(--muted);font-size:.8rem;cursor:pointer}.rt-mv button+button{border-top:1px solid var(--rule)}.rt-mv button:disabled{opacity:.25}
+.rt-stop.ferry .rt-card{background:color-mix(in srgb,var(--acc) 7%,var(--sheet-2))}
+.rt-stop.home .rt-card{background:none;border-style:dashed}
+.rt-add{padding:0 16px 12px;margin-top:6px}
+.rt-know{margin:0 16px 14px;border-top:1px solid var(--rule);padding-top:10px}.rt-know summary{font-weight:700;font-size:.9rem;cursor:pointer}.rt-know .dv-alerts{padding:10px 0 0}
 .dv-alerts{display:grid;gap:8px;padding:12px 16px 4px}
 .dv-alert{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:10px;background:var(--sheet-2);border-left:4px solid var(--chris-bar);font-size:.88rem}
 .dv-alert b{font-weight:700}
@@ -2164,7 +2183,9 @@ const COLL = { bills:'bills', goals:'goals', spend:'spend', service:'service', f
 function applyLocal(path, data) {
   const [c, id] = path.split('/');
   if (c === 'days') { if (data) S.days[id] = data; else delete S.days[id]; }
-  else if (COLL[c]) { const arr = S[c]; const i = arr.findIndex(x => x.id === id); if (c === 'bills' && data) data = billNow(data); if (!data) { if (i>=0) arr.splice(i,1); } else if (i>=0) arr[i] = {...data, id}; else arr.push({...data, id}); }
+  else if (COLL[c]) { const arr = S[c]; const i = arr.findIndex(x => x.id === id); if (c === 'bills' && data) data = billNow(data);
+    /* a plan whose route was changed outside the app: rebuild its days, drive and hotel costs from the stops, and save that once */
+    if (c === 'plans' && data && Array.isArray(data.stops) && !(data.days || []).some(d => d.id === 'sd_home')) { data = { ...data, ...stopsBuild({ ...data, id }, data.stops) }; const fixed = data; setTimeout(() => { if (session) put(path, fixed); }, 0); } if (!data) { if (i>=0) arr.splice(i,1); } else if (i>=0) arr[i] = {...data, id}; else arr.push({...data, id}); }
   else if (c === 'settings') S.settings = data || {};
   else if (c === 'budget') S.budget = data || {cats:[]};
   else if (c === 'car') S.car = data || {};
@@ -6482,6 +6503,95 @@ async function ppAct(a, el) {
 
 /* ----- the drive on a trip: tap a stay, ferry or drive to change it, with its cost in the plan ----- */
 const ppWords = s => String(s || '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(w => w && !/^(\d+|night|nights|the|and|a|to|for|with|of|car|room|rooms)$/.test(w));
+/* ----- the route: plan.stops = [{ id, k:'hotel'|'ferry', place, cc, nights, drive, mi, see, hotel, a, paid, note, item, to, pre:[legs] }]
+   One stop per night away, in order. Dates follow from the order, and the day-by-day, the drive and the hotel costs are all rebuilt
+   from the stops whenever one changes, so there is only one place to edit. ----- */
+const CC = { be: ['Belgium', '🇧🇪'], de: ['Germany', '🇩🇪'], ch: ['Switzerland', '🇨🇭'], fr: ['France', '🇫🇷'], nl: ['Netherlands', '🇳🇱'], lu: ['Luxembourg', '🇱🇺'], at: ['Austria', '🇦🇹'], it: ['Italy', '🇮🇹'], es: ['Spain', '🇪🇸'], gb: ['United Kingdom', '🇬🇧'], ie: ['Ireland', '🇮🇪'], im: ['Isle of Man', '🇮🇲'] };
+function stopDates(p, stops) { let d = p.from; return (stops || p.stops || []).map(x => { const n = Math.max(1, Math.round(Number(x.nights) || 1)), o = { ...x, d, n }; d = addDays(d, n); return o; }); }
+function stopsBuild(p, stops) {
+  const L = stopDates(p, stops), items = [...(p.items || [])], days = [], drive = []; let prev = p.startPlace || 'Home';
+  L.forEach(x => {
+    const ferry = x.k === 'ferry', stay = x.hotel || (ferry ? 'Cabin on the ferry' : `Hotel in ${x.place}`);
+    days.push({ id: `sd_${x.id}`, d: x.d, t: x.place, n: x.see || '', places: [ferry ? '' : x.place, x.hotel || ''].filter(Boolean) });
+    const legs = [...(x.pre || [])];
+    legs.push(ferry ? { k: 'ferry', t: x.place, ...(x.drive ? { dur: x.drive } : {}), ...(x.see ? { note: x.see } : {}) }
+      : { k: 'car', t: `${prev} to ${x.place}`, ...(Number(x.mi) ? { mi: Number(x.mi) } : {}), ...(x.drive ? { dur: x.drive } : {}), ...(x.see ? { note: x.see } : {}) });
+    legs.push({ k: 'stay', t: stay, ...(x.note ? { note: x.note } : {}) }); drive.push({ d: x.d, legs });
+    for (let k = 1; k < x.n; k++) { const d = addDays(x.d, k); days.push({ id: `sd_${x.id}_${k}`, d, t: `${x.place}, day ${k + 1}`, n: '', places: [x.place] }); drive.push({ d, legs: [{ k: 'park', t: `${x.place}, day ${k + 1}` }, { k: 'stay', t: stay }] }); }
+    prev = ferry ? (x.to || prev) : x.place;
+    /* the cost: a hotel stop owns its line in the plan; a ferry stop updates the line it points at */
+    if (x.item) { const i = items.findIndex(y => y.id === x.item);
+      if (!ferry) { const it = { ...(i >= 0 ? items[i] : { id: x.item, ym: payYm(p.from), how: 'save', via: 'card' }), n: stay, a: Number(x.a) || 0, cat: 'stay', note: `${dayShort(x.d)}, ${nOf(x.n, 'night')}${x.note ? `. ${x.note}` : ''}` };
+        if (x.paid) it.paid = true; else delete it.paid; if (i >= 0) items[i] = it; else items.push(it); }
+      else if (i >= 0) { const it = { ...items[i], a: Number(x.a) || 0 }; if (x.paid) it.paid = true; else delete it.paid; items[i] = it; } }
+  });
+  const end = L.length ? addDays(L[L.length - 1].d, L[L.length - 1].n) : p.from;
+  days.push({ id: 'sd_home', d: end, t: 'Home', n: p.homeNote || '', places: [] });
+  return { stops, to: end, days, drive, items };
+}
+async function stopsSave(p, stops, dropItem) {
+  const { id, ...rest } = p, b = stopsBuild(p, stops); if (dropItem) b.items = b.items.filter(y => y.id !== dropItem);
+  await put(`plans/${p.id}`, { ...rest, ...b });
+}
+function routePanel(p) {
+  const L = stopDates(p), end = L.length ? addDays(L[L.length - 1].d, L[L.length - 1].n) : p.from, t = today();
+  const booked = L.filter(x => x.paid).length, cs = [...new Set(L.filter(x => x.k !== 'ferry' && CC[x.cc]).map(x => x.cc))];
+  const miles = (p.drive || []).reduce((a, d) => a + d.legs.reduce((b, l) => b + (Number(l.mi) || 0), 0), 0), mpg = Number(p.mpg) || 34, litres = miles / mpg * 4.54609, price = Number(p.fuelPrice) || 1.95;
+  const cost = L.reduce((a, x) => a + (Number(x.a) || 0), 0), alerts = p.alerts || [];
+  const card = (x, i) => { const ferry = x.k === 'ferry', c = CC[x.cc], last = addDays(x.d, x.n - 1), now = t >= x.d && t <= last;
+    return `<li class="rt-stop${ferry ? ' ferry' : ''}${x.paid ? ' done' : ''}${now ? ' now' : ''}">
+      <div class="rt-pin" aria-hidden="true">${ferry ? '⛴️' : c ? c[1] : '📍'}</div>
+      <div class="rt-card">
+        <button type="button" class="rt-main" data-act="stop" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" aria-label="Change ${esc(x.place)}">
+          <span class="rt-when">${esc(dayShort(x.d))}${x.n > 1 ? ` to ${esc(dayShort(addDays(x.d, x.n)))} · ${x.n} nights` : ''}</span>
+          <span class="rt-place">${esc(x.place)}</span>${!ferry && c ? `<span class="rt-cty">${esc(c[0])}</span>` : ''}
+          ${x.drive || x.mi ? `<span class="rt-line">${ferry ? '🕗' : '🚗'} ${esc([x.drive, x.mi ? `${x.mi} miles` : ''].filter(Boolean).join(' · '))}</span>` : !ferry ? `<span class="rt-line todo">🚗 Add the drive time</span>` : ''}
+          ${x.see ? `<span class="rt-line">✨ ${esc(x.see)}</span>` : ''}
+          <span class="rt-line">🛏️ ${esc(x.hotel || (ferry ? 'Cabin on the ferry' : 'Hotel to choose'))}</span>
+          <span class="rt-foot"><b>${Number(x.a) ? money(x.a, 0) : 'Add the price'}</b><span class="chip ${x.paid ? 'ok' : 'soon'}">${x.paid ? 'Booked' : 'To book'}</span></span>
+        </button>
+        <div class="rt-mv"><button type="button" data-act="stopmv" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" data-dir="-1" ${i === 0 ? 'disabled' : ''} aria-label="Move ${esc(x.place)} earlier">▲</button><button type="button" data-act="stopmv" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" data-dir="1" ${i === L.length - 1 ? 'disabled' : ''} aria-label="Move ${esc(x.place)} later">▼</button></div>
+      </div></li>`; };
+  return `<section class="panel nopad rt">${headCard({ tone: 'sea', kicker: 'The route', title: `${nOf(L.reduce((a, x) => a + x.n, 0), 'night')}, ${nOf(cs.length, 'country', 'countries')} ${cs.map(c => CC[c][1]).join(' ')}`,
+      meta: `<span>${booked} of ${L.length} booked · ${money(cost, 0)} for beds and cabins${miles ? ` · about ${Math.round(miles).toLocaleString('en-GB')} miles, roughly ${money(litres * price, 0)} of diesel` : ''}.</span>` })}
+    <p class="rt-how">Tap a stop to change it. Use the arrows to swap the order: the dates, the day by day and the costs all follow.</p>
+    <ol class="rt-list">${L.map(card).join('')}
+      <li class="rt-stop home"><div class="rt-pin" aria-hidden="true">🏠</div><div class="rt-card"><div class="rt-main"><span class="rt-when">${esc(dayShort(end))}</span><span class="rt-place">Home</span></div></div></li></ol>
+    <div class="btnrow rt-add"><button type="button" class="btn small" data-act="stop" data-plan="${esc(p.id)}">+ Add a stop</button></div>
+    ${alerts.length ? `<details class="rt-know"><summary>Good to know (${alerts.length})</summary><div class="dv-alerts">${alerts.map(a => `<div class="dv-alert t-${esc(a.tone || 'info')}"><b>${esc(a.t)}</b><span>${esc(a.note || '')}</span></div>`).join('')}</div></details>` : ''}
+  </section>`;
+}
+function stopForm(planId, stopId) {
+  const p = (S.plans || []).find(x => x.id === planId); if (!p) return; const stops = p.stops || [], i = stops.findIndex(x => x.id === stopId), x = i >= 0 ? stops[i] : { k: 'hotel', nights: 1, cc: 'fr' };
+  const tog = () => { const f = v('stK') === 'ferry'; document.querySelectorAll('#sheetForm [data-only]').forEach(el => { el.hidden = (el.dataset.only === 'ferry') !== f; }); const l = $('label[for="stP"]'); if (l) l.textContent = f ? 'Which sailing' : 'Where'; };
+  const lastHotel = stops.reduce((a, y, k) => y.k !== 'ferry' ? k : a, stops.length - 1);
+  openSheet(i >= 0 ? x.place : 'Add a stop', (i < 0 && stops.length ? sel('stAfter', 'Where in the route', lastHotel, [[-1, 'At the very start'], ...stops.map((y, k) => [k, `After ${y.place}`])]) : '') + sel('stK', 'What kind of night', x.k || 'hotel', [['hotel', '🛏️ A night in a hotel'], ['ferry', '⛴️ A night on a ferry']])
+    + fld('stP', 'Where', x.place || '', 'text', 'placeholder="e.g. Bruges"')
+    + `<div class="fields2"><div data-only="hotel">${sel('stC', 'Country', x.cc || 'fr', Object.entries(CC).map(([k, c]) => [k, `${c[1]} ${c[0]}`]))}</div><div data-only="ferry">${fld('stTo', 'Arrives at', x.to || '', 'text', 'placeholder="e.g. Portsmouth"')}</div>${sel('stN', 'Nights', x.nights || 1, [1, 2, 3, 4, 5, 6, 7].map(n => [n, nOf(n, 'night')]))}</div>`
+    + `<div class="field"><label for="stS">What we'll do there</label><textarea id="stS" rows="2" placeholder="e.g. Afternoon by the canals, waffles, dinner in the old town">${esc(x.see || '')}</textarea></div>`
+    + `<div class="fields2">${fld('stD', 'Getting there takes', x.drive || '', 'text', 'placeholder="e.g. about 3 hours"')}<div data-only="hotel">${fld('stM', 'Miles', x.mi || '', 'number', 'step="1" min="0" inputmode="numeric"')}</div></div>`
+    + fld('stH', 'Where we\'re staying', x.hotel || '', 'text', 'placeholder="Hotel name, or leave blank for now"')
+    + `<div class="fields2">${fld('stA', 'Price (£)', x.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('stNote', 'Note', x.note || '', 'text', 'placeholder="e.g. booking ref"')}</div>`
+    + `<label class="toggle"><input type="checkbox" id="stPaid" ${x.paid ? 'checked' : ''}> Booked</label>`, async () => {
+    const place = v('stP').trim(); if (!place) throw new Error('Say where the stop is'); const k = v('stK'), id = x.id || uid('st');
+    const nx = { ...x, id, k, place, nights: Number(v('stN')) || 1 }; ['see', 'drive', 'hotel', 'note', 'to', 'cc', 'mi', 'a', 'paid'].forEach(f => delete nx[f]);
+    const put1 = (f, val) => { if (val !== '' && val != null && val !== 0) nx[f] = val; };
+    put1('see', v('stS').trim()); put1('drive', v('stD').trim()); put1('hotel', v('stH').trim()); put1('note', v('stNote').trim()); put1('a', num(v('stA')) || 0); if ($('#stPaid').checked) nx.paid = true;
+    if (k === 'ferry') put1('to', v('stTo').trim()); else { nx.cc = v('stC'); put1('mi', num(v('stM')) || 0); if (!nx.item) nx.item = `pi_${id}`; }
+    const out = stops.slice(), at = i >= 0 ? i : ($('#stAfter') ? Number(v('stAfter')) + 1 : out.length); if (i >= 0) out[i] = nx; else out.splice(at, 0, nx);
+    /* the drive into the next stop starts from here, so its time and miles no longer hold */
+    const j = at + 1; if (out[j] && out[j].k !== 'ferry' && (i < 0 || x.place !== place)) { out[j] = { ...out[j] }; delete out[j].drive; delete out[j].mi; }
+    await stopsSave(p, out);
+  }, i >= 0 ? { onDelete: async () => { const out = stops.filter(y => y.id !== x.id); if (out[i] && out[i].k !== 'ferry') { out[i] = { ...out[i] }; delete out[i].drive; delete out[i].mi; } await stopsSave(p, out, x.k !== 'ferry' ? x.item : null); } } : {});
+  $('#sheetForm').addEventListener('change', tog); tog();
+}
+async function stopMove(planId, stopId, dir) {
+  const p = (S.plans || []).find(x => x.id === planId); if (!p) return; const out = (p.stops || []).slice(), i = out.findIndex(x => x.id === stopId), j = i + dir; if (i < 0 || j < 0 || j >= out.length) return;
+  [out[i], out[j]] = [out[j], out[i]];
+  /* every drive touching the two swapped stops now starts or ends somewhere else */
+  [Math.min(i, j), Math.max(i, j), Math.max(i, j) + 1].forEach(k => { if (out[k] && out[k].k !== 'ferry') { out[k] = { ...out[k] }; delete out[k].drive; delete out[k].mi; } });
+  await stopsSave(p, out); toast('Moved. Dates updated');
+}
 function legItem(p, leg) {
   const lw = ppWords(leg.t); if (!lw.length) return null; let best = null, score = 0;
   (p.items || []).forEach(it => { const iw = ppWords(it.n), hit = lw.filter(w => iw.includes(w)).length, sc = hit / Math.max(lw.length, Math.min(iw.length, lw.length + 2)); if (hit >= Math.min(2, lw.length) && sc > score) { score = sc; best = it; } });
@@ -7288,7 +7398,7 @@ function tripPlanForm(id, kind) {
 }
 /* ----- duplicates: two things in one plan that look like the same thing (two or more shared words of 4+ letters), or two
    purchases of the same amount within two days. A pair someone has said is fine is kept in the plan's dupeOk list. ----- */
-const DUPE_SKIP = new Set(['with','from','for','the','and','pay','paid','zilch','save','trip','money','deposit','extra','extras','christmas','presents','present','food','park','tickets']);
+const DUPE_SKIP = new Set(['with','from','for','the','and','pay','paid','zilch','save','trip','money','deposit','extra','extras','christmas','presents','present','food','park','tickets','hotel','holiday','express','premier','night','nights']);
 const dupeWords = n => new Set(String(n || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[^a-z0-9]+/).filter(w => w.length >= 4 && !DUPE_SKIP.has(w)));
 const dupeLike = (a, b) => { const A = dupeWords(a); let n = 0; dupeWords(b).forEach(w => { if (A.has(w)) n++; }); return n >= 2 || (A.size === 1 && n === 1 && dupeWords(b).size === 1); };
 const dupeKey = (a, b) => [a, b].sort().join('|');
@@ -7536,7 +7646,7 @@ function plPanel(p) {
   const ideaCard = p.idea ? `<section class="panel nopad">${headCard({ tone: 'sea', kicker: 'Just an idea', title: 'Not in the Spreadsheet yet', meta: '<span>Marked as an idea on the Planner, so nothing is being put aside for it.</span>', actions: hcBtn('Put it in the plan', 'ppin', `data-id="${esc(p.id)}"`) + hcBtn('Open the Planner', 'tab', 'data-v="money" data-seg="planner"') })}</section>` : '';
   return `${tripHero(p, st)}${ideaCard}${p.options ? planOptions(p) : ''}
     ${hero.length ? `<div class="ti-gallery">${hero.map(it => `<button type="button" class="ti-gimg" data-act="plitem" data-plan="${esc(p.id)}" data-id="${esc(it.id)}" data-photo="${esc(it.img)}"><span>${esc(it.n)}</span></button>`).join('')}</div>` : ''}
-    ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + drivePanel(p) + stepsPanel(p) + packPanel(p) + tripMoney(p) + tripDays(p)}
+    ${isGift(p) ? xmasList(p) + wishPanel(p) : onTheDay(p) + (p.stops ? routePanel(p) : drivePanel(p)) + stepsPanel(p) + packPanel(p) + tripMoney(p) + (p.stops ? '' : tripDays(p))}
     ${parts.length ? `<section class="panel"><h2>Where the ${p.kind === 'christmas' ? 'Christmas' : p.kind === 'birthday' ? 'birthday' : p.kind === 'celebration' ? 'celebration' : 'trip'} money goes</h2><div class="dn-wrap">${donut(parts, { size: 132, thick: 20, center: money(st.cost + st.fees, 0), sub: 'all in' })}<div class="dn-leg">${parts.map(x => `<div><i style="background:${x.c}"></i><span>${esc(x.name)}</span><b>${money(x.v,0)}</b></div>`).join('')}</div></div></section>` : ''}
     ${st.future.length && !isGift(p) ? `<section class="panel"><h2>When it gets paid <span class="sub">${money(st.toPay,0)} to go</span></h2>${tripPayChart(p)}<p class="note">${p.payplan ? 'Following your plan from the Planner. ' : ''}Already counted in each month in the Spreadsheet in Money. <button type="button" class="linkbtn" data-act="tab" data-v="money" data-seg="planner">${p.payplan ? 'Change the plan' : 'Plan it on the Planner'}</button></p></section>` : ''}
     ${isGift(p) ? '' : `<section class="panel"><h2>The plan <span class="sub">${items.length} thing${items.length===1?'':'s'}</span></h2>${dupeNote(p, plDupes(p))}${blcBanner(items.filter(it => !it.paid).map(it => [`${it.n} ${it.note || ''}`, it.a]), 'in this plan')}
@@ -9082,6 +9192,8 @@ document.addEventListener('click', async e => {
   if (a.startsWith('mx') && await meAct(a, el)) return;
   if (a.startsWith('pp') && await ppAct(a, el)) return;
   if (a==='leg') return legForm(el.dataset.plan, Number(el.dataset.d), Number(el.dataset.l));
+  if (a==='stop') return stopForm(el.dataset.plan, el.dataset.id);
+  if (a==='stopmv') return stopMove(el.dataset.plan, el.dataset.id, Number(el.dataset.dir));
   if (a==='tab') { UI.tab = el.dataset.v; if (el.dataset.who) UI.who = el.dataset.who; if (UI.tab === 'money' && !el.dataset.seg) UI.money = 'grid'; if (el.dataset.seg) { if (UI.tab==='money') UI.money = el.dataset.seg; else UI.carSeg = el.dataset.seg; } keepUI(); render(); window.scrollTo(0,0); return; }
   if (a==='corange') { UI.coRange = el.dataset.v; return render(); }
   if (a==='vday') return vikiDayForm(el.dataset.date);
