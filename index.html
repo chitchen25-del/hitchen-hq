@@ -2181,7 +2181,7 @@ const TRIP = [
 /* ---------- data layer ---------- */
 const COLL = { bills:'bills', goals:'goals', spend:'spend', service:'service', fuel:'fuel', list:'list', debts:'debts', trips:'trips', carrem:'carrem', payslips:'payslips', files:'files', plans:'plans', buys:'buys' };
 function applyLocal(path, data) {
-  const [c, id] = path.split('/');
+  const [c, id] = path.split('/'); if (VAUTO) VAUTO.clear();
   if (c === 'days') { if (data) S.days[id] = data; else delete S.days[id]; }
   else if (COLL[c]) { const arr = S[c]; const i = arr.findIndex(x => x.id === id); if (c === 'bills' && data) data = billNow(data);
     /* a plan whose route was changed outside the app: rebuild its days, drive and hotel costs from the stops, and save that once */
@@ -2482,13 +2482,17 @@ function gvikiForm() {
   const LAB = { 'Weekday': 'Weekday on calls', 'Weekend': 'Weekend on calls', '2nd on call (WD)': '2nd on call, weekdays', '2nd on call (WE)': '2nd on call, weekends', '1.5 Hours': 'Call-out hours at time and a half', 'Double hours': 'Call-out hours at double time', 'BH- shift- 1.5': 'Bank holiday shift hours' };
   openSheet("Viki's pay", `<p class="note" style="margin-top:0">Her pay is worked out from these, with her tax, NI and pension. Her payslip replaces it once it's in.</p>`
     + sel('gvFrom', 'Starting from', from, ms.map(ym => [ym, `${monthName(ym)} pay`]))
-    + `<div class="fields2">${items.map((it, i) => fld(`gvQ${i}`, `${esc(LAB[it.n] || it.n)} <small>(£${Number(it.r).toFixed(2)})</small>`, it.q ?? 0, 'number', 'step="0.5" min="0" inputmode="decimal"')).join('')}</div>`
+    + sel('gvAuto', 'How it is worked out', d0 && d0.viki && d0.viki.auto ? 'auto' : 'own', [['auto', 'From the on call and call-outs she logs'], ['own', 'From the numbers I type below']])
+    + `<p class="note" id="gvAutoNote">Each month's pay follows what she logged in the claim month before, so November's call-outs land in the December pay. It updates by itself.</p>`
+    + `<div class="fields2" id="gvOwn">${items.map((it, i) => fld(`gvQ${i}`, `${esc(LAB[it.n] || it.n)} <small>(£${Number(it.r).toFixed(2)})</small>`, it.q ?? 0, 'number', 'step="0.5" min="0" inputmode="decimal"')).join('')}</div>`
     + `<p class="note" id="gvOut"></p>` + sel('gvHow', 'Which months', 'on', [['on', 'That month and every month after'], ['one', 'Just that month']]), async () => {
     const fromYm = v('gvFrom'), targets = v('gvHow') === 'one' ? [fromYm] : ms.filter(ym => ym >= fromYm);
-    for (const ym of targets) { const d = bsClone(S.bsheet[ym]); if (!d.viki) continue; d.viki = { ...d.viki, mode: 'calc', items: (d.viki.items || items).map((it, i) => ({ ...it, q: num(v(`gvQ${i}`)) || 0 })) }; delete d.viki.actual; await put(`bsheet/${ym}`, d); }
+    for (const ym of targets) { const d = bsClone(S.bsheet[ym]); if (!d.viki) continue; if (v('gvAuto') === 'auto') d.viki = { ...d.viki, mode: 'calc', auto: true }; else { d.viki = { ...d.viki, mode: 'calc', items: (d.viki.items || items).map((it, i) => ({ ...it, q: num(v(`gvQ${i}`)) || 0 })) }; delete d.viki.auto; } delete d.viki.actual; await put(`bsheet/${ym}`, d); }
     window.__toastAfter = targets.length > 1 ? `Saved for ${targets.length} months` : 'Saved';
   });
-  const out = () => { const ym = v('gvFrom'), d = S.bsheet[ym]; if (!d || !d.viki) return; const t = bsVikiSlip({ ...d, viki: { ...d.viki, items: (d.viki.items || items).map((it, i) => ({ ...it, q: num(v(`gvQ${i}`)) || 0 })) } }, ym); const o = $('#gvOut'); if (o) o.textContent = `That's about ${money(t.net, 2)} take-home for the ${monthName(ym)} pay.`; };
+  const out = () => { const ym = v('gvFrom'), d = S.bsheet[ym]; if (!d || !d.viki) return; const au = v('gvAuto') === 'auto'; $('#gvOwn').hidden = au; $('#gvAutoNote').hidden = !au;
+    if (au) { const f = vikiAuto({ ...d, viki: { ...d.viki, auto: true, mode: 'calc' } }, ym), o = $('#gvOut'); if (o) o.textContent = f ? `That's about ${money(f.net, 2)} take-home for the ${monthName(ym)} pay${f.real ? ', from her payslip' : ''}.` : `Nothing on the rota or logged for that one yet, so it stays on her usual numbers (about ${money(bsVikiSlip(d, ym).net, 2)}) until there is.`; return; }
+    const t = bsVikiSlip({ ...d, viki: { ...d.viki, items: (d.viki.items || items).map((it, i) => ({ ...it, q: num(v(`gvQ${i}`)) || 0 })) } }, ym); const o = $('#gvOut'); if (o) o.textContent = `That's about ${money(t.net, 2)} take-home for the ${monthName(ym)} pay.`; };
   $('#sheetForm').addEventListener('input', out); $('#sheetForm').addEventListener('change', out); out();
 }
 async function gridSave(inp) {
@@ -3079,7 +3083,7 @@ async function fetchCalHistory(force) {
   } catch (e) { /* try again next time */ }
   calHistBusy = false;
 }
-function deriveDays() {
+function deriveDays() { if (VAUTO) VAUTO.clear();
   const out = {};
   [{ events: CALH.ev || [] }, ...(CAL.calendars||[])].forEach(c => (c.events||[]).forEach(e => {
     const r = parseRota(e.title); if (!r) return;
@@ -6073,9 +6077,21 @@ function bsVikiSlip(doc, ym) {
 function bsViki(doc, ym) {
   const vk = doc.viki; if (!vk) return 0;
   if (vk.actual != null) return Number(vk.actual)||0;
+  if (vk.auto && ym) { const f = vikiAuto(doc, ym); if (f) return f.net; }
   if (vk.mode !== 'calc') return Number(vk.fixed)||0;
   return bsVikiSlip(doc, ym).net;
 }
+/* a sheet set to follow her log: on call and call-out hours logged in the claim month before set that month's pay */
+var VAUTO = new Map();
+function vikiAuto(doc, ym) {
+  const k = `${ym}|${today()}|${JSON.stringify(doc.viki)}`; if (VAUTO.has(k)) return VAUTO.get(k);
+  let f = null; try { f = vikiForecast(ym, doc); } catch (e) { f = null; }
+  /* nothing on the rota or logged and the claim month hasn't started: stay on the usual numbers rather than guess */
+  if (f && !f.real && !f.known && !f.loggedH && claimRange(f.claim).from > today()) f = null;
+  if (VAUTO.size > 200) VAUTO.clear(); VAUTO.set(k, f); return f;
+}
+/* the sheet as it is actually worked out: her logged counts when it follows the log, the typed ones otherwise */
+function bsVikiEff(doc, ym) { const f = doc.viki && doc.viki.auto && ym ? vikiAuto(doc, ym) : null; return f && f.items ? { ...doc, viki: { ...doc.viki, items: f.items } } : doc; }
 function bsTotals(doc, ym) {
   const viki = doc.viki && !doc.viki.off ? bsViki(doc, ym) : 0, plan = ym ? plannerMonth(ym).total : 0;
   const inc = viki + (doc.inc||[]).filter(bsOn).reduce((s,x) => s + (Number(x.a)||0), 0);
@@ -6148,19 +6164,29 @@ function bsBuysSection(ym) {
     <div class="xrows">${list.map(b => `<div class="xr ro"><span class="xon" aria-hidden="true">•</span><div class="xname"><span class="xc xn">${esc(b.n)}</span><small>${esc(coverLine(b))}</small></div><span class="xd"></span><output class="xc xa">${money(Number(b.a)||0,2)}</output><span class="xm"></span></div>`).join('')}</div>
     <div class="xadd"><button type="button" class="linkbtn" data-act="buyadd">Add a purchase</button><span class="note"> Food-shop cuts come off this total.</span></div></section>`;
 }
+function bsVikiAutoBlock(doc) {
+  const ym = UI.bs.ym, f = vikiAuto(doc, ym), claim = ymAdd(ym, -1);
+  if (!f) return `<p class="note">Nothing to work from yet.</p>`;
+  if (f.real) return `<p class="note">Her real ${esc(monthName(ym))} payslip is in, so this is what she was actually paid.</p>`;
+  const rows = f.items.filter(i => Number(i.q)).map(i => `<div class="xr vi"><span class="xn">${esc(i.n)}</span><span class="xd">${Number(i.r).toFixed(2)}</span><span class="xd xq">${i.q}</span><output class="xc xa">${money((Number(i.r)||0)*(Number(i.q)||0),2)}</output></div>`).join('');
+  const p = bsVikiSlip(bsVikiEff(doc, ym), ym), est = f.future || f.guessOc;
+  return `<div class="xhead vi"><span>${esc(rangeLabel(claim))}</span><span>Rate</span><span>How many</span><span>£</span></div>${rows || '<p class="note">No on call or call-outs logged for this claim month yet.</p>'}
+      <div class="xr vi"><span class="xn">Salary</span><span class="xd"></span><span class="xd"></span>${bsMoneyIn('vbase', doc.viki.base, 'aria-label="Salary"')}</div>
+      <p class="note">These come straight from Viki's page: the on call days and call-out hours she logged for ${esc(rangeLabel(claim))} are paid in the ${esc(monthName(ym))} pay, and this changes by itself as she logs more.${est ? ` It includes an estimate for on call still to come (${f.loggedH} hours logged so far, about ${f.addH} more expected), which drops away as the real hours go in.` : ' That claim month is finished, so these are her real totals.'} Total pay ${money(p.gross,2)}, take-home <b>${money(p.net,2)}</b>. Her payslip replaces it once it's in.</p>`;
+}
 function bsVikiBlock(doc, t) {
   const vk = doc.viki; if (!vk) return '';
   const open = !!UI.bsViki;
   const items = (vk.items||[]).map((i,ii) => `<div class="xr vi" data-vi="${ii}"><span class="xn">${esc(i.n)}</span>${bsCell('vr', i.r, 'xd', 'inputmode="decimal" aria-label="Rate"')}${bsCell('vq', i.q, 'xd xq', 'inputmode="decimal" aria-label="How many"')}<output class="xc xa" data-bsvi="${ii}">${money((Number(i.r)||0)*(Number(i.q)||0),2)}</output></div>`).join('');
   return `<div class="xr viki${vk.off?' off':''}" data-viki="1">
       <label class="xon" aria-label="Include Viki's wages"><input type="checkbox" data-bs="vikion" ${vk.off?'':'checked'}></label>
-      <div class="xname"><button type="button" class="xn xbtn" data-act="bsviki">Viki's wages <span class="chev">${open?'▾':'▸'}</span></button><small>${vk.actual != null ? 'what actually came in, from the payday check-in' : vk.mode==='calc' ? 'worked out from on call' : 'typed in'}</small></div>
+      <div class="xname"><button type="button" class="xn xbtn" data-act="bsviki">Viki's wages <span class="chev">${open?'▾':'▸'}</span></button><small>${vk.actual != null ? 'what actually came in, from the payday check-in' : vk.auto ? 'from her logged on call and call-outs' : vk.mode==='calc' ? 'worked out from on call' : 'typed in'}</small></div>
       <span class="xd"></span>
-      ${vk.mode==='calc' ? `<output class="xc xa" data-bsvnet="1">${money(t.viki,2)}</output>` : bsMoneyIn('vfixed', vk.fixed, 'aria-label="Viki\'s wages"')}
+      ${vk.mode==='calc' || vk.auto ? `<output class="xc xa" data-bsvnet="1">${money(t.viki,2)}</output>` : bsMoneyIn('vfixed', vk.fixed, 'aria-label="Viki\'s wages"')}
       <span class="xm"></span></div>
     ${open ? `<div class="vcalc">
-      <div class="seg" role="group" aria-label="How Viki's wages are set"><button type="button" data-act="bsvmode" data-v="calc" aria-pressed="${vk.mode==='calc'}">Work it out</button><button type="button" data-act="bsvmode" data-v="fixed" aria-pressed="${vk.mode!=='calc'}">Type it in</button></div>
-      ${vk.mode==='calc' ? `<div class="xhead vi"><span>On call worked</span><span>Rate</span><span>How many</span><span>£</span></div>${items}
+      <div class="seg" role="group" aria-label="How Viki's wages are set"><button type="button" data-act="bsvmode" data-v="auto" aria-pressed="${!!vk.auto}">From her log</button><button type="button" data-act="bsvmode" data-v="calc" aria-pressed="${!vk.auto && vk.mode==='calc'}">Own numbers</button><button type="button" data-act="bsvmode" data-v="fixed" aria-pressed="${!vk.auto && vk.mode!=='calc'}">Type it in</button></div>
+      ${vk.auto && vikiAuto(doc, UI.bs.ym) ? bsVikiAutoBlock(doc) : vk.mode==='calc' ? `${vk.auto ? `<p class="note">Nothing is on the rota or logged for ${esc(rangeLabel(ymAdd(UI.bs.ym, -1)))} yet, so this month uses her usual numbers below until there is.</p>` : ''}<div class="xhead vi"><span>On call worked</span><span>Rate</span><span>How many</span><span>£</span></div>${items}
       <div class="xr vi"><span class="xn">Salary</span><span class="xd"></span><span class="xd"></span>${bsMoneyIn('vbase', vk.base, 'aria-label="Salary"')}</div>
       ${(() => { const p = bsVikiSlip(doc, UI.bs.ym); return `<p class="note">Total pay ${money(p.gross,2)}. Pension ${money(p.pension,2)} (on ${money(p.pensionable,2)}, call-out hours don't count), NI ${money(p.ni,2)}, tax ${money(p.tax,2)}, so take-home is <b>${money(p.net,2)}</b>. Worked out with the real Isle of Man rules, the same as Viki's page on the Family tab. On call worked in the claim month before is paid this month.</p>`; })()}
       <div class="btnrow"><button type="button" class="btn small ghost" data-act="bsvfill">Fill in from her logged on call</button></div>` : ''}
@@ -8375,21 +8401,22 @@ function coHistory() {
   return { perOc: n ? h / n : 6, r2: h ? h2 / h : .5, ocPay: n ? ocPay / n : 250, perMonth: months.size ? n / months.size : 3.3, n };
 }
 function rotaEnd() { let e = ''; Object.values(CAL.days || {}).forEach(d => { if (d.who === 'viki' && d.date > e) e = d.date; }); Object.values(S.days).forEach(d => { if (d.who === 'viki' && d.date > e) e = d.date; }); return e; }
-function vikiForecast(payYM) {
-  const r = vk(), doc = S.bsheet[payYM]; if (!doc || !doc.viki) return null;
+function vikiForecast(payYM, docIn) {
+  const r = vk(), doc = docIn || S.bsheet[payYM]; if (!doc || !doc.viki) return null;
   const claim = r.arrears ? ymAdd(payYM, -1) : payYM, cr = claimRange(claim), t = today();
   const real = S.payslips.find(x => x.id === payYM); if (real && real.net) return { net: real.net, real: true, claim };
   const m = vikiMonth(claim), hist = coHistory(), end = rotaEnd(), isWE = d => isWeekend(d.date) || d.bh || isBH(d.date);
   let wd = 0, we = 0, h15 = m.h15, h2 = m.h2, known = 0, future = 0, addH = 0;
   m.days.forEach(d => { if (!d.oncall || d.oncall.kind === 'second') return; known++; if (isWE(d)) we++; else wd++; if (d.date >= t) future++;
     if (d.date >= t && !(d.callouts||[]).length) { addH += hist.perOc; h15 += hist.perOc * (1 - hist.r2); h2 += hist.perOc * hist.r2; } });
-  const gapFrom = end && end > cr.from ? end : (cr.from > t ? cr.from : t), gapDays = Math.max(0, daysBetween(gapFrom, cr.to)), span = Math.max(1, daysBetween(cr.from, cr.to) + 1);
+  const gapFrom = [end || '', cr.from, t].sort().pop(), gapDays = Math.max(0, daysBetween(gapFrom, cr.to)), span = Math.max(1, daysBetween(cr.from, cr.to) + 1);
   const guessOc = cr.to > end ? Math.round(hist.perMonth * Math.min(1, gapDays / span)) : 0;
   if (guessOc) { const gwe = Math.round(guessOc * .4); we += gwe; wd += guessOc - gwe; addH += guessOc * hist.perOc; h15 += guessOc * hist.perOc * (1 - hist.r2); h2 += guessOc * hist.perOc * hist.r2; }
   const q = { wd, we, h15: Math.round(h15 * 2) / 2, h2: Math.round(h2 * 2) / 2 };
-  const map = [[/weekday/i, q.wd], [/weekend/i, q.we], [/^1\.5/i, q.h15], [/double/i, q.h2]];
-  const items = (doc.viki.items||[]).map(i => { const hit = map.find(([re]) => re.test(i.n) && !/2nd/i.test(i.n)); return hit ? { ...i, q: hit[1] } : { ...i, q: /2nd|bh/i.test(i.n) ? 0 : i.q }; });
-  const vdoc = { ...doc, viki: { ...doc.viki, mode: 'calc', items } };
+  const s2 = we2 => m.days.filter(d => d.oncall && d.oncall.kind === 'second' && !!(isWeekend(d.date) || d.bh) === we2).reduce((s, d) => s + ocHours(d), 0), r2 = x => Math.round(x * 100) / 100;
+  const map = [[/2nd.*\(?wd/i, r2(s2(false))], [/2nd.*\(?we/i, r2(s2(true))], [/weekday/i, q.wd], [/weekend/i, q.we], [/^1\.5/i, q.h15], [/double/i, q.h2], [/bh/i, r2(m.bhH || 0)]];
+  const items = (doc.viki.items||[]).map(i => { const hit = map.find(([re]) => re.test(i.n)); return hit ? { ...i, q: hit[1] } : i; });
+  const vdoc = { ...doc, viki: { ...doc.viki, mode: 'calc', auto: false, items } };
   return { net: bsViki(vdoc, payYM), items, known, future, guessOc, addH: Math.round(addH), loggedH: Math.round(m.h15 + m.h2), claim, end, real: false };
 }
 function forecastPanel() {
@@ -9271,7 +9298,9 @@ document.addEventListener('click', async e => {
   if (a==='bssec') return bsSecMenu(Number(el.dataset.s));
   if (a==='bsnewsec') { UI.bs.doc.secs.push({ k: uid('s'), t:'New section', kind:'base', rows:[{n:'',a:0}] }); render(); return bsSecMenu(UI.bs.doc.secs.length-1); }
   if (a==='bsviki') { UI.bsViki = !UI.bsViki; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
-  if (a==='bsvmode') { const vk = UI.bs.doc.viki; if (el.dataset.v==='fixed' && vk.mode==='calc') vk.fixed = Math.round(bsViki(UI.bs.doc, UI.bs.ym)*100)/100; vk.mode = el.dataset.v; const y = window.scrollY; render(); window.scrollTo(0,y); return; }
+  if (a==='bsvmode') { const vk = UI.bs.doc.viki, to = el.dataset.v; if (to==='fixed' && (vk.mode==='calc' || vk.auto)) vk.fixed = Math.round(bsViki(UI.bs.doc, UI.bs.ym)*100)/100;
+    if (to==='calc' && vk.auto) { const f = vikiAuto(UI.bs.doc, UI.bs.ym); if (f && f.items) vk.items = f.items.map(i => ({ ...i })); }
+    if (to==='auto') { vk.auto = true; vk.mode = 'calc'; } else { delete vk.auto; vk.mode = to; } const y = window.scrollY; render(); window.scrollTo(0,y); return; }
   if (a==='bsvfill') return bsVikiFill();
   if (a==='bsundo') { UI.bs = null; render(); toast('Back to the saved sheet'); return; }
   if (a==='bssave') return bsSave();
