@@ -1311,6 +1311,7 @@ i.rv-b{background:var(--rule-2)} i.rv-a{background:linear-gradient(90deg,var(--a
 .bc small{display:block;font-size:.8rem;color:var(--muted);margin-top:2px;line-height:1.3}
 .gcarry{border:0;background:none;font:inherit;color:inherit;cursor:pointer;padding:0}
 .gfresh{display:inline-block;margin-right:4px;font-size:.8em;color:var(--good)}
+.ticks2{display:flex;gap:18px;flex-wrap:wrap}
 /* celebration */
 .cele{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(7,11,19,.45);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:opacity .3s}
 .cele.out{opacity:0}
@@ -6551,8 +6552,8 @@ function stopsBuild(p, stops) {
     /* the cost: a hotel stop owns its line in the plan; a ferry stop updates the line it points at */
     if (x.item) { const i = items.findIndex(y => y.id === x.item);
       if (!ferry) { const it = { ...(i >= 0 ? items[i] : { id: x.item, ym: payYm(p.from), how: 'save', via: 'card' }), n: stay, a: Number(x.a) || 0, cat: 'stay', note: `${dayShort(x.d)}, ${nOf(x.n, 'night')}${x.note ? `. ${x.note}` : ''}` };
-        if (x.paid) it.paid = true; else delete it.paid; if (i >= 0) items[i] = it; else items.push(it); }
-      else if (i >= 0) { const it = { ...items[i], a: Number(x.a) || 0 }; if (x.paid) it.paid = true; else delete it.paid; items[i] = it; } }
+        if (x.paid) it.paid = true; else delete it.paid; if (x.booked || x.paid) it.booked = true; else delete it.booked; if (i >= 0) items[i] = it; else items.push(it); }
+      else if (i >= 0) { const it = { ...items[i], a: Number(x.a) || 0 }; if (x.paid) it.paid = true; else delete it.paid; if (x.booked || x.paid) it.booked = true; else delete it.booked; items[i] = it; } }
   });
   const end = L.length ? addDays(L[L.length - 1].d, L[L.length - 1].n) : p.from;
   days.push({ id: 'sd_home', d: end, t: 'Home', n: p.homeNote || '', places: [] });
@@ -6564,11 +6565,11 @@ async function stopsSave(p, stops, dropItem) {
 }
 function routePanel(p) {
   const L = stopDates(p), end = L.length ? addDays(L[L.length - 1].d, L[L.length - 1].n) : p.from, t = today();
-  const booked = L.filter(x => x.paid).length, cs = [...new Set(L.filter(x => x.k !== 'ferry' && CC[x.cc]).map(x => x.cc))];
+  const booked = L.filter(x => x.booked || x.paid).length, cs = [...new Set(L.filter(x => x.k !== 'ferry' && CC[x.cc]).map(x => x.cc))];
   const miles = (p.drive || []).reduce((a, d) => a + d.legs.reduce((b, l) => b + (Number(l.mi) || 0), 0), 0), mpg = Number(p.mpg) || 34, litres = miles / mpg * 4.54609, price = Number(p.fuelPrice) || 1.95;
   const cost = L.reduce((a, x) => a + (Number(x.a) || 0), 0), alerts = p.alerts || [];
   const card = (x, i) => { const ferry = x.k === 'ferry', c = CC[x.cc], last = addDays(x.d, x.n - 1), now = t >= x.d && t <= last;
-    return `<li class="rt-stop${ferry ? ' ferry' : ''}${x.paid ? ' done' : ''}${now ? ' now' : ''}">
+    return `<li class="rt-stop${ferry ? ' ferry' : ''}${x.booked || x.paid ? ' done' : ''}${now ? ' now' : ''}">
       <div class="rt-pin" aria-hidden="true">${ferry ? '⛴️' : c ? c[1] : '📍'}</div>
       <div class="rt-card">
         <button type="button" class="rt-main" data-act="stop" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" aria-label="Change ${esc(x.place)}">
@@ -6577,7 +6578,7 @@ function routePanel(p) {
           ${x.drive || x.mi ? `<span class="rt-line">${ferry ? '🕗' : '🚗'} ${esc([x.drive, x.mi ? `${x.mi} miles` : ''].filter(Boolean).join(' · '))}</span>` : !ferry ? `<span class="rt-line todo">🚗 Add the drive time</span>` : ''}
           ${x.see ? `<span class="rt-line">✨ ${esc(x.see)}</span>` : ''}
           <span class="rt-line">🛏️ ${esc(x.hotel || (ferry ? 'Cabin on the ferry' : 'Hotel to choose'))}</span>
-          <span class="rt-foot"><b>${Number(x.a) ? money(x.a, 0) : 'Add the price'}</b><span class="chip ${x.paid ? 'ok' : 'soon'}">${x.paid ? 'Booked' : 'To book'}</span></span>
+          <span class="rt-foot"><b>${Number(x.a) ? money(x.a, 0) : 'Add the price'}</b>${x.paid ? '<span class="chip ok">Booked</span><span class="chip ok">Paid</span>' : x.booked ? '<span class="chip ok">Booked</span><span class="chip soon">To pay</span>' : '<span class="chip soon">To book</span>'}</span>
         </button>
         <div class="rt-mv"><button type="button" data-act="stopmv" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" data-dir="-1" ${i === 0 ? 'disabled' : ''} aria-label="Move ${esc(x.place)} earlier">▲</button><button type="button" data-act="stopmv" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" data-dir="1" ${i === L.length - 1 ? 'disabled' : ''} aria-label="Move ${esc(x.place)} later">▼</button></div>
       </div></li>`; };
@@ -6601,11 +6602,11 @@ function stopForm(planId, stopId) {
     + `<div class="fields2">${fld('stD', 'Getting there takes', x.drive || '', 'text', 'placeholder="e.g. about 3 hours"')}<div data-only="hotel">${fld('stM', 'Miles', x.mi || '', 'number', 'step="1" min="0" inputmode="numeric"')}</div></div>`
     + fld('stH', 'Where we\'re staying', x.hotel || '', 'text', 'placeholder="Hotel name, or leave blank for now"')
     + `<div class="fields2">${fld('stA', 'Price (£)', x.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('stNote', 'Note', x.note || '', 'text', 'placeholder="e.g. booking ref"')}</div>`
-    + `<label class="toggle"><input type="checkbox" id="stPaid" ${x.paid ? 'checked' : ''}> Booked</label>`, async () => {
+    + `<div class="ticks2"><label class="toggle"><input type="checkbox" id="stBk" ${x.booked || x.paid ? 'checked' : ''}> Booked</label><label class="toggle"><input type="checkbox" id="stPaid" ${x.paid ? 'checked' : ''}> Paid</label></div><p class="note" style="margin-top:-4px">Booked but not paid still counts in the budget for the month it's due. Tick Paid once the money has gone.</p>`, async () => {
     const place = v('stP').trim(); if (!place) throw new Error('Say where the stop is'); const k = v('stK'), id = x.id || uid('st');
-    const nx = { ...x, id, k, place, nights: Number(v('stN')) || 1 }; ['see', 'drive', 'hotel', 'note', 'to', 'cc', 'mi', 'a', 'paid'].forEach(f => delete nx[f]);
+    const nx = { ...x, id, k, place, nights: Number(v('stN')) || 1 }; ['see', 'drive', 'hotel', 'note', 'to', 'cc', 'mi', 'a', 'paid', 'booked'].forEach(f => delete nx[f]);
     const put1 = (f, val) => { if (val !== '' && val != null && val !== 0) nx[f] = val; };
-    put1('see', v('stS').trim()); put1('drive', v('stD').trim()); put1('hotel', v('stH').trim()); put1('note', v('stNote').trim()); put1('a', num(v('stA')) || 0); if ($('#stPaid').checked) nx.paid = true;
+    put1('see', v('stS').trim()); put1('drive', v('stD').trim()); put1('hotel', v('stH').trim()); put1('note', v('stNote').trim()); put1('a', num(v('stA')) || 0); if ($('#stPaid').checked) nx.paid = true; if ($('#stBk').checked || nx.paid) nx.booked = true;
     if (k === 'ferry') put1('to', v('stTo').trim()); else { nx.cc = v('stC'); put1('mi', num(v('stM')) || 0); if (!nx.item) nx.item = `pi_${id}`; }
     const out = stops.slice(), at = i >= 0 ? i : ($('#stAfter') ? Number(v('stAfter')) + 1 : out.length); if (i >= 0) out[i] = nx; else out.splice(at, 0, nx);
     /* the drive into the next stop starts from here, so its time and miles no longer hold */
@@ -7455,11 +7456,11 @@ function planItemForm(planId, itemId, name) {
     sel('pliH','How you\'ll pay for it', it.how || 'save', PL_HOW) + `<div id="pliVBox">${sel('pliV','Pay with', itemVia(it), Object.entries(VIA))}</div>` + sel('pliC','Type', itemCat(it), TCAT.map(c => [c[0], c[1]])) +
     `<div id="pliFromBox" ${(it.how||'save')==='save' ? '' : 'hidden'}>${fld('pliF','Start saving from', it.from || p.saveFrom || plCur(), 'month')}</div>
     <p class="note" id="pliHint"></p>` + fld('pliNote','Note', it.note||'', 'text','placeholder="e.g. Jet2, booked ref ABC123"') +
-    `<label class="toggle"><input type="checkbox" id="pliP" ${it.paid ? 'checked' : ''}> Booked and paid${it.how==='zilch' ? ' (Zilch payments still count)' : ''}</label>` + photoField('pliPh', 'Photo (optional)', it.img), async () => {
+    `<div class="ticks2"><label class="toggle"><input type="checkbox" id="pliB" ${it.booked || it.paid ? 'checked' : ''}> Booked</label><label class="toggle"><input type="checkbox" id="pliP" ${it.paid ? 'checked' : ''}> Paid${it.how==='zilch' ? ' (Zilch payments still count)' : ''}</label></div>` + photoField('pliPh', 'Photo (optional)', it.img), async () => {
     const n = v('pliN').trim(), a = num(v('pliA')); if (!n) throw new Error('Say what it is'); if (a === null || a < 0) throw new Error('Enter what it costs, roughly is fine');
     const ym = v('pliM'); if (!/^\d{4}-\d\d$/.test(ym)) throw new Error('Pick the month it needs paying by');
     const x = { id: it.id || uid('pi'), n, a, how: v('pliH'), ym }; if (x.how === 'save' && v('pliF') && v('pliF') !== (p.saveFrom || '')) x.from = v('pliF');
-    if (v('pliNote').trim()) x.note = v('pliNote').trim(); if ($('#pliP').checked) x.paid = true; if (it.zdate) x.zdate = it.zdate; else if (x.paid && x.how === 'zilch') x.zdate = today();
+    if (v('pliNote').trim()) x.note = v('pliNote').trim(); if ($('#pliP').checked) x.paid = true; if ($('#pliB').checked || x.paid) x.booked = true; if (it.zdate) x.zdate = it.zdate; else if (x.paid && x.how === 'zilch') x.zdate = today();
     x.cat = v('pliC'); if (x.how !== 'zilch') x.via = v('pliV'); const ph = getPh(); if (ph) x.img = await uploadPhoto(ph); else if (it.img && !($('#pliPhDel') && $('#pliPhDel').checked)) x.img = it.img;
     const twin = (p.items||[]).find(y => y.id !== x.id && dupeLike(y.n, x.n) && !(p.dupeOk || []).includes(dupeKey(y.id, x.id)));
     if (twin && !confirm(`${p.name} already has “${twin.n}” (${money(Number(twin.a) || 0, 0)}). Is this a different thing? OK saves both, Cancel goes back.`)) throw new Error('Not saved: check the one already there');
