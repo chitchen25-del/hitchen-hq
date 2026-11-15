@@ -1608,6 +1608,14 @@ div.rt-main{cursor:default}
 .rt-mv button{flex:1;width:40px;background:none;border:0;color:var(--muted);font-size:.8rem;cursor:pointer}.rt-mv button+button{border-top:1px solid var(--rule)}.rt-mv button:disabled{opacity:.25}
 .rt-stop.ferry .rt-card{background:color-mix(in srgb,var(--acc) 7%,var(--sheet-2))}
 .rt-stop.home .rt-card{background:none;border-style:dashed}
+.lp{grid-column:2;margin-top:6px}.dayc .lp{grid-column:auto}
+.lp-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x mandatory}
+.lp-th{flex:none;width:96px;height:72px;border-radius:12px;border:0;padding:0;background:var(--sheet-2) center/cover no-repeat;cursor:pointer;scroll-snap-align:start}
+.lp-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.lp-add,.lp-find{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-weight:700;font-size:.8rem;text-decoration:none;cursor:pointer}
+.lp-add{background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--acc)}.lp-add.busy{opacity:.5;pointer-events:none}
+.lp-find{background:color-mix(in srgb,#3F7BEA 12%,transparent);color:#3F7BEA}
+.lp-big{width:100%;aspect-ratio:4/3;border-radius:14px;background:var(--sheet-2) center/contain no-repeat}
 .rt-add{padding:0 16px 12px;margin-top:6px}
 .rt-know{margin:0 16px 14px;border-top:1px solid var(--rule);padding-top:10px}.rt-know summary{font-weight:700;font-size:.9rem;cursor:pointer}.rt-know .dv-alerts{padding:10px 0 0}
 .dv-alerts{display:grid;gap:8px;padding:12px 16px 4px}
@@ -6581,7 +6589,7 @@ function routePanel(p) {
           <span class="rt-foot"><b>${Number(x.a) ? money(x.a, 0) : 'Add the price'}</b>${x.paid ? '<span class="chip ok">Booked</span><span class="chip ok">Paid</span>' : x.booked ? '<span class="chip ok">Booked</span><span class="chip soon">To pay</span>' : '<span class="chip soon">To book</span>'}</span>
         </button>
         <div class="rt-mv"><button type="button" data-act="stopmv" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" data-dir="-1" ${i === 0 ? 'disabled' : ''} aria-label="Move ${esc(x.place)} earlier">▲</button><button type="button" data-act="stopmv" data-plan="${esc(p.id)}" data-id="${esc(x.id)}" data-dir="1" ${i === L.length - 1 ? 'disabled' : ''} aria-label="Move ${esc(x.place)} later">▼</button></div>
-      </div></li>`; };
+      </div>${legStrip(p, x.id, ferry ? '' : x.place)}</li>`; };
   return `<section class="panel nopad rt">${headCard({ tone: 'sea', kicker: 'The route', title: `${nOf(L.reduce((a, x) => a + x.n, 0), 'night')}, ${nOf(cs.length, 'country', 'countries')} ${cs.map(c => CC[c][1]).join(' ')}`,
       meta: `<span>${booked} of ${L.length} booked · ${money(cost, 0)} for beds and cabins${miles ? ` · about ${Math.round(miles).toLocaleString('en-GB')} miles, roughly ${money(litres * price, 0)} of diesel` : ''}.</span>` })}
     <p class="rt-how">Tap a stop to change it. Use the arrows to swap the order: the dates, the day by day and the costs all follow.</p>
@@ -7501,6 +7509,37 @@ const photoField = (id, label, cur) => `<div class="field"><label>${label}</labe
 function photoWatch(id) { let file = null; const inp = $('#'+id); if (!inp) return () => null;
   inp.addEventListener('change', () => { file = inp.files[0] || null; const pv = $('#'+id+'Prev'); if (file && pv) { pv.style.backgroundImage = `url("${URL.createObjectURL(file)}")`; pv.classList.add('on'); } });
   setTimeout(hydratePhotos, 0); return () => file; }
+
+/* ----- photos for each leg of a trip: plans/<id>.legPhotos = { <stop id or day id>: [path, ...] }
+   Kept apart from stops and days, so rebuilding the route or editing a day never loses them. ----- */
+const legPhotos = (p, key) => ((p && p.legPhotos) || {})[key] || [];
+const imgSearch = q => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`;
+function legStrip(p, key, place) {
+  const ph = legPhotos(p, key), qs = [...new Set(String(place || '').split(/\s*[-–]\s*|,/).map(x => x.trim()).filter(x => x.length > 2 && !/^(outdoor|day \d+)$/i.test(x)))];
+  return `<div class="lp">${ph.length ? `<div class="lp-row">${ph.map((r, i) => `<button type="button" class="lp-th" data-act="lpview" data-plan="${esc(p.id)}" data-key="${esc(key)}" data-i="${i}" data-photo="${esc(r)}" aria-label="Photo ${i + 1} of ${esc(place)}"></button>`).join('')}</div>` : ''}
+    <div class="lp-btns"><label class="lp-add">📷 ${ph.length ? 'Add more' : 'Add photos'}<input type="file" accept="image/*" multiple hidden data-lpup data-plan="${esc(p.id)}" data-key="${esc(key)}"></label>${qs.map(q => `<a class="lp-find" href="${imgSearch(q)}" target="_blank" rel="noopener" aria-label="Find photos of ${esc(q)}">🔎 ${esc(q)}</a>`).join('')}</div></div>`;
+}
+async function legUpload(inp) {
+  const files = [...(inp.files || [])], planId = inp.dataset.plan, key = inp.dataset.key; inp.value = ''; if (!files.length) return;
+  const lab = inp.closest('.lp-add'); if (lab) lab.classList.add('busy');
+  toast(files.length > 1 ? `Adding ${files.length} photos…` : 'Adding the photo…');
+  const paths = [];
+  for (const f of files) { try { paths.push(await uploadPhoto(f)); } catch(e) {} }
+  if (!paths.length) { if (lab) lab.classList.remove('busy'); return toast('The photos didn\'t upload. Try again'); }
+  const p = (S.plans || []).find(x => x.id === planId); if (!p) return;
+  const { id, ...rest } = p, all = { ...(p.legPhotos || {}) }; all[key] = [...(all[key] || []), ...paths];
+  await put(`plans/${planId}`, { ...rest, legPhotos: all });
+  toast(paths.length < files.length ? `Added ${paths.length} of ${files.length}. Try the others again` : nOf(paths.length, 'photo') + ' added');
+}
+document.addEventListener('change', e => { const t = e.target; if (t && t.matches && t.matches('input[data-lpup]')) legUpload(t); });
+function legView(planId, key, i) {
+  const p = (S.plans || []).find(x => x.id === planId); if (!p) return; const ph = legPhotos(p, key), r = ph[Number(i)]; if (!r) return;
+  openSheet('Trip photo', `<div class="lp-big" data-photo="${esc(r)}"></div><p class="note">Delete takes this photo off the trip for everyone.</p>`, async () => { window.__toastAfter = 'Photo kept'; }, { noFocus: true, saveLabel: 'Done',
+    onDelete: async () => { const q = (S.plans || []).find(x => x.id === planId); if (!q) return; const { id, ...rest } = q, all = { ...(q.legPhotos || {}) };
+      all[key] = (all[key] || []).filter(x => x !== r); if (!all[key].length) delete all[key];
+      await put(`plans/${planId}`, { ...rest, legPhotos: all }); try { await sb.storage.from('family-files').remove([r]); } catch(e) {} } });
+  setTimeout(hydratePhotos, 0);
+}
 
 /* ----- trip artwork when there's no photo: original illustrations, one per kind ----- */
 function tripArt(kind, seed = 1) {
@@ -8481,7 +8520,7 @@ function tripDays(p) {
   const t = today();
   return `<section class="panel"><h2>Day by day <button class="btn small ghost" data-act="tday" data-plan="${esc(p.id)}">Add a day</button></h2>
     ${days.length ? `<div class="days">${days.map(d => { const dt = parse(d.d), isToday = d.d === t;
-      return `<div class="dayc ${isToday ? 'today' : ''}"><div class="dc-date"><b>${dt.getDate()}</b><span>${DOWS[dt.getDay()].slice(0,3)}</span></div><div class="grow"><button type="button" class="dc-title" data-act="tday" data-plan="${esc(p.id)}" data-id="${esc(d.id)}">${esc(d.t)}${isToday ? ' <span class="chip ok">Today</span>' : ''}</button>${d.n ? `<div class="m">${esc(d.n)}</div>` : ''}${(d.places||[]).length ? `<div class="dc-places">${d.places.map(pl => `<a class="dc-map" href="${mapsLink(pl)}" target="_blank" rel="noopener">${tcatIcon('travel')}<span>${esc(pl.split(',')[0])}</span></a>`).join('')}</div>` : ''}</div></div>`; }).join('')}</div>`
+      return `<div class="dayc ${isToday ? 'today' : ''}"><div class="dc-date"><b>${dt.getDate()}</b><span>${DOWS[dt.getDay()].slice(0,3)}</span></div><div class="grow"><button type="button" class="dc-title" data-act="tday" data-plan="${esc(p.id)}" data-id="${esc(d.id)}">${esc(d.t)}${isToday ? ' <span class="chip ok">Today</span>' : ''}</button>${d.n ? `<div class="m">${esc(d.n)}</div>` : ''}${(d.places||[]).length ? `<div class="dc-places">${d.places.map(pl => `<a class="dc-map" href="${mapsLink(pl)}" target="_blank" rel="noopener">${tcatIcon('travel')}<span>${esc(pl.split(',')[0])}</span></a>`).join('')}</div>` : ''}${d.id ? legStrip(p, d.id, (d.places || [])[0] || d.t) : ''}</div></div>`; }).join('')}</div>`
       : `<p class="empty">Plan each day, where you're staying and where you're driving. Each place gets a button that opens Maps.</p>`}</section>`;
 }
 function tripDayForm(planId, dayId) {
@@ -9374,6 +9413,7 @@ document.addEventListener('click', async e => {
   if (a==='potedit') return potEntryForm(el.dataset.id);
   if (a==='vfcast') { const ym = el.dataset.v, f = vikiForecast(ym), d = bsClone(S.bsheet[ym]); if (!f || f.real || !d || !d.viki) return; d.viki = { ...d.viki, mode: 'calc', items: f.items }; el.disabled = true; await put(`bsheet/${ym}`, d); UI.bs = null; toast(`${monShort(ym)} sheet now expects Viki at ${money(f.net,0)}`); return; }
   if (a==='tday') return tripDayForm(el.dataset.plan, el.dataset.id);
+  if (a==='lpview') return legView(el.dataset.plan, el.dataset.key, el.dataset.i);
   if (a==='tspend') return tripSpendForm(el.dataset.plan, el.dataset.id);
   if (a==='yearadd') { const p = await ensureYearPlan(); return planItemForm(p.id, null, el.dataset.name); }
   if (a==='plstep') { el.disabled = true; return toggleStep(el.dataset.plan, el.dataset.key, el.dataset.item); }

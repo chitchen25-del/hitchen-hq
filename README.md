@@ -42,6 +42,10 @@ A suggested holiday plan (`state/leaveplan`) shows on Leave → Chris for its ye
 
 A trip can carry `drive` (day-by-day legs) and `alerts`; they show as The drive on the trip, with a fuel estimate.
 
+## Trip photos
+
+Every stop on The route (and every day in Day by day) has **Add photos**, which picks one or more pictures from the phone, and a **🔎** link for each place that opens a Google Images search, so you can save a picture to the phone and then add it. Photos are shrunk, stored privately in `family-files` (`trips/…`) and listed on the trip as `legPhotos` (keyed by stop or day id, so moving stops or editing a day never loses them). Tap a photo to see it full size or delete it.
+
 ## The girls' week
 
 Each girl's page has a week planner. Add every-week things (clubs, PE, swimming, music lessons, with what to take) and one-off days (tests, school trips, shows, non-uniform days). The evening notification lists tomorrow's tests and trips and what to pack, and skips term-time clubs in the holidays.
