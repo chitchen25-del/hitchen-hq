@@ -2360,7 +2360,8 @@ function gridRows(ms) {
   const pi = []; ms.forEach(ym => plannerItems(ym).forEach(x => { const key = `${x.p.id}|${gk(x.n)}`; let r = pi.find(y => y.key === key); if (!r) { r = { key, n: `${x.n} · ${occName(x.p)}`, by: {} }; pi.push(r); } r.by[ym] = (r.by[ym] || 0) + x.a; }));
   if (pi.length) groups.push({ t: 'Trips and Christmas', cls: 'out', note: 'Change in Treats', rows: pi.map(r => ({ n: r.n, vals: ms.map(ym => ({ v: r.by[ym] || 0 })) })) });
   /* extra spends */
-  if (ms.some(ym => Math.abs(buysNet(ym)) > 0.004)) groups.push({ t: 'Extra spends', cls: 'out', rows: [{ n: 'Unplanned spending (after food-shop cuts)', vals: ms.map(ym => ({ v: buysNet(ym) })) }] });
+  /* typing in a box sets that month's total: the difference is kept as one "typed in" spend, so the logged purchases stay as they are */
+  groups.push({ t: 'Extra spends', cls: 'out', note: 'Type a month\'s total, or log each one on Home', rows: [{ n: 'Unplanned spending (after food-shop cuts)', vals: ms.map(ym => S.bsheet[ym] ? { v: buysNet(ym), edit: { buys: 1, ym } } : null) }] });
   return groups;
 }
 /* bring a month's column into view on the Spreadsheet */
@@ -2511,6 +2512,9 @@ async function gridSave(inp) {
   let e; try { e = JSON.parse(inp.dataset.gcell); } catch (x) { return; }
   const v = num(inp.value), d = S.bsheet[e.ym] ? bsClone(S.bsheet[e.ym]) : null; if (!d) return;
   const a = v === null ? 0 : Math.round(v * 100) / 100;
+  if (e.buys) { const id = `by_typed_${e.ym}`, old = liveBuys().find(b => b.id === id), adj = Math.round((a - (buysNet(e.ym) - (old ? Number(old.a) || 0 : 0))) * 100) / 100;
+    UI.hym = e.ym; if (Math.abs(adj) < 0.005) { if (old) await remove(`buys/${id}`); } else await put(`buys/${id}`, { d: payday(e.ym), a: adj, n: 'Extra spends typed into the Spreadsheet', ym: e.ym, cover: 'spare', cuts: [], extra: 0, typed: true });
+    UI.bs = null; toast(`${monShort(e.ym)} extra spends set to ${money(a, 2)}`); return; }
   if (e.sec === 'i') { const i = d.inc.findIndex(x => gk(x.n) === gk(e.n)); if (i >= 0) d.inc[i] = { ...d.inc[i], a, off: false }; else d.inc.push({ n: e.n, a }); }
   else { const s = d.secs.find(x => x.k === e.sec); if (!s) return; const i = s.rows.findIndex(r => gk(r.n) === gk(e.n)); if (i >= 0) { s.rows[i] = { ...s.rows[i], a }; delete s.rows[i].off; } else s.rows.push({ n: e.n, a }); }
   UI.bs = null; UI.hym = e.ym; await put(`bsheet/${e.ym}`, d); toast(`${monShort(e.ym)} saved, see the total at the top`);
