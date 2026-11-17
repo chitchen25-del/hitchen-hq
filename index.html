@@ -5011,12 +5011,15 @@ function vikiDay(d) {
 }
 const vikiPay = d => (d && d.who==='viki') ? vikiDay(d).extra : 0;
 /* claim period: on call and overtime are cut off at the start of the 25th (the 25th itself goes on the next claim), so "October" runs 25 September to 24 October and is paid on November's payday */
-function claimRange(ym) {
-  const c = Number(vk().cutoff) || 0; if (!c || c >= 28) return { from:`${ym}-01`, to:`${ym}-31` };
-  return { from: `${ymOf(addMonths(`${ym}-01`,-1))}-${pad(c)}`, to: `${ym}-${pad(c-1)}` };
+/* some months have an earlier cut-off (e.g. before the early December pay): vk().cutoffs = { 'YYYY-MM': last day that counts } */
+function claimEnd(ym) {
+  const o = Number((vk().cutoffs || {})[ym]); if (o >= 1 && o <= 31) return `${ym}-${pad(o)}`;
+  const c = Number(vk().cutoff) || 0; if (!c || c >= 28) return addDays(`${ymOf(addMonths(`${ym}-01`,1))}-01`, -1);
+  return `${ym}-${pad(c-1)}`;
 }
-const claimYM = date => { const c = Number(vk().cutoff) || 0; return (c && c < 28 && parse(date).getDate() >= c) ? ymOf(addMonths(`${ymOf(date)}-01`,1)) : ymOf(date); };
-const rangeLabel = ym => { const x = claimRange(ym), a = parse(x.from), b = parse(x.to); return x.from.endsWith('-01') ? MONTHS[a.getMonth()] : `${a.getDate()} ${MONTHS[a.getMonth()].slice(0,3)} to ${b.getDate()} ${MONTHS[b.getMonth()].slice(0,3)}`; };
+function claimRange(ym) { return { from: addDays(claimEnd(ymOf(addMonths(`${ym}-01`,-1))), 1), to: claimEnd(ym) }; }
+const claimYM = date => { let ym = ymOf(date); if (date < claimRange(ym).from) ym = ymOf(addMonths(`${ym}-01`,-1)); for (let g = 0; g < 3 && date > claimEnd(ym); g++) ym = ymOf(addMonths(`${ym}-01`,1)); return ym; };
+const rangeLabel = ym => { const x = claimRange(ym), a = parse(x.from), b = parse(x.to); return x.from.endsWith('-01') && x.to === addDays(`${ymOf(addMonths(`${ym}-01`,1))}-01`, -1) ? MONTHS[a.getMonth()] : `${a.getDate()} ${MONTHS[a.getMonth()].slice(0,3)} to ${b.getDate()} ${MONTHS[b.getMonth()].slice(0,3)}`; };
 function vikiMonth(ym) {
   const cr = claimRange(ym);
   const days = daysFor('viki', cr.from, cr.to).sort((a,b) => a.date < b.date ? -1 : 1);
@@ -5133,7 +5136,7 @@ function viewViki() {
     <div class="calhead"><button class="iconbtn" data-act="cal" data-v="-1" aria-label="Previous month">‹</button><b>${monthName(ym)}</b><button class="iconbtn" data-act="cal" data-v="1" aria-label="Next month">›</button></div>
     <div class="cal">${['M','T','W','T','F','S','S'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div>
     <div class="legend"><span class="chip st-shift">Shift</span><span class="chip st-oncall">☾ On call day</span><span class="chip cat"><span class="dot"></span> Call-out</span><span class="chip st-holiday">Holiday</span><span class="chip st-sick">Sick</span></div>
-    <p class="note">${Number(r.cutoff) ? `Each claim runs from the ${r.cutoff}th to the ${r.cutoff-1}th, so on call from the ${r.cutoff}th goes on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to set the shift. Use "Call-outs, times or overtime" in there for the rest.</p></section>`;
+    <p class="note">${(() => { const cy = claimYM(today()), o = (vk().cutoffs || {})[cy]; return o ? `<b>Early cut-off:</b> the ${esc(monthName(cy))} claim runs ${esc(rangeLabel(cy))}, so anything after the ${o}th goes on the next one. ` : ''; })()}${Number(r.cutoff) ? `Each claim runs from the ${r.cutoff}th to the ${r.cutoff-1}th, so on call from the ${r.cutoff}th goes on next month's claim. ` : ''}${Object.keys(CAL.days||{}).length ? 'Dashed days come from your Google Calendar. ' : ''}Tap a day to set the shift. Use "Call-outs, times or overtime" in there for the rest.</p></section>`;
 
   const noRates = !r.salary ? `<div class="banner">Viki's pay rates aren't set yet. <button class="btn small ghost" data-act="vrates">Add them</button></div>` : '';
   return noRates + hero + week + cal + claimTable(ym, m) + earningsPanel(ym) + leavePanel();
@@ -5726,6 +5729,7 @@ function vikiRatesForm() {
     <div class="fields2">${fld('rSb','On call per hour (£)', r.standby, 'number','step="0.01" inputmode="decimal"')}${fld('rPen','Pension (%)', r.pension, 'number','step="0.1" inputmode="decimal"')}</div>
     <div class="fields2">${fld('rS2','2nd on call, weekday (£/h)', r.secondWD, 'number','step="0.001" inputmode="decimal"')}${fld('rS2w','2nd on call, weekend (£/h)', r.secondWE, 'number','step="0.01" inputmode="decimal"')}</div>
     <div class="fields2">${fld('rTax','Tax code number', r.taxCode, 'number','step="1" inputmode="numeric"')}${sel('rArr','On call is paid', r.arrears?'1':'0', [['1','The month after'],['0','The same month']])}</div>
+    ${(() => { const cy = claimYM(today()), o = (r.cutoffs || {})[cy]; return fld('rCutX', `Cut-off for the ${monthName(cy)} claim, if different: last day that counts`, o ?? '', 'number', `step="1" min="1" max="31" inputmode="numeric" placeholder="Usual: the ${(Number(r.cutoff)||25)-1}th"`); })()}
     <div class="fields2">${fld('rCut','Claim month starts on day (0 = calendar month)', r.cutoff ?? 25, 'number','step="1" min="0" max="28" inputmode="numeric"')}${fld('rEnh','Special duty enhancement (£/month)', r.enh ?? 0, 'number','step="0.01" inputmode="decimal"')}</div>
     <div class="fields2">${fld('rBh','Bank holiday uplift (£/h)', r.bhUplift ?? (r.base*0.5).toFixed(2), 'number','step="0.01" inputmode="decimal"')}${fld('rLh','Annual leave (hours a year)', r.leaveHours ?? '', 'number','step="0.5" inputmode="decimal"')}</div>
     ${sel('rLs','Leave year starts', r.leaveStart || 4, MONTHS.map((x,i)=>[i+1,x]))}
@@ -5736,6 +5740,7 @@ function vikiRatesForm() {
     const enh = num(v('rEnh')); out.enh = enh && enh > 0 ? enh : 0; delete out.niFixed; delete out.niPct; delete out.taxRate;
     for (const [k,id] of Object.entries(map)) { const n = num(v(id)); if (n===null || n<0) throw new Error('Each rate needs a number'); out[k] = n; }
     if (Math.abs((num(v('rSal'))||0) - (Number(S.settings.viki?.salary)||0)) >= 1) out.ratesFrom = ymOf(today()); /* new rates already include any rise up to now */
+    { const cy = claimYM(today()), x = num(v('rCutX')), cs = { ...(out.cutoffs || {}) }; if (x && x >= 1 && x <= 31) cs[cy] = Math.round(x); else delete cs[cy]; out.cutoffs = cs; }
     out.arrears = v('rArr')==='1'; const cut = num(v('rCut')); out.cutoff = (cut!==null && cut>=0 && cut<=28) ? Math.round(cut) : 25;
     const bhu = num(v('rBh')); if (bhu!==null) out.bhUplift = bhu; const lh = num(v('rLh')); if (lh) out.leaveHours = lh; else delete out.leaveHours; out.leaveStart = Number(v('rLs')) || 4;
     await put('settings/main', {...S.settings, viki: out});
