@@ -6061,18 +6061,31 @@ function mcMonth(ym) {
   buckets.revolut.spent = Math.max(0, buckets.revolut.spent);
   /* 3: one-off lines nobody recognised: an unplanned payment of exactly that amount is taken to be it */
   fixed.filter(f => f.paid == null && !f.spec).forEach(f => { for (const b of Object.values(buckets)) { if (b.planned > 0) continue; const i = b.rows.findIndex(r => Math.abs(r.out - f.planned) < 0.01); if (i >= 0) { const r = b.rows.splice(i, 1)[0]; b.spent -= r.out; f.paid = r.out; f.on = r.date; f.who = payeeName(r); break; } } });
-  fixed.forEach(f => { f.st = f.paid != null ? (Math.abs(f.paid - f.planned) < 0.01 ? 'ok' : 'diff') : f.due && addDays(f.due, 7) < sTo ? 'missing' : f.due && f.due <= known ? 'assumed' : 'due'; f.left = f.st === 'due' ? f.planned : 0; });
+  /* what the family has ticked by hand: 'done' = paid or not happening, 'due' = still to pay */
+  const marks = ((S.bank || {}).done || {})[ym] || {}, t0 = today(), early = daysBetween(from, t0) <= 14;
+  fixed.forEach(f => { f.key = 'f:' + f.n.toLowerCase(); const mk = marks[f.key];
+    f.st = f.paid != null ? (Math.abs(f.paid - f.planned) < 0.01 ? 'ok' : 'diff') : mk === 'done' ? 'ticked' : mk === 'due' ? 'due' : f.due && addDays(f.due, 7) < sTo ? 'missing' : f.due && f.due <= known ? 'assumed' : f.due || early ? 'due' : 'ask'; /* a one-off with no date that the bank can't see, late in the month, has usually been paid some other way: ask, don't assume */
+    f.left = f.st === 'due' ? f.planned : 0; });
   const r2 = x => Math.round(x * 100) / 100, bl = Object.values(buckets).map(b => ({ ...b, planned: r2(b.planned), spent: r2(b.spent) }));
-  const budgets = bl.filter(b => b.planned > 0).map(b => ({ ...b, left: r2(Math.max(0, b.planned - b.spent)), over: r2(Math.max(0, b.spent - b.planned)) }));
+  /* a budget's unspent part isn't always still to come. Paid-in-one-go things (dinners, clubs, prescriptions) are done once a payment shows;
+     food follows the shops not yet ticked done; everyday ones (fuel and the like) only count the days that are left, at the planned rate */
+  const LUMP = ['dinners', 'swim', 'gym', 'bus', 'mobiles', 'health', 'kids', 'car', 'apple', 'treats'], total = Math.max(1, daysBetween(from, to)), daysLeft = Math.max(0, daysBetween(t0 < from ? from : t0, to));
+  const slots = shopSlots(ym), openFood = slots.filter(s2 => !shopDone(ym, s2.slot) && s2.d >= t0) /* a shop whose day has passed is already in the bank figures, ticked or not */.reduce((a, s2) => a + shopTarget(s2), 0);
+  const budgets = bl.filter(b => b.planned > 0).map(b => { const left = r2(Math.max(0, b.planned - b.spent)), key = 'b:' + b.k, mk = marks[key];
+    let todo = b.k === 'zilch' ? left : LUMP.includes(b.k) ? (b.spent > 0.5 ? 0 : b.planned) : b.k === 'food' && slots.length ? Math.min(left, openFood) : Math.min(left, b.planned * daysLeft / total);
+    let why = b.k === 'zilch' ? 'Zilch repayments not taken yet' : LUMP.includes(b.k) ? 'Nothing paid for this yet' : b.k === 'food' ? 'Food shops still to do' : `${nOf(daysLeft, 'day')} of this budget at the planned rate`;
+    if (mk === 'done') todo = 0; else if (mk === 'due' && left > 0) { todo = left; why = 'You marked this as still to spend'; }
+    return { ...b, key, left, todo: r2(todo), why, ticked: mk === 'done', over: r2(Math.max(0, b.spent - b.planned)) }; });
   const unplanned = bl.filter(b => !b.planned && b.spent > 0.5).sort((a, b) => b.spent - a.spent);
   const pots = r2(all.filter(r => r.cat === 'Between our accounts' && r.to === 'Other Nationwide account').reduce((s, r) => s + r.out - r.in, 0));
-  const stillOut = r2(fixed.reduce((s, f) => s + f.left, 0) + budgets.reduce((s, b) => s + b.left, 0));
+  const todo = [...fixed.filter(f => f.left > 0).map(f => ({ key: f.key, n: f.n, a: f.left, due: f.due, why: f.due ? `Due ${dayShort(f.due)}` : 'Not seen on the bank yet' })), ...budgets.filter(b => b.todo > 0.5).map(b => ({ key: b.key, n: b.n, a: b.todo, why: b.why }))];
+  const stillOut = r2(todo.reduce((s, x) => s + x.a, 0));
   const over = r2(budgets.reduce((s, b) => s + b.over, 0)), notPlanned = r2(unplanned.reduce((s, b) => s + b.spent, 0)), extraBills = r2(fixed.filter(f => f.st === 'diff').reduce((s, f) => s + Math.max(0, f.paid - f.planned), 0));
-  const M = { ym, from, to, sTo, bal, fixed, budgets, unplanned, pots, stillOut, over, notPlanned, extraBills, overspend: r2(over + notPlanned + extraBills), hasBank: all.length > 0 };
+  const M = { ym, from, to, sTo, bal, fixed, budgets, todo, unplanned, pots, stillOut, over, notPlanned, extraBills, overspend: r2(over + notPlanned + extraBills), hasBank: all.length > 0 };
   if (bal) { const t = today(), start = bal.d > t ? t : bal.d, days = Math.max(1, daysBetween(t, to));
-    M.days = days; M.free = r2(bal.bal - stillOut); M.level = M.free < 0 ? 'red' : M.free < MC_TIGHT ? 'amber' : 'green';
+    M.days = days; M.free = r2(bal.bal - stillOut); M.level = M.free < -10 ? 'red' : M.free < MC_TIGHT ? 'amber' : 'green'; /* a few pounds under is tight, not an alarm */
     /* day by day: dated bills on their day, everything else spread evenly */
-    const dated = {}; let spread = budgets.reduce((s, b) => s + b.left, 0);
+    const dated = {}; let spread = budgets.reduce((s, b) => s + b.todo, 0);
     fixed.filter(f => f.left).forEach(f => { if (f.due && f.due > start) dated[f.due] = (dated[f.due] || 0) + f.left; else spread += f.left; });
     const n = Math.max(1, daysBetween(start, to) - 1), each = spread / n; let v = bal.bal; M.series = [{ d: start, v }];
     for (let d = addDays(start, 1); d < to; d = addDays(d, 1)) { v -= each + (dated[d] || 0); M.series.push({ d, v: r2(v) }); if (v < -0.5 && !M.runOut) M.runOut = d; }
@@ -6091,7 +6104,7 @@ function mcTitle(M) {
   if (!M || !M.bal) return { tone: 'night', kicker: 'Money check', title: 'Add your bank balance', sub: 'Type in what the banking app says and this card tells you if the money will last until payday.' };
   const pd = `payday is ${esc(dayShort(M.to))}, ${nOf(M.days, 'day')} away`;
   if (M.level === 'red') return { tone: 'zilch', kicker: '⚠️ Money check: running short', title: `${money(-M.free, 0)} short before payday`, sub: `${M.runOut ? `On this plan the account runs out around ${esc(dayShort(M.runOut))}. ` : ''}${pd[0].toUpperCase() + pd.slice(1)}.` };
-  if (M.level === 'amber') return { tone: 'amber', kicker: 'Money check: tight', title: `Only ${money(M.free, 0)} spare until payday`, sub: `Everything planned is covered, but there's very little left over. ${pd[0].toUpperCase() + pd.slice(1)}.` };
+  if (M.level === 'amber') return { tone: 'amber', kicker: 'Money check: tight', title: M.free < 0 ? 'Nothing spare until payday' : `Only ${money(M.free, 0)} spare until payday`, sub: `${M.free < 0 ? `What's planned comes to ${money(-M.free, 0)} more than what's in the bank.` : `Everything planned is covered, but there's very little left over.`} ${pd[0].toUpperCase() + pd.slice(1)}.` };
   return { tone: 'good', kicker: 'Money check: on track', title: `${money(M.free, 0)} spare until payday`, sub: `That's what's left after everything still planned. ${pd[0].toUpperCase() + pd.slice(1)}.` };
 }
 const mcAge = M => { if (!M || !M.bal) return ''; const n = daysBetween(M.bal.d, today()); return n <= 0 ? 'today' : n === 1 ? 'yesterday' : `${n} days ago`; };
@@ -6162,9 +6175,13 @@ function viewCheck() {
   const T = mcTitle(M), sTo = M.sTo, fresh = sTo ? daysBetween(sTo, today()) : 99;
   const head = `<section class="panel nopad glance mc-home">${headCard({ tone: T.tone, kicker: `${T.kicker} · ${monShort(cur)} pay`, title: T.title, meta: `<span style="font-weight:500">${T.sub}</span>`, body: M.bal ? mcCells(M) : '', actions: hcBtn(M.bal ? 'Update balance' : 'Add balance', 'mcbal') + hcBtn('How this works', 'mchelp') })}</section>`;
   const freshNote = !M.hasBank ? `<div class="banner"><span>No bank payments are loaded for this pay month yet, so the ticks below can't be filled in. The balance check above still works.</span></div>` : fresh > 6 ? `<div class="banner"><span>The bank payments stop at ${esc(dayShort(sTo))}. Anything since then isn't ticked off yet.</span></div>` : '';
+  /* 0: exactly what is being counted as still to go out, each with a tick so the family has the last word */
+  const todoP = `<section class="panel"><h2>Still to go out before payday <span class="sub">${money(M.stillOut, 0)}</span></h2>
+    ${M.todo.length ? `<p class="note">This is everything the app is taking off your balance. If one has already been paid, or isn't happening, tap <b>Done</b> and it stops counting.</p>${M.todo.sort((a, b) => b.a - a.a).map(x => `<div class="mc-row"><span class="grow">${esc(x.n)}<small>${esc(x.why)}</small></span><b>${money(x.a, x.a % 1 ? 2 : 0)}</b><button type="button" class="btn small" data-act="mcdone" data-k="${esc(x.key)}" data-v="done">Done</button></div>`).join('')}` : `<p class="empty">Nothing. Everything planned for this pay month has gone out, so what's in the bank is yours until ${esc(dayShort(M.to))}.</p>`}
+    ${(() => { const tk = [...M.fixed.filter(f => f.st === 'ticked').map(f => [f.key, f.n]), ...M.budgets.filter(b => b.ticked).map(b => [b.key, b.n])]; return tk.length ? `<details class="mc-det"><summary>Ticked as done by you (${tk.length})</summary>${tk.map(([k, n]) => `<div class="mc-row"><span class="grow">${esc(n)}</span><button type="button" class="btn small ghost" data-act="mcdone" data-k="${esc(k)}" data-v="">Undo</button></div>`).join('')}</details>` : ''; })()}</section>`;
   /* 1: what to do, in words */
   const act = [];
-  if (M.bal && M.level === 'red') act.push(['var(--red)', `Find ${money(-M.free, 0)} before ${dayShort(M.to)}`, `Ways to do it: move money in from savings or the holiday pot, put off something in “Still to come” below, or trim the food shops that are left.`]);
+  if (M.bal && M.level === 'red') act.push(['var(--red)', `Find ${money(-M.free, 0)} before ${dayShort(M.to)}`, `Ways to do it: move money in from savings or the holiday pot, or tick off anything in the list above that's already been paid.`]);
   M.budgets.filter(b => b.over > 5).sort((a, b) => b.over - a.over).forEach(b => act.push(['var(--red)', `${b.n}: ${money(b.over, 0)} over`, `${money(b.spent, 0)} spent against ${money(b.planned, 0)} planned.`]));
   M.unplanned.slice(0, 4).forEach(b => act.push(['var(--gold-bar,#F6BF26)', `${b.n}: ${money(b.spent, 0)} that isn't in the plan`, `${nOf(b.rows.length, 'payment')} so far this pay month.`]));
   M.fixed.filter(f => f.st === 'diff' && Math.abs(f.paid - f.planned) > 0.5).forEach(f => act.push(['var(--gold-bar,#F6BF26)', `${f.n} was ${money(f.paid, 2)}, not ${money(f.planned, 2)}`, `${f.paid > f.planned ? `${money(f.paid - f.planned, 2)} more` : `${money(f.planned - f.paid, 2)} less`} than the Spreadsheet says. Change the Spreadsheet if this is the new price.`]));
@@ -6172,17 +6189,17 @@ function viewCheck() {
   /* 2: will it last */
   const fc = M.bal ? `<section class="panel"><h2>Will it last until payday?</h2>${mcForecastChart(M)}<p class="note">${M.runOut ? `If everything still planned goes out, the account dips below £0 around <b>${esc(dayShort(M.runOut))}</b>.` : `Yes. With everything still planned taken off, there's ${money(Math.max(0, M.free), 0)} left the night before payday.`} Bills come off on their dates; food, fuel and the other budgets are spread evenly over the days left.</p></section>` : '';
   /* 3: bills, planned against the bank */
-  const stRow = f => { const ic = { ok: ['✓', 'mc-ok'], diff: ['!', 'mc-diff'], due: ['○', 'mc-due'], assumed: ['✓', 'mc-as'], missing: ['?', 'mc-miss'] }[f.st];
-    const sub = f.st === 'ok' ? `Paid ${shortDate(f.on).replace(/ \d{4}$/, '')}` : f.st === 'diff' ? `Paid ${money(f.paid, 2)} on ${shortDate(f.on).replace(/ \d{4}$/, '')}, planned ${money(f.planned, 2)}` : f.st === 'due' ? (f.due ? `Due ${dayShort(f.due)}` : 'Not gone out yet') : f.st === 'assumed' ? `Due ${dayShort(f.due)}, should have gone out` : `Was due ${dayShort(f.due)} but isn't on the bank. Cancelled, or paid another way?`;
-    return `<div class="mc-row"><span class="mc-ic ${ic[1]}">${ic[0]}</span><span class="grow">${esc(f.n)}<small>${esc(sub)}</small></span><b>${money(f.st === 'diff' ? f.paid : f.planned, 2)}</b></div>`; };
-  const due = M.fixed.filter(f => f.st === 'due').sort((a, b) => (a.due || '9') < (b.due || '9') ? -1 : 1), odd = M.fixed.filter(f => f.st === 'diff' || f.st === 'missing'), paid = M.fixed.filter(f => f.st === 'ok' || f.st === 'assumed');
+  const stRow = f => { const ic = { ok: ['✓', 'mc-ok'], diff: ['!', 'mc-diff'], due: ['○', 'mc-due'], assumed: ['✓', 'mc-as'], ticked: ['✓', 'mc-as'], missing: ['?', 'mc-miss'], ask: ['?', 'mc-diff'] }[f.st];
+    const sub = f.st === 'ok' ? `Paid ${shortDate(f.on).replace(/ \d{4}$/, '')}` : f.st === 'diff' ? `Paid ${money(f.paid, 2)} on ${shortDate(f.on).replace(/ \d{4}$/, '')}, planned ${money(f.planned, 2)}` : f.st === 'due' ? (f.due ? `Due ${dayShort(f.due)}` : 'Not gone out yet') : f.st === 'assumed' ? `Due ${dayShort(f.due)}, should have gone out` : f.st === 'ticked' ? 'You ticked this as done' : f.st === 'ask' ? `Can't see this on the bank, so it isn't being counted. Still to pay?` : `Was due ${dayShort(f.due)} but isn't on the bank. Cancelled, or paid another way?`;
+    return `<div class="mc-row"><span class="mc-ic ${ic[1]}">${ic[0]}</span><span class="grow">${esc(f.n)}<small>${esc(sub)}</small></span><b>${money(f.st === 'diff' ? f.paid : f.planned, 2)}</b>${f.st === 'ask' ? `<button type="button" class="btn small ghost" data-act="mcdone" data-k="${esc(f.key)}" data-v="due">Still to pay</button>` : ''}</div>`; };
+  const due = M.fixed.filter(f => f.st === 'due').sort((a, b) => (a.due || '9') < (b.due || '9') ? -1 : 1), odd = M.fixed.filter(f => f.st === 'diff' || f.st === 'missing' || f.st === 'ask'), paid = M.fixed.filter(f => f.st === 'ok' || f.st === 'assumed' || f.st === 'ticked');
   const bills = `<section class="panel"><h2>Bills and direct debits <span class="sub">${paid.length + odd.filter(f => f.st === 'diff').length} of ${M.fixed.length} paid</span></h2>
     ${odd.length ? `<h4 class="qh">Check these (${odd.length})</h4>${odd.map(stRow).join('')}` : ''}
     <h4 class="qh">Still to come (${due.length}) · ${money(due.reduce((s, f) => s + f.planned, 0), 0)}</h4>${due.map(stRow).join('') || '<p class="empty">Every bill for this pay month has gone out.</p>'}
     <details class="mc-det"><summary>Paid as planned (${paid.length})</summary>${paid.map(stRow).join('')}</details></section>`;
   /* 4: day-to-day budgets */
-  const bRow = b => `<div class="gauge mc-g"><div class="gh"><span class="t">${MC_ICON[b.k] ? MC_ICON[b.k] + ' ' : ''}${esc(b.n)}</span><span class="amt" style="color:${b.over > 5 ? 'var(--red)' : 'inherit'}">${money(b.spent, 0)} <small>of ${money(b.planned, 0)}</small></span></div>${gauge(b.planned ? b.spent / b.planned : 0)}<div class="m">${b.over > 0.5 ? `${money(b.over, 0)} over` : `${money(b.left, 0)} left`}${b.rows.length ? ` · ${nOf(b.rows.length, 'payment')}` : ''}</div></div>`;
-  const budgets = M.budgets.length ? `<section class="panel"><h2>Day-to-day budgets <span class="sub">${money(M.budgets.reduce((s, b) => s + b.left, 0), 0)} left to spend</span></h2><div class="list">${M.budgets.map(bRow).join('')}</div><p class="note">Spent is what the bank shows since ${esc(dayShort(M.from))}. Planned comes from the ${monShort(cur)} Spreadsheet.</p></section>` : '';
+  const bRow = b => `<div class="gauge mc-g"><div class="gh"><span class="t">${MC_ICON[b.k] ? MC_ICON[b.k] + ' ' : ''}${esc(b.n)}</span><span class="amt" style="color:${b.over > 5 ? 'var(--red)' : 'inherit'}">${money(b.spent, 0)} <small>of ${money(b.planned, 0)}</small></span></div>${gauge(b.planned ? b.spent / b.planned : 0)}<div class="m">${b.over > 0.5 ? `${money(b.over, 0)} over` : b.left < 0.5 ? 'spot on' : `${money(b.left, 0)} under`}${b.rows.length ? ` · ${nOf(b.rows.length, 'payment')}` : ''}</div></div>`;
+  const budgets = M.budgets.length ? `<section class="panel"><h2>Day-to-day budgets <span class="sub">planned against spent</span></h2><div class="list">${M.budgets.map(bRow).join('')}</div><p class="note">Spent is what the bank shows since ${esc(dayShort(M.from))}. Planned comes from the ${monShort(cur)} Spreadsheet.</p></section>` : '';
   /* 5: not in the plan */
   const open = UI.mcOpen, unp = M.unplanned.length ? `<section class="panel"><h2>Not in the plan <span class="sub">${money(M.notPlanned, 0)}</span></h2><p class="note">Money that went out with no line for it in the Spreadsheet. This is what quietly runs the month short. Give it a line and the plan becomes honest.</p>
     <div class="list">${M.unplanned.map(b => `<div class="mc-un"><button type="button" class="rowbtn" data-act="mcopen" data-v="${b.k}" aria-expanded="${open === b.k}"><span class="ti-ico mc-emo">${MC_ICON[b.k] || '•'}</span><div class="grow"><div class="t">${esc(b.n)}</div><div class="m">${nOf(b.rows.length, 'payment')} · tap to see them</div></div><div class="amt">${money(b.spent, 0)}</div></button>
@@ -6201,7 +6218,7 @@ function viewCheck() {
   const foot = `<section class="panel"><h2>Keeping this up to date</h2><div class="list">
     <div class="insight"><i style="background:var(--good-bar)"></i><div class="grow"><div class="t">Bank balance</div><div class="m" style="font-size:.88rem">${M.bal ? `${money(M.bal.bal, 2)}, ${M.bal.src === 'typed' ? 'typed in' : 'from the bank payments'} ${esc(mcAge(M))}.` : 'Not added yet.'} Takes ten seconds: open the banking app, then tap Update balance.</div></div><button type="button" class="btn small" data-act="mcbal">Update</button></div>
     <div class="insight"><i style="background:var(--g1)"></i><div class="grow"><div class="t">Bank payments</div><div class="m" style="font-size:.88rem">${sTo ? `Loaded up to ${esc(dayShort(sTo))}.` : 'None loaded yet.'} Claude adds the new ones in the weekly bank check-in, or use Check against the bank with screenshots.</div></div><button type="button" class="btn small ghost" data-act="qbank">Check</button></div></div></section>`;
-  return head + freshNote + actPanel + fc + bills + budgets + unp + zilch + subP + patP + foot;
+  return head + freshNote + todoP + actPanel + fc + bills + budgets + unp + zilch + subP + patP + foot;
 }
 function mcBalForm() {
   const M = mcNow(), B = M && M.bal;
@@ -6216,7 +6233,7 @@ function mcBalForm() {
 function mcHelp() {
   openSheet('How Money check works', `<div class="mc-help">
     <p><b>1. In the bank.</b> The balance you last typed in, or the last one on the bank payments, whichever is newer.</p>
-    <p><b>2. Still to go out.</b> Every line on this month's Spreadsheet that hasn't left the bank yet: bills not paid, plus what's left of each budget such as food and fuel.</p>
+    <p><b>2. Still to go out.</b> Only what's really still to come: bills the bank hasn't taken yet, Zilch repayments not taken, food shops not ticked as done, and the last few days of everyday budgets such as fuel. The page lists every one, and you can tap <b>Done</b> on anything that's already paid or isn't happening.</p>
     <p><b>3. Spare.</b> One minus two. That's the money with no job to do before payday.</p>
     <p><span class="chip ok">Green</span> £${MC_TIGHT} or more spare. <span class="chip soon">Amber</span> less than £${MC_TIGHT} spare. <span class="chip due">Red</span> not enough to cover what's planned, so the account would run out before payday.</p>
     <p><b>The warning.</b> When it's amber or red, both phones get a notification at 7am (turn on “money” notifications in Settings). The Home page shows the same card all the time.</p>
@@ -6237,6 +6254,8 @@ function mcAddForm(k, a) {
     UI.mcOpen = null; window.__toastAfter = n ? `Added to ${nOf(n, 'month')} on the Spreadsheet` : 'No Spreadsheet months to add it to';
   }, { saveLabel: 'Add to the plan' });
 }
+async function mcMark(k, val) { const ym = mcCur(), B = S.bank || {}, done = { ...(B.done || {}) }, m = { ...(done[ym] || {}) }; if (val) m[k] = val; else delete m[k]; Object.keys(done).forEach(x => { if (x < ymAdd(ym, -2)) delete done[x]; }); done[ym] = m;
+  const y = window.scrollY; await put('state/bank', { ...B, done, calc: null }); setTimeout(mcSync, 50); window.scrollTo(0, y); toast(val === 'done' ? 'Ticked off. It no longer counts' : val === 'due' ? 'Counted as still to pay' : 'Put back'); }
 
 /* the payday plan comes from the month in the Spreadsheet when there is one, so the app only ever has one "left over" */
 function viewPlanSheet(ym, f) {
@@ -9652,6 +9671,7 @@ document.addEventListener('click', async e => {
   if (a==='mcbal') return mcBalForm();
   if (a==='mchelp') return mcHelp();
   if (a==='mcopen') { UI.mcOpen = UI.mcOpen === el.dataset.v ? null : el.dataset.v; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+  if (a==='mcdone') return mcMark(el.dataset.k, el.dataset.v);
   if (a==='mcadd') return mcAddForm(el.dataset.v, Number(el.dataset.a) || 0);
   if (a==='mseg') { closeSheet(); UI.money = el.dataset.v === 'sheet' ? 'grid' : el.dataset.v; if (el.dataset.v === 'sheet') UI.gseg = 'sheet'; keepUI(); render(); if (el.dataset.v === 'sheet') gridScrollTo(UI.hym); return; } /* the Spreadsheet is now the Spreadsheet */
   if (a==='cseg') { UI.carSeg = el.dataset.v; keepUI(); return render(); }
