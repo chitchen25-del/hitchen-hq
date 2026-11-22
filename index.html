@@ -2274,7 +2274,7 @@ async function loadAll() {
     if (error) throw error;
     out.push(...data); if (data.length < 1000) break; from += 1000;
   }
-  resetState(); out.forEach(r => applyLocal(r.path, r.data)); offline = false; schedule(); saveCache();
+  resetState(); out.forEach(r => applyLocal(r.path, r.data)); offline = false; mcLoaded = true; schedule(); saveCache();
 }
 let channel = null;
 function subscribe() {
@@ -2282,7 +2282,7 @@ function subscribe() {
   channel = sb.channel('family-docs')
     .on('postgres_changes', { event:'*', schema:'public', table:'docs' }, p => {
       if (p.eventType === 'DELETE') { if (p.old && p.old.path) applyLocal(p.old.path, null); }
-      else if (p.new && p.new.path) applyLocal(p.new.path, p.new.data);
+      else if (p.new && p.new.path) { if (p.new.path === 'state/bank' && mcQuiet(S.bank, p.new.data)) { applyLocal(p.new.path, p.new.data); saveCache(); return; } applyLocal(p.new.path, p.new.data); }
       schedule(); saveCache();
     })
     .subscribe();
@@ -6101,14 +6101,20 @@ function mcMonth(ym) {
   return M;
 }
 const mcNow = () => mcMonth(mcCur());
+let mcLoaded = false;
+/* true when a state/bank update changes nothing the screen shows (only the saved summary), so no redraw is needed */
+const mcStable = o => JSON.stringify(o, (k, v) => v && typeof v === 'object' && !Array.isArray(v) ? Object.keys(v).sort().reduce((r, x) => (r[x] = v[x], r), {}) : v);
+const mcQuiet = (a, b) => { const strip = o => { const { calc, week, ...rest } = o || {}; return rest; }; return !!a && !!b && mcStable(strip(a)) === mcStable(strip(b)); };
 /* keep the summary the morning warning reads up to date (saved only when it changes) */
 function mcSync() {
-  if (!session || offline) return; const M = mcNow(); if (!M || !M.bal) return;
+  if (!session || offline || !mcLoaded) return; /* only once the full, fresh data is in: the saved copy on the phone can be missing things */
+  const M = mcNow(); if (!M || !M.bal) return;
   const calc = { on: today(), asOf: M.bal.d, free: Math.round(M.free), level: M.level, next: M.to, runOut: M.runOut || null, over: Math.round(M.overspend) };
   const W = M.week, wk0 = (S.bank || {}).week || {}, wk = W && wk0.s !== W.start ? { s: W.start, a: Math.round(W.left + W.spent) } : wk0;
   const old = (S.bank || {}).calc || {}; calc.daily = Math.round(M.daily); if (wk === wk0 && Object.keys(calc).every(k => (old[k] ?? null) === (calc[k] ?? null))) return; /* compare field by field: the database hands the fields back in a different order */
   if (mcSync.last && Date.now() - mcSync.last < 60000) return; mcSync.last = Date.now(); /* and never more than once a minute, whatever happens */
-  put('state/bank', { ...(S.bank || {}), calc, week: wk });
+  /* saved quietly: the screen already shows these figures, so there is nothing to redraw */
+  const next = { ...(S.bank || {}), calc, week: wk }; S.bank = next; saveCache(); if (sb) sb.from('docs').upsert({ path: 'state/bank', coll: 'state', data: next }).then(() => {}, () => {});
 }
 function mcTitle(M) {
   if (!M || !M.bal) return { tone: 'night', kicker: 'Money check', title: 'Add your bank balance', sub: 'Type in what the banking app says and this card tells you if the money will last until payday.' };
