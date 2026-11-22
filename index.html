@@ -2079,6 +2079,26 @@ nav.tabs button[data-tab="me"]{--tc:#E2445C;display:none}
 .bd-sq .bd-bud{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:750}
 .ask-msg.me-flash{animation:meFlash 1.2s ease}
 @keyframes meFlash{0%,40%{box-shadow:0 0 0 3px var(--acc)}100%{box-shadow:0 0 0 0 transparent}}
+
+.hcard.t-amber{background:linear-gradient(135deg,#6B4A00,#B07A00 55%,#E0A91C)}
+.mc-home .st-nm{margin-top:6px;font-size:.9rem;line-height:1.35}
+.mc-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.mc-sum>div{background:rgba(255,255,255,.16);border-radius:12px;padding:9px 10px;min-width:0}
+.mc-sum span{display:block;font-size:.74rem;font-weight:650;opacity:.9}
+.mc-sum b{display:block;font-size:1.12rem;font-weight:800;white-space:nowrap}
+.mc-sum small{display:block;font-size:.72rem;opacity:.85;line-height:1.25}
+.mc-sum.plain{margin-top:0}.mc-sum.plain>div{background:var(--sheet-2)}.mc-sum.plain span,.mc-sum.plain small{color:var(--muted);opacity:1}
+.mc-stale{margin:10px 0 0;font-size:.84rem;font-weight:650;background:rgba(0,0,0,.18);border-radius:10px;padding:7px 10px}
+.mc-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--rule);font-size:.94rem}
+.mc-row .grow{min-width:0}.mc-row small{display:block;color:var(--muted);font-size:.8rem}
+.mc-ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.82rem}
+.mc-ok{background:var(--good-soft);color:var(--good)}.mc-as{background:var(--sheet-2);color:var(--muted)}.mc-due{background:var(--sheet-2);color:var(--ink-2)}
+.mc-diff{background:var(--gold-soft);color:var(--gold)}.mc-miss{background:var(--red-soft);color:var(--red)}
+.mc-det{border-top:1px solid var(--rule);padding-top:8px}.mc-det summary{cursor:pointer;font-weight:650;font-size:.9rem;color:var(--ink-2);padding:4px 0}
+.mc-g .m{font-size:.8rem}.mc-emo{background:var(--sheet-2);font-size:1.15rem}
+.mc-un{border-top:1px solid var(--rule)}.mc-un:first-child{border-top:0}.mc-un .rowbtn{border-top:0;width:100%;box-sizing:border-box}
+.mc-sub .chip{margin-left:4px}
+.mc-help p{margin:0 0 10px;font-size:.94rem;line-height:1.45}
 </style>
 </head>
 <body>
@@ -2210,18 +2230,18 @@ function applyLocal(path, data) {
   else if (c === 'bsheet') { if (data) S.bsheet[id] = data; else delete S.bsheet[id]; [ymAdd(id, -1), id].forEach(m => { if (S.bsheet[m]) foodFri(S.bsheet[m], m); }); }
   else if (c === 'xsheet') { S.xsheet = S.xsheet || {}; if (data) S.xsheet[id] = data; else delete S.xsheet[id]; }
   else if (c === 'private') { if (id==='calendar') S.cal = data || {feeds:[]}; }
-  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; if (id==='finance') S.finance = data||null; if (id==='pension') S.pension = data||null; }
+  else if (c === 'state') { if (id==='zilch') S.zilch = data||null; if (id==='checks') S.checks = data||{done:{}}; if (id==='trip') S.trip = data||{done:{}}; if (id==='cover') S.cover = data||{days:{}}; if (id==='hours') S.hours = data||null; if (id==='carlog') S.carlog = data||null; if (id==='leaveplan') S.leaveplan = data||null; if (id==='pricewatch') S.pricewatch = data||null; if (id==='blc') S.blc = data||null; if (id==='olddebts') S.olddebts = data||null; if (id==='yearplan') S.yearplan = data||null; if (id==='finance') S.finance = data||null; if (id==='pension') S.pension = data||null; if (id==='bank') S.bank = data||null; }
   else if (c === 'meals') S.meals = data || {lib:[], plan:{}};
 }
 /* Every record is one row in the `docs` table: path (e.g. "bills/b_rent") plus its JSON data. */
 const CACHE_KEY = 'hhq-cache-v1';
 let cacheTimer;
 function resetState() {
-  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, finance:null, pension:null, xsheet:{}, meals:{lib:[], plan:{}} });
+  Object.assign(S, { media:{}, settings:{}, days:{}, bills:[], goals:[], spend:[], budget:{cats:[]}, car:{}, service:[], fuel:[], checks:{done:{}}, trip:{done:{}}, cal:{feeds:[]}, list:[], debts:[], trips:[], carrem:[], payslips:[], files:[], stmt:{}, stmtMeta:null, bsheet:{}, leave:null, plans:[], pot:{entries:[]}, wish:{lists:{}}, buys:[], shops:{}, kids:{}, cover:{days:{}}, hours:null, carlog:null, leaveplan:null, pricewatch:null, blc:null, olddebts:null, yearplan:null, finance:null, pension:null, bank:null, xsheet:{}, meals:{lib:[], plan:{}} });
 }
 function snapshotRows() {
   const rows = [];
-  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.hours) rows.push(['state/hours', S.hours]); if (S.carlog) rows.push(['state/carlog', S.carlog]); if (S.leaveplan) rows.push(['state/leaveplan', S.leaveplan]); if (S.pricewatch) rows.push(['state/pricewatch', S.pricewatch]); if (S.meals) rows.push(['meals/main', S.meals]);
+  rows.push(['settings/main', S.settings], ['budget/main', S.budget], ['car/main', S.car], ['state/checks', S.checks], ['state/trip', S.trip], ['private/calendar', S.cal]); if (S.stmtMeta) rows.push(['stmt/meta', S.stmtMeta]); if (S.bank) rows.push(['state/bank', S.bank]); Object.entries(S.stmt).forEach(([k,d]) => rows.push([`stmt/${k}`, d])); Object.entries(S.bsheet).forEach(([k,d]) => rows.push([`bsheet/${k}`, d])); if (S.leave) rows.push(['leave/main', S.leave]); if (S.pot && (S.pot.entries||[]).length) rows.push(['pot/main', S.pot]); if (S.wish && Object.keys(S.wish.lists||{}).length) rows.push(['wish/main', S.wish]); Object.entries(S.shops||{}).forEach(([k,d]) => rows.push([`shops/${k}`, d])); Object.entries(S.kids||{}).forEach(([k,d]) => rows.push([`kids/${k}`, d])); if (S.cover) rows.push(['state/cover', S.cover]); if (S.hours) rows.push(['state/hours', S.hours]); if (S.carlog) rows.push(['state/carlog', S.carlog]); if (S.leaveplan) rows.push(['state/leaveplan', S.leaveplan]); if (S.pricewatch) rows.push(['state/pricewatch', S.pricewatch]); if (S.meals) rows.push(['meals/main', S.meals]);
   Object.entries(S.days).forEach(([id,d]) => rows.push([`days/${id}`, d]));
   Object.entries(S.media || {}).forEach(([id,d]) => rows.push([`media/${id}`, d]));
   Object.keys(COLL).forEach(c => S[c].forEach(({id, ...d}) => rows.push([`${c}/${id}`, d])));
@@ -2973,7 +2993,7 @@ function ypCheckSheet(ym) {
 function ypCheckPick(ym) {
   const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
   inp.onchange = async () => { const fs = [...(inp.files || [])].slice(0, 6); if (!fs.length) return; YPC.busy = true; const o = $('#ypcOut'); if (o) o.innerHTML = ypCheckBody(ym);
-    try { const imgs = []; for (const f of fs) imgs.push((await askShrink(f)).b64); BANK.res = await askCall({ action: 'bank', images: imgs }); BANK.at = Date.now(); }
+    try { const imgs = []; for (const f of fs) imgs.push((await askShrink(f)).b64); BANK.res = await askCall({ action: 'bank', images: imgs }); BANK.at = Date.now(); const nb = BANK.res && (BANK.res.available ?? BANK.res.balance); if (nb != null && isFinite(Number(nb))) put('state/bank', { ...(S.bank || {}), bal: Math.round(Number(nb) * 100) / 100, d: today(), by: me(), calc: null }); }
     catch (e) { toast(/nokey/.test(e.message) ? 'Ask needs its Claude key first: open Ask to add it' : `Couldn't read them: ${e.message}`); }
     YPC.busy = false; const o2 = $('#ypcOut'); if (o2) o2.innerHTML = ypCheckBody(ym); else ypCheckSheet(ym); };
   inp.click();
@@ -3360,7 +3380,7 @@ function bankForm() {
 function bankPick() {
   const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
   inp.onchange = async () => { const fs = [...(inp.files || [])].slice(0, 6); if (!fs.length) return; BANK.busy = true; const o = $('#bkOut'); if (o) o.innerHTML = bankBody();
-    try { const imgs = []; for (const f of fs) imgs.push((await askShrink(f)).b64); BANK.res = await askCall({ action: 'bank', images: imgs }); BANK.at = Date.now(); }
+    try { const imgs = []; for (const f of fs) imgs.push((await askShrink(f)).b64); BANK.res = await askCall({ action: 'bank', images: imgs }); BANK.at = Date.now(); const nb = BANK.res && (BANK.res.available ?? BANK.res.balance); if (nb != null && isFinite(Number(nb))) put('state/bank', { ...(S.bank || {}), bal: Math.round(Number(nb) * 100) / 100, d: today(), by: me(), calc: null }); }
     catch (e) { toast(/nokey/.test(e.message) ? 'Ask needs its Claude key first: open Ask to add it' : `Couldn't read them: ${e.message}`); }
     BANK.busy = false; const o2 = $('#bkOut'); if (o2) o2.innerHTML = bankBody(); else bankForm(); };
   inp.click();
@@ -3498,7 +3518,7 @@ function viewHome() {
   setTimeout(runCountUp, 30); updateBadge();
   /* calm by default: today, payday and the week first; other panels only when there's something in them */
   /* the home page is a set of shortcuts into every part of the app */
-  return hero + week + glanceCard(true) + homeShortcuts();
+  return hero + mcHomeCard() + week + glanceCard(true) + homeShortcuts();
 }
 
 /* ----- home shortcuts: one tap into every part of the app ----- */
@@ -3509,7 +3529,7 @@ function homeShortcuts() {
   const m = (seg, ic, l, sub) => t(ic, l, sub, `data-act="tab" data-v="money" data-seg="${seg}"`);
   const kids = kidsDob();
   const groups = [
-    ['Money', [m('grid', '📊', 'Spreadsheet', 'Every month side by side'), m('gcal', '📅', 'Calendar', 'What goes out when'), m('overview', '🛒', 'Food shops and spends', 'Add a purchase, shop done'), m('bills', '💷', 'Direct debits', 'Bills and due dates'), m('owed', '🔁', 'Zilch', 'What we owe and when'),
+    ['Money', [m('check', '🚦', 'Money check', 'Will it last until payday?'), m('grid', '📊', 'Spreadsheet', 'Every month side by side'), m('gcal', '📅', 'Calendar', 'What goes out when'), m('overview', '🛒', 'Food shops and spends', 'Add a purchase, shop done'), m('bills', '💷', 'Direct debits', 'Bills and due dates'), m('owed', '🔁', 'Zilch', 'What we owe and when'),
       m('planner', '🗓️', 'Planner', 'Trips and Christmas money'), m('meals', '🍽️', 'Dinners and shopping', 'Meal plan and shopping list'), m('goals', '🎯', 'Savings goals', '')]],
     ['Treats', PL_KINDS.map(([k, l]) => t(TR_ICON[k] || '✦', l, '', `data-act="opentrip" data-kind="${k}"`))],
     ['Car', [t('🚙', 'Car details', 'Tax, insurance, finance', 'data-act="tab" data-v="car" data-seg="details"'), t('🔧', 'Service log', '', 'data-act="tab" data-v="car" data-seg="service"'),
@@ -5786,6 +5806,7 @@ function planFor(ym) {
 }
 
 const MONEY_GROUPS = [
+  { k:'check', l:'Money check', pages:[['check','Money check']] },
   { k:'grid', l:'Spreadsheet', pages:[['grid','Spreadsheet'],['yplan','Year plan'],['past','Past months'],['gcal','Calendar']] },
   { k:'zilch', l:'Zilch', pages:[['owed','Zilch']] },
   { k:'finance', l:'Finance', pages:[['finance','Finance']] },
@@ -5817,9 +5838,9 @@ function viewMoney() {
   const grp = moneyGroupOf(UI.money);
   const seg = `<div class="seg" role="group" aria-label="Money section">${MONEY_GROUPS.map(g => `<button data-act="mgrp" data-v="${g.k}" aria-pressed="${grp.k===g.k}">${g.l}</button>`).join('')}</div>`
     + (grp.pages.length > 1 ? `<div class="subtabs money${grp.k === 'more' ? ' wrap' : ''}" role="tablist" aria-label="${esc(grp.l)}">${grp.pages.map(([k,l]) => `<button role="tab" data-act="mseg" data-v="${k}" aria-selected="${UI.money===k}">${l}</button>`).join('')}</div>` : '');
-  const body0 = {finance:viewFinance, grid:gridSheet, yplan:viewYearPlan, basic:viewXSheet, past:viewPast, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money](), md = MONEY_DOCS[UI.money], body = body0 + (md ? docsPanel(md[0], md[2], md[1]) : '');
+  const body0 = {check:viewCheck, finance:viewFinance, grid:gridSheet, yplan:viewYearPlan, basic:viewXSheet, past:viewPast, gcal:gridCalendar, overview:viewMoneyOverview, year:viewYear, plan:viewPlan, sheet:viewSheet, spending:viewSpending, bills:viewBills, budget:viewBudget, goals:viewGoals, owed:viewOwed, old:viewOld, save:viewSave, meals:viewMeals, planner:viewPlanner2}[UI.money](), md = MONEY_DOCS[UI.money], body = body0 + (md ? docsPanel(md[0], md[2], md[1]) : '');
   const hym = UI.money === 'grid' && UI.hym && S.bsheet[UI.hym] ? UI.hym : S.bsheet[payCur()] ? payCur() : ym; /* the pay we're living on: 1 Nov is still the October pay */ /* on the spreadsheet the header shows the month last tapped or edited */
-  if (UI.money === 'yplan' || UI.money === 'basic' || UI.money === 'past' || UI.money === 'finance') return seg + body; /* the year plan has its own header */
+  if (UI.money === 'check' || UI.money === 'yplan' || UI.money === 'basic' || UI.money === 'past' || UI.money === 'finance') return seg + body; /* the year plan has its own header */
   return (S.bsheet[hym] ? sheetHero(hym) : hero) + seg + body;
 }
 function sheetHero(ym) {
@@ -5950,6 +5971,271 @@ function viewSpending() {
     ${subList.length ? `<section class="panel"><h2>Subscriptions <span class="sub">${money(subList.reduce((s,x)=>s+x[1],0),0)} a month</span></h2><div class="list">${subList.slice(0,12).map(([k,v]) => `<div class="row"><div class="grow">${esc(k)}</div><div class="amt">${money(v,2)}</div></div>`).join('')}</div></section>` : ''}
     ${regular.length ? `<section class="panel"><h2>Regular payments out</h2><div class="list">${regular.map(([p,v]) => `<div class="row"><div class="grow">${esc(p)}</div><div class="amt">${money(v,0)}</div></div>`).join('')}</div><p class="note">Average a month, paid in at least four of the six full months.</p></section>` : ''}
     ${budgetPanel}${txList}`;
+}
+
+/* ----- Money check: the bank against the plan, in plain words -----
+   For the pay month we're living on it lines the Spreadsheet up against the bank payments (stmt docs):
+   which bills have gone out, how each day-to-day budget is doing, what was spent that isn't in the plan,
+   and whether the balance will last until payday. state/bank holds the latest balance and the summary
+   the morning notification uses. */
+const MC_TIGHT = 100; /* less than this spare until payday counts as tight */
+/* fixed lines: how a Spreadsheet line is recognised in the bank (by who was paid, or by category) */
+const MC_FIXED = [
+  [/bmw|range rover|\bjoy\b/i, r => r.cat === 'Family support'],
+  [/sarah|\bbike\b/i, r => r.cat === 'Payments to people'],
+  [/^rent\b/i, r => r.cat === 'Rent'],
+  [/discovery/i, r => /discovery/i.test(r.m)],
+  [/zilch mem/i, r => /^membership|zilch membership/i.test(r.m)],
+  [/^ring\b/i, r => /^ring\b/i.test(r.m)],
+  [/^rac\b/i, r => /^rac\b/i.test(r.m)],
+  [/insur|bandit|tower/i, r => r.cat === 'Insurance and breakdown' && !/^rac\b/i.test(r.m)],
+  [/manx utilities|\belec/i, r => /manx utilities/i.test(r.m)],
+  [/^sky\b/i, r => /^sky tv/i.test(r.m)],
+  [/team rh/i, r => /rh fitness/i.test(r.m)],
+  [/disney/i, r => /disney/i.test(r.m)],
+  [/manx telecom/i, r => /manx ?telecom ?trading/i.test(r.m)],
+  [/\bevf\b|\boil\b/i, r => /^ellan vannin( fuels)?$|\bevf\b/i.test(r.m.trim())],
+  [/spotify/i, r => /spotify/i.test(r.m)],
+  [/unison/i, r => /unison/i.test(r.m)],
+  [/tv licen/i, r => /tv licence/i.test(r.m)],
+  [/amazon prime/i, r => /amazon prime/i.test(r.m)],
+  [/tesco del/i, r => /tesco subscription/i.test(r.m)],
+  [/microsoft/i, r => /microsoft/i.test(r.m)],
+  [/supabase/i, r => /supabase/i.test(r.m)],
+  [/hcpc/i, r => /hcpc/i.test(r.m)],
+];
+/* budgets: lines that are an amount to spend over the month. [key, plain name, which Spreadsheet lines, which bank payments] */
+const MC_BUDGET = [
+  ['zilch', 'Zilch repayments', /zilch (advance|repay)/i, r => r.cat === 'Zilch repayments' || r.cat === 'Zilch fees' || (r.z && r.out >= 200)], /* a big purchase's first payment goes to Zilch too */
+  ['dinners', 'School dinners', /school dinner/i, r => /parentpay/i.test(r.m)],
+  ['swim', 'Swimming lessons', /swim/i, r => /iomgovtreas|national sports/i.test(r.m)],
+  ['gym', 'Gymnastics', /gymnast/i, r => /gymna/i.test(r.m)],
+  ['bus', 'Bus pass', /bus pass/i, r => /public transport/i.test(r.m)],
+  ['mobiles', 'Mobiles', /^mobiles?\b/i, r => /^manx telecom$/i.test(r.m.trim())],
+  ['revolut', 'Revolut and pocket money', /pocket money|revolut/i, r => r.cat === 'Between our accounts' && r.to === 'Revolut'],
+  ['apple', 'Apple', /apple/i, r => /^apple/i.test(r.m)],
+  ['food', 'Food shops', /^food\b|food shop|big monthly|grocer/i, r => r.cat === 'Groceries'],
+  ['fuel', 'Fuel', /\bfuel\b|petrol|diesel/i, r => r.cat === 'Fuel'],
+  ['health', 'Prescriptions and pharmacy', /monjaro|mounjaro|prescri|pharmac/i, r => r.cat === 'Health and pharmacy'],
+  ['car', 'Car repairs and tax', /car fix|car tax|car repair|\bmot\b|tyres?/i, r => r.cat === 'Car'],
+  ['eatout', 'Eating out and takeaways', /eating out|takeaway|meals? out/i, r => r.cat === 'Eating out and takeaways' || r.cat === 'Food at work'],
+  ['subs', 'Subscriptions and apps', /subscriptions? and apps|^subscriptions?$|^apps?$/i, r => r.cat === 'Subscriptions'],
+  ['kids', 'Kids and school', /residential|school (photo|trip)|^kids\b/i, r => r.cat === 'Kids and school'],
+  ['treats', 'Trips and days out', /days? out|^trips?\b/i, r => r.cat === 'Travel and days out'],
+  ['spends', 'Shopping and one-offs', /shopping and one-?offs|^one-?offs?( pot)?$|odds and ends/i, r => r.cat !== 'Between our accounts'],
+];
+const MC_ICON = { zilch: '🔁', dinners: '🍎', swim: '🏊', gym: '🤸', bus: '🚌', mobiles: '📱', revolut: '💳', apple: '', food: '🛒', fuel: '⛽', health: '💊', car: '🔧', eatout: '🍔', subs: '📺', kids: '🎒', treats: '🎡', spends: '🛍️' };
+const mcStart = ym => { const a = payday(ym), b = vikiPayday(ym); return a < b ? a : b; }; /* the first pay to land that month */
+function mcCur() { const t = today(); let ym = ymOf(t); if (mcStart(ym) > t) ym = ymAdd(ym, -1); return ym; }
+function mcRows(from, to) { /* bank payments from one date up to (not including) another */
+  const out = []; for (let ym = ymOf(from); ym <= ymOf(to); ym = ymAdd(ym, 1)) stmtRows(ym).forEach(r => { if (r.date >= from && r.date < to) out.push(r); });
+  return out;
+}
+const mcStmtTo = () => (S.stmtMeta && S.stmtMeta.to) || '';
+function mcBalance() { /* the newest balance we know: typed in, or the last one on the bank payments */
+  const to = mcStmtTo(), doc = to ? S.stmt[ymOf(to)] : null, b = doc && (doc.b || []).length ? doc.b[doc.b.length - 1] : null;
+  const st = b ? { bal: Number(b[1]) || 0, d: `${ymOf(to)}-${pad(b[0])}`, src: 'stmt' } : null, B = S.bank;
+  const man = B && B.bal != null && B.d ? { bal: Number(B.bal) || 0, d: B.d, src: 'typed', by: B.by || '' } : null;
+  if (man && (!st || man.d >= st.d || man.d >= today())) return man; return st || man;
+}
+const mcDue = (x, from, to) => { const m = /^(\d{1,2})(st|nd|rd|th)?$/i.exec(String(x.d || '').trim()); if (!m) return null; const day = +m[1]; for (let d = from; d < to; d = addDays(d, 1)) if (parse(d).getDate() === day) return d; return null; };
+function mcMonth(ym) {
+  const doc = S.bsheet[ym]; if (!doc) return null;
+  const from = mcStart(ym), to = mcStart(ymAdd(ym, 1)), sTo = mcStmtTo(), bal = ym === mcCur() ? mcBalance() : null, known = bal && bal.d > sTo ? bal.d : sTo;
+  const all = mcRows(from, to), pool = all.filter(r => r.out > 0).map(r => ({ ...r, used: false }));
+  const fixed = [], buckets = {}; MC_BUDGET.forEach(([k, n]) => buckets[k] = { k, n, planned: 0, spent: 0, lines: [], rows: [] });
+  const secs = (doc.secs || []).filter(s => s.kind === 'base' || s.kind === 'extra');
+  secs.forEach(s => s.rows.filter(bsOn).forEach(x => { const a = bsAmt(x), n = String(x.n || '').trim(); if (!(a > 0)) return;
+    const bk = MC_BUDGET.find(([, , re]) => re.test(n));
+    if (bk) { const b = buckets[bk[0]]; b.planned += a; b.lines.push(n); } else fixed.push({ n, planned: a, due: mcDue(x, from, to), sec: s.k }); }));
+  const zl = zlMonth(ym).total; if (zl > 0.5) { buckets.zilch.planned += zl; buckets.zilch.lines.push('Zilch'); }
+  const pl = plannerMonth(ym).total; if (pl > 0.5) { buckets.treats.planned += pl; buckets.treats.lines.push('Planner'); }
+  /* 1: bills and one-off lines we know how to recognise, closest amount first */
+  const take = (f, cands) => { if (!cands.length) return false; const r = cands.sort((a, b) => Math.abs(a.out - f.planned) - Math.abs(b.out - f.planned))[0]; r.used = true; f.paid = r.out; f.on = r.date; f.who = payeeName(r); return true; };
+  fixed.forEach(f => { const spec = MC_FIXED.find(([re]) => re.test(f.n)); f.spec = !!spec;
+    if (spec) take(f, pool.filter(r => !r.used && spec[1](r)));
+    else { const words = f.n.toLowerCase().split(/[^a-z0-9+]+/).filter(w => w.length >= 4); take(f, pool.filter(r => !r.used && words.some(w => String(r.m).toLowerCase().includes(w)))); } });
+  /* 2: everything else falls into the first budget it fits */
+  pool.filter(r => !r.used).forEach(r => { const bk = MC_BUDGET.find(([, , , test]) => test(r)); if (!bk) return; const b = buckets[bk[0]]; r.used = true; r.bk = bk[0]; b.spent += r.out; b.rows.push(r); });
+  all.filter(r => r.in > 0 && r.cat === 'Between our accounts' && r.to === 'Revolut').forEach(r => { buckets.revolut.spent -= r.in; }); /* money sent back from Revolut */
+  buckets.revolut.spent = Math.max(0, buckets.revolut.spent);
+  /* 3: one-off lines nobody recognised: an unplanned payment of exactly that amount is taken to be it */
+  fixed.filter(f => f.paid == null && !f.spec).forEach(f => { for (const b of Object.values(buckets)) { if (b.planned > 0) continue; const i = b.rows.findIndex(r => Math.abs(r.out - f.planned) < 0.01); if (i >= 0) { const r = b.rows.splice(i, 1)[0]; b.spent -= r.out; f.paid = r.out; f.on = r.date; f.who = payeeName(r); break; } } });
+  fixed.forEach(f => { f.st = f.paid != null ? (Math.abs(f.paid - f.planned) < 0.01 ? 'ok' : 'diff') : f.due && addDays(f.due, 7) < sTo ? 'missing' : f.due && f.due <= known ? 'assumed' : 'due'; f.left = f.st === 'due' ? f.planned : 0; });
+  const r2 = x => Math.round(x * 100) / 100, bl = Object.values(buckets).map(b => ({ ...b, planned: r2(b.planned), spent: r2(b.spent) }));
+  const budgets = bl.filter(b => b.planned > 0).map(b => ({ ...b, left: r2(Math.max(0, b.planned - b.spent)), over: r2(Math.max(0, b.spent - b.planned)) }));
+  const unplanned = bl.filter(b => !b.planned && b.spent > 0.5).sort((a, b) => b.spent - a.spent);
+  const pots = r2(all.filter(r => r.cat === 'Between our accounts' && r.to === 'Other Nationwide account').reduce((s, r) => s + r.out - r.in, 0));
+  const stillOut = r2(fixed.reduce((s, f) => s + f.left, 0) + budgets.reduce((s, b) => s + b.left, 0));
+  const over = r2(budgets.reduce((s, b) => s + b.over, 0)), notPlanned = r2(unplanned.reduce((s, b) => s + b.spent, 0)), extraBills = r2(fixed.filter(f => f.st === 'diff').reduce((s, f) => s + Math.max(0, f.paid - f.planned), 0));
+  const M = { ym, from, to, sTo, bal, fixed, budgets, unplanned, pots, stillOut, over, notPlanned, extraBills, overspend: r2(over + notPlanned + extraBills), hasBank: all.length > 0 };
+  if (bal) { const t = today(), start = bal.d > t ? t : bal.d, days = Math.max(1, daysBetween(t, to));
+    M.days = days; M.free = r2(bal.bal - stillOut); M.level = M.free < 0 ? 'red' : M.free < MC_TIGHT ? 'amber' : 'green';
+    /* day by day: dated bills on their day, everything else spread evenly */
+    const dated = {}; let spread = budgets.reduce((s, b) => s + b.left, 0);
+    fixed.filter(f => f.left).forEach(f => { if (f.due && f.due > start) dated[f.due] = (dated[f.due] || 0) + f.left; else spread += f.left; });
+    const n = Math.max(1, daysBetween(start, to) - 1), each = spread / n; let v = bal.bal; M.series = [{ d: start, v }];
+    for (let d = addDays(start, 1); d < to; d = addDays(d, 1)) { v -= each + (dated[d] || 0); M.series.push({ d, v: r2(v) }); if (v < -0.5 && !M.runOut) M.runOut = d; }
+  }
+  return M;
+}
+const mcNow = () => mcMonth(mcCur());
+/* keep the summary the morning warning reads up to date (saved only when it changes) */
+function mcSync() {
+  if (!session || offline) return; const M = mcNow(); if (!M || !M.bal) return;
+  const calc = { on: today(), asOf: M.bal.d, free: Math.round(M.free), level: M.level, next: M.to, runOut: M.runOut || null, over: Math.round(M.overspend) };
+  if (JSON.stringify((S.bank || {}).calc || null) === JSON.stringify(calc)) return;
+  put('state/bank', { ...(S.bank || {}), calc });
+}
+function mcTitle(M) {
+  if (!M || !M.bal) return { tone: 'night', kicker: 'Money check', title: 'Add your bank balance', sub: 'Type in what the banking app says and this card tells you if the money will last until payday.' };
+  const pd = `payday is ${esc(dayShort(M.to))}, ${nOf(M.days, 'day')} away`;
+  if (M.level === 'red') return { tone: 'zilch', kicker: '⚠️ Money check: running short', title: `${money(-M.free, 0)} short before payday`, sub: `${M.runOut ? `On this plan the account runs out around ${esc(dayShort(M.runOut))}. ` : ''}${pd[0].toUpperCase() + pd.slice(1)}.` };
+  if (M.level === 'amber') return { tone: 'amber', kicker: 'Money check: tight', title: `Only ${money(M.free, 0)} spare until payday`, sub: `Everything planned is covered, but there's very little left over. ${pd[0].toUpperCase() + pd.slice(1)}.` };
+  return { tone: 'good', kicker: 'Money check: on track', title: `${money(M.free, 0)} spare until payday`, sub: `That's what's left after everything still planned. ${pd[0].toUpperCase() + pd.slice(1)}.` };
+}
+const mcAge = M => { if (!M || !M.bal) return ''; const n = daysBetween(M.bal.d, today()); return n <= 0 ? 'today' : n === 1 ? 'yesterday' : `${n} days ago`; };
+function mcCells(M) {
+  return `<div class="mc-sum"><div><span>In the bank</span><b>${money(M.bal.bal, 2)}</b><small>${M.bal.src === 'typed' ? 'typed in' : 'from the bank'} ${esc(mcAge(M))}</small></div>
+    <div><span>Still to go out</span><b>${money(M.stillOut, 0)}</b><small>before ${esc(dayShort(M.to))}</small></div>
+    <div><span>${M.free >= 0 ? 'Spare' : 'Short by'}</span><b>${money(Math.abs(M.free), 0)}</b><small>${M.free > 0 ? `about ${money(M.free / M.days, 0)} a day` : M.free < 0 ? 'needs finding' : 'nothing spare'}</small></div></div>`;
+}
+/* the card on Home: one line of truth, tap for the detail */
+function mcHomeCard() {
+  setTimeout(mcSync, 0);
+  const cur = mcCur(); if (!S.bsheet[cur]) return '';
+  const M = mcNow(), T = mcTitle(M), stale = M && M.bal && daysBetween(M.bal.d, today()) >= 4;
+  return `<section class="panel nopad glance mc-home">${headCard({ tone: T.tone, kicker: T.kicker, title: T.title, meta: `<span style="font-weight:500">${T.sub}</span>`,
+    body: M && M.bal ? mcCells(M) + (stale ? `<p class="mc-stale">The balance is ${esc(mcAge(M))} old. Update it so this stays right.</p>` : '') + (M.overspend > 20 ? `<p class="mc-stale">${money(M.overspend, 0)} spent outside the plan so far this pay month.</p>` : '') : '',
+    actions: hcBtn(M && M.bal ? 'Update balance' : 'Add balance', 'mcbal') + hcBtn('See the detail', 'tab', 'data-v="money" data-seg="check"') })}</section>`;
+}
+function mcForecastChart(M) {
+  const P = M.series || []; if (P.length < 2) return '';
+  const W = 320, H = 150, padT = 16, padB = 22, lo = Math.min(0, ...P.map(p => p.v)), hi = Math.max(1, ...P.map(p => p.v)), n = P.length - 1;
+  const X = i => 4 + (W - 8) * i / n, Y = v => padT + (H - padT - padB) * (hi - v) / (hi - lo || 1), last = P[n];
+  const cut = M.runOut ? P.findIndex(p => p.d === M.runOut) : -1, pts = a => a.map(([i, p]) => `${X(i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' '), ix = P.map((p, i) => [i, p]);
+  const good = cut < 0 ? ix : ix.slice(0, cut + 1), bad = cut < 0 ? [] : ix.slice(cut);
+  const ticks = [0, Math.round(n / 2), n].filter((x, i, a) => a.indexOf(x) === i);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="The bank balance day by day until payday">
+    <line x1="0" y1="${Y(0)}" x2="${W}" y2="${Y(0)}" class="axis"/><text x="${W}" y="${Y(0) - 4}" class="lbl" text-anchor="end">£0</text>
+    <polyline points="${pts(good)}" class="line"/>${bad.length ? `<polyline points="${pts(bad)}" class="line over"/>` : ''}
+    <circle cx="${X(0)}" cy="${Y(P[0].v)}" r="4" class="pt"/><text x="${X(0) + 7}" y="${Math.max(11, Y(P[0].v) - 6)}" class="val">${money(P[0].v, 0)} now</text>
+    <circle cx="${X(n)}" cy="${Y(last.v)}" r="4" class="pt${last.v < 0 ? ' over' : ''}"/><text x="${X(n) - 6}" y="${last.v < 0 ? Y(last.v) - 7 : Math.max(11, Y(last.v) - 7)}" class="val" text-anchor="end">${last.v < 0 ? '−' : ''}${money(Math.abs(last.v), 0)}</text>
+    ${cut > 0 ? `<line x1="${X(cut)}" y1="${padT}" x2="${X(cut)}" y2="${H - padB}" class="pace"/>` : ''}
+    ${ticks.map(i => `<text x="${X(i)}" y="${H - 6}" class="lbl" text-anchor="${i === 0 ? 'start' : i === n ? 'end' : 'middle'}">${i === n ? 'Payday eve' : esc(dayShort(P[i].d).replace(/^\w+ /, ''))}</text>`).join('')}</svg>`;
+}
+/* how the balance has run down after each payday, this month against the ones before */
+function mcCurve(ym) {
+  const from = mcStart(ym), to = mcStart(ymAdd(ym, 1)), out = [];
+  for (let m = ymOf(from); m <= ymOf(to); m = ymAdd(m, 1)) ((S.stmt[m] || {}).b || []).forEach(([day, v]) => { const d = `${m}-${pad(day)}`; if (d >= from && d < to) out.push({ i: daysBetween(from, d), v: Number(v) || 0 }); });
+  return out;
+}
+function mcPatternChart(months) {
+  const C = months.map(ym => ({ ym, pts: mcCurve(ym) })).filter(c => c.pts.length >= 4); if (!C.length) return '';
+  const W = 320, H = 160, padT = 12, padB = 22, hi = Math.max(1, ...C.flatMap(c => c.pts.map(p => p.v))), X = i => 4 + (W - 8) * Math.min(i, 31) / 31, Y = v => padT + (H - padT - padB) * (1 - Math.max(0, v) / hi);
+  const cols = ['var(--rule-2)', 'var(--g4)', 'var(--g1)', 'var(--red)'], use = cols.slice(-C.length);
+  const lines = C.map((c, k) => `<polyline points="${c.pts.map(p => `${X(p.i).toFixed(1)},${Y(p.v).toFixed(1)}`).join(' ')}" fill="none" stroke="${use[k]}" stroke-width="${k === C.length - 1 ? 2.6 : 1.6}" stroke-linejoin="round" stroke-linecap="round"/>`).join('');
+  return `<div class="cleg">${C.map((c, k) => `<span><i style="background:${use[k]}"></i>${monShort(c.ym)} pay</span>`).join('')}</div>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="The bank balance in the days after each payday"><line x1="0" y1="${Y(0)}" x2="${W}" y2="${Y(0)}" class="axis"/>
+    ${[7, 14, 21, 28].map(i => `<line x1="${X(i)}" y1="${padT}" x2="${X(i)}" y2="${Y(0)}" stroke="var(--rule)" stroke-width="1"/><text x="${X(i)}" y="${H - 6}" class="lbl" text-anchor="middle">Week ${i / 7}</text>`).join('')}
+    <text x="4" y="${H - 6}" class="lbl">Payday</text><text x="4" y="${padT - 2}" class="lbl">${money(hi, 0)}</text>${lines}</svg>`;
+}
+function mcWeekBars(M) { /* what went out each week since payday, bills apart from everything else */
+  const rows = mcRows(M.from, M.to).filter(r => r.out > 0 && r.cat !== 'Between our accounts'), wk = {}; if (!rows.length) return '';
+  const bill = r => ['Rent', 'Phone and broadband', 'Utilities and heating', 'Insurance and breakdown', 'Family support', 'Payments to people', 'Zilch repayments'].includes(r.cat);
+  rows.forEach(r => { const w = Math.floor(daysBetween(M.from, r.date) / 7); wk[w] = wk[w] || [0, 0]; wk[w][bill(r) ? 0 : 1] += r.out; });
+  const max = Math.max(...Object.keys(wk).map(Number));
+  return `<div class="cleg"><span><i style="background:var(--g4)"></i>Bills, rent and Zilch</span><span><i style="background:var(--g2)"></i>Everything else</span></div>` + barChart(Array.from({ length: max + 1 }, (_, w) => ({ label: `Week ${w + 1}`, parts: [{ v: (wk[w] || [0, 0])[0], c: 'var(--g4)', name: 'Bills, rent and Zilch' }, { v: (wk[w] || [0, 0])[1], c: 'var(--g2)', name: 'Everything else' }] })), { label: 'Money out each week since payday' });
+}
+function mcSubs() { /* every subscription seen in the last three months: usual amount, last paid, anything odd */
+  const to = mcStmtTo(); if (!to) return []; const from = addDays(to, -92), by = {};
+  mcRows(from, addDays(to, 1)).filter(r => r.out > 0 && (r.cat === 'Subscriptions' || /^sky tv|membership$/i.test(r.m.trim()))).forEach(r => { const k = /membership$/i.test(r.m.trim()) ? 'Zilch membership' : brand(r.m); (by[k] = by[k] || []).push(r); });
+  return Object.entries(by).map(([n, rs]) => { rs.sort((a, b) => a.date < b.date ? -1 : 1); const last = rs[rs.length - 1], in31 = rs.filter(r => r.date > addDays(to, -31)), m31 = in31.reduce((s, r) => s + r.out, 0), prev = rs.length > 1 ? rs[rs.length - 2] : null;
+    const flags = []; if (in31.length > 1) flags.push(`${in31.length} payments in the last month`); if (prev && in31.length <= 1 && Math.abs(prev.out - last.out) > 0.5) flags.push(`was ${money(prev.out, 2)}`); if (rs[0].date > addDays(to, -35) && rs.length === in31.length) flags.push('new'); if (daysBetween(last.date, to) > 40) flags.push('not seen for over a month');
+    return { n, last: last.date, a: last.out, m31, flags }; }).sort((a, b) => b.m31 - a.m31 || b.a - a.a);
+}
+function mcZilchCost(from, to) { const rs = mcRows(from, to); const fees = rs.filter(r => r.cat === 'Zilch fees').reduce((s, r) => s + r.out, 0), mem = rs.filter(r => /^membership$/i.test(r.m.trim())).reduce((s, r) => s + r.out, 0), bought = rs.filter(r => r.z && r.out && r.out < 200 && r.cat !== 'Zilch fees' && !/^membership$/i.test(r.m.trim())).reduce((s, r) => s + r.out, 0), n = rs.filter(r => r.cat === 'Zilch fees').length; return { fees, mem, bought, n, total: fees + mem }; }
+function viewCheck() {
+  setTimeout(mcSync, 0);
+  const cur = mcCur(), M = mcNow();
+  if (!M) return `<section class="panel"><h2>Money check</h2><p class="empty">Money check compares the Spreadsheet with the bank. Set up ${esc(monthName(cur))} in the Spreadsheet first.</p><div class="btnrow"><button class="btn small" data-act="mseg" data-v="grid">Open the Spreadsheet</button></div></section>`;
+  const T = mcTitle(M), sTo = M.sTo, fresh = sTo ? daysBetween(sTo, today()) : 99;
+  const head = `<section class="panel nopad glance mc-home">${headCard({ tone: T.tone, kicker: `${T.kicker} · ${monShort(cur)} pay`, title: T.title, meta: `<span style="font-weight:500">${T.sub}</span>`, body: M.bal ? mcCells(M) : '', actions: hcBtn(M.bal ? 'Update balance' : 'Add balance', 'mcbal') + hcBtn('How this works', 'mchelp') })}</section>`;
+  const freshNote = !M.hasBank ? `<div class="banner"><span>No bank payments are loaded for this pay month yet, so the ticks below can't be filled in. The balance check above still works.</span></div>` : fresh > 6 ? `<div class="banner"><span>The bank payments stop at ${esc(dayShort(sTo))}. Anything since then isn't ticked off yet.</span></div>` : '';
+  /* 1: what to do, in words */
+  const act = [];
+  if (M.bal && M.level === 'red') act.push(['var(--red)', `Find ${money(-M.free, 0)} before ${dayShort(M.to)}`, `Ways to do it: move money in from savings or the holiday pot, put off something in “Still to come” below, or trim the food shops that are left.`]);
+  M.budgets.filter(b => b.over > 5).sort((a, b) => b.over - a.over).forEach(b => act.push(['var(--red)', `${b.n}: ${money(b.over, 0)} over`, `${money(b.spent, 0)} spent against ${money(b.planned, 0)} planned.`]));
+  M.unplanned.slice(0, 4).forEach(b => act.push(['var(--gold-bar,#F6BF26)', `${b.n}: ${money(b.spent, 0)} that isn't in the plan`, `${nOf(b.rows.length, 'payment')} so far this pay month.`]));
+  M.fixed.filter(f => f.st === 'diff' && Math.abs(f.paid - f.planned) > 0.5).forEach(f => act.push(['var(--gold-bar,#F6BF26)', `${f.n} was ${money(f.paid, 2)}, not ${money(f.planned, 2)}`, `${f.paid > f.planned ? `${money(f.paid - f.planned, 2)} more` : `${money(f.planned - f.paid, 2)} less`} than the Spreadsheet says. Change the Spreadsheet if this is the new price.`]));
+  const actPanel = act.length ? `<section class="panel"><h2>Worth a look <span class="sub">${M.overspend > 0.5 ? `${money(M.overspend, 0)} outside the plan` : ''}</span></h2><div class="list">${act.slice(0, 8).map(([c, t, b]) => `<div class="insight"><i style="background:${c}"></i><div class="grow"><div class="t">${esc(t)}</div><div class="m" style="font-size:.88rem">${esc(b)}</div></div></div>`).join('')}</div></section>` : M.hasBank ? `<section class="panel"><h2>Worth a look</h2><p class="empty">Nothing. Spending matches the plan so far. 👏</p></section>` : '';
+  /* 2: will it last */
+  const fc = M.bal ? `<section class="panel"><h2>Will it last until payday?</h2>${mcForecastChart(M)}<p class="note">${M.runOut ? `If everything still planned goes out, the account dips below £0 around <b>${esc(dayShort(M.runOut))}</b>.` : `Yes. With everything still planned taken off, there's ${money(Math.max(0, M.free), 0)} left the night before payday.`} Bills come off on their dates; food, fuel and the other budgets are spread evenly over the days left.</p></section>` : '';
+  /* 3: bills, planned against the bank */
+  const stRow = f => { const ic = { ok: ['✓', 'mc-ok'], diff: ['!', 'mc-diff'], due: ['○', 'mc-due'], assumed: ['✓', 'mc-as'], missing: ['?', 'mc-miss'] }[f.st];
+    const sub = f.st === 'ok' ? `Paid ${shortDate(f.on).replace(/ \d{4}$/, '')}` : f.st === 'diff' ? `Paid ${money(f.paid, 2)} on ${shortDate(f.on).replace(/ \d{4}$/, '')}, planned ${money(f.planned, 2)}` : f.st === 'due' ? (f.due ? `Due ${dayShort(f.due)}` : 'Not gone out yet') : f.st === 'assumed' ? `Due ${dayShort(f.due)}, should have gone out` : `Was due ${dayShort(f.due)} but isn't on the bank. Cancelled, or paid another way?`;
+    return `<div class="mc-row"><span class="mc-ic ${ic[1]}">${ic[0]}</span><span class="grow">${esc(f.n)}<small>${esc(sub)}</small></span><b>${money(f.st === 'diff' ? f.paid : f.planned, 2)}</b></div>`; };
+  const due = M.fixed.filter(f => f.st === 'due').sort((a, b) => (a.due || '9') < (b.due || '9') ? -1 : 1), odd = M.fixed.filter(f => f.st === 'diff' || f.st === 'missing'), paid = M.fixed.filter(f => f.st === 'ok' || f.st === 'assumed');
+  const bills = `<section class="panel"><h2>Bills and direct debits <span class="sub">${paid.length + odd.filter(f => f.st === 'diff').length} of ${M.fixed.length} paid</span></h2>
+    ${odd.length ? `<h4 class="qh">Check these (${odd.length})</h4>${odd.map(stRow).join('')}` : ''}
+    <h4 class="qh">Still to come (${due.length}) · ${money(due.reduce((s, f) => s + f.planned, 0), 0)}</h4>${due.map(stRow).join('') || '<p class="empty">Every bill for this pay month has gone out.</p>'}
+    <details class="mc-det"><summary>Paid as planned (${paid.length})</summary>${paid.map(stRow).join('')}</details></section>`;
+  /* 4: day-to-day budgets */
+  const bRow = b => `<div class="gauge mc-g"><div class="gh"><span class="t">${MC_ICON[b.k] ? MC_ICON[b.k] + ' ' : ''}${esc(b.n)}</span><span class="amt" style="color:${b.over > 5 ? 'var(--red)' : 'inherit'}">${money(b.spent, 0)} <small>of ${money(b.planned, 0)}</small></span></div>${gauge(b.planned ? b.spent / b.planned : 0)}<div class="m">${b.over > 0.5 ? `${money(b.over, 0)} over` : `${money(b.left, 0)} left`}${b.rows.length ? ` · ${nOf(b.rows.length, 'payment')}` : ''}</div></div>`;
+  const budgets = M.budgets.length ? `<section class="panel"><h2>Day-to-day budgets <span class="sub">${money(M.budgets.reduce((s, b) => s + b.left, 0), 0)} left to spend</span></h2><div class="list">${M.budgets.map(bRow).join('')}</div><p class="note">Spent is what the bank shows since ${esc(dayShort(M.from))}. Planned comes from the ${monShort(cur)} Spreadsheet.</p></section>` : '';
+  /* 5: not in the plan */
+  const open = UI.mcOpen, unp = M.unplanned.length ? `<section class="panel"><h2>Not in the plan <span class="sub">${money(M.notPlanned, 0)}</span></h2><p class="note">Money that went out with no line for it in the Spreadsheet. This is what quietly runs the month short. Give it a line and the plan becomes honest.</p>
+    <div class="list">${M.unplanned.map(b => `<div class="mc-un"><button type="button" class="rowbtn" data-act="mcopen" data-v="${b.k}" aria-expanded="${open === b.k}"><span class="ti-ico mc-emo">${MC_ICON[b.k] || '•'}</span><div class="grow"><div class="t">${esc(b.n)}</div><div class="m">${nOf(b.rows.length, 'payment')} · tap to see them</div></div><div class="amt">${money(b.spent, 0)}</div></button>
+      ${open === b.k ? `<div class="catdetail">${Object.entries(b.rows.reduce((o, r) => { const p = payeeName(r); o[p] = (o[p] || 0) + r.out; return o; }, {})).sort((x, y) => y[1] - x[1]).slice(0, 10).map(([p, x]) => `<div class="row"><div class="grow">${esc(p)}</div><div class="amt">${money(x, 2)}</div></div>`).join('')}
+        <div class="btnrow"><button type="button" class="btn small" data-act="mcadd" data-v="${b.k}" data-a="${Math.round(b.spent)}">Add to the plan</button></div></div>` : ''}</div>`).join('')}</div></section>` : '';
+  /* 6: Zilch costs */
+  const z = mcZilchCost(M.from, M.to), zAll = stmtMonths().length ? mcZilchCost(`${stmtMonths()[0]}-01`, addDays(sTo || today(), 1)) : null;
+  const zilch = M.hasBank ? `<section class="panel"><h2>What Zilch costs <span class="sub">${monShort(cur)} pay</span></h2><div class="mc-sum plain"><div><span>Fees this pay month</span><b>${money(z.total, 2)}</b><small>${nOf(z.n, 'snooze fee')}${z.mem ? ` and ${money(z.mem, 2)} membership` : ''}</small></div><div><span>Everyday spending on Zilch</span><b>${money(z.bought, 0)}</b><small>paid so far, more to follow</small></div><div><span>Fees since ${esc(MONTHS[Number((stmtMonths()[0] || cur).slice(5, 7)) - 1].slice(0, 3))}</span><b>${money(zAll ? zAll.total : 0, 0)}</b><small>money for nothing</small></div></div>
+    <p class="note">${z.bought > 50 ? `${money(z.bought, 0)} of food, fuel and other everyday spending went through Zilch this pay month. Those are only the first payments: the rest of each purchase comes out of the next pay.` : 'Very little has gone on Zilch this pay month. Keep it that way and next pay starts clean.'}</p></section>` : '';
+  /* 7: subscriptions */
+  const subs = mcSubs(), subP = subs.length ? `<section class="panel"><h2>Subscriptions <span class="sub">${money(subs.reduce((s, x) => s + x.m31, 0), 0)} in the last month</span></h2><div class="list">${subs.map(x => `<div class="row mc-sub"><div class="grow"><div class="t">${esc(x.n)}</div><div class="m">Last paid ${esc(shortDate(x.last).replace(/ \d{4}$/, ''))}${x.flags.map(f => ` <span class="chip ${/payments|not seen/.test(f) ? 'due' : 'soon'}">${esc(f)}</span>`).join('')}</div></div><div class="amt">${money(x.m31 || x.a, 2)}</div></div>`).join('')}</div><p class="note">Every regular charge the bank has shown in the last three months. Red tags are worth checking: more than one charge in a month, or one that has stopped.</p></section>` : '';
+  /* 8: patterns */
+  const months = Object.keys(S.bsheet).concat(stmtMonths()).filter((x, i, a) => a.indexOf(x) === i && x <= cur).sort().slice(-4);
+  const pat = mcPatternChart(months), wk = M.hasBank ? mcWeekBars(M) : '';
+  const patP = pat || wk ? `<section class="panel"><h2>How the money goes</h2>${pat ? `<h4 class="qh">The balance after each payday</h4>${pat}<p class="note">Each line is one pay month. The steeper the drop in week 1, the less there is for weeks 3 and 4.</p>` : ''}${wk ? `<h4 class="qh">Out each week this pay month</h4>${wk}` : ''}</section>` : '';
+  const foot = `<section class="panel"><h2>Keeping this up to date</h2><div class="list">
+    <div class="insight"><i style="background:var(--good-bar)"></i><div class="grow"><div class="t">Bank balance</div><div class="m" style="font-size:.88rem">${M.bal ? `${money(M.bal.bal, 2)}, ${M.bal.src === 'typed' ? 'typed in' : 'from the bank payments'} ${esc(mcAge(M))}.` : 'Not added yet.'} Takes ten seconds: open the banking app, then tap Update balance.</div></div><button type="button" class="btn small" data-act="mcbal">Update</button></div>
+    <div class="insight"><i style="background:var(--g1)"></i><div class="grow"><div class="t">Bank payments</div><div class="m" style="font-size:.88rem">${sTo ? `Loaded up to ${esc(dayShort(sTo))}.` : 'None loaded yet.'} Claude adds the new ones in the weekly bank check-in, or use Check against the bank with screenshots.</div></div><button type="button" class="btn small ghost" data-act="qbank">Check</button></div></div></section>`;
+  return head + freshNote + actPanel + fc + bills + budgets + unp + zilch + subP + patP + foot;
+}
+function mcBalForm() {
+  const M = mcNow(), B = M && M.bal;
+  openSheet('Bank balance', `<p class="note">Open the Nationwide app and type in the <b>available balance</b> on the Hitchen Family account. The app then works out whether it will last until payday.</p>
+    <div class="zinput"><span>£</span><input id="mcB" name="mcB" inputmode="decimal" placeholder="0.00" value="" aria-label="Available balance"></div>${B ? `<p class="note">Last one: ${money(B.bal, 2)}, ${B.src === 'typed' ? 'typed in' : 'from the bank payments'} ${esc(mcAge(M))}.</p>` : ''}`, async () => {
+    const a = num(String(v('mcB')).replace(/−/g, '-')); if (a === null) throw new Error('Type in the balance, such as 152.40');
+    await put('state/bank', { ...(S.bank || {}), bal: Math.round(a * 100) / 100, d: today(), by: me(), calc: null }); setTimeout(mcSync, 50);
+    const N = mcNow(); window.__toastAfter = N && N.level === 'red' ? `Saved. ${money(-N.free, 0)} short before payday` : N && N.bal ? `Saved. ${money(Math.max(0, N.free), 0)} spare until payday` : 'Saved';
+  }, { saveLabel: 'Save balance' });
+  setTimeout(() => { const i = $('#mcB'); if (i) i.focus(); }, 60);
+}
+function mcHelp() {
+  openSheet('How Money check works', `<div class="mc-help">
+    <p><b>1. In the bank.</b> The balance you last typed in, or the last one on the bank payments, whichever is newer.</p>
+    <p><b>2. Still to go out.</b> Every line on this month's Spreadsheet that hasn't left the bank yet: bills not paid, plus what's left of each budget such as food and fuel.</p>
+    <p><b>3. Spare.</b> One minus two. That's the money with no job to do before payday.</p>
+    <p><span class="chip ok">Green</span> £${MC_TIGHT} or more spare. <span class="chip soon">Amber</span> less than £${MC_TIGHT} spare. <span class="chip due">Red</span> not enough to cover what's planned, so the account would run out before payday.</p>
+    <p><b>The warning.</b> When it's amber or red, both phones get a notification at 7am (turn on “money” notifications in Settings). The Home page shows the same card all the time.</p>
+    <p><b>Not in the plan.</b> Spending the bank shows that has no line on the Spreadsheet. Tap one, then “Add to the plan”, and from then on it's budgeted for.</p>
+    <p><b>Keeping it right.</b> Update the balance whenever you like. The list of payments is brought up to date in the weekly bank check-in.</p></div>`, null, { noSave: true, noFocus: true });
+}
+/* give an unplanned kind of spending its own line on the Spreadsheet */
+function mcAddForm(k, a) {
+  const bk = MC_BUDGET.find(x => x[0] === k); if (!bk) return; const cur = mcCur(), nxt = ymAdd(cur, 1);
+  const NAME = { eatout: 'Eating out and takeaways', subs: 'Subscriptions and apps', spends: 'Shopping and one-offs', kids: 'Kids and school', treats: 'Trips and days out', car: 'Car repairs', health: 'Prescriptions and pharmacy', fuel: 'Fuel', food: 'Food shop', apple: 'Apple', revolut: 'Revolut', zilch: 'Zilch repayment', mobiles: 'Mobiles', bus: 'Bus pass', gym: 'Gymnastics', swim: 'Swimming lessons', dinners: 'School dinners' }[k] || bk[1];
+  openSheet(`Add “${bk[1]}” to the plan`, `<p class="note">${money(a, 0)} has gone on this so far this pay month. Pick a monthly amount you're happy with. It goes on the Spreadsheet as its own line, so the “to spare” figure tells the truth.</p>
+    <div class="zinput"><span>£</span><input id="mcA" name="mcA" inputmode="decimal" value="${esc(a)}" aria-label="Monthly amount"></div>
+    ${sel('mcW', 'Which months', 'all', [['all', `${monShort(cur)} pay and every month after`], ['next', `From the ${monShort(nxt)} pay onwards`], ['cur', `Just the ${monShort(cur)} pay`]])}`, async () => {
+    const amt = num(v('mcA')), w = v('mcW'); if (!amt || amt <= 0) throw new Error('Put in a monthly amount');
+    const ms = Object.keys(S.bsheet).filter(ym => w === 'cur' ? ym === cur : w === 'next' ? ym >= nxt : ym >= cur).sort(); let n = 0;
+    for (const ym of ms) { const d = bsClone(S.bsheet[ym]), sec = (d.secs || []).find(s => s.k === 'ex2') || (d.secs || []).find(s => s.kind === 'base' && s.k !== 'dd'); if (!sec) continue;
+      const have = sec.rows.find(x => String(x.n || '').trim().toLowerCase() === NAME.toLowerCase()); if (have) have.a = amt; else sec.rows.push({ n: NAME, a: amt }); await put(`bsheet/${ym}`, d); n++; }
+    UI.mcOpen = null; window.__toastAfter = n ? `Added to ${nOf(n, 'month')} on the Spreadsheet` : 'No Spreadsheet months to add it to';
+  }, { saveLabel: 'Add to the plan' });
 }
 
 /* the payday plan comes from the month in the Spreadsheet when there is one, so the app only ever has one "left over" */
@@ -9208,7 +9494,7 @@ async function pushPanel() {
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="morning" ${prefs.morning!==false?'checked':''}><span class="grow">7am: today's bills, on call and payday</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="evening" ${prefs.evening!==false?'checked':''}><span class="grow">7pm: tomorrow's bills, bins, on call, renewals and car jobs</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="weekly" ${prefs.weekly!==false?'checked':''}><span class="grow">Sunday 7pm: the week ahead</span></label>
-      <label class="check"><input type="checkbox" data-act="pushpref" data-k="money" ${prefs.money!==false?'checked':''}><span class="grow">Payday money jobs, and a heads-up the evening before Zilch takes a payment</span></label>
+      <label class="check"><input type="checkbox" data-act="pushpref" data-k="money" ${prefs.money!==false?'checked':''}><span class="grow">Money: a 7am warning when the account is running short before payday, payday money jobs, and a heads-up the evening before Zilch takes a payment</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="family" ${prefs.family!==false?'checked':''}><span class="grow">The girls: pocket money day, clubs, school holidays, childcare gaps, dinner plans and measuring</span></label>
       <label class="check"><input type="checkbox" data-act="pushpref" data-k="school" ${prefs.school!==false?'checked':''}><span class="grow">7am: school things on the calendar today (non-uniform, trips, parents' evening and the like)</span></label></div>
     <div class="btnrow"><button class="btn small ghost" type="button" data-act="pushtest">Send a test</button><button class="btn small ghost" type="button" data-act="pushoff">Turn off on this phone</button></div>`;
@@ -9363,6 +9649,10 @@ document.addEventListener('click', async e => {
     return openSheet(`Start fresh from the ${monShort(ym)} pay?`, `<p class="note">Use this when the months before don't match the bank any more, for example a short month that Zilch or savings tided over. The carried-over line then starts again from this pay instead of adding up the shortfalls before it.</p>` + fld('gcS', 'In the bank at the start of this pay (£)', cs ?? 0, 'number', 'step="0.01" inputmode="decimal"') + (cs != null && cs !== '' ? `<p class="note">It's starting fresh here now. Delete to add up from the months before again.</p>` : ''), async () => {
       const a = num(v('gcS')); await put(`bsheet/${ym}`, { ...doc, carryStart: a === null ? 0 : a });
     }, cs != null && cs !== '' ? { onDelete: async () => { const { carryStart, ...rest } = doc; await put(`bsheet/${ym}`, rest); } } : {}); }
+  if (a==='mcbal') return mcBalForm();
+  if (a==='mchelp') return mcHelp();
+  if (a==='mcopen') { UI.mcOpen = UI.mcOpen === el.dataset.v ? null : el.dataset.v; const y = window.scrollY; render(); window.scrollTo(0, y); return; }
+  if (a==='mcadd') return mcAddForm(el.dataset.v, Number(el.dataset.a) || 0);
   if (a==='mseg') { closeSheet(); UI.money = el.dataset.v === 'sheet' ? 'grid' : el.dataset.v; if (el.dataset.v === 'sheet') UI.gseg = 'sheet'; keepUI(); render(); if (el.dataset.v === 'sheet') gridScrollTo(UI.hym); return; } /* the Spreadsheet is now the Spreadsheet */
   if (a==='cseg') { UI.carSeg = el.dataset.v; keepUI(); return render(); }
   if (a==='day') return dayForm(el.dataset.date);

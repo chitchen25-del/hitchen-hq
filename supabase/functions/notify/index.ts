@@ -55,7 +55,7 @@ async function loadData(today: string) {
     if (c === 'days') D.days[id] = r.data; else if (c === 'plans') D.plans.push({ ...r.data, id }); else if (c === 'bills') D.bills.push({ ...r.data, id }); else if (c === 'carrem') D.carrem.push({ ...r.data, id });
     else if (c === 'settings') D.settings = r.data; else if (r.path === 'private/calendar') D.cal = r.data; else if (r.path === 'state/checks') D.checks = r.data;
     else if (c === 'kids') D.kids[id] = r.data; else if (r.path === 'state/cover') D.cover = r.data; else if (r.path === 'meals/main') D.meals = r.data;
-    else if (r.path === 'state/hours') D.hours = r.data; else if (r.path === 'state/carlog') D.carlog = r.data; else if (r.path === 'state/pricewatch') D.pricewatch = r.data; else if (r.path === 'state/zilch') D.zilch = r.data;
+    else if (r.path === 'state/hours') D.hours = r.data; else if (r.path === 'state/carlog') D.carlog = r.data; else if (r.path === 'state/pricewatch') D.pricewatch = r.data; else if (r.path === 'state/zilch') D.zilch = r.data; else if (r.path === 'state/bank') D.bank = r.data;
   }
   // calendar events for the next 16 days (the week ahead looks two weeks out for childcare gaps)
   D.events = [];
@@ -111,8 +111,21 @@ function zilchTomorrow(D: any, tm: string) {
   for (const it of ((D.zilch && D.zilch.items) || [])) for (const x of zlPays(D, it)) if (x.d === tm && x.d !== it.d) { total += x.a; what.push(`${it.n} (${it.who === 'viki' ? 'Viki' : 'Chris'})`); }
   return { total: Math.round(total * 100) / 100, what };
 }
+/* Money check: the app saves a summary in state/bank (balance, what's spare before payday, green/amber/red).
+   Red warns every morning, amber every third morning, and a nudge goes out when the balance hasn't been updated for a while. */
+function moneyCheck(D: any, today: string) {
+  const B = D.bank, c = B && B.calc; if (!c || !c.next || today >= c.next) return [];
+  const days = Math.round((parse(c.next).getTime() - parse(today).getTime()) / 86400000), age = Math.round((parse(today).getTime() - parse(c.asOf || c.on || today).getTime()) / 86400000);
+  const nice = (d: string) => `${DOWS[dow(d)]} ${Number(d.slice(8))} ${MON3[Number(d.slice(5, 7)) - 1]}`, dn = `${days} day${days === 1 ? '' : 's'}`;
+  const old = age >= 3 ? ` The balance is ${age} days old, so update it in the app for a true picture.` : '';
+  if (c.level === 'red') return [{ title: `Money warning: ${money(Math.abs(c.free))} short before payday`, body: `${c.runOut && c.runOut > today ? `On the current plan the account runs out around ${nice(c.runOut)}. ` : ''}Payday is ${nice(c.next)}, ${dn} away. Open Money check to see what's still to go out.${old}`, tag: `mc-${today}` }];
+  if (c.level === 'amber' && days % 3 === 0) return [{ title: `Money is tight: ${money(c.free)} spare until payday`, body: `Everything planned is covered, with very little left over. Payday is ${nice(c.next)}, ${dn} away.${old}`, tag: `mc-${today}` }];
+  if (age >= 5 && age % 5 === 0) return [{ title: 'Update the bank balance', body: `The balance in Hitchen HQ is ${age} days old. Type in today's and the app will say whether it lasts until payday (${dn} away).`, tag: `mc-${today}` }];
+  return [];
+}
 function messages(D: any, today: string, mode: string) {
   const out: { title: string; body: string; tag: string }[] = [];
+  if (mode === 'moneyam') out.push(...moneyCheck(D, today));
   if (mode === 'moneyam' && payday(today.slice(0, 7)) === today) {
     const jobs = moneyJobs(D, today.slice(0, 7));
     const ym = today.slice(0, 7), zl = ((D.zilch && D.zilch.items) || []).map((it: any) => ({ it, a: zlPays(D, it).filter(x => x.ym === ym).reduce((s, x) => s + x.a, 0) })).filter((x: any) => x.a > 0.5);

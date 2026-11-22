@@ -76,6 +76,10 @@ Each phone turns them on in Settings (on an iPhone the app must be added to the 
 
 Car documents are stored in the private Supabase Storage bucket `family-files`, readable only by the family. Once opened they're kept on the phone for offline use.
 
+## Money check
+
+Money → Money check (and the card at the top of Home) answers one question: will the money last until payday? It takes the bank balance (typed in with Update balance, read from screenshots, or the last one on the bank payments), takes off every line on this pay month's Spreadsheet that hasn't left the bank yet, and shows what's spare: green, amber (under £100 spare) or red (short). The page also ticks each bill off against the bank, shows each day-to-day budget against what was really spent, lists spending that has no line in the plan (tap one, then Add to the plan), totals what Zilch costs, lists every subscription with its last payment, and charts how the balance runs down after each payday. The latest balance and summary live in `state/bank`; the `notify` function reads it and sends a 7am warning when it's amber or red (the "money" notification setting). How lines are matched to bank payments is in `MC_FIXED` and `MC_BUDGET` in `index.html`.
+
 ## Bank statements
 
 Money → Budget → Import statement reads a CSV file downloaded from online banking. Isle of Man bank accounts aren't covered by Open Banking, so live bank feeds aren't available.
