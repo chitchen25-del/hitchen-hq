@@ -6097,7 +6097,8 @@ const mcNow = () => mcMonth(mcCur());
 function mcSync() {
   if (!session || offline) return; const M = mcNow(); if (!M || !M.bal) return;
   const calc = { on: today(), asOf: M.bal.d, free: Math.round(M.free), level: M.level, next: M.to, runOut: M.runOut || null, over: Math.round(M.overspend) };
-  if (JSON.stringify((S.bank || {}).calc || null) === JSON.stringify(calc)) return;
+  const old = (S.bank || {}).calc || {}; if (Object.keys(calc).every(k => (old[k] ?? null) === (calc[k] ?? null))) return; /* compare field by field: the database hands the fields back in a different order */
+  if (mcSync.last && Date.now() - mcSync.last < 60000) return; mcSync.last = Date.now(); /* and never more than once a minute, whatever happens */
   put('state/bank', { ...(S.bank || {}), calc });
 }
 function mcTitle(M) {
@@ -6225,7 +6226,7 @@ function mcBalForm() {
   openSheet('Bank balance', `<p class="note">Open the Nationwide app and type in the <b>available balance</b> on the Hitchen Family account. The app then works out whether it will last until payday.</p>
     <div class="zinput"><span>£</span><input id="mcB" name="mcB" inputmode="decimal" placeholder="0.00" value="" aria-label="Available balance"></div>${B ? `<p class="note">Last one: ${money(B.bal, 2)}, ${B.src === 'typed' ? 'typed in' : 'from the bank payments'} ${esc(mcAge(M))}.</p>` : ''}`, async () => {
     const a = num(String(v('mcB')).replace(/−/g, '-')); if (a === null) throw new Error('Type in the balance, such as 152.40');
-    await put('state/bank', { ...(S.bank || {}), bal: Math.round(a * 100) / 100, d: today(), by: me(), calc: null }); setTimeout(mcSync, 50);
+    await put('state/bank', { ...(S.bank || {}), bal: Math.round(a * 100) / 100, d: today(), by: me(), calc: null }); mcSync.last = 0; setTimeout(mcSync, 50);
     const N = mcNow(); window.__toastAfter = N && N.level === 'red' ? `Saved. ${money(-N.free, 0)} short before payday` : N && N.bal ? `Saved. ${money(Math.max(0, N.free), 0)} spare until payday` : 'Saved';
   }, { saveLabel: 'Save balance' });
   setTimeout(() => { const i = $('#mcB'); if (i) i.focus(); }, 60);
@@ -6255,7 +6256,7 @@ function mcAddForm(k, a) {
   }, { saveLabel: 'Add to the plan' });
 }
 async function mcMark(k, val) { const ym = mcCur(), B = S.bank || {}, done = { ...(B.done || {}) }, m = { ...(done[ym] || {}) }; if (val) m[k] = val; else delete m[k]; Object.keys(done).forEach(x => { if (x < ymAdd(ym, -2)) delete done[x]; }); done[ym] = m;
-  const y = window.scrollY; await put('state/bank', { ...B, done, calc: null }); setTimeout(mcSync, 50); window.scrollTo(0, y); toast(val === 'done' ? 'Ticked off. It no longer counts' : val === 'due' ? 'Counted as still to pay' : 'Put back'); }
+  const y = window.scrollY; await put('state/bank', { ...B, done, calc: null }); mcSync.last = 0; setTimeout(mcSync, 50); window.scrollTo(0, y); toast(val === 'done' ? 'Ticked off. It no longer counts' : val === 'due' ? 'Counted as still to pay' : 'Put back'); }
 
 /* the payday plan comes from the month in the Spreadsheet when there is one, so the app only ever has one "left over" */
 function viewPlanSheet(ym, f) {
