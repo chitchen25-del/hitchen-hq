@@ -2368,6 +2368,7 @@ function gridRows(ms) {
   const incNames = []; ms.forEach(ym => ((S.bsheet[ym] || {}).inc || []).forEach(x => { if (x.n && !incNames.some(n => gk(n) === gk(x.n))) incNames.push(x.n); }));
   incNames.forEach(n => inc.rows.push({ n, sec: 'i', rep: repOf(ms, 'i', n), vals: ms.map(ym => { const d = S.bsheet[ym]; if (!d) return null; const i = (d.inc || []).findIndex(x => gk(x.n) === gk(n)); const x = d.inc[i];
     return { v: x && bsOn(x) ? Number(x.a) || 0 : 0, edit: { ym, sec: 'i', n, i } }; }) }));
+  if (ms.some(ym => zlInMonth(ym))) inc.rows.push({ n: 'Borrowed on Zilch', zlin: 1, vals: ms.map(ym => S.bsheet[ym] ? { v: zlInMonth(ym) } : null) });
   groups.push(inc);
   /* budget sections (normal budget, then one-offs) in the order of the newest sheet */
   const ref = ms.map(ym => S.bsheet[ym]).filter(Boolean)[0]; const secs = [];
@@ -2381,7 +2382,7 @@ function gridRows(ms) {
   });
   /* Zilch, one row per plan */
   const zl = (ZL().items || []).filter(it => ms.some(ym => zlPays(it).some(x => x.ym === ym)));
-  if (zl.length) groups.push({ t: 'Zilch repayments', cls: 'out', note: 'Change on Money → Zilch', rows: zl.map(it => ({ n: `${it.n} (${ZWHO[it.who] || ''})`, vals: ms.map(ym => ({ v: zlPays(it).filter(x => x.ym === ym).reduce((a, x) => a + x.a, 0) })) })) });
+  groups.push({ t: 'Zilch repayments', cls: 'out', note: zl.length ? 'Tap one to change it. + Add puts a new Zilch spend in and its repayments go into the months after' : 'Use + Add when you spend on Zilch, and its repayments go into the months after', addAct: 'gzladd', rows: zl.map(it => ({ n: `${it.n} (${ZWHO[it.who] || ''})`, zl: it.id, vals: ms.map(ym => ({ v: zlPays(it).filter(x => x.ym === ym).reduce((a, x) => a + x.a, 0) })) })) });
   /* trips and Christmas, one row per item */
   const pi = []; ms.forEach(ym => plannerItems(ym).forEach(x => { const key = `${x.p.id}|${gk(x.n)}`; let r = pi.find(y => y.key === key); if (!r) { r = { key, n: `${x.n} · ${occName(x.p)}`, by: {} }; pi.push(r); } r.by[ym] = (r.by[ym] || 0) + x.a; }));
   if (pi.length) groups.push({ t: 'Trips and Christmas', cls: 'out', note: 'Change in Treats', rows: pi.map(r => ({ n: r.n, vals: ms.map(ym => ({ v: r.by[ym] || 0 })) })) });
@@ -2407,14 +2408,14 @@ function gridSheet() {
   const cell = c => { if (!c) return '<td class="na">–</td>'; if (c.edit) return `<td><input class="gc" inputmode="decimal" data-gcell="${esc(JSON.stringify(c.edit))}" value="${c.v ? Number(c.v).toFixed(2) : ''}" aria-label="Amount"></td>`; return `<td>${f(c.v)}</td>`; };
   const body = groups.map(g => {
     const sums = ms.map((ym, i) => g.rows.reduce((a, r) => a + (r.vals[i] ? r.vals[i].v || 0 : 0), 0));
-    return `<tr class="gh ${g.cls}"><th class="gn">${esc(g.t)}${g.note ? `<small>${esc(g.note)}</small>` : ''}${g.key ? `<button type="button" class="gadd" data-act="growadd" data-sec="${esc(g.key)}" aria-label="Add a line to ${esc(g.t)}">+ Add</button>` : ''}</th>${sums.map(v => `<td>${f(v)}</td>`).join('')}</tr>`
-      + g.rows.map(r => `<tr><th class="gn gi">${r.sec || r.viki ? `<button type="button" class="grow" data-act="${r.viki ? 'gviki' : 'grow'}" data-sec="${esc(r.sec || '')}" data-n="${esc(r.n)}">${esc(r.n)}${r.rep ? `<small class="grep" title="${esc(repText(r.rep))}">↻ ${esc(repText(r.rep))}</small>` : ''}<i aria-hidden="true">✎</i></button>` : esc(r.n)}</th>${r.vals.map(cell).join('')}</tr>`).join('');
+    return `<tr class="gh ${g.cls}"><th class="gn">${esc(g.t)}${g.note ? `<small>${esc(g.note)}</small>` : ''}${g.key ? `<button type="button" class="gadd" data-act="growadd" data-sec="${esc(g.key)}" aria-label="Add a line to ${esc(g.t)}">+ Add</button>` : g.addAct ? `<button type="button" class="gadd" data-act="${esc(g.addAct)}" aria-label="Add to ${esc(g.t)}">+ Add</button>` : ''}</th>${sums.map(v => `<td>${f(v)}</td>`).join('')}</tr>`
+      + g.rows.map(r => `<tr><th class="gn gi">${r.zl ? `<button type="button" class="grow" data-act="gzl" data-id="${esc(r.zl)}">${esc(r.n)}<i aria-hidden="true">✎</i></button>` : r.zlin ? `<button type="button" class="grow" data-act="gzlin">${esc(r.n)}<i aria-hidden="true">✎</i></button>` : r.sec || r.viki ? `<button type="button" class="grow" data-act="${r.viki ? 'gviki' : 'grow'}" data-sec="${esc(r.sec || '')}" data-n="${esc(r.n)}">${esc(r.n)}${r.rep ? `<small class="grep" title="${esc(repText(r.rep))}">↻ ${esc(repText(r.rep))}</small>` : ''}<i aria-hidden="true">✎</i></button>` : esc(r.n)}</th>${r.vals.map(cell).join('')}</tr>`).join('');
   }).join('');
   const foot = `<tr class="gt"><th class="gn">Going out</th>${tot.map(t => `<td>${t ? f(t.base + t.extra) : '–'}</td>`).join('')}</tr>
     <tr class="gt big"><th class="gn">Left this month</th>${tot.map(t => `<td class="${t && t.left < 0 ? 'neg' : 'pos'}">${t ? money(t.left, 2) : '–'}</td>`).join('')}</tr>
     <tr class="gt big"><th class="gn">In the bank, carried over</th>${carried.map((v, i) => { const cs = S.bsheet[ms[i]] && S.bsheet[ms[i]].carryStart; const fresh = cs != null && cs !== ''; return `<td class="${v != null && v < 0 ? 'neg' : 'pos'}">${v == null ? '–' : `<button type="button" class="gcarry" data-act="gcarry" data-v="${ms[i]}" aria-label="Carried over after the ${esc(monShort(ms[i]))} pay: ${money(v, 2)}. Tap to start fresh from this month">${fresh ? '<span class="gfresh" title="Started fresh this month">↺</span>' : ''}${money(v, 2)}</button>`}</td>`; }).join('')}</tr>`;
   return `<section class="panel gpanel"><div class="gwrap"><table class="gtab"><thead>${head}</thead><tbody>${body}</tbody><tfoot>${foot}</tfoot></table></div>
-    <p class="note">One column per pay: from that payday to the day before the next. Type in a shaded box to change that month's amount. Tap a line's name to rename it, change it for every month, or delete it. Use + Add to add a new line. Tap Viki's pay to change her on-call days and hours. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>${gridCheck(ms, tot, carried)}${recentPanel()}`;
+    <p class="note">One column per pay: from that payday to the day before the next. Type in a shaded box to change that month's amount, and it asks whether the months after should change too. Spend on Zilch with + Add under Zilch repayments, so the repayments land in the months that follow. Tap a line's name to rename it, change it for every month, or delete it. Use + Add to add a new line. Tap Viki's pay to change her on-call days and hours. "Carried over" adds up each month's leftover from this pay on, so it shows whether the money lasts.</p></section>${gridCheck(ms, tot, carried)}${recentPanel()}`;
 }
 /* "Does it add up?": the things that usually go wrong, checked every time the spreadsheet is drawn */
 function gridCheck(ms, tot, carried) {
@@ -2543,7 +2544,26 @@ async function gridSave(inp) {
     UI.bs = null; toast(`${monShort(e.ym)} extra spends set to ${money(a, 2)}`); return; }
   if (e.sec === 'i') { const i = d.inc.findIndex(x => gk(x.n) === gk(e.n)); if (i >= 0) d.inc[i] = { ...d.inc[i], a, off: false }; else d.inc.push({ n: e.n, a }); }
   else { const s = d.secs.find(x => x.k === e.sec); if (!s) return; const i = s.rows.findIndex(r => gk(r.n) === gk(e.n)); if (i >= 0) { s.rows[i] = { ...s.rows[i], a }; delete s.rows[i].off; } else s.rows.push({ n: e.n, a }); }
-  UI.bs = null; UI.hym = e.ym; await put(`bsheet/${e.ym}`, d); toast(`${monShort(e.ym)} saved, see the total at the top`);
+  UI.bs = null; UI.hym = e.ym; await put(`bsheet/${e.ym}`, d);
+  /* later months' sheets are saved separately, so offer to carry the new amount on rather than leaving them on the old one */
+  const later = gridLaterRows(e.ym, e.sec, e.n), diff = later.filter(x => Math.abs(x.a - a) > 0.004);
+  if (!diff.length) { toast(`${monShort(e.ym)} saved, see the total at the top`); return; }
+  const amts = [...new Set(diff.map(x => x.a.toFixed(2)))];
+  openSheet(`${e.n}: ${money(a, 2)}`, `<p class="note" style="margin-top:0">Saved for the ${esc(monthName(e.ym))} pay. ${diff.length === 1 ? `The ${esc(monthName(diff[0].ym))} pay still has` : `${diff.length} later months still have`} ${amts.length === 1 ? money(Number(amts[0]), 2) : 'different amounts'} for this line.</p><p class="note">Change it to ${money(a, 2)} from the ${esc(monShort(e.ym))} pay onwards?</p>`,
+    async () => { await gridCarryOn(e.ym, e.sec, e.n, a); window.__toastAfter = `${e.n} is now ${money(a, 2)} from the ${monShort(e.ym)} pay onwards`; },
+    { saveLabel: 'Every month after too', cancelLabel: `Just ${monShort(e.ym)}`, noFocus: true });
+}
+/* the same line in every later month's sheet (amount lines only, not "how many × price" ones) */
+function gridLaterRows(ym, sec, n) {
+  return Object.keys(S.bsheet).filter(k => k > ym).sort().map(k => { const d = S.bsheet[k]; if (!d) return null;
+    const r = sec === 'i' ? (d.inc || []).find(x => gk(x.n) === gk(n)) : ((d.secs || []).find(x => x.k === sec) || { rows: [] }).rows.find(x => gk(x.n) === gk(n));
+    return r && r.u == null ? { ym: k, a: Number(r.a) || 0 } : null; }).filter(Boolean);
+}
+/* put a new amount into every later month that has the line, keeping each month's on/off (so a line that only comes out some months still does) */
+async function gridCarryOn(ym, sec, n, a) {
+  for (const x of gridLaterRows(ym, sec, n)) { if (Math.abs(x.a - a) < 0.005) continue; const d = bsClone(S.bsheet[x.ym]);
+    const rows = sec === 'i' ? (d.inc || []) : ((d.secs || []).find(s => s.k === sec) || { rows: [] }).rows, i = rows.findIndex(r => gk(r.n) === gk(n));
+    if (i < 0) continue; rows[i] = { ...rows[i], a }; await put(`bsheet/${x.ym}`, d); }
 }
 document.addEventListener('change', e => { const t = e.target; if (t && t.matches && t.matches('input[data-gcell]')) gridSave(t); });
 /* what lands on each day of a calendar month */
@@ -6521,12 +6541,12 @@ function vikiAuto(doc, ym) {
 function bsVikiEff(doc, ym) { const f = doc.viki && doc.viki.auto && ym ? vikiAuto(doc, ym) : null; return f && f.items ? { ...doc, viki: { ...doc.viki, items: f.items } } : doc; }
 function bsTotals(doc, ym) {
   const viki = doc.viki && !doc.viki.off ? bsViki(doc, ym) : 0, plan = ym ? plannerMonth(ym).total : 0;
-  const inc = viki + (doc.inc||[]).filter(bsOn).reduce((s,x) => s + (Number(x.a)||0), 0);
+  const zin = ym ? zlInMonth(ym) : 0, inc = viki + zin + (doc.inc||[]).filter(bsOn).reduce((s,x) => s + (Number(x.a)||0), 0);
   const sec = {}; let base = 0, extra = 0;
   (doc.secs||[]).forEach(s => { const t = s.rows.filter(bsOn).reduce((a,x) => a + bsAmt(x), 0); sec[s.k] = t; if (s.kind==='base') base += t; else if (s.kind==='extra') extra += t; });
   const buys = ym ? buysNet(ym) : 0, zil = ym ? zlMonth(ym).total : 0; extra += plan + buys + zil;
   const left = inc - base - extra, split = Number(doc.split ?? 50);
-  return { viki, inc, base, extra, plan, buys, zil, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
+  return { viki, zin, inc, base, extra, plan, buys, zil, left, sec, save: left > 0 ? left*split/100 : 0, hol: left > 0 ? left*(100-split)/100 : 0, split };
 }
 function bsState() {
   const ym = UI.bym || (UI.bym = ymOf(today()));
@@ -7085,6 +7105,10 @@ function zlPays(it) {
   const p = zilchPlan(Number(it.a) || 0, { avail: zLimit(it.who), start: it.d || today(), ...(it.plan ? { plan: it.plan } : {}), ...(it.fee ? { feePct: Number(it.fee) } : {}) }); if (!p) return [];
   return p.pays.map(x => ({ ym: payYm(x.date), a: x.amount, d: x.date }));
 }
+/* a Zilch purchase marked "counts as money in" (it paid for something already on the sheet, like a food shop or presents)
+   adds its price to that pay month's money in; its repayments still come out in the months Zilch takes them */
+const zlIsIn = it => it.inc && it.mode !== 'set' && Number(it.a) > 0;
+function zlInMonth(ym) { return Math.round((ZL().items || []).filter(it => zlIsIn(it) && payYm(it.d || today()) === ym).reduce((s, it) => s + Number(it.a), 0) * 100) / 100; }
 function zlMonth(ym) {
   const rows = []; (ZL().items || []).forEach(it => zlPays(it).forEach(x => { if (x.ym === ym) rows.push({ it, a: x.a, d: x.d || null }); }));
   return { rows, total: Math.round(rows.reduce((s, r) => s + r.a, 0) * 100) / 100 };
@@ -7138,12 +7162,12 @@ function zlForm(id, preset) {
   const setBox = rows.map((x, i) => `<div class="fields2">${fld(`zlM${i}`, i ? '' : 'Pay month', x.ym || '', 'month')}${fld(`zlA${i}`, i ? '' : 'Amount (£)', x.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}</div>`).join('');
   openSheet(id ? it.n : 'Add something on Zilch', sel('zlW', 'Whose Zilch', it.who, [['chris', 'Chris'], ['viki', 'Viki']]) + fld('zlN', 'What', it.n || '', 'text', 'placeholder="e.g. Car work, sofa, Amazon"')
     + sel('zlMode', 'Payments', it.mode, [['auto', 'Work them out (a new purchase)'], ['set', 'Type them in (already set)']])
-    + `<div id="zlAuto" ${it.mode === 'set' ? 'hidden' : ''}><div class="fields2">${fld('zlAmt', 'Price (£)', it.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('zlD', 'Bought on', it.d || today(), 'date')}</div>${sel('zlP', "How it's paid", it.plan || 'x', [['x', 'Zilch decides (under £75: 6 weeks, else 3 months)'], ['6w', 'Over 6 weeks (every 2 weeks)'], ['3m', 'Over 3 months (monthly, with a fee)']])}${fld('zlF', 'Monthly fee on 3-month plans (% of the price)', it.fee ?? zs().feePct, 'number', 'step="0.1" min="0" inputmode="decimal"')}<p class="note" id="zlHint"></p></div>`
+    + `<div id="zlAuto" ${it.mode === 'set' ? 'hidden' : ''}><div class="fields2">${fld('zlAmt', 'Price (£)', it.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('zlD', 'Bought on', it.d || today(), 'date')}</div>${sel('zlP', "How it's paid", it.plan || 'x', [['x', 'Zilch decides (under £75: 6 weeks, else 3 months)'], ['6w', 'Over 6 weeks (every 2 weeks)'], ['3m', 'Over 3 months (monthly, with a fee)']])}${fld('zlF', 'Monthly fee on 3-month plans (% of the price)', it.fee ?? zs().feePct, 'number', 'step="0.1" min="0" inputmode="decimal"')}<p class="note" id="zlHint"></p><label class="toggle"><input type="checkbox" id="zlIn" ${it.inc ? 'checked' : ''}> It paid for something already on the Spreadsheet (food shop, presents, a bill), so count it as money in that month</label></div>`
     + `<div id="zlSet" ${it.mode === 'set' ? '' : 'hidden'}><p class="note" style="margin-top:0">Each payment still to come, and the pay month it comes out of. Leave spare rows empty.</p>${setBox}</div>`
     + fld('zlNote', 'Note', it.note || '', 'text', 'placeholder="Optional"'), async () => {
     const n = v('zlN').trim(); if (!n) throw new Error('Say what it was');
     const x = { id: it.id || uid('zl'), who: v('zlW'), n, mode: v('zlMode') };
-    if (x.mode === 'auto') { const a = num(v('zlAmt')); if (!a) throw new Error('Put in the price'); x.a = a; x.d = v('zlD') || today(); const f = num(v('zlF')); if (f !== null && f !== zs().feePct) x.fee = f; if (v('zlP') !== 'x') x.plan = v('zlP');
+    if (x.mode === 'auto') { const a = num(v('zlAmt')); if (!a) throw new Error('Put in the price'); x.a = a; x.d = v('zlD') || today(); const f = num(v('zlF')); if (f !== null && f !== zs().feePct) x.fee = f; if (v('zlP') !== 'x') x.plan = v('zlP'); if ($('#zlIn') && $('#zlIn').checked) x.inc = true;
       const lim = zLimit(x.who), use = zlInUse(x.who, payYm(x.d), x.id); if (use + a > lim + 0.5 && !confirm(`${ZWHO[x.who]}'s Zilch limit is ${money(lim, 0)} and ${money(use, 0)} of it is still in use then (the limit only frees once a whole purchase is paid off). ${money(use + a - lim, 0)} of this would be over, and Zilch takes that on the day. Save anyway?`)) throw new Error('Not saved'); }
     else { x.pays = rows.map((_, i) => ({ ym: v(`zlM${i}`), a: num(v(`zlA${i}`)) })).filter(p => /^\d{4}-\d\d$/.test(p.ym) && p.a).sort((a, b) => a.ym < b.ym ? -1 : 1); if (!x.pays.length) throw new Error('Add at least one payment'); }
     if (v('zlNote').trim()) x.note = v('zlNote').trim();
@@ -9429,7 +9453,7 @@ function openSheet(title, inner, onSave, opts={}) {
   sheetSave = onSave;
   $('#sheetRoot').innerHTML = `<div class="scrim" data-act="close"><form class="sheet" id="sheetForm" role="dialog" aria-modal="true" aria-label="${esc(title)}" novalidate>
     <div class="grab" aria-hidden="true"></div><h3>${esc(title)}</h3>${inner}<p class="err" id="formErr" hidden></p>
-    ${opts.noSave ? `<div class="btnrow"><button class="btn ghost" type="button" data-act="close">Close</button></div>` : `<div class="btnrow"><button class="btn" type="submit">${esc(opts.saveLabel||'Save')}</button><button class="btn ghost" type="button" data-act="close">Cancel</button>${opts.onDelete?'<button class="btn danger" type="button" data-act="delete">Delete</button>':''}</div>`}
+    ${opts.noSave ? `<div class="btnrow"><button class="btn ghost" type="button" data-act="close">Close</button></div>` : `<div class="btnrow"><button class="btn" type="submit">${esc(opts.saveLabel||'Save')}</button><button class="btn ghost" type="button" data-act="close">${esc(opts.cancelLabel||'Cancel')}</button>${opts.onDelete?'<button class="btn danger" type="button" data-act="delete">Delete</button>':''}</div>`}
   </form></div>`;
   sheetDrag();
   sheetDelete = opts.onDelete || null;
@@ -9766,6 +9790,7 @@ document.addEventListener('click', async e => {
     if (a==='bsdup') tg.list.splice(i+1, 0, bsClone(tg.x)); else { const j = a==='bsup' ? i-1 : i+1; if (j < 0 || j >= tg.list.length) return render(); [tg.list[i], tg.list[j]] = [tg.list[j], tg.list[i]]; }
     return render(); }
   if (a==='gcarry') { const ym = el.dataset.v, doc = S.bsheet[ym]; if (!doc) return; const cs = doc.carryStart;
+    if (ym > payCur() && (cs == null || cs === '')) return toast(`The ${monShort(ym)} pay hasn't started yet, so it carries on from the months before`);
     return openSheet(`Start fresh from the ${monShort(ym)} pay?`, `<p class="note">Use this when the months before don't match the bank any more, for example a short month that Zilch or savings tided over. The carried-over line then starts again from this pay instead of adding up the shortfalls before it.</p>` + fld('gcS', 'In the bank at the start of this pay (£)', cs ?? 0, 'number', 'step="0.01" inputmode="decimal"') + (cs != null && cs !== '' ? `<p class="note">It's starting fresh here now. Delete to add up from the months before again.</p>` : ''), async () => {
       const a = num(v('gcS')); await put(`bsheet/${ym}`, { ...doc, carryStart: a === null ? 0 : a });
     }, cs != null && cs !== '' ? { onDelete: async () => { const { carryStart, ...rest } = doc; await put(`bsheet/${ym}`, rest); } } : {}); }
@@ -9897,6 +9922,9 @@ document.addEventListener('click', async e => {
   if (a==='pastym') { UI.pastym = el.dataset.v; XS.sel = 'A1'; XS.undo = []; keepUI(); render(); return; }
   if (a==='grow') return growForm(el.dataset.sec, el.dataset.n);
   if (a==='growadd') return growForm(el.dataset.sec, '');
+  if (a==='gzladd') { const ym = UI.hym && S.bsheet[UI.hym] ? UI.hym : payCur(), pd = payday(ym); return zlForm(null, { d: pd > today() ? pd : today() }); }
+  if (a==='gzl') return zlForm(el.dataset.id);
+  if (a==='gzlin') { const it = (ZL().items || []).find(x => zlIsIn(x) && payYm(x.d || today()) === (UI.hym || payCur())) || (ZL().items || []).find(zlIsIn); return it ? zlForm(it.id) : null; }
   if (a==='gviki') return gvikiForm();
   if (a==='xsb') return xsBold();
   if (a==='xsundo') return xsUndo();
