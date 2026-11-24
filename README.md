@@ -82,7 +82,9 @@ Money → Money check (and the card at the top of Home) answers one question: wi
 
 ## Bank statements
 
-Money → Budget → Import statement reads a CSV file downloaded from online banking. Isle of Man bank accounts aren't covered by Open Banking, so live bank feeds aren't available.
+**Import from Nationwide** (Money check → Keeping this up to date → Import, or the Spending page) reads the CSV from Nationwide's internet bank: open the joint current account, pick the dates under Transactions, tap Download transactions. It adds only the transactions the app doesn't already have (same day, amount and direction), so overlapping dates are fine and nothing is ever deleted. Each payee gets the category it already has in the loaded statements; new payees use the rules in `NW_RULES`, and every category can be changed before importing. The Balance column fills in each day's closing balance, which keeps Money check up to date. A file from a savings account, or from a different account to the first one imported, is refused. `node tests/nwimport.test.mjs` checks it with made-up figures.
+
+Money → Budget → Import statement is the older import into the Budget's own spending list.
 
 ## Backups
 
@@ -94,7 +96,7 @@ Each March, after the Manx budget, the app needs that tax year's income tax and 
 
 ## Checks
 
-`node tests/pay.test.mjs` checks the take-home, pension, NI and tax engine, pay rises, paydays and bank holidays against the Isle of Man rules, using made-up figures. GitHub runs it on every push (Actions → Pay rules check).
+`node tests/pay.test.mjs` checks the take-home, pension, NI and tax engine, pay rises, paydays and bank holidays against the Isle of Man rules, using made-up figures. `node tests/nwimport.test.mjs` checks the Nationwide import. GitHub runs both on every push (Actions → Pay rules check).
 
 ## Usernames
 

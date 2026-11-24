@@ -14,3 +14,5 @@ jobs:
           node-version: 22
       - name: Check pay, payday and bank-holiday rules
         run: node tests/pay.test.mjs
+      - name: Check the Nationwide import
+        run: node tests/nwimport.test.mjs
