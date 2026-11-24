@@ -5897,6 +5897,151 @@ const fullMonths = () => { const ms = stmtMonths(), meta = S.stmtMeta || {}; ret
 const BRANDS = [[/^(tesco grocery|tesco subscription)/i,'Tesco online'],[/^tesco marketplace/i,'Tesco Marketplace'],[/^tesco/i,'Tesco'],[/^(amzn|amazon prime)/i,'Amazon'],[/^amazon/i,'Amazon'],[/^prime video/i,'Prime Video'],[/^apple\.com/i,'Apple'],[/^marks/i,'M&S'],[/^mcdonalds/i,"McDonald's"],[/^kfc/i,'KFC'],[/^spar/i,'Spar'],[/^co-?op/i,'Co-op'],[/^ebay/i,'eBay'],[/^(isle of man post|iom post)/i,'Post Office'],[/^union mills garage/i,'Union Mills Garage'],[/^corkills/i,'Corkills Garage'],[/^(department of health|nobles shop)/i,'Work canteen and shop'],[/^(google|google one)/i,'Google One'],[/^microsoft/i,'Microsoft 365'],[/^spotify/i,'Spotify'],[/^sky mkt disney/i,'Disney+'],[/^sky tv/i,'Sky TV'],[/^sky store/i,'Sky Store'],[/^manx ?telecom/i,'Manx Telecom'],[/^(west ?midland|www\.wmsp)/i,'West Midland Safari Park'],[/^holiday inn|^hi bromsgrove/i,'Holiday Inn'],[/^(the isle of man ste|isle of man steam)/i,'Steam Packet'],[/^b ?& ?q|^b q /i,'B&Q'],[/^sumup gelatory/i,'Gelatory'],[/^sp team rh fitness/i,'RH Fitness'],[/^sp retail ketoroma/i,'Ketoroma'],[/^zilch technology/i,'Zilch'],[/^the bee|^thie bee/i,'The Bee'],[/^omniplex/i,'Omniplex'],[/^titanic belfast/i,'Titanic Belfast'],[/^morans/i,'Morans'],[/^pets at home/i,'Pets at Home'],[/^ring multi/i,'Ring'],[/^nyx mannvend/i,'Vending machines'],[/^isle of man transport|^doi public transport/i,'Bus fares'],[/^parentpay/i,'ParentPay'],[/^ellan vannin( fuels)?$/i,'Ellan Vannin Fuels']];
 function brand(m) { const x = String(m||'').trim(); for (const [re, n] of BRANDS) if (re.test(x)) return n; return x.replace(/\s+(Douglas|Isle Of Man|IsleofMan|Ltd|Limited|Plc|Uk)\b.*$/i,'').trim() || x; }
 const payeeName = r => r.cat==='Between our accounts' ? (r.to || 'Other account') : (brand(r.m) || r.cat);
+
+/* ----- Nationwide import: the CSV from Internet Bank → Download transactions, added to the stmt/<yyyy-mm> docs.
+   Each payee gets the category it already has in the app (learned from the loaded statements, so no names live
+   in this code); payees the app hasn't seen fall back to NW_RULES. Only transactions the app doesn't already have
+   are added (same day, amount and direction), so importing a file twice changes nothing and nothing is deleted.
+   The balance column fills in each day's closing balance, which keeps Money check up to date. ----- */
+const NW_RULES = [
+  [/snooze fee|late fee/i, 'Zilch fees', 'o'],
+  [/^instal+ment|zilch tech/i, 'Zilch repayments', 'o'],
+  [/revolut/i, 'Between our accounts'],
+  [/ebay commerce/i, 'eBay sales', 'i'],
+  [/bet365|betfair|paddy ?power|william hill|sky ?bet|ladbrokes|coral|betway|unibet/i, 'Betting'],
+  [/^atm\b|cash withdrawal/i, 'Cash', 'o'],
+  [/tesco|sainsbury|asda|aldi|lidl|morrisons|waitrose|iceland|co-?op|\bspar\b|shoprite|strang stores|robinsons|marks|m ?& ?s\b|snappy shopper|farm shop|butcher|bakery/i, 'Groceries', 'o'],
+  [/mcdonald|kfc|burger king|subway|greggs|costa|starbucks|caf[eé]|coffee|chippy|fisheries|pizza|domino|just ?eat|deliveroo|uber ?eats|restaurant|kebab|diner|takeaway|bistro/i, 'Eating out and takeaways', 'o'],
+  [/garage|petrol|fuel|esso|shell|\bbp\b|texaco|applegreen|maxol|filling station|\bpfs\b/i, 'Fuel', 'o'],
+  [/apple\.com|itunes|spotify|netflix|disney|prime video|amazon prime|google one|microsoft|anthropic|openai|chatgpt|youtube|audible|now ?tv|paramount|playstation|xbox|nintendo|supabase|cloudflare|github|ring multi/i, 'Subscriptions', 'o'],
+  [/sky ?tv|sky digital|manx ?telecom|vodafone|\bo2\b|broadband/i, 'Phone and broadband', 'o'],
+  [/manx utilities|electric|tv licen[cs]e|heating oil|\bwater\b/i, 'Utilities and heating', 'o'],
+  [/insurance|\brac\b|breakdown/i, 'Insurance and breakdown', 'o'],
+  [/post office|royal mail|parcel|evri|\bdpd\b/i, 'Post and eBay costs', 'o'],
+  [/pharmacy|chemist|boots|superdrug|dental|dentist|optician|specsavers|holland ?(&|and) ?barrett|zava/i, 'Health and pharmacy', 'o'],
+  [/pets at home|\bvets?\b|pet shop/i, 'Pets', 'o'],
+  [/parentpay|school|gymnastic|uniform|smyths|toys/i, 'Kids and school', 'o'],
+  [/steam ?packet|easyjet|ryanair|loganair|airport|hotel|premier inn|holiday inn|travelodge|parking|national trust|\bzoo\b|safari|wildlife|cinema|omniplex|odeon/i, 'Travel and days out', 'o'],
+  [/b ?& ?q|homebase|ikea|currys|dunelm|b ?& ?m|screwfix|toolstation|garden centre/i, 'Home and DIY', 'o'],
+  [/amazon|amzn|ebay|temu|vinted|tk ?maxx|argos|etsy|sports ?direct|primark|shein|the ?works/i, 'Shopping', 'o'],
+  [/\bgym\b|fitness|leisure|sports centre|swimming/i, 'Leisure and fitness', 'o'],
+];
+const nwToks = s => String(s||'').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
+const nwR2 = x => Math.round(x * 100) / 100;
+function nwSplit(desc) { /* 'ZILCH TESCO STORES' is a Zilch card payment at Tesco; 'Zilch Technology…' is a repayment to Zilch */
+  let d = String(desc||'').replace(/\s+/g, ' ').trim(), z = 0; const m = /^zilch\s+(.+)$/i.exec(d);
+  if (m && !/^tech/i.test(m[1])) { d = m[1]; z = /^instal+ment/i.test(d) ? 0 : 1; }
+  return { name: d, z };
+}
+const nwTidy = s => { s = String(s||'').replace(/\s+/g, ' ').trim(); if (s === s.toUpperCase() && /[A-Z]{3}/.test(s)) s = s.toLowerCase().replace(/(^|[\s\-\/(])([a-z])/g, (x, a, b) => a + b.toUpperCase()); return s.slice(0, 40); };
+function nwParse(text) {
+  const rows = parseCSV(text), hi = rows.findIndex(r => r.some(c => /^\s*date\s*$/i.test(c)));
+  if (hi < 0) throw new Error('That doesn\'t look like a transactions file from Nationwide: it has no Date column');
+  const h = rows[hi].map(c => c.trim().toLowerCase()), col = re => h.findIndex(c => re.test(c));
+  const cD = col(/^date/), cT = col(/type/), cDesc = col(/desc|detail|narrative|payee/), cRef = col(/^ref/), cOut = col(/paid out|money out|debit|withdraw/), cIn = col(/paid in|money in|credit|deposit/), cAmt = col(/^amount|^value/), cBal = col(/balance/);
+  const num = x => { const raw = String(x ?? '').replace(/[^0-9.\-]/g, ''); if (!raw || raw === '-' || raw === '.') return null; const n = parseFloat(raw); return isFinite(n) ? n : null; };
+  const acct = rows.slice(0, hi).map(r => r.map(c => c.trim()).filter(Boolean).join(' ')).filter(s => /account|name/i.test(s)).join(' · ');
+  const out = [];
+  rows.slice(hi + 1).forEach(r => {
+    const date = parseDateLoose(r[cD]); if (!date) return;
+    let o = cOut >= 0 ? num(r[cOut]) : null, n = cIn >= 0 ? num(r[cIn]) : null;
+    if (o == null && n == null && cAmt >= 0) { const a = num(r[cAmt]); if (a != null) { if (a < 0) o = -a; else n = a; } }
+    o = nwR2(Math.abs(o || 0)); n = nwR2(Math.abs(n || 0)); if (!o && !n) return;
+    const desc = [cDesc >= 0 ? r[cDesc] : '', cRef >= 0 ? r[cRef] : ''].map(s => String(s||'').trim()).filter(Boolean).join(' ');
+    out.push({ date, type: cT >= 0 ? String(r[cT]||'').trim() : '', desc, out: o, in: n, bal: cBal >= 0 ? num(r[cBal]) : null });
+  });
+  if (out.length > 1 && out[0].date > out[out.length - 1].date) out.reverse(); /* oldest first, so the last balance of a day is that day's closing balance */
+  return { acct, rows: out };
+}
+function nwLearn() { /* payee → the category (and where the money went) it has most often in the loaded statements */
+  const L = new Map();
+  stmtMonths().forEach(ym => stmtRows(ym).forEach(r => { const t = nwToks(r.m); if (!t.length || !r.cat) return; const k = (r.in ? 'i ' : 'o ') + t.join(' ');
+    const e = L.get(k) || { dir: r.in ? 'i' : 'o', t, n: {} }; const c = r.cat + '|' + (r.to || ''); e.n[c] = (e.n[c] || 0) + 1; L.set(k, e); }));
+  return [...L.values()].map(e => { const [best, w] = Object.entries(e.n).sort((a, b) => b[1] - a[1])[0]; const [cat, to] = best.split('|'); return { dir: e.dir, t: e.t, cat, to, w }; });
+}
+function nwMatch(learned, dir, name) { /* the statements cut names short ('Zilch Technology L'), so a known name matches the start of a longer one */
+  const t = nwToks(name); let best = null; if (!t.length) return null;
+  for (const L of learned) {
+    if (L.dir !== dir || L.t.length > t.length) continue; let ok = true;
+    for (let i = 0; i < L.t.length; i++) { const a = L.t[i], b = t[i], last = i === L.t.length - 1 && L.t.length > 1; if (last ? !b.startsWith(a) : a !== b) { ok = false; break; } }
+    if (ok && (!best || L.t.length > best.t.length || (L.t.length === best.t.length && L.w > best.w))) best = L;
+  }
+  return best;
+}
+function nwCat(learned, x, name) {
+  const dir = x.in ? 'i' : 'o';
+  if (/between your accounts|own account/i.test(x.type) || /^(transfer (to|from) )?\d{2}-?\d{2}-?\d{2} ?\d{8}\b/i.test(name)) return { cat: 'Between our accounts', to: 'Other Nationwide account', m: '', known: true };
+  const L = nwMatch(learned, dir, name); if (L) return { cat: L.cat, to: L.to, known: true };
+  for (const [re, cat, only] of NW_RULES) if ((!only || only === dir) && (re.test(name) || re.test(x.type))) return { cat, to: cat === 'Between our accounts' && /revolut/i.test(name) ? 'Revolut' : '' };
+  return { cat: x.in ? 'Other income' : 'Other', to: '' };
+}
+function nwPlan(parsed) {
+  const rows = parsed.rows; if (!rows.length) throw new Error('There are no transactions in that file');
+  const dates = rows.map(r => r.date).sort(), from = dates[0], to = dates[dates.length - 1], learned = nwLearn(), have = {};
+  const key = (d, o, i) => `${d}|${Number(o||0).toFixed(2)}|${Number(i||0).toFixed(2)}`;
+  stmtMonths().filter(ym => ym >= from.slice(0, 7) && ym <= to.slice(0, 7)).forEach(ym => stmtRows(ym).forEach(r => { const k = key(r.date, r.out, r.in); have[k] = (have[k] || 0) + 1; }));
+  const items = rows.map(x => {
+    const k = key(x.date, x.out, x.in); if (have[k]) { have[k]--; return { ...x, old: true }; }
+    const { name, z } = nwSplit(x.desc), c = nwCat(learned, x, name);
+    return { ...x, old: false, m: c.m ?? nwTidy(name), cat: c.cat, to: c.to || '', z, guess: !c.known };
+  });
+  return { from, to, items, acct: parsed.acct, fresh: items.filter(x => !x.old) };
+}
+async function nwSave(plan) {
+  const base = S.stmtMeta || {}, meta = { ...base, cats: [...(base.cats || [])], tos: [...(base.tos && base.tos.length ? base.tos : [''])] };
+  const ci = c => { let i = meta.cats.indexOf(c); if (i < 0) { meta.cats.push(c); i = meta.cats.length - 1; } return i; };
+  const ti = t => { if (!t) return 0; let i = meta.tos.indexOf(t); if (i < 0) { meta.tos.push(t); i = meta.tos.length - 1; } return i; };
+  const byMonth = {}; plan.items.forEach(x => (byMonth[ymOf(x.date)] = byMonth[ymOf(x.date)] || []).push(x));
+  let added = 0;
+  for (const ym of Object.keys(byMonth).sort()) {
+    const list = byMonth[ym], was = S.stmt[ym] || {}, doc = { ...was, b: [...(was.b || [])], m: [...(was.m || [])], r: [...(was.r || [])] };
+    const mi = n => { let i = doc.m.indexOf(n); if (i < 0) { doc.m.push(n); i = doc.m.length - 1; } return i; };
+    list.filter(x => !x.old).forEach(x => { const row = [Number(x.date.slice(8)), mi(x.m), x.out, x.in, ci(x.cat)], t = ti(x.to); if (x.z || t) row.push(x.z ? 1 : 0); if (t) row.push(t); doc.r.push(row); added++; });
+    doc.r.sort((a, b) => a[0] - b[0]);
+    const bm = new Map(doc.b.map(([d, val]) => [d, val])); let balChanged = false;
+    list.forEach(x => { if (x.bal != null) { const d = Number(x.date.slice(8)); if (bm.get(d) !== nwR2(x.bal)) balChanged = true; bm.set(d, nwR2(x.bal)); } });
+    doc.b = [...bm.entries()].sort((a, b) => a[0] - b[0]);
+    if (list.some(x => !x.old) || balChanged || !S.stmt[ym]) await put(`stmt/${ym}`, doc);
+  }
+  meta.months = [...new Set([...(meta.months || []), ...Object.keys(byMonth)])].sort();
+  if (!meta.from || plan.from < meta.from) meta.from = plan.from; if (!meta.to || plan.to > meta.to) meta.to = plan.to;
+  meta.count = (Number(meta.count) || 0) + added; meta.loaded = today(); meta.lastImport = { d: today(), by: me(), added, from: plan.from, to: plan.to };
+  if (plan.acct && !meta.acctLine) meta.acctLine = plan.acct;
+  await put('stmt/meta', meta);
+  mcSync.last = 0; setTimeout(mcSync, 50);
+  return added;
+}
+let nwPlanNow = null;
+function nwImportForm() {
+  nwPlanNow = null; const sTo = (S.stmtMeta && S.stmtMeta.to) || '';
+  openSheet('Import from Nationwide', `<p class="note">${sTo ? `The app has the bank payments up to <b>${esc(shortDate(sTo))}</b>. ` : ''}On a computer, sign in to Nationwide's internet bank, open the joint current account, pick the dates under <b>Transactions</b> (Last 1 month is fine), tap <b>Download transactions</b> and choose CSV if it asks. Then pick that file here.</p>
+    <div class="field"><label for="nwFile">Transactions file (.csv)</label><input id="nwFile" type="file" accept=".csv,text/csv,text/plain"></div>
+    <div id="nwPreview"></div>
+    <p class="note">Anything already in the app is skipped, so it doesn't matter if the dates overlap. Each payee goes in the category it's had before; you can change any of them below. The file stays on this device: only the transactions are saved.</p>`, async () => {
+    const P = nwPlanNow; if (!P) throw new Error('Pick the file from Nationwide first');
+    if (P.block) throw new Error(P.block);
+    P.fresh.forEach((x, i) => { const c = v(`nwc${i}`); if (c) x.cat = c; });
+    const n = await nwSave(P);
+    window.__toastAfter = n ? `Added ${n} transaction${n === 1 ? '' : 's'} from Nationwide` : 'Balance updated. Everything else was already in';
+  }, { saveLabel: 'Import' });
+  $('#nwFile').addEventListener('change', async e => {
+    const f = e.target.files[0], box = $('#nwPreview'); nwPlanNow = null; formErr(''); if (!f) { box.innerHTML = ''; return; }
+    try {
+      const buf = await f.arrayBuffer(); let text = new TextDecoder('utf-8').decode(buf); if (text.includes('\uFFFD')) text = new TextDecoder('windows-1252').decode(buf);
+      const P = nwPlan(nwParse(text)), meta = S.stmtMeta || {};
+      if (/saver|savings|\bisa\b|holiday/i.test(P.acct)) P.block = 'That file is from a savings account. Download it from the joint current account instead.';
+      else if (meta.acctLine && P.acct && nwToks(P.acct).join(' ') !== nwToks(meta.acctLine).join(' ')) P.block = 'That file is from a different account to the one already in the app. Download it from the joint current account.';
+      nwPlanNow = P;
+      const last = [...P.items].reverse().find(x => x.bal != null), cats = [...new Set([...(meta.cats || []), ...NW_RULES.map(r => r[1]), 'Other', 'Other income'])].filter(c => c).sort();
+      const tin = P.fresh.reduce((s, x) => s + x.in, 0), tout = P.fresh.reduce((s, x) => s + x.out, 0);
+      box.innerHTML = P.block ? `<p class="err">${esc(P.block)}</p>` : `<div class="insight"><i style="background:var(--g1)"></i><div class="grow"><div class="t">${P.items.length} transaction${P.items.length === 1 ? '' : 's'}, ${esc(shortDate(P.from))} to ${esc(shortDate(P.to))}</div>
+        <div class="m" style="font-size:.88rem">${P.fresh.length ? `<b>${P.fresh.length} new</b> (${money(tout, 2)} out, ${money(tin, 2)} in)` : 'Nothing new: they\'re all in the app already'}${P.items.length - P.fresh.length ? `, ${P.items.length - P.fresh.length} already in the app` : ''}.${last ? ` Balance ${money(last.bal, 2)} on ${esc(shortDate(last.date))}.` : ''}${P.acct ? `<br><small>${esc(P.acct)}</small>` : ''}</div></div></div>
+        ${P.fresh.length ? `<div class="list">${P.fresh.slice(0, 200).map((x, i) => `<div class="row" style="flex-wrap:wrap;gap:4px 10px"><div class="grow" style="min-width:55%"><div>${esc(x.m || (x.to || 'Between our accounts'))}${x.z ? ' <small>(Zilch card)</small>' : ''}</div><small>${esc(dayShort(x.date))}${x.guess ? ' · new payee' : ''}</small></div><div class="amt" style="color:${x.in ? 'var(--good)' : 'inherit'}">${x.in ? '+' + money(x.in, 2) : money(x.out, 2)}</div>
+          <select id="nwc${i}" aria-label="Category for ${esc(x.m || 'transfer')}" style="width:100%">${cats.map(c => `<option ${c === x.cat ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div>`).join('')}</div>${P.fresh.length > 200 ? `<p class="note">Showing the first 200. The rest are added with the categories they've had before.</p>` : ''}` : ''}`;
+      const btn = $('#sheetForm button[type="submit"]'); if (btn) btn.textContent = P.block ? 'Import' : P.fresh.length ? `Add ${P.fresh.length} new` : 'Update the balance';
+    } catch (err) { box.innerHTML = `<p class="err">${esc(err.message || 'Couldn\'t read that file')}</p>`; }
+  });
+}
 function monthSummary(ym) {
   const rows = stmtRows(ym), t = { in:0, out:0, movedOut:0, movedIn:0, cats:{}, incomes:{}, moved:{}, zBought:0, n:rows.length };
   rows.forEach(r => {
@@ -5930,7 +6075,7 @@ function zilchChart(months) {
 }
 function viewSpending() {
   const months = stmtMonths();
-  if (!months.length) return `<section class="panel"><h2>Spending from your statements</h2><p class="empty">No statements loaded yet. Import a CSV from Budget, or send the PDFs and they'll be added here.</p></section>`;
+  if (!months.length) return `<section class="panel"><h2>Spending from your statements</h2><p class="empty">No statements loaded yet. Download the transactions from Nationwide's internet bank and import them here.</p><div class="btnrow"><button class="btn" data-act="nwimp">Import from Nationwide</button></div></section>`;
   const full = fullMonths(), sel = UI.smonth && months.includes(UI.smonth) ? UI.smonth : 'avg';
   const S0 = sel==='avg' ? averageSummary(full) : monthSummary(sel), label = sel==='avg' ? `a month on average, ${MONTHS[parse(full[0]+'-01').getMonth()].slice(0,3)} to ${MONTHS[parse(full[full.length-1]+'-01').getMonth()].slice(0,3)}` : monthName(sel) + (full.includes(sel) ? '' : ' (part month)');
   const chips = `<div class="seg" role="group" aria-label="Which month">${[['avg','Average'], ...months.map(m => [m, MONTHS[parse(m+'-01').getMonth()].slice(0,3) + (full.includes(m)?'':'*')])].map(([k,l]) => `<button data-act="smonth" data-v="${k}" aria-pressed="${sel===k}">${l}</button>`).join('')}</div>`;
@@ -5988,7 +6133,8 @@ function viewSpending() {
   const budgetPanel = bvs.length ? `<section class="panel"><h2>Budget against real spending <span class="sub">monthly average</span></h2>
     <div class="list">${bvs.map(b => `<div class="gauge"><div class="gh"><span class="t">${esc(b.name)}</span><span class="amt" style="color:${b.actual>b.limit?'var(--red)':'inherit'}">${money(b.actual,0)} <small>of ${money(b.limit,0)}</small></span></div>${gauge(b.limit ? b.actual/b.limit : 0)}</div>`).join('')}</div>
     <p class="note">From the statements. Where two budget lines share a category, such as Food and Big monthly shop, the spending is split between them.</p></section>` : '';
-  return chips + summary + `<section class="panel"><h2>In and out by month</h2><div class="cleg"><span><i style="background:var(--c-in)"></i>Money in</span><span><i style="background:var(--c-out)"></i>Spent and paid out</span></div>${pairChart(months)}<p class="note">* Part months: the statements start on ${esc(shortDate(S.stmtMeta.from))} and end on ${esc(shortDate(S.stmtMeta.to))}. Money moved between your own accounts isn't counted.</p></section>
+  const nwStrip = `<section class="panel"><div class="row"><div class="grow"><b>Bank payments up to ${esc(shortDate(S.stmtMeta.to))}</b><br><small>Download the latest from Nationwide's internet bank to add them</small></div><button type="button" class="btn small" data-act="nwimp">Import</button></div></section>`;
+  return chips + summary + nwStrip + `<section class="panel"><h2>In and out by month</h2><div class="cleg"><span><i style="background:var(--c-in)"></i>Money in</span><span><i style="background:var(--c-out)"></i>Spent and paid out</span></div>${pairChart(months)}<p class="note">* Part months: the statements start on ${esc(shortDate(S.stmtMeta.from))} and end on ${esc(shortDate(S.stmtMeta.to))}. Money moved between your own accounts isn't counted.</p></section>
     <section class="panel"><h2>Where it goes</h2><div class="cleg">${groupLeg}</div><div class="list">${catRows}</div>${cats.length > 10 ? `<div class="btnrow"><button class="btn small ghost" data-act="sall">${showAllCats ? 'Show the top 10' : `Show all ${cats.length}`}</button></div>` : ''}<p class="note">Tap a category to see who it was paid to.</p></section>
     <section class="panel"><h2>What the statements show</h2><div class="list">${insights}</div></section>
     <section class="panel"><h2>Zilch each month</h2>${zilchChart(months)}<p class="note">Purchases made with the Zilch card, by the month they were made.</p></section>
@@ -6253,7 +6399,7 @@ function viewCheck() {
   const patP = pat || wk ? `<details class="panel mc-fold"><summary><h2>How the money goes <span class="sub">charts</span></h2></summary>${pat ? `<h4 class="qh">The balance after each payday</h4>${pat}<p class="note">Each line is one pay month. The steeper the drop in week 1, the less there is for weeks 3 and 4.</p>` : ''}${wk ? `<h4 class="qh">Out each week this pay month</h4>${wk}` : ''}</details>` : '';
   const foot = `<section class="panel"><h2>Keeping this up to date</h2><div class="list">
     <div class="insight"><i style="background:var(--good-bar)"></i><div class="grow"><div class="t">Bank balance</div><div class="m" style="font-size:.88rem">${M.bal ? `${money(M.bal.bal, 2)}, ${M.bal.src === 'typed' ? 'typed in' : 'from the bank payments'} ${esc(mcAge(M))}.` : 'Not added yet.'} Takes ten seconds: open the banking app, then tap Update balance.</div></div><button type="button" class="btn small" data-act="mcbal">Update</button></div>
-    <div class="insight"><i style="background:var(--g1)"></i><div class="grow"><div class="t">Bank payments</div><div class="m" style="font-size:.88rem">${sTo ? `Loaded up to ${esc(dayShort(sTo))}.` : 'None loaded yet.'} Claude adds the new ones in the weekly bank check-in, or use Check against the bank with screenshots.</div></div><button type="button" class="btn small ghost" data-act="qbank">Check</button></div></div></section>`;
+    <div class="insight"><i style="background:var(--g1)"></i><div class="grow"><div class="t">Bank payments</div><div class="m" style="font-size:.88rem">${sTo ? `Loaded up to ${esc(dayShort(sTo))}.` : 'None loaded yet.'} Download the transactions from Nationwide's internet bank and tap Import, or Claude adds them in the weekly bank check-in.</div></div><div style="display:flex;flex-direction:column;gap:6px"><button type="button" class="btn small" data-act="nwimp">Import</button><button type="button" class="btn small ghost" data-act="qbank">Check</button></div></div></div></section>`;
   return head + freshNote + (M.bal ? mcWeekPanel(M) : '') + todoP + actPanel + fc + bills + budgets + unp + mcStreakPanel() + mcCushionPanel() + mcReviewPanel(ymAdd(cur, -1)) + zilch + subP + patP + foot;
 }
 function mcBalForm() {
@@ -9900,6 +10046,7 @@ document.addEventListener('click', async e => {
   if (a==='plspread') { if (!el.dataset.confirm) { el.dataset.confirm = '1'; el.textContent = 'Tap again: this turns Zilch and one-off payments into monthly saving'; return; } return planSpread(el.dataset.id); }
   if (a==='plsheet') { UI.hym = el.dataset.v; UI.tab = 'money'; UI.money = 'grid'; UI.gseg = 'sheet'; keepUI(); render(); window.scrollTo(0,0); gridScrollTo(UI.hym); return; }
   if (a==='import') return importForm();
+  if (a==='nwimp') return nwImportForm();
   if (a==='potgoal') { potGoalForm(); return; }
   if (a==='setphoto') { pickMediaPhoto(el.dataset.slot); return; }
   if (a==='pictures') { closeSheet(); picturesForm(); return; }
