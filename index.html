@@ -5879,7 +5879,7 @@ function sheetHero(ym) {
 /* ----- bank statements: transactions loaded from the Nationwide statements (stmt/<yyyy-mm> docs) ----- */
 const GROUP = {
   essentials: { name:'Essentials', c:'var(--g1)', cats:['Rent','Phone and broadband','Utilities and heating','Insurance and breakdown','Groceries','Kids and school','Fuel','Car','Work costs','Health and pharmacy','Pets'] },
-  lifestyle: { name:'Lifestyle', c:'var(--g2)', cats:['Eating out and takeaways','Shopping','Travel and days out','Subscriptions','Home and DIY','Food at work','Leisure and fitness','Post and eBay costs','Cash','Betting','Other'] },
+  lifestyle: { name:'Lifestyle', c:'var(--g2)', cats:['Eating out and takeaways','Shopping','Christmas and presents','Travel and days out','Subscriptions','Home and DIY','Food at work','Leisure and fitness','Post and eBay costs','Cash','Betting','Other'] },
   owed: { name:'Zilch', c:'var(--g3)', cats:['Zilch repayments','Zilch fees'] },
   people: { name:'Family and people', c:'var(--g4)', cats:['Family support','Payments to people'] },
 };
@@ -6192,9 +6192,10 @@ const MC_BUDGET = [
   ['subs', 'Subscriptions and apps', /subscriptions? and apps|^subscriptions?$|^apps?$/i, r => r.cat === 'Subscriptions'],
   ['kids', 'Kids and school', /residential|school (photo|trip)|^kids\b/i, r => r.cat === 'Kids and school'],
   ['treats', 'Trips and days out', /days? out|^trips?\b/i, r => r.cat === 'Travel and days out'],
+  ['gifts', 'Presents and Christmas', /^presents?\b|christmas|xmas/i, r => r.cat === 'Christmas and presents'], /* in a month when the plans have presents due, Shopping payments (Amazon, eBay and the like) count here too: see mcMonth */
   ['spends', 'Shopping and one-offs', /shopping and one-?offs|^one-?offs?( pot)?$|odds and ends/i, r => r.cat !== 'Between our accounts'],
 ];
-const MC_ICON = { zilch: '🔁', dinners: '🍎', swim: '🏊', gym: '🤸', bus: '🚌', mobiles: '📱', revolut: '💳', apple: '', food: '🛒', fuel: '⛽', health: '💊', car: '🔧', eatout: '🍔', subs: '📺', kids: '🎒', treats: '🎡', spends: '🛍️' };
+const MC_ICON = { zilch: '🔁', dinners: '🍎', swim: '🏊', gym: '🤸', bus: '🚌', mobiles: '📱', revolut: '💳', apple: '', food: '🛒', fuel: '⛽', health: '💊', car: '🔧', eatout: '🍔', subs: '📺', kids: '🎒', treats: '🎡', gifts: '🎁', spends: '🛍️' };
 const mcStart = ym => { const a = payday(ym), b = vikiPayday(ym); return a < b ? a : b; }; /* the first pay to land that month */
 function mcCur() { const t = today(); let ym = ymOf(t); if (mcStart(ym) > t) ym = ymAdd(ym, -1); return ym; }
 function mcRows(from, to) { /* bank payments from one date up to (not including) another */
@@ -6219,18 +6220,24 @@ function mcMonth(ym) {
     const bk = MC_BUDGET.find(([, , re]) => re.test(n));
     if (bk) { const b = buckets[bk[0]]; b.planned += a; b.lines.push(n); } else fixed.push({ n, planned: a, due: mcDue(x, from, to), sec: s.k }); }));
   const zl = zlMonth(ym).total; if (zl > 0.5) { buckets.zilch.planned += zl; buckets.zilch.lines.push('Zilch'); }
-  const pl = plannerMonth(ym).total; if (pl > 0.5) { buckets.treats.planned += pl; buckets.treats.lines.push('Planner'); }
+  /* money due from the plans in Treats: trips go in Trips and days out; Christmas, birthday and celebration plans are presents, and a present ticked as bought counts as bought */
+  let giftBought = 0; plannerMonth(ym).rows.forEach(({ p, amount }) => { const b = buckets[isGift(p) ? 'gifts' : 'treats']; b.planned += amount; if (!b.lines.includes('Planner')) b.lines.push('Planner');
+    if (isGift(p) && !p.payplan) (p.items || []).forEach(it => { const due = plItemPays(it, p).filter(x => x.ym === ym).reduce((s, x) => s + x.amount, 0); if (due > 0) giftBought += Math.min(due, giftsOf(it).filter(g => g.got).reduce((s, g) => s + (Number(g.a) || 0), 0)); }); });
+  const giftDue = buckets.gifts.planned > 0.5;
   /* 1: bills and one-off lines we know how to recognise, closest amount first */
   const take = (f, cands) => { if (!cands.length) return false; const r = cands.sort((a, b) => Math.abs(a.out - f.planned) - Math.abs(b.out - f.planned))[0]; r.used = true; f.paid = r.out; f.on = r.date; f.who = payeeName(r); return true; };
   fixed.forEach(f => { const spec = MC_FIXED.find(([re]) => re.test(f.n)); f.spec = !!spec;
     if (spec) take(f, pool.filter(r => !r.used && spec[1](r)));
     else { const words = f.n.toLowerCase().split(/[^a-z0-9+]+/).filter(w => w.length >= 4); take(f, pool.filter(r => !r.used && words.some(w => String(r.m).toLowerCase().includes(w)))); } });
   /* 2: everything else falls into the first budget it fits */
-  pool.filter(r => !r.used).forEach(r => { const bk = MC_BUDGET.find(([, , , test]) => test(r)); if (!bk) return; const b = buckets[bk[0]]; r.used = true; r.bk = bk[0]; b.spent += r.out; b.rows.push(r); });
+  pool.filter(r => !r.used).forEach(r => { const bk = MC_BUDGET.find(([k, , , test]) => test(r) || (k === 'gifts' && giftDue && r.cat === 'Shopping')); if (!bk) return; const b = buckets[bk[0]]; r.used = true; r.bk = bk[0]; b.spent += r.out; b.rows.push(r); });
   all.filter(r => r.in > 0 && r.cat === 'Between our accounts' && r.to === 'Revolut').forEach(r => { buckets.revolut.spent -= r.in; }); /* money sent back from Revolut */
   buckets.revolut.spent = Math.max(0, buckets.revolut.spent);
   /* 3: one-off lines nobody recognised: an unplanned payment of exactly that amount is taken to be it */
   fixed.filter(f => f.paid == null && !f.spec).forEach(f => { for (const b of Object.values(buckets)) { if (b.planned > 0) continue; const i = b.rows.findIndex(r => Math.abs(r.out - f.planned) < 0.01); if (i >= 0) { const r = b.rows.splice(i, 1)[0]; b.spent -= r.out; f.paid = r.out; f.on = r.date; f.who = payeeName(r); break; } } });
+  /* things on the plan that Zilch is paying for (zlCover): the bank only sees Zilch's share at the till, and the Zilch repayments line already holds that share, so a till payment counts as that much of it taken */
+  const zc = zlCover(ym), zTill = pool.filter(r => r.z && r.cat !== 'Zilch repayments' && r.cat !== 'Zilch fees' && !/^membership|snooze/i.test(String(r.m).trim())), zTaken = zTill.reduce((s, r) => s + r.out, 0);
+  if (zc.share > 0) buckets.zilch.spent += Math.min(zc.share, zTill.filter(r => r.bk !== 'zilch').reduce((s, r) => s + r.out, 0));
   /* what the family has ticked by hand: 'done' = paid or not happening, 'due' = still to pay */
   const marks = ((S.bank || {}).done || {})[ym] || {}, t0 = today(), early = daysBetween(from, t0) <= 14;
   fixed.forEach(f => { f.key = 'f:' + f.n.toLowerCase(); const mk = marks[f.key];
@@ -6242,24 +6249,26 @@ function mcMonth(ym) {
   const LUMP = ['dinners', 'swim', 'gym', 'bus', 'mobiles', 'health', 'kids', 'car', 'apple', 'treats'], total = Math.max(1, daysBetween(from, to)), daysLeft = Math.max(0, daysBetween(t0 < from ? from : t0, to));
   const slots = shopSlots(ym), openFood = slots.filter(s2 => !shopDone(ym, s2.slot) && s2.d >= t0) /* a shop whose day has passed is already in the bank figures, ticked or not */.reduce((a, s2) => a + shopTarget(s2), 0);
   const budgets = bl.filter(b => b.planned > 0).map(b => { const left = r2(Math.max(0, b.planned - b.spent)), key = 'b:' + b.k, mk = marks[key];
-    let todo = b.k === 'zilch' ? left : LUMP.includes(b.k) ? (b.spent > 0.5 ? 0 : b.planned) : b.k === 'food' && slots.length ? Math.min(left, openFood) : Math.min(left, b.planned * daysLeft / total);
-    let why = b.k === 'zilch' ? 'Zilch repayments not taken yet' : LUMP.includes(b.k) ? 'Nothing paid for this yet' : b.k === 'food' ? 'Food shops still to do' : `${nOf(daysLeft, 'day')} of this budget at the planned rate`;
+    let todo = b.k === 'zilch' ? left : b.k === 'gifts' ? Math.max(0, b.planned - Math.max(b.spent, giftBought)) : LUMP.includes(b.k) ? (b.spent > 0.5 ? 0 : b.planned) : b.k === 'food' && slots.length ? Math.min(left, openFood) : Math.min(left, b.planned * daysLeft / total);
+    let why = b.k === 'zilch' ? 'Zilch repayments not taken yet' : b.k === 'gifts' ? 'Presents still to buy' : LUMP.includes(b.k) ? 'Nothing paid for this yet' : b.k === 'food' ? 'Food shops still to do' : `${nOf(daysLeft, 'day')} of this budget at the planned rate`;
     if (mk === 'done') todo = 0; else if (mk === 'due' && left > 0) { todo = left; why = 'You marked this as still to spend'; }
     return { ...b, key, left, todo: r2(todo), why, ticked: mk === 'done', over: r2(Math.max(0, b.spent - b.planned)) }; });
   const unplanned = bl.filter(b => !b.planned && b.spent > 0.5).sort((a, b) => b.spent - a.spent);
   const pots = r2(all.filter(r => r.cat === 'Between our accounts' && r.to === 'Other Nationwide account').reduce((s, r) => s + r.out - r.in, 0));
-  const todo = [...fixed.filter(f => f.left > 0).map(f => ({ key: f.key, n: f.n, a: f.left, due: f.due, hard: true, why: f.due ? `Due ${dayShort(f.due)}` : 'Not seen on the bank yet' })), ...budgets.filter(b => b.todo > 0.5).map(b => ({ key: b.key, n: b.n, a: b.todo, why: b.why, hard: b.k === 'zilch' || LUMP.includes(b.k) }))];
-  const stillOut = r2(todo.reduce((s, x) => s + x.a, 0));
+  const todo = [...fixed.filter(f => f.left > 0).map(f => ({ key: f.key, n: f.n, a: f.left, due: f.due, hard: true, why: f.due ? `Due ${dayShort(f.due)}` : 'Not seen on the bank yet' })), ...budgets.filter(b => b.todo > 0.5).map(b => ({ key: b.key, n: b.n, a: b.todo, why: b.why, hard: b.k === 'zilch' || b.k === 'gifts' || LUMP.includes(b.k) }))];
+  /* the rest of what Zilch is paying for never leaves the bank this month, so it comes off what is still to go out (never more than the budgets still have to come) */
+  const zf = zc.share > 0 && zc.price > 0 ? zc.share / zc.price : zs().upfront / 100, zLeft = zc.price > 0.5 ? r2(Math.max(0, Math.min(zc.price - zTaken / (zf || 0.25), budgets.filter(b => b.k !== 'zilch').reduce((s, b) => s + b.todo, 0)))) : 0;
+  const stillOut = r2(todo.reduce((s, x) => s + x.a, 0) - zLeft);
   const over = r2(budgets.reduce((s, b) => s + b.over, 0)), notPlanned = r2(unplanned.reduce((s, b) => s + b.spent, 0)), extraBills = r2(fixed.filter(f => f.st === 'diff').reduce((s, f) => s + Math.max(0, f.paid - f.planned), 0));
-  const M = { ym, from, to, sTo, bal, fixed, budgets, todo, unplanned, pots, stillOut, over, notPlanned, extraBills, overspend: r2(over + notPlanned + extraBills), hasBank: all.length > 0 };
+  const M = { ym, from, to, sTo, bal, fixed, budgets, todo, unplanned, pots, stillOut, over, notPlanned, extraBills, overspend: r2(over + notPlanned + extraBills), hasBank: all.length > 0, zcover: zc.price > 0.5 ? { price: zc.price, share: zc.share, taken: r2(zTaken), left: zLeft } : null };
   if (bal) { const t = today(), start = bal.d > t ? t : bal.d, days = Math.max(1, daysBetween(t, to));
-    M.days = days; M.free = r2(bal.bal - stillOut); M.committed = r2(todo.filter(x => x.hard).reduce((s, x) => s + x.a, 0)); M.pot = r2(bal.bal - M.committed); M.daily = Math.max(0, M.pot) / days; /* the pot is everything for food, fuel and treats until payday */
+    M.days = days; M.free = r2(bal.bal - stillOut); M.committed = r2(todo.filter(x => x.hard).reduce((s, x) => s + x.a, 0)); M.pot = r2(bal.bal - M.committed + zLeft); M.daily = Math.max(0, M.pot) / days; /* the pot is everything for food, fuel and treats until payday */
     { let ws = t; while (parse(ws).getDay() !== 5) ws = addDays(ws, -1); if (ws < from) ws = from; let we = addDays(ws, 7); while (parse(we).getDay() !== 5) we = addDays(we, -1); if (we <= ws) we = addDays(ws, 7); if (we > to) we = to;
       const dl = Math.max(1, daysBetween(t, we)), every = r => r.date >= ws && r.date < we, spent = r2([...budgets, ...unplanned].filter(b => b.k !== 'zilch' && !LUMP.includes(b.k)).reduce((s, b) => s + b.rows.filter(every).reduce((a, r) => a + r.out, 0), 0));
       M.week = { start: ws, end: we, daysLeft: dl, left: r2(M.daily * dl), spent }; }
     M.level = M.free < -10 ? 'red' : M.free < MC_TIGHT ? 'amber' : 'green'; /* a few pounds under is tight, not an alarm */
     /* day by day: dated bills on their day, everything else spread evenly */
-    const dated = {}; let spread = budgets.reduce((s, b) => s + b.todo, 0);
+    const dated = {}; let spread = Math.max(0, budgets.reduce((s, b) => s + b.todo, 0) - zLeft);
     fixed.filter(f => f.left).forEach(f => { if (f.due && f.due > start) dated[f.due] = (dated[f.due] || 0) + f.left; else spread += f.left; });
     const n = Math.max(1, daysBetween(start, to) - 1), each = spread / n; let v = bal.bal; M.series = [{ d: start, v }];
     for (let d = addDays(start, 1); d < to; d = addDays(d, 1)) { v -= each + (dated[d] || 0); M.series.push({ d, v: r2(v) }); if (v < -0.5 && !M.runOut) M.runOut = d; }
@@ -6358,8 +6367,9 @@ function viewCheck() {
   const head = `<section class="panel nopad glance mc-home">${headCard({ tone: T.tone, kicker: `${T.kicker} · ${monShort(cur)} pay`, title: T.title, meta: `<span style="font-weight:500">${T.sub}</span>`, body: M.bal ? mcCells(M) : '', actions: hcBtn(M.bal ? 'Update balance' : 'Add balance', 'mcbal') + (M.bal ? hcBtn('Can we afford it?', 'mcafford') : '') + hcBtn('How this works', 'mchelp') })}</section>`;
   const freshNote = !M.hasBank ? `<div class="banner"><span>No bank payments are loaded for this pay month yet, so the ticks below can't be filled in. The balance check above still works.</span></div>` : fresh > 6 ? `<div class="banner"><span>The bank payments stop at ${esc(dayShort(sTo))}. Anything since then isn't ticked off yet.</span></div>` : '';
   /* 0: exactly what is being counted as still to go out, each with a tick so the family has the last word */
+  const zcRow = M.zcover && M.zcover.left > 0.5 ? `<div class="mc-row"><span class="grow">Going on Zilch, not the bank<small>Things in this list that Zilch is paying for. Only Zilch's share comes out of the bank, and that is in Zilch repayments.</small></span><b>−${money(M.zcover.left, M.zcover.left % 1 ? 2 : 0)}</b></div>` : '';
   const todoP = `<section class="panel"><h2>Still to go out before payday <span class="sub">${money(M.stillOut, 0)} ${mcQ('out')}</span></h2>
-    ${M.todo.length ? `<p class="note">This is everything the app is taking off your balance. If one has already been paid, or isn't happening, tap <b>Done</b> and it stops counting.</p>${M.todo.sort((a, b) => b.a - a.a).map(x => `<div class="mc-row"><span class="grow">${esc(x.n)}<small>${esc(x.why)}</small></span><b>${money(x.a, x.a % 1 ? 2 : 0)}</b><button type="button" class="btn small" data-act="mcdone" data-k="${esc(x.key)}" data-v="done">Done</button></div>`).join('')}` : `<p class="empty">Nothing. Everything planned for this pay month has gone out, so what's in the bank is yours until ${esc(dayShort(M.to))}.</p>`}
+    ${M.todo.length ? `<p class="note">This is everything the app is taking off your balance. If one has already been paid, or isn't happening, tap <b>Done</b> and it stops counting.</p>${M.todo.sort((a, b) => b.a - a.a).map(x => `<div class="mc-row"><span class="grow">${esc(x.n)}<small>${esc(x.why)}</small></span><b>${money(x.a, x.a % 1 ? 2 : 0)}</b><button type="button" class="btn small" data-act="mcdone" data-k="${esc(x.key)}" data-v="done">Done</button></div>`).join('')}${zcRow}` : `<p class="empty">Nothing. Everything planned for this pay month has gone out, so what's in the bank is yours until ${esc(dayShort(M.to))}.</p>`}
     ${(() => { const tk = [...M.fixed.filter(f => f.st === 'ticked').map(f => [f.key, f.n]), ...M.budgets.filter(b => b.ticked).map(b => [b.key, b.n])]; return tk.length ? `<details class="mc-det"><summary>Ticked as done by you (${tk.length})</summary>${tk.map(([k, n]) => `<div class="mc-row"><span class="grow">${esc(n)}</span><button type="button" class="btn small ghost" data-act="mcdone" data-k="${esc(k)}" data-v="">Undo</button></div>`).join('')}</details>` : ''; })()}</section>`;
   /* 1: what to do, in words */
   const act = [];
@@ -6443,7 +6453,7 @@ async function mcMark(k, val) { const ym = mcCur(), B = S.bank || {}, done = { .
 const mcQ = k => `<button type="button" class="mc-q" data-act="mcwhat" data-k="${k}" aria-label="What is this?">?</button>`;
 const MC_WHAT = {
   bank: ['In the bank', 'The available balance on the joint account. It is either the figure one of you last typed in with Update balance, or the last balance on the bank payments, whichever is newer. Everything else on this page starts from this number, so the fresher it is the better.'],
-  out: ['Still to go out', 'Only things that are really still to come before payday: bills the bank has not taken yet, Zilch repayments not taken, food shops still to do, and the last few days of everyday budgets such as fuel. Every item is listed on the Money check page. Tap Done on anything that is already paid and it stops counting.'],
+  out: ['Still to go out', 'Only things that are really still to come before payday: bills the bank has not taken yet, Zilch repayments not taken, food shops still to do, and the last few days of everyday budgets such as fuel. Every item is listed on the Money check page. Tap Done on anything that is already paid and it stops counting. Things on the plan that Zilch is paying for only count for the part Zilch takes from the bank. Presents count as bought once they are ticked in the Christmas list, or show on the bank as shopping.'],
   spare: ['Spare', 'In the bank, minus still to go out. It is the money left over once the whole plan for this pay month is covered. If it says “Short by”, the plan needs more money than the account has.'],
   daily: ['You can spend this a day', 'Take what is in the bank, take off the bills and Zilch still to come, and share the rest evenly over the days until payday. It is for everything day to day: food, fuel, takeaways and treats. Spend less than this each day and the money lasts.'],
   week: ['This week\'s money', 'The daily figure times the days left this week (weeks run Friday to Thursday, like the food shop). Thinking in weeks is easier than a whole month: when this week\'s money is gone, wait for Friday.'],
@@ -7254,6 +7264,17 @@ function zlPays(it) {
 /* a Zilch purchase marked "counts as money in" (it paid for something already on the sheet, like a food shop or presents)
    adds its price to that pay month's money in; its repayments still come out in the months Zilch takes them */
 const zlIsIn = it => it.inc && it.mode !== 'set' && Number(it.a) > 0;
+/* things already on the Spreadsheet that Zilch is paying for in a pay month: their full price, and the part of it Zilch takes from the bank that month.
+   It is a purchase marked "counts as money in", or typed-in payments that say what they covered (cover), or failing those a money-in line called "Paid with Zilch". Money check uses it */
+function zlCover(ym) {
+  let price = 0, typed = 0, share = 0; const inYm = it => zlPays(it).filter(x => x.ym === ym).reduce((s, x) => s + x.a, 0);
+  (ZL().items || []).forEach(it => {
+    if (zlIsIn(it)) { if (payYm(it.d || today()) === ym) { price += Number(it.a); share += inYm(it); } }
+    else if (it.mode === 'set' && Number(it.cover) > 0 && zlPays(it).map(x => x.ym).sort()[0] === ym) { typed += Number(it.cover); share += inYm(it); }
+  });
+  if (!typed) { const d = S.bsheet[ym]; typed = d ? (d.inc || []).filter(bsOn).filter(x => /paid (with|by|on) zilch/i.test(x.n || '')).reduce((s, x) => s + (Number(x.a) || 0), 0) : 0; }
+  return { price: Math.round((price + typed) * 100) / 100, share: Math.round(share * 100) / 100 };
+}
 function zlInMonth(ym) { return Math.round((ZL().items || []).filter(it => zlIsIn(it) && payYm(it.d || today()) === ym).reduce((s, it) => s + Number(it.a), 0) * 100) / 100; }
 function zlMonth(ym) {
   const rows = []; (ZL().items || []).forEach(it => zlPays(it).forEach(x => { if (x.ym === ym) rows.push({ it, a: x.a, d: x.d || null }); }));
@@ -7309,13 +7330,13 @@ function zlForm(id, preset) {
   openSheet(id ? it.n : 'Add something on Zilch', sel('zlW', 'Whose Zilch', it.who, [['chris', 'Chris'], ['viki', 'Viki']]) + fld('zlN', 'What', it.n || '', 'text', 'placeholder="e.g. Car work, sofa, Amazon"')
     + sel('zlMode', 'Payments', it.mode, [['auto', 'Work them out (a new purchase)'], ['set', 'Type them in (already set)']])
     + `<div id="zlAuto" ${it.mode === 'set' ? 'hidden' : ''}><div class="fields2">${fld('zlAmt', 'Price (£)', it.a ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}${fld('zlD', 'Bought on', it.d || today(), 'date')}</div>${sel('zlP', "How it's paid", it.plan || 'x', [['x', 'Zilch decides (under £75: 6 weeks, else 3 months)'], ['6w', 'Over 6 weeks (every 2 weeks)'], ['3m', 'Over 3 months (monthly, with a fee)']])}${fld('zlF', 'Monthly fee on 3-month plans (% of the price)', it.fee ?? zs().feePct, 'number', 'step="0.1" min="0" inputmode="decimal"')}<p class="note" id="zlHint"></p><label class="toggle"><input type="checkbox" id="zlIn" ${it.inc ? 'checked' : ''}> It paid for something already on the Spreadsheet (food shop, presents, a bill), so count it as money in that month</label></div>`
-    + `<div id="zlSet" ${it.mode === 'set' ? '' : 'hidden'}><p class="note" style="margin-top:0">Each payment still to come, and the pay month it comes out of. Leave spare rows empty.</p>${setBox}</div>`
+    + `<div id="zlSet" ${it.mode === 'set' ? '' : 'hidden'}><p class="note" style="margin-top:0">Each payment still to come, and the pay month it comes out of. Leave spare rows empty.</p>${setBox}${fld('zlCov', 'If it paid for things already on the Spreadsheet (food, fuel, a bill), their full price (£)', it.cover ?? '', 'number', 'step="0.01" min="0" inputmode="decimal"')}</div>`
     + fld('zlNote', 'Note', it.note || '', 'text', 'placeholder="Optional"'), async () => {
     const n = v('zlN').trim(); if (!n) throw new Error('Say what it was');
     const x = { id: it.id || uid('zl'), who: v('zlW'), n, mode: v('zlMode') };
     if (x.mode === 'auto') { const a = num(v('zlAmt')); if (!a) throw new Error('Put in the price'); x.a = a; x.d = v('zlD') || today(); const f = num(v('zlF')); if (f !== null && f !== zs().feePct) x.fee = f; if (v('zlP') !== 'x') x.plan = v('zlP'); if ($('#zlIn') && $('#zlIn').checked) x.inc = true;
       const lim = zLimit(x.who), use = zlInUse(x.who, payYm(x.d), x.id); if (use + a > lim + 0.5 && !confirm(`${ZWHO[x.who]}'s Zilch limit is ${money(lim, 0)} and ${money(use, 0)} of it is still in use then (the limit only frees once a whole purchase is paid off). ${money(use + a - lim, 0)} of this would be over, and Zilch takes that on the day. Save anyway?`)) throw new Error('Not saved'); }
-    else { x.pays = rows.map((_, i) => ({ ym: v(`zlM${i}`), a: num(v(`zlA${i}`)) })).filter(p => /^\d{4}-\d\d$/.test(p.ym) && p.a).sort((a, b) => a.ym < b.ym ? -1 : 1); if (!x.pays.length) throw new Error('Add at least one payment'); }
+    else { x.pays = rows.map((_, i) => ({ ym: v(`zlM${i}`), a: num(v(`zlA${i}`)) })).filter(p => /^\d{4}-\d\d$/.test(p.ym) && p.a).sort((a, b) => a.ym < b.ym ? -1 : 1); if (!x.pays.length) throw new Error('Add at least one payment'); const cv = num(v('zlCov')); if (cv > 0) x.cover = cv; }
     if (v('zlNote').trim()) x.note = v('zlNote').trim();
     const items = [...(Z.items || [])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
     await put('state/zilch', { ...Z, items });
