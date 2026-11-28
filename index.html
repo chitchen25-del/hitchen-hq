@@ -6237,7 +6237,7 @@ function mcMonth(ym) {
   fixed.filter(f => f.paid == null && !f.spec).forEach(f => { for (const b of Object.values(buckets)) { if (b.planned > 0) continue; const i = b.rows.findIndex(r => Math.abs(r.out - f.planned) < 0.01); if (i >= 0) { const r = b.rows.splice(i, 1)[0]; b.spent -= r.out; f.paid = r.out; f.on = r.date; f.who = payeeName(r); break; } } });
   /* things on the plan that Zilch is paying for (zlCover): the bank only sees Zilch's share at the till, and the Zilch repayments line already holds that share, so a till payment counts as that much of it taken */
   const zc = zlCover(ym), zTill = pool.filter(r => r.z && r.cat !== 'Zilch repayments' && r.cat !== 'Zilch fees' && !/^membership|snooze/i.test(String(r.m).trim())), zTaken = zTill.reduce((s, r) => s + r.out, 0);
-  if (zc.share > 0) buckets.zilch.spent += Math.min(zc.share, zTill.filter(r => r.bk !== 'zilch').reduce((s, r) => s + r.out, 0));
+  if (zc.share + zc.till > 0) buckets.zilch.spent += Math.min(zc.share + zc.till, zTill.filter(r => r.bk !== 'zilch').reduce((s, r) => s + r.out, 0));
   /* what the family has ticked by hand: 'done' = paid or not happening, 'due' = still to pay */
   const marks = ((S.bank || {}).done || {})[ym] || {}, t0 = today(), early = daysBetween(from, t0) <= 14;
   fixed.forEach(f => { f.key = 'f:' + f.n.toLowerCase(); const mk = marks[f.key];
@@ -6257,7 +6257,7 @@ function mcMonth(ym) {
   const pots = r2(all.filter(r => r.cat === 'Between our accounts' && r.to === 'Other Nationwide account').reduce((s, r) => s + r.out - r.in, 0));
   const todo = [...fixed.filter(f => f.left > 0).map(f => ({ key: f.key, n: f.n, a: f.left, due: f.due, hard: true, why: f.due ? `Due ${dayShort(f.due)}` : 'Not seen on the bank yet' })), ...budgets.filter(b => b.todo > 0.5).map(b => ({ key: b.key, n: b.n, a: b.todo, why: b.why, hard: b.k === 'zilch' || b.k === 'gifts' || LUMP.includes(b.k) }))];
   /* the rest of what Zilch is paying for never leaves the bank this month, so it comes off what is still to go out (never more than the budgets still have to come) */
-  const zf = zc.share > 0 && zc.price > 0 ? zc.share / zc.price : zs().upfront / 100, zLeft = zc.price > 0.5 ? r2(Math.max(0, Math.min(zc.price - zTaken / (zf || 0.25), budgets.filter(b => b.k !== 'zilch').reduce((s, b) => s + b.todo, 0)))) : 0;
+  const zf = zc.share > 0 && zc.price > 0 ? zc.share / zc.price : zs().upfront / 100, zLeft = zc.price > 0.5 ? r2(Math.max(0, Math.min(zc.price - Math.max(0, zTaken - zc.till) / (zf || 0.25), budgets.filter(b => b.k !== 'zilch').reduce((s, b) => s + b.todo, 0)))) : 0;
   const stillOut = r2(todo.reduce((s, x) => s + x.a, 0) - zLeft);
   const over = r2(budgets.reduce((s, b) => s + b.over, 0)), notPlanned = r2(unplanned.reduce((s, b) => s + b.spent, 0)), extraBills = r2(fixed.filter(f => f.st === 'diff').reduce((s, f) => s + Math.max(0, f.paid - f.planned), 0));
   const M = { ym, from, to, sTo, bal, fixed, budgets, todo, unplanned, pots, stillOut, over, notPlanned, extraBills, overspend: r2(over + notPlanned + extraBills), hasBank: all.length > 0, zcover: zc.price > 0.5 ? { price: zc.price, share: zc.share, taken: r2(zTaken), left: zLeft } : null };
@@ -7273,7 +7273,9 @@ function zlCover(ym) {
     else if (it.mode === 'set' && Number(it.cover) > 0 && zlPays(it).map(x => x.ym).sort()[0] === ym) { typed += Number(it.cover); share += inYm(it); }
   });
   if (!typed) { const d = S.bsheet[ym]; typed = d ? (d.inc || []).filter(bsOn).filter(x => /paid (with|by|on) zilch/i.test(x.n || '')).reduce((s, x) => s + (Number(x.a) || 0), 0) : 0; }
-  return { price: Math.round((price + typed) * 100) / 100, share: Math.round(share * 100) / 100 };
+  /* other Zilch purchases made this pay month: what Zilch takes on the day */
+  const till = (ZL().items || []).filter(it => it.mode !== 'set' && !zlIsIn(it) && Number(it.a) > 0 && payYm(it.d || today()) === ym).reduce((s, it) => { const f = zlPays(it)[0]; return s + (f && f.ym === ym ? f.a : 0); }, 0);
+  return { price: Math.round((price + typed) * 100) / 100, share: Math.round(share * 100) / 100, till: Math.round(till * 100) / 100 };
 }
 function zlInMonth(ym) { return Math.round((ZL().items || []).filter(it => zlIsIn(it) && payYm(it.d || today()) === ym).reduce((s, it) => s + Number(it.a), 0) * 100) / 100; }
 function zlMonth(ym) {
@@ -7337,7 +7339,7 @@ function zlForm(id, preset) {
     if (x.mode === 'auto') { const a = num(v('zlAmt')); if (!a) throw new Error('Put in the price'); x.a = a; x.d = v('zlD') || today(); const f = num(v('zlF')); if (f !== null && f !== zs().feePct) x.fee = f; if (v('zlP') !== 'x') x.plan = v('zlP'); if ($('#zlIn') && $('#zlIn').checked) x.inc = true;
       const lim = zLimit(x.who), use = zlInUse(x.who, payYm(x.d), x.id); if (use + a > lim + 0.5 && !confirm(`${ZWHO[x.who]}'s Zilch limit is ${money(lim, 0)} and ${money(use, 0)} of it is still in use then (the limit only frees once a whole purchase is paid off). ${money(use + a - lim, 0)} of this would be over, and Zilch takes that on the day. Save anyway?`)) throw new Error('Not saved'); }
     else { x.pays = rows.map((_, i) => ({ ym: v(`zlM${i}`), a: num(v(`zlA${i}`)) })).filter(p => /^\d{4}-\d\d$/.test(p.ym) && p.a).sort((a, b) => a.ym < b.ym ? -1 : 1); if (!x.pays.length) throw new Error('Add at least one payment'); const cv = num(v('zlCov')); if (cv > 0) x.cover = cv; }
-    if (v('zlNote').trim()) x.note = v('zlNote').trim();
+    if (v('zlNote').trim()) x.note = v('zlNote').trim(); if (it.buy) x.buy = it.buy;
     const items = [...(Z.items || [])], i = items.findIndex(y => y.id === x.id); if (i >= 0) items[i] = x; else items.push(x);
     await put('state/zilch', { ...Z, items });
   }, id ? { onDelete: async () => { await put('state/zilch', { ...Z, items: (Z.items || []).filter(y => y.id !== id) }); } } : {});
@@ -8859,12 +8861,13 @@ const BUY_COVER = {
   spread: ['🧺', 'Adjust the remaining monthly shops'],
   savings: ['🏦', 'Take it out of savings'],
   food: ['🛒', 'Take it off the next food shop'],
+  zilch: ['💳', 'Put it on Zilch'],
   planned: ['✅', 'It was already in the budget'],
   spare: ['💷', 'Use this month\'s spare money'],
   pot: ['🏝️', 'Take it from the holiday pot'],
 };
 const BUY_OLD = ['spare', 'pot']; // older choices: still shown on purchases that used them, not offered for new ones
-const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings']; // covered outside the month's budget, so the Spreadsheet doesn't change
+const BUY_ASIDE = ['pot', 'planned', 'buffer', 'savings', 'zilch']; // covered outside the month's budget, so the Spreadsheet doesn't change (one on Zilch shows as its Zilch repayments instead)
 /* purchases in a pay month taken from the buffer or from savings (the Year plan takes them off those) */
 const buysFrom = (ym, cover) => liveBuys().filter(b => b.ym === ym && b.cover === cover);
 /* weekly food shops on rows marked fri: a shop every Friday from the 25th (or the first Friday after it) up to the next month's 24th, wherever payday lands */
@@ -8912,6 +8915,7 @@ const daysToPay = () => { const t = today(); let pd = payday(payCur()); if (pd <
 function coverLine(b) {
   if ((b.cover === 'food' || b.cover === 'spread') && (b.cuts || []).length > 1 && b.cuts.every(c => Math.abs(c.a - b.cuts[0].a) < .02)) return `${m2(b.cuts[0].a)} off each of the next ${b.cuts.length} food shops${b.extra ? `, ${m2(b.extra)} from spare` : ''}`;
   if (b.cover === 'food' || b.cover === 'spread') { const parts = (b.cuts || []).map(c => { const s = shopSlots(c.ym)[c.slot]; return s ? `${m2(c.a)} off the ${s.n.toLowerCase()}${c.ym !== b.ym ? ` (${monShort(c.ym)})` : ''}` : ''; }).filter(Boolean); return parts.join(', ') + (b.extra ? `${parts.length ? ', ' : ''}${m2(b.extra)} from spare` : '') || 'From spare'; }
+  if (b.cover === 'zilch') { const it = (ZL().items || []).find(x => x.id === b.zl), ps = it ? zlPays(it) : []; return `On ${ZWHO[b.zwho] || 'Chris'}'s Zilch${ps.length > 1 ? `: ${m2(ps[0].a)} on the day, ${m2(ps.slice(1).reduce((s, x) => s + x.a, 0))} after` : ''}`; }
   return { spare: 'From this month\'s spare', pot: 'From the holiday pot', planned: 'Already in the budget', buffer: 'Out of the buffer', savings: 'Out of savings' }[b.cover] || '';
 }
 
@@ -8946,6 +8950,9 @@ function buyForm(id, preset) {
   const opts = () => { const a = num(v('byA')) || 0, cur = payCur(), doc = S.bsheet[cur], left = doc ? bsTotals(doc, cur).left + (b.id && !BUY_ASIDE.includes(b.cover) ? (Number(b.a) || 0) - (b.cuts || []).filter(c => c.ym === cur).reduce((s, c) => s + c.a, 0) : 0) : 0;
     const C = ypCalc(), mine = k => b.id && b.cover === k ? Number(b.a) || 0 : 0, bufNow = C ? C.nowBuf + mine('buffer') : null, savNow = C ? C.now + mine('savings') : null;
     const desc = k => { if (k === 'buffer' && bufNow == null) return 'Set up the Year plan first'; if (k === 'savings' && savNow == null) return 'Set up the Year plan first';
+      if (k === 'zilch') { const w = v('byZ') || b.zwho || 'chris', d = v('byD') || today(); if (!a) return 'A quarter on the day, the rest in three payments';
+        const zp = zilchPlan(a, { avail: zLimit(w), start: d }), free = Math.max(0, zLimit(w) - zlInUse(w, payYm(d), b.zl)); if (!zp) return '';
+        return `${money(zp.upfront, 2)} on the day, then three ${zp.kind === '3m' ? 'monthly payments' : 'payments two weeks apart'} of ${money(zp.pays[1].amount, 2)}${zp.fee ? `, ${money(zp.fee, 2)} in fees` : ''}.${a > free + 0.5 ? ` Only ${money(free, 0)} of ${ZWHO[w]}'s limit is free, so ${money(a - free, 0)} more is taken on the day` : ''}`; }
       if (!a) return { food: 'Like you normally do', spread: 'A little off each shop left this month', spare: `${money(left, 0)} spare this month`, pot: `${money(potBal() + (b.cover === 'pot' ? Number(b.a) || 0 : 0), 0)} in the pot`, planned: 'Nothing changes', buffer: `${money(bufNow, 0)} in the buffer now`, savings: `${money(savNow, 0)} saved now` }[k];
       if (k === 'buffer') return bufNow - a >= 0 ? `Buffer goes from ${money(bufNow, 0)} to ${money(bufNow - a, 0)}. Savings don't change` : `Only ${money(bufNow, 0)} in the buffer, so it would be ${money(a - bufNow, 0)} under`;
       if (k === 'savings') return `Savings go from ${money(savNow, 0)} to ${money(savNow - a, 0)}. Move ${money(a, 2)} from savings to the main account`;
@@ -8955,18 +8962,25 @@ function buyForm(id, preset) {
       return 'Nothing changes'; };
     return Object.entries(BUY_COVER).filter(([k]) => !BUY_OLD.includes(k) || b.cover === k).map(([k, [ic, lbl]]) => `<button type="button" class="bc ${v('byC') === k ? 'on' : ''}" data-act="buyc" data-v="${k}" aria-pressed="${v('byC') === k}"><span class="bc-i">${ic}</span><span class="grow"><b>${lbl}</b><small>${esc(desc(k))}</small></span></button>`).join(''); };
   openSheet(id ? (b.n || 'Purchase') : 'Add a purchase', `<div class="zinput"><span>£</span><input id="byA" name="byA" inputmode="decimal" placeholder="0" value="${b.a ?? ''}" aria-label="How much"></div>` + fld('byN', 'What was it', b.n || '', 'text', 'placeholder="e.g. School trip, trainers, takeaway"') + fld('byD', 'When', b.d, 'date') +
-    `<input type="hidden" id="byC" value="${esc(b.cover)}"><div class="field"><label>How shall we cover it?</label><div class="bc-list" id="byOpts"></div></div>`, async () => {
+    `<input type="hidden" id="byC" value="${esc(b.cover)}"><div class="field"><label>How shall we cover it?</label><div class="bc-list" id="byOpts"></div></div><div id="byZw" ${b.cover === 'zilch' ? '' : 'hidden'}>${sel('byZ', 'Whose Zilch', b.zwho || 'chris', [['chris', 'Chris'], ['viki', 'Viki']])}</div>`, async () => {
     const a = num(v('byA')), n = v('byN').trim(), cover = v('byC'), d = v('byD') || today(); if (!a || a <= 0) throw new Error('Enter how much it was');
     const twin = liveBuys().find(y => y.id !== b.id && Math.abs((Number(y.a) || 0) - a) < 0.01 && Math.abs(daysBetween(y.d || d, d)) <= 2);
     if (twin && !confirm(`There's already ${money(a, 2)} for “${twin.n}” on ${shortDate(twin.d)}. Is this a different purchase? OK saves it, Cancel goes back.`)) throw new Error('Not saved: it looks like it\'s already in');
     const x = { d, a, n: n || 'Purchase', ym: payYm(d), cover, ...(twin ? { ok: true } : {}) }; if (cover === 'food' || cover === 'spread') Object.assign(x, planCuts(a, cover, b.id)); else { x.cuts = []; x.extra = 0; }
     if (x.extra) x.extra = Math.round(x.extra * 100) / 100;
-    const bid = b.id || uid('by'); await put(`buys/${bid}`, x); if (preset && preset.back === 'bank') setTimeout(() => bankForm(), 400);
+    const bid = b.id || uid('by');
+    /* on Zilch: the purchase becomes a Zilch purchase too, so its payments land in the months Zilch takes them; changing or deleting the purchase keeps the two in step */
+    { const Z = ZL(), old = b.zl ? (Z.items || []).find(y => y.id === b.zl) : null; let items = (Z.items || []).filter(y => y.id !== b.zl);
+      if (cover === 'zilch') { const w = v('byZ') || 'chris', zid = b.zl || uid('zl'), lim = zLimit(w), use = zlInUse(w, payYm(d), zid);
+        if (use + a > lim + 0.5 && !confirm(`${ZWHO[w]}'s Zilch limit is ${money(lim, 0)} and ${money(use, 0)} of it is still in use then (the limit only frees once a whole purchase is paid off). ${money(use + a - lim, 0)} of this would be over, and Zilch takes that on the day. Save anyway?`)) throw new Error('Not saved');
+        x.zl = zid; x.zwho = w; items = [...items, { ...(old && old.mode === 'auto' ? old : {}), id: zid, who: w, n: x.n, mode: 'auto', a, d, buy: bid }]; }
+      if (cover === 'zilch' || old) await put('state/zilch', { ...Z, items }); }
+    await put(`buys/${bid}`, x); if (preset && preset.back === 'bank') setTimeout(() => bankForm(), 400);
     const es = potEntries().filter(e => e.buy !== bid); if (cover === 'pot') es.push({ id: uid('pe'), d, a: -a, n: `Covered ${x.n}`, buy: bid }); if (es.length !== potEntries().length || cover === 'pot') await savePot(es);
-    if (cover === 'savings') window.__toastAfter = `Move ${money(a, 2)} from savings to the main account`; else if (cover === 'buffer') window.__toastAfter = `Taken out of the buffer`;
-  }, id ? { onDelete: async () => { await remove(`buys/${id}`); if (potEntries().some(e => e.buy === id)) await savePot(potEntries().filter(e => e.buy !== id)); } } : {});
+    if (cover === 'savings') window.__toastAfter = `Move ${money(a, 2)} from savings to the main account`; else if (cover === 'buffer') window.__toastAfter = `Taken out of the buffer`; else if (cover === 'zilch') window.__toastAfter = `Added to ${ZWHO[x.zwho]}'s Zilch`;
+  }, id ? { onDelete: async () => { await remove(`buys/${id}`); if (potEntries().some(e => e.buy === id)) await savePot(potEntries().filter(e => e.buy !== id)); const Z = ZL(); if (b.zl && (Z.items || []).some(y => y.id === b.zl)) await put('state/zilch', { ...Z, items: Z.items.filter(y => y.id !== b.zl) }); } } : {});
   const draw = () => { const o = $('#byOpts'); if (o) o.innerHTML = opts(); };
-  $('#sheetForm').addEventListener('input', e => { if (e.target.id === 'byA') draw(); }); draw(); setTimeout(() => { const i = $('#byA'); if (i && !id) i.focus(); }, 60);
+  $('#sheetForm').addEventListener('input', e => { if (e.target.id === 'byA' || e.target.id === 'byD') draw(); }); $('#sheetForm').addEventListener('change', e => { if (e.target.id === 'byZ' || e.target.id === 'byD') draw(); }); draw(); setTimeout(() => { const i = $('#byA'); if (i && !id) i.focus(); }, 60);
 }
 function shopDoneForm(ym, slot) {
   const s = shopSlots(ym)[slot]; if (!s) return; const d = shopDone(ym, slot), tg = shopTarget(s);
@@ -10081,7 +10095,7 @@ document.addEventListener('click', async e => {
   if (a==='qbuy') { closeSheet(); return buyForm(); }
   if (a==='buyadd') return buyForm();
   if (a==='buyedit') return buyForm(el.dataset.id);
-  if (a==='buyc') { const h = $('#byC'); if (h) h.value = el.dataset.v; const o = $('#byOpts'); if (o) { o.querySelectorAll('.bc').forEach(b => { const on = b.dataset.v === el.dataset.v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); } return; }
+  if (a==='buyc') { const h = $('#byC'); if (h) h.value = el.dataset.v; const o = $('#byOpts'); if (o) { o.querySelectorAll('.bc').forEach(b => { const on = b.dataset.v === el.dataset.v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); } const zw = $('#byZw'); if (zw) zw.hidden = el.dataset.v !== 'zilch'; return; }
   if (a==='shopdone') return shopDoneForm(el.dataset.ym, Number(el.dataset.slot));
   if (a==='qfuel') { closeSheet(); return fuelForm(); }
   if (a==='qbill') { closeSheet(); return billForm(); }
